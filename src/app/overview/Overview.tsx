@@ -89,7 +89,7 @@ const Overview = () => {
         animate="animate"
         variants={stagger}
       >
-        <section className="container pb-24 pt-32">
+        <section className="container pb-16 pt-32 md:pb-24">
           <div className="mx-auto mb-16 max-w-3xl text-center">
             <motion.h1
               className="mb-6 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-3xl font-bold text-transparent md:text-4xl"
@@ -141,9 +141,9 @@ const Overview = () => {
                 key={index}
                 className="group transition-transform duration-300 hover:-translate-y-1"
               >
-                <CardContent className="pt-6">
+                <CardContent className="p-4 pt-4 md:pt-6">
                   <div
-                    className={`mb-4 w-fit rounded-lg border p-3 transition-transform duration-300 group-hover:scale-110`}
+                    className={`mb-2 w-fit rounded-lg border p-2 transition-transform duration-300 group-hover:scale-110 md:mb-4 md:p-3`}
                   >
                     {cloneElement(feature.icon, {
                       className: "size-4",
