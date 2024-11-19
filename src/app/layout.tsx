@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
-import Footer from "@/components/footer";
+import Footer from "@/components/footer/footer";
 
 // Google Font
 const inter = Inter({
@@ -13,9 +13,9 @@ const inter = Inter({
 
 // Metadata
 export const metadata: Metadata = {
-  title: "TaskFlow - Simplify Your Workflow",
+  title: "KanbanFlow",
   description:
-    "TaskFlow is a modern Kanban app that helps you manage tasks, organize projects, and boost productivity with ease.",
+    "KanbanFlow is a modern Kanban app that helps you manage tasks, organize projects, and boost productivity with ease.",
 };
 
 export default function RootLayout({

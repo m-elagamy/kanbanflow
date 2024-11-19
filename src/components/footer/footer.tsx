@@ -1,20 +1,7 @@
-import { Github, Globe } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
+import { links } from "./data";
 
 const Footer = () => {
-  const links = [
-    {
-      href: "https://agamy.netlify.app",
-      icon: <Globe />,
-      label: "Portfolio",
-    },
-    {
-      href: "https://github.com/Mahmoud-Elagamy/kanban-app",
-      icon: <Github />,
-      label: "GitHub",
-    },
-  ];
-
   return (
     <footer className="border-t py-8 text-center">
       <div className="container">
@@ -23,22 +10,10 @@ const Footer = () => {
             <p className="text-sm text-muted-foreground">
               © 2024 KanbanFlow. All rights reserved.
             </p>
-            <p className="text-xs text-muted-foreground">
-              Designed and developed by{" "}
-              <a
-                href="https://www.linkedin.com/in/mahmoudelagamy/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline underline-offset-4 transition-colors hover:text-primary"
-              >
-                Mahmoud Elagamy
-              </a>
-              .
-            </p>
           </div>
           <div className="flex items-center justify-center gap-2">
-            {links.map((link, index) => (
-              <div key={index}>
+            {links.map((link) => (
+              <div key={link.label}>
                 <Button variant="link" size="sm" asChild>
                   <a href={link.href} target="_blank" rel="noopener noreferrer">
                     {link.icon}

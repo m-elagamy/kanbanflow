@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Kanban } from "lucide-react";
@@ -9,7 +7,8 @@ const KanbanLogo = () => {
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      whileHover={{ scale: 1.05 }}
+      whileHover={{ scale: 1.03 }}
+      transition={{ type: "spring", stiffness: 250, damping: 3 }}
     >
       <Link
         href="/"
@@ -17,7 +16,7 @@ const KanbanLogo = () => {
         aria-label="Go to KanbanFlow homepage"
       >
         <motion.div
-          className="grid size-6 rotate-45 transform place-content-center rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 md:size-8"
+          className={`grid size-6 rotate-45 transform place-content-center rounded-lg bg-gradient-to-r from-[#3b4a56] to-[#4A90E2] md:size-8`}
           animate={{
             rotate: 45,
             transition: { type: "spring", stiffness: 250, damping: 3 },
@@ -26,7 +25,9 @@ const KanbanLogo = () => {
           <Kanban className="size-5 -rotate-45 text-white md:size-6" />
         </motion.div>
 
-        <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-xl font-bold -tracking-wide text-transparent md:text-2xl">
+        <span
+          className={`bg-gradient-to-r from-[#3b4a56] to-[#4A90E2] bg-clip-text text-xl font-bold -tracking-wide text-transparent md:text-2xl`}
+        >
           KanbanFlow
         </span>
       </Link>
