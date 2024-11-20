@@ -2,13 +2,15 @@ import { Button } from "../ui/button";
 import { links } from "./data";
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="border-t py-8 text-center">
       <div className="container">
         <div className="flex flex-col justify-center gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm text-muted-foreground">
-              © 2024 KanbanFlow. All rights reserved.
+              © {currentYear} KanbanFlow. All rights reserved.
             </p>
           </div>
           <div className="flex items-center justify-center gap-2">
