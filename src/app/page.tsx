@@ -1,7 +1,13 @@
-import Overview from "./overview/Overview";
+import Footer from "@/components/footer/footer";
+import Overview from "../components/overview/Overview";
 
 const Home = () => {
-  return <Overview />;
+  return (
+    <>
+      <Overview />
+      <Footer />
+    </>
+  );
 };
 
 export default Home;

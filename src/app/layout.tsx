@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
-import Footer from "@/components/footer/footer";
 import Header from "@/components/header/header";
 
 // Google Font
@@ -37,7 +36,6 @@ export default function RootLayout({
         >
           <Header />
           <main>{children}</main>
-          <Footer />
         </ThemeProvider>
       </body>
     </html>

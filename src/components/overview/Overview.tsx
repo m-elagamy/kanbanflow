@@ -11,16 +11,11 @@ import { features } from "./data";
 
 const Overview = () => {
   return (
-    <motion.main
-      className="min-h-dvh"
-      initial="initial"
-      animate="animate"
-      variants={stagger}
-    >
-      <section className="container pb-16 pt-32 md:pb-24">
+    <motion.section initial="initial" animate="animate" variants={stagger}>
+      <div className="container pb-16 pt-32 md:pb-24">
         <div className="mx-auto mb-16 max-w-3xl text-center">
           <motion.h1
-            className="mb-6 bg-gradient-to-r from-[#4A90E2] via-[#3b4a56] to-[#667eea] bg-clip-text text-3xl font-bold text-transparent md:text-4xl"
+            className="mb-6 bg-gradient-to-r from-[#5A6A78] via-[#4D8BA8] to-[#5FAFFF] bg-clip-text text-3xl font-bold text-transparent md:text-4xl"
             variants={fadeIn}
           >
             Streamline Your Workflow
@@ -29,22 +24,23 @@ const Overview = () => {
             className="mb-8 text-base text-muted-foreground md:text-lg"
             variants={fadeIn}
           >
-            A Kanban board built with Next.js and modern web technologies,
-            offering seamless task management with real-time updates and smooth
-            interactions.
+            Take control of your projects and achieve more with ease! KanbanFlow
+            helps you manage tasks, organize projects, and boost productivity
+            with real-time updates.
           </motion.p>
           <motion.div className="flex justify-center gap-4" variants={fadeIn}>
             <Button
-              className="group relative bg-gradient-to-r from-[#3b4a56] to-[#4A90E2]"
+              className="group relative bg-gradient-to-r from-[#4F6373] via-[#3F8DA0] to-[#4DA3E8]"
               asChild
             >
               <Link href="/login">
-                <span className="relative z-10 flex items-center gap-2">
+                <span className="relative z-10 flex items-center gap-2 text-sm font-semibold">
                   Get Started
                   <ArrowRight className="transition-transform group-hover:translate-x-1" />
                 </span>
               </Link>
             </Button>
+
             <Button
               variant="outline"
               className="group hover:bg-muted/30"
@@ -60,8 +56,9 @@ const Overview = () => {
           </motion.div>
         </div>
 
+        {/* Features */}
         <motion.div
-          className="grid gap-2 md:grid-cols-2 md:gap-4 lg:grid-cols-3"
+          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
           variants={fadeIn}
         >
           {features.map((feature, index) => (
@@ -71,7 +68,7 @@ const Overview = () => {
             >
               <CardContent className="p-4 pt-4 md:pt-6">
                 <div
-                  className={`mb-2 w-fit rounded-lg border p-2 transition-transform duration-300 group-hover:scale-110 md:mb-4 md:p-3`}
+                  className={`mb-2 w-fit rounded-lg border p-2 transition-transform duration-300 group-hover:scale-110 md:mb-4`}
                 >
                   {cloneElement(feature.icon, {
                     className: "size-4",
@@ -85,8 +82,8 @@ const Overview = () => {
             </Card>
           ))}
         </motion.div>
-      </section>
-    </motion.main>
+      </div>
+    </motion.section>
   );
 };
 

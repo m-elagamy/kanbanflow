@@ -74,6 +74,7 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       height: {
+        "sidebar-wrapper": "calc(100vh - 65px)",
         sidebar: "calc(100vh - 8rem)",
       },
     },

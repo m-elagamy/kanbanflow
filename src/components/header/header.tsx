@@ -7,7 +7,7 @@ const Header = () => {
 
   return (
     <header>
-      <nav className="fixed left-0 right-0 top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
+      <nav className="fixed left-0 right-0 top-0 z-50 border-b bg-background/80 drop-shadow-sm backdrop-blur-sm">
         <div className="container flex h-16 items-center justify-between">
           <KanbanLogo />
           {isAuthenticated && <UserAvatar />}
