@@ -1,10 +1,10 @@
-import Footer from "@/components/footer/footer";
-import Overview from "../components/overview/Overview";
+import Landing from "@/components/landing";
+import Footer from "@/components/layout/footer";
 
 const Home = () => {
   return (
     <>
-      <Overview />
+      <Landing />
       <Footer />
     </>
   );

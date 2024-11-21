@@ -1,6 +1,6 @@
-import KanbanLogo from "@/components/header/components/kanban-logo";
-import NavigationButtons from "@/components/header/components/navigation-buttons";
 import UserAvatar from "./components/user-avatar";
+import KanbanLogo from "./components/kanban-logo";
+import SignInButton from "./components/sign-in-btn";
 
 const Header = () => {
   const isAuthenticated = true;
@@ -11,7 +11,7 @@ const Header = () => {
         <div className="container flex h-16 items-center justify-between">
           <KanbanLogo />
           {isAuthenticated && <UserAvatar />}
-          {!isAuthenticated && <NavigationButtons />}
+          {!isAuthenticated && <SignInButton />}
         </div>
       </nav>
     </header>

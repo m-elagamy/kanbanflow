@@ -19,13 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import AddItemModal from "../components/modals/add-item-modal";
 import useBoardStore from "@/store/useBoardStore";
-
-const priorityColors = {
-  high: "bg-gradient-to-r from-red-500 to-orange-600 dark:from-red-700 dark:to-orange-800 text-white",
-  medium:
-    "bg-gradient-to-r from-amber-400 to-yellow-500 dark:from-amber-600 dark:to-yellow-700 text-black dark:text-white",
-  low: "bg-gradient-to-r from-green-600 to-teal-500 dark:from-green-600 dark:to-teal-700 text-white",
-};
+import TaskCard from "../components/task-card";
 
 export default function AdvancedBoard() {
   const { columns, addColumn, deleteColumn } = useBoardStore();
@@ -85,35 +79,8 @@ export default function AdvancedBoard() {
                     No items
                   </div>
                 ) : (
-                  column.tasks?.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-lg border border-border bg-card p-3 transition-colors hover:bg-accent/25"
-                    >
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-medium">{item.title}</h3>
-                          <Badge
-                            className={`${priorityColors[item.priority as keyof typeof priorityColors]} pointer-events-none rounded-full px-2 text-[0.625rem] uppercase tracking-wider`}
-                          >
-                            {item.priority}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          {item.description}
-                        </p>
-                        {item.tags.length > 0 &&
-                          item.tags.map((tag) => (
-                            <Badge
-                              key={tag}
-                              variant="outline"
-                              className="mr-1 text-xs"
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                      </div>
-                    </div>
+                  column.tasks?.map((task) => (
+                    <TaskCard key={task.id} task={task} />
                   ))
                 )}
               </CardContent>

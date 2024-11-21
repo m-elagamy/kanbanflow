@@ -9,7 +9,7 @@ import Link from "next/link";
 import { fadeIn, stagger } from "@/utils/motion-variants";
 import { features } from "./data";
 
-const Overview = () => {
+const Landing = () => {
   return (
     <motion.section initial="initial" animate="animate" variants={stagger}>
       <div className="container pb-16 pt-32 md:pb-24">
@@ -87,4 +87,4 @@ const Overview = () => {
   );
 };
 
-export default Overview;
+export default Landing;

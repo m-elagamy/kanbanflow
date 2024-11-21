@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { LogIn } from "lucide-react";
 import Link from "next/link";
 
-function NavigationButtons() {
+function SignInButton() {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
       <Button
@@ -22,4 +22,4 @@ function NavigationButtons() {
   );
 }
 
-export default NavigationButtons;
+export default SignInButton;

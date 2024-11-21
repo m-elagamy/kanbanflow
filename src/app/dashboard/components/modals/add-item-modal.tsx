@@ -21,7 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import AddTaskSchema from "@/schemas/task-schema";
 import TaskPriority from "../task-priority";
-import { formatTags } from "../../utils/formatTags";
+import { formatTags } from "../../utils/format-tags";
 import { Textarea } from "@/components/ui/textarea";
 import useBoardStore from "@/store/useBoardStore";
 
