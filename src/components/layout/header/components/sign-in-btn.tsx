@@ -13,7 +13,7 @@ function SignInButton() {
         className="border px-2 hover:bg-accent/30 md:px-4"
         asChild
       >
-        <Link href="/login" className="group flex items-center gap-2">
+        <Link href="/dashboard" className="group flex items-center gap-2">
           <LogIn className="transition-transform group-hover:translate-x-1" />
           Sign In
         </Link>

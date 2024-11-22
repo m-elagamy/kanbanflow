@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import BoardCreationDialog from "./components/modals/board-creation-modal";
+import BoardCreationModal from "./components/modals/board-creation";
 
 const Dashboard = () => {
   return (
@@ -20,7 +20,7 @@ const Dashboard = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <BoardCreationDialog />
+          <BoardCreationModal />
         </CardContent>
       </Card>
     </section>
