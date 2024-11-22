@@ -12,7 +12,7 @@ const Dashboard = () => {
     <section className="grid flex-grow place-content-center">
       <Card className="border-none text-center shadow-none">
         <CardHeader>
-          <CardTitle className="text-xl md:text-2xl">
+          <CardTitle className="text-xl md:text-3xl">
             Welcome to Your Workspace
           </CardTitle>
           <CardDescription>
