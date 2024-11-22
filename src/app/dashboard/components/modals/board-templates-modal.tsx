@@ -65,7 +65,7 @@ const BoardTemplatesDialog = ({
           <DialogTitle className="text-sm md:text-base">
             Setup Your Board Workflow
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs md:text-base">
             Pick a ready-made template to get started quickly and stay
             productive.
           </DialogDescription>
@@ -86,7 +86,7 @@ const BoardTemplatesDialog = ({
                       <CheckCircle2Icon className="text-primary" />
                     )}
                   </div>
-                  <div>
+                  <div className="space-y-2">
                     <h3 className="text-sm font-semibold md:text-base">
                       {template.title}
                     </h3>

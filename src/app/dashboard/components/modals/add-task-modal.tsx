@@ -63,7 +63,7 @@ const AddTaskModal = ({ columnId }: AddTaskModalProps) => {
           <PlusIcon />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="rounded-lg">
         <DialogHeader>
           <DialogTitle>New Task</DialogTitle>
         </DialogHeader>

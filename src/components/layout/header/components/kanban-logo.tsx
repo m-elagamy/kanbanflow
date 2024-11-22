@@ -3,12 +3,15 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Kanban } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const KanbanLogo = () => {
+  const pathName = usePathname();
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
+      className={`${pathName === "/" ? "mx-0" : "mx-auto"} md:mx-0`}
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.03 }}
       transition={{ type: "spring", stiffness: 250, damping: 3 }}
     >
