@@ -24,9 +24,9 @@ export default function AdvancedBoard() {
   const { columns, addColumn, deleteColumn } = useBoardStore();
 
   return (
-    <div className="container flex h-full w-full flex-col overflow-hidden p-0 pt-16">
+    <div className="container relative right-3 flex h-full w-full flex-col overflow-hidden p-0 pb-4 pt-16 md:right-0">
       {/* Header */}
-      <div className="flex items-center justify-between border-b p-4">
+      <div className="flex items-center justify-between py-8">
         <div className="flex items-center gap-2">
           <ListTodoIcon size={20} />
           <h1 className="text-sm font-semibold md:text-base">Project Board</h1>
@@ -45,7 +45,7 @@ export default function AdvancedBoard() {
       </div>
 
       {/* Board Columns */}
-      <div className="flex-grow overflow-x-auto pt-4">
+      <div className="flex-grow overflow-x-auto">
         <div className="flex h-full gap-4">
           {columns.map((column) => (
             <Card
