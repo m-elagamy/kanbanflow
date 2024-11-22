@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import AddTaskModal from "../components/modals/add-task";
+import TaskCreationModal from "../components/modals/task-creation";
 import useBoardStore from "@/store/useBoardStore";
 import TaskCard from "../components/task-card";
 
@@ -57,7 +57,7 @@ export default function AdvancedBoard() {
                   {column.title} <CircleCheckBig size={16} />
                 </CardTitle>
                 <div className="flex items-center gap-1">
-                  <AddTaskModal columnId={column.id} />
+                  <TaskCreationModal columnId={column.id} />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">

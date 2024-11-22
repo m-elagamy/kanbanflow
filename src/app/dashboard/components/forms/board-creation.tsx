@@ -26,7 +26,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Templates data
 const templates = [
   {
     id: "personal",
@@ -111,8 +110,12 @@ const BoardCreationForm = () => {
                   <SelectContent>
                     {templates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>
-                        <p className="font-semibold">{template.title}</p>
-                        <p className={`text-xs text-muted-foreground`}>
+                        <h2 className="text-xs font-semibold md:text-sm">
+                          {template.title}
+                        </h2>
+                        <p
+                          className={`text-[0.625rem] text-muted-foreground md:text-xs`}
+                        >
                           {template.description}
                         </p>
                       </SelectItem>
