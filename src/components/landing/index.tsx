@@ -1,11 +1,12 @@
 "use client";
 
-import { ArrowRight, Eye } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
 import { cloneElement } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { ArrowRight, Eye } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { fadeIn, stagger } from "@/utils/motion-variants";
 import { features } from "./data";
 

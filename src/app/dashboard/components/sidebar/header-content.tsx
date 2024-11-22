@@ -1,9 +1,9 @@
+import { ClipboardPenLine } from "lucide-react";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { ClipboardPenLine } from "lucide-react";
 
 const HeaderContent = () => {
   return (

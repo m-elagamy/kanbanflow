@@ -8,14 +8,14 @@ import {
   FolderPen,
   CircleCheckBig,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import AddTaskModal from "../components/modals/add-task-modal";
 import useBoardStore from "@/store/useBoardStore";
 import TaskCard from "../components/task-card";

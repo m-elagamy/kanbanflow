@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Kanban } from "lucide-react";
-import { usePathname } from "next/navigation";
 
 const KanbanLogo = () => {
   const pathName = usePathname();

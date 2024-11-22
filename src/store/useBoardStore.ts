@@ -1,5 +1,13 @@
 import { create } from "zustand";
-import BoardState from "@/lib/types/board-state";
+import type Column from "@/lib/types/column";
+import type Task from "@/lib/types/task";
+
+type BoardState = {
+  columns: Column[];
+  addTask: (task: Task) => void;
+  addColumn: (column: Column) => void;
+  deleteColumn: (columnId: string) => void;
+};
 
 const useBoardStore = create<BoardState>((set) => ({
   columns: [

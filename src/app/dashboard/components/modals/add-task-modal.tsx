@@ -1,3 +1,9 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { PlusIcon } from "lucide-react";
+
 import {
   Dialog,
   DialogContent,
@@ -5,8 +11,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -15,15 +19,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { PlusIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import AddTaskSchema from "@/schemas/task-schema";
-import TaskPriority from "../task-priority";
-import { formatTags } from "../../utils/format-tags";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import TaskPriority from "../task-priority";
 import useBoardStore from "@/store/useBoardStore";
+import { formatTags } from "../../utils/format-tags";
+import AddTaskSchema from "@/schemas/task-schema";
 
 type AddTaskFormValues = z.infer<typeof AddTaskSchema>;
 
@@ -33,6 +35,7 @@ type AddTaskModalProps = {
 
 const AddTaskModal = ({ columnId }: AddTaskModalProps) => {
   const { addTask } = useBoardStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const form = useForm<AddTaskFormValues>({
     resolver: zodResolver(AddTaskSchema),
@@ -53,11 +56,12 @@ const AddTaskModal = ({ columnId }: AddTaskModalProps) => {
       priority: data.priority,
       tags: formatTags(data.tags),
     });
+    setIsModalOpen(false);
     form.reset();
   };
 
   return (
-    <Dialog>
+    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
           <PlusIcon />
@@ -78,7 +82,10 @@ const AddTaskModal = ({ columnId }: AddTaskModalProps) => {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>What&apos;s the task?</FormLabel>
+                  <FormLabel>
+                    What&apos;s the task?{" "}
+                    <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="e.g., Create a stunning new landing page"
@@ -127,12 +134,7 @@ const AddTaskModal = ({ columnId }: AddTaskModalProps) => {
               name="tags"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    What&apos;s the category?{" "}
-                    <span className="text-xs text-muted-foreground">
-                      (optional)
-                    </span>
-                  </FormLabel>
+                  <FormLabel>What&apos;s the category?</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="e.g., design, development, marketing"

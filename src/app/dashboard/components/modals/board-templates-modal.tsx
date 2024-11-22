@@ -1,12 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle2Icon,
   LayoutTemplateIcon,
@@ -14,9 +6,26 @@ import {
   PlusIcon,
   WorkflowIcon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 
-// Onboarding Templates
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+type BoardTemplatesDialogProps = {
+  isTemplateDialogOpen: boolean;
+  setIsTemplateDialogOpen: (isOpen: boolean) => void;
+  selectedTemplate: string | null;
+  setSelectedTemplate: (templateId: string | null) => void;
+  boardName: string;
+  setIsBoardCreationDialogOpen: (isOpen: boolean) => void;
+};
+
 const onboardingTemplates = [
   {
     id: "personal",
@@ -48,14 +57,7 @@ const BoardTemplatesDialog = ({
   setSelectedTemplate,
   boardName,
   setIsBoardCreationDialogOpen,
-}: {
-  isTemplateDialogOpen: boolean;
-  setIsTemplateDialogOpen: (isOpen: boolean) => void;
-  selectedTemplate: string | null;
-  setSelectedTemplate: (templateId: string | null) => void;
-  boardName: string;
-  setIsBoardCreationDialogOpen: (isOpen: boolean) => void;
-}) => {
+}: BoardTemplatesDialogProps) => {
   const router = useRouter();
 
   return (

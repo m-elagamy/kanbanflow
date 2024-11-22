@@ -14,6 +14,7 @@ const TaskPriority = ({ setPriority }: TaskPriorityProps) => {
       size="sm"
       className="flex-row-reverse justify-end gap-2"
       onValueChange={setPriority}
+      defaultValue={PRIORITY[1]}
     >
       {PRIORITY.map((item) => (
         <ToggleGroupItem value={item} key={item} className="text-xs capitalize">

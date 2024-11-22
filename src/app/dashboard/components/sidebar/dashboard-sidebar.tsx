@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
 
 import {
@@ -13,12 +15,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { usePathname } from "next/navigation";
 import HeaderContent from "./header-content";
-import Link from "next/link";
 
 export function DashboardSidebar() {
-  const pathname = usePathname(); // Get the current route
+  const pathname = usePathname();
 
   const items = [
     {

@@ -64,7 +64,7 @@ const BoardCreationDialog = () => {
           <DialogHeader>
             <DialogTitle>Create New Board</DialogTitle>
             <DialogDescription>
-              Give your board a name and optional description
+              Give your board a name and description
             </DialogDescription>
           </DialogHeader>
 
@@ -75,7 +75,9 @@ const BoardCreationDialog = () => {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Board Name</FormLabel>
+                    <FormLabel>
+                      Board Name <span className="text-destructive">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="e.g., Personal Tasks" {...field} />
                     </FormControl>
@@ -86,13 +88,12 @@ const BoardCreationDialog = () => {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description (Optional)</FormLabel>
+                    <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Organize my daily and work tasks"
