@@ -16,7 +16,7 @@ const Landing = () => {
       <div className="container pb-16 pt-32 md:pb-24">
         <div className="mx-auto mb-16 max-w-3xl text-center">
           <motion.h1
-            className="mb-6 bg-gradient-to-br from-[#111] via-[#333] to-[#555] bg-clip-text text-3xl font-bold text-transparent dark:from-[#fff] dark:via-[#ccc] dark:to-[#a4a4a4] md:text-5xl"
+            className="mb-6 bg-gradient-to-br from-black/80 via-neutral-600 to-neutral-700 bg-clip-text text-3xl font-extrabold text-transparent dark:from-white/80 dark:via-neutral-300 dark:to-neutral-400 md:text-5xl"
             variants={fadeIn}
           >
             Streamline Your Workflow
