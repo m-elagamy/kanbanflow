@@ -9,7 +9,7 @@ import BoardCreationDialog from "./components/modals/board-creation-modal";
 
 const Dashboard = () => {
   return (
-    <section className="grid h-dvh flex-grow place-content-center">
+    <section className="relative right-[10px] grid h-dvh flex-grow place-content-center">
       <Card className="border-none text-center shadow-none">
         <CardHeader>
           <CardTitle className="text-xl md:text-3xl">
