@@ -62,7 +62,9 @@ const BoardTemplatesDialog = ({
     <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
       <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto rounded-xl p-4 md:p-6">
         <DialogHeader>
-          <DialogTitle>Setup Your Board Workflow</DialogTitle>
+          <DialogTitle className="text-sm md:text-base">
+            Setup Your Board Workflow
+          </DialogTitle>
           <DialogDescription>
             Pick a ready-made template to get started quickly and stay
             productive.
@@ -85,12 +87,14 @@ const BoardTemplatesDialog = ({
                     )}
                   </div>
                   <div>
-                    <h3 className="font-semibold">{template.title}</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <h3 className="text-sm font-semibold md:text-base">
+                      {template.title}
+                    </h3>
+                    <p className="text-xs text-muted-foreground md:text-sm">
                       {template.description}
                     </p>
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-xs text-muted-foreground md:text-sm">
                     Columns: {template.columns.length || "Flexible"}
                   </div>
                 </CardContent>
@@ -108,6 +112,7 @@ const BoardTemplatesDialog = ({
                 setIsTemplateDialogOpen(false);
                 router.push(`/dashboard/${boardName}`);
               }}
+              className="gap-1 p-2"
             >
               Create Board
               <PlusIcon />

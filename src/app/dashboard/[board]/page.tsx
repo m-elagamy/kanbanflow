@@ -24,9 +24,9 @@ export default function AdvancedBoard() {
   const { columns, addColumn, deleteColumn } = useBoardStore();
 
   return (
-    <div className="container flex h-full flex-col pt-16">
+    <div className="container flex h-full w-full flex-col overflow-hidden p-0 pt-16">
       {/* Header */}
-      <div className="flex items-center justify-between border-b py-4">
+      <div className="flex items-center justify-between border-b p-4">
         <div className="flex items-center gap-2">
           <ListTodoIcon size={20} />
           <h1 className="text-sm font-semibold md:text-base">Project Board</h1>
@@ -34,7 +34,7 @@ export default function AdvancedBoard() {
 
         <Button
           variant="outline"
-          className="h-7 gap-0 p-1 md:h-8 md:p-3"
+          className="h-7 gap-0 p-1 md:mr-8 md:h-8 md:p-3"
           onClick={() =>
             addColumn({ id: `column-${Date.now()}`, title: "New Column" })
           }
@@ -45,7 +45,7 @@ export default function AdvancedBoard() {
       </div>
 
       {/* Board Columns */}
-      <div className="flex-grow overflow-x-auto py-4">
+      <div className="flex-grow overflow-x-auto pt-4">
         <div className="flex h-full gap-4">
           {columns.map((column) => (
             <Card

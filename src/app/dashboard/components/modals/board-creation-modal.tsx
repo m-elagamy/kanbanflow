@@ -60,7 +60,7 @@ const BoardCreationDialog = () => {
             Create
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="rounded-lg">
           <DialogHeader>
             <DialogTitle>Create New Board</DialogTitle>
             <DialogDescription>
