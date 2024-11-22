@@ -1,21 +1,22 @@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-const priority = ["low", "medium", "high"];
-
-const TaskPriority = ({
-  setPriority,
-}: {
+type TaskPriorityProps = {
   setPriority: (priority: string) => void;
-}) => {
+};
+
+const PRIORITY = ["low", "medium", "high"];
+
+const TaskPriority = ({ setPriority }: TaskPriorityProps) => {
   return (
     <ToggleGroup
       type="single"
       variant="outline"
-      className="flex-row-reverse justify-end"
+      size="sm"
+      className="flex-row-reverse justify-end gap-2"
       onValueChange={setPriority}
     >
-      {priority.map((item) => (
-        <ToggleGroupItem value={item} key={item} className="capitalize">
+      {PRIORITY.map((item) => (
+        <ToggleGroupItem value={item} key={item} className="text-xs capitalize">
           {item}
         </ToggleGroupItem>
       ))}

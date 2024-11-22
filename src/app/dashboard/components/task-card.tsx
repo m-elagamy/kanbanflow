@@ -7,7 +7,7 @@ export default function TaskCard({ task }: { task: Task }) {
     <div className="rounded-lg border border-border bg-card p-3 transition-colors hover:bg-accent/25">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-medium">{task.title}</h3>
+          <h3 className="text-sm font-medium md:text-base">{task.title}</h3>
           <Badge
             className={`${getBadgeStyle(task.priority)} pointer-events-none rounded-full px-2 text-[0.625rem] uppercase tracking-wider`}
           >

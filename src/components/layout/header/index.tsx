@@ -9,7 +9,10 @@ const Header = () => {
     <header>
       <nav className="fixed left-0 right-0 top-0 z-50 border-b bg-background/80 drop-shadow-sm backdrop-blur-sm">
         <div className="container flex h-16 items-center justify-between">
-          <KanbanLogo />
+          <div className="m-auto md:m-0">
+            <KanbanLogo />
+          </div>
+
           {isAuthenticated && <UserAvatar />}
           {!isAuthenticated && <SignInButton />}
         </div>

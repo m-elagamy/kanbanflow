@@ -6,18 +6,17 @@ import {
   MoreVerticalIcon,
   TrashIcon,
   FolderPen,
+  CircleCheckBig,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
-import AddItemModal from "../components/modals/add-item-modal";
+import AddTaskModal from "../components/modals/add-task-modal";
 import useBoardStore from "@/store/useBoardStore";
 import TaskCard from "../components/task-card";
 
@@ -29,18 +28,19 @@ export default function AdvancedBoard() {
       {/* Header */}
       <div className="flex items-center justify-between border-b py-4">
         <div className="flex items-center gap-2">
-          <ListTodoIcon />
-          <h1 className="text-xl font-semibold">Project Board</h1>
+          <ListTodoIcon size={20} />
+          <h1 className="text-sm font-semibold md:text-base">Project Board</h1>
         </div>
 
         <Button
           variant="outline"
-          className="gap-1 px-2"
+          className="h-7 gap-0 p-1 md:h-8 md:p-3"
           onClick={() =>
             addColumn({ id: `column-${Date.now()}`, title: "New Column" })
           }
         >
-          <PlusIcon /> Add Column
+          <PlusIcon className="!size-3" />
+          <span className="text-xs">Add Column</span>
         </Button>
       </div>
 
@@ -48,11 +48,16 @@ export default function AdvancedBoard() {
       <div className="flex-grow overflow-x-auto py-4">
         <div className="flex h-full gap-4">
           {columns.map((column) => (
-            <Card key={column.id} className="h-full w-72">
-              <CardHeader className="flex-row items-center justify-between p-3 pb-0 pt-2">
-                <CardTitle>{column.title}</CardTitle>
+            <Card
+              key={column.id}
+              className="h-full max-h-[650px] w-72 min-w-72 overflow-auto"
+            >
+              <CardHeader className="sticky top-0 flex-row items-center justify-between bg-card/80 p-3 pb-0 pt-2 shadow-sm drop-shadow-sm backdrop-blur-sm">
+                <CardTitle className="flex gap-1 text-sm md:text-base">
+                  {column.title} <CircleCheckBig size={16} />
+                </CardTitle>
                 <div className="flex items-center gap-1">
-                  <AddItemModal columnId={column.id} />
+                  <AddTaskModal columnId={column.id} />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">

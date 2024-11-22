@@ -82,4 +82,8 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  :is(input, textarea)::placeholder {
+    @apply text-xs md:text-sm;
+  }
 }

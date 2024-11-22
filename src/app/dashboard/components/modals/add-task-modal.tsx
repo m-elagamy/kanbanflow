@@ -27,11 +27,11 @@ import useBoardStore from "@/store/useBoardStore";
 
 type AddTaskFormValues = z.infer<typeof AddTaskSchema>;
 
-type AddItemModalProps = {
+type AddTaskModalProps = {
   columnId: string;
 };
 
-const AddItemModal = ({ columnId }: AddItemModalProps) => {
+const AddTaskModal = ({ columnId }: AddTaskModalProps) => {
   const { addTask } = useBoardStore();
 
   const form = useForm<AddTaskFormValues>({
@@ -81,7 +81,7 @@ const AddItemModal = ({ columnId }: AddItemModalProps) => {
                   <FormLabel>What&apos;s the task?</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="E.g., Create a stunning new landing page"
+                      placeholder="e.g., Create a stunning new landing page"
                       {...field}
                     />
                   </FormControl>
@@ -98,8 +98,7 @@ const AddItemModal = ({ columnId }: AddItemModalProps) => {
                   <FormLabel>What needs to be done?</FormLabel>
                   <FormControl>
                     <Textarea
-                      rows={3}
-                      placeholder="E.g., Design a modern, mobile-friendly layout for the homepage"
+                      placeholder="e.g., Design a modern, mobile-friendly layout for the homepage"
                       {...field}
                       className="resize-none"
                     />
@@ -136,7 +135,7 @@ const AddItemModal = ({ columnId }: AddItemModalProps) => {
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="E.g., design, development, marketing"
+                      placeholder="e.g., design, development, marketing"
                       {...field}
                     />
                   </FormControl>
@@ -145,7 +144,7 @@ const AddItemModal = ({ columnId }: AddItemModalProps) => {
               )}
             />
             <div className="text-end">
-              <Button>Add Task</Button>
+              <Button className="p-2 md:p-3">Add Task</Button>
             </div>
           </form>
         </Form>
@@ -154,4 +153,4 @@ const AddItemModal = ({ columnId }: AddItemModalProps) => {
   );
 };
 
-export default AddItemModal;
+export default AddTaskModal;

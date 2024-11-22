@@ -60,11 +60,12 @@ const BoardTemplatesDialog = ({
 
   return (
     <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto rounded-xl p-4 md:p-6">
         <DialogHeader>
           <DialogTitle>Setup Your Board Workflow</DialogTitle>
           <DialogDescription>
-            Choose a template to kickstart your productivity
+            Pick a ready-made template to get started quickly and stay
+            productive.
           </DialogDescription>
         </DialogHeader>
 
@@ -76,15 +77,15 @@ const BoardTemplatesDialog = ({
                 className={`cursor-pointer transition-all hover:border-primary ${selectedTemplate === template.id ? "border-primary ring-2 ring-primary/50" : ""} `}
                 onClick={() => setSelectedTemplate(template.id)}
               >
-                <CardContent className="space-y-4 p-3 pt-6">
+                <CardContent className="space-y-2 p-3 pt-4">
                   <div className="flex items-center justify-between">
-                    <template.icon className="h-8 w-8 text-primary" />
+                    <template.icon className="text-primary" />
                     {selectedTemplate === template.id && (
                       <CheckCircle2Icon className="text-primary" />
                     )}
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">{template.title}</h3>
+                    <h3 className="font-semibold">{template.title}</h3>
                     <p className="text-sm text-muted-foreground">
                       {template.description}
                     </p>

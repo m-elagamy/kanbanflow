@@ -5,7 +5,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider defaultOpen={false}>
       <DashboardSidebar />
-      <SidebarTrigger className="fixed left-2 top-[70px] md:relative" />
+      <SidebarTrigger className="relative left-3 top-5 z-50 md:left-2 md:top-[70px]" />
       {children}
     </SidebarProvider>
   );
