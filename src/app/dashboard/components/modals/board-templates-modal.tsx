@@ -62,7 +62,7 @@ const BoardTemplatesDialog = ({
 
   return (
     <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
-      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto rounded-xl p-4 md:p-6">
+      <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto rounded-xl p-4 md:p-6">
         <DialogHeader>
           <DialogTitle className="text-sm md:text-base">
             Setup Your Board Workflow
