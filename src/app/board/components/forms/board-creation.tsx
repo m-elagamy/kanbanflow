@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { v4 as uuidv4 } from "uuid";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import useBoardStore from "@/store/useBoardStore";
+import type Column from "@/lib/types/column";
 
 const templates = [
   {
@@ -49,6 +52,8 @@ const templates = [
 
 const BoardCreationForm = () => {
   const router = useRouter();
+  const { addBoard } = useBoardStore();
+  const generateUniqueId = () => uuidv4();
 
   const form = useForm<FormData>({
     resolver: zodResolver(boardSchema),
@@ -59,12 +64,40 @@ const BoardCreationForm = () => {
     },
   });
 
+  const addBoardToStore = (board: {
+    title: string;
+    description?: string;
+    columns: Column[];
+  }) => {
+    addBoard({
+      id: generateUniqueId(),
+      title: board.title,
+      description: board.description,
+      columns: board.columns,
+    });
+  };
+
   const onSubmit = (data: FormData) => {
-    const { title } = data;
+    const { title, template, description } = data;
 
-    const encodedTitle = encodeURIComponent(title);
+    const selectedTemplate = templates.find((t) => t.id === template);
 
-    router.push(`/dashboard/${encodedTitle}`);
+    if (selectedTemplate) {
+      const columns = selectedTemplate.columns.map((columnTitle) => ({
+        id: generateUniqueId(), // Generate unique ID for the column
+        title: columnTitle,
+        tasks: [], // Start with an empty task list
+      }));
+
+      const encodedTitle = encodeURIComponent(
+        title.replace(/\s+/g, "-").toLowerCase().trim(),
+      );
+
+      addBoardToStore({ title, description, columns });
+      router.push(`/board/${encodedTitle}`);
+
+      console.log(data);
+    }
   };
 
   return (
@@ -110,7 +143,7 @@ const BoardCreationForm = () => {
                   <SelectContent>
                     {templates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>
-                        <h2 className="text-xs font-semibold md:text-sm">
+                        <h2 className="text-xs font-semibold">
                           {template.title}
                         </h2>
                         <p

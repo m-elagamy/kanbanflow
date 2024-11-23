@@ -3,25 +3,57 @@
 import {
   PlusIcon,
   ListTodoIcon,
-  MoreVerticalIcon,
   TrashIcon,
-  FolderPen,
-  CircleCheckBig,
+  Ellipsis,
+  Settings2,
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import TaskCreationModal from "../components/modals/task-creation";
 import useBoardStore from "@/store/useBoardStore";
 import TaskCard from "../components/task-card";
+import { useParams } from "next/navigation";
+import { v4 as uuidv4 } from "uuid";
 
-export default function AdvancedBoard() {
-  const { columns, addColumn, deleteColumn } = useBoardStore();
+export default function Board() {
+  const params = useParams();
+  const { boards, addColumn, deleteColumn } = useBoardStore();
+  const generateUniqueId = () => uuidv4();
+
+  const currentBoard = boards.find(
+    (board) =>
+      board.title.toLowerCase().trim().replace(/\s+/g, "-") ===
+      params.board?.toString().trim(),
+  );
+
+  const handleAddColumn = () => {
+    if (currentBoard) {
+      addColumn(currentBoard.id, {
+        id: generateUniqueId(),
+        title: "",
+        tasks: [],
+      });
+    }
+  };
+
+  const handleDeleteColumn = (columnId: string) => {
+    if (currentBoard) {
+      deleteColumn(currentBoard.id, columnId);
+    }
+  };
+
+  console.log(currentBoard);
+
+  if (!currentBoard) {
+    return <div>Board not found</div>; //TODO: Handle invalid board routes.
+  }
 
   return (
     <div className="container relative right-3 flex h-full w-full flex-col overflow-hidden p-0 pb-4 pt-16 md:right-0">
@@ -29,15 +61,18 @@ export default function AdvancedBoard() {
       <div className="flex items-center justify-between py-8">
         <div className="flex items-center gap-2">
           <ListTodoIcon size={20} />
-          <h1 className="text-sm font-semibold md:text-base">Project Board</h1>
+          <h1 className="text-sm font-semibold capitalize md:text-base">
+            {params.board?.toString().replace(/-/g, " ")}
+          </h1>
+          <p className="text-xs text-muted-foreground md:text-sm">
+            {currentBoard.description}
+          </p>
         </div>
 
         <Button
           variant="outline"
           className="h-7 gap-0 p-1 md:mr-8 md:h-8 md:p-3"
-          onClick={() =>
-            addColumn({ id: `column-${Date.now()}`, title: "New Column" })
-          }
+          onClick={handleAddColumn}
         >
           <PlusIcon className="!size-3" />
           <span className="text-xs">Add Column</span>
@@ -47,29 +82,30 @@ export default function AdvancedBoard() {
       {/* Board Columns */}
       <div className="flex-grow overflow-x-auto">
         <div className="flex h-full gap-4">
-          {columns.map((column) => (
+          {currentBoard.columns.map((column) => (
             <Card
               key={column.id}
-              className="h-full max-h-[650px] w-72 min-w-72 overflow-auto"
+              className="max-h-[550px] w-72 min-w-72 overflow-auto"
             >
-              <CardHeader className="sticky top-0 flex-row items-center justify-between bg-card/80 p-3 pb-0 pt-2 shadow-sm drop-shadow-sm backdrop-blur-sm">
+              <CardHeader className="sticky top-0 flex-row items-center justify-between border-b bg-card/80 p-3 drop-shadow-sm backdrop-blur-sm">
                 <CardTitle className="flex gap-1 text-sm md:text-base">
-                  {column.title} <CircleCheckBig size={16} />
+                  {column.title}
                 </CardTitle>
                 <div className="flex items-center gap-1">
                   <TaskCreationModal columnId={column.id} />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVerticalIcon className="h-4 w-4" />
+                        <Ellipsis />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuItem>
-                        <FolderPen /> Rename Column
+                        <Settings2 /> Edit Column
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => deleteColumn(column.id)}
+                        onClick={() => handleDeleteColumn(column.id)}
                         className="text-destructive focus:text-destructive"
                       >
                         <TrashIcon /> Delete Column
@@ -81,7 +117,7 @@ export default function AdvancedBoard() {
               <CardContent className="flex-grow space-y-2 overflow-y-auto p-3">
                 {column.tasks?.length === 0 ? (
                   <div className="py-4 text-center text-sm text-muted-foreground">
-                    No items
+                    No tasks
                   </div>
                 ) : (
                   column.tasks?.map((task) => (

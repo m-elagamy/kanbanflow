@@ -11,7 +11,7 @@ const UserAvatar = () => {
       whileHover={{ scale: 1.03 }}
       transition={{ type: "spring", stiffness: 250, damping: 3 }}
     >
-      <Link href="/dashboard">
+      <Link href="/board">
         <Avatar>
           <AvatarImage src="https://github.com/shadcn.png" />
           <AvatarFallback>SC</AvatarFallback>

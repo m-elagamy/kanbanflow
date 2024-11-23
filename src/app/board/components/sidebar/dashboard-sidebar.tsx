@@ -28,22 +28,22 @@ export function DashboardSidebar() {
     },
     {
       title: "Inbox",
-      url: "/dashboard/inbox",
+      url: "/board/inbox",
       icon: Inbox,
     },
     {
       title: "Calendar",
-      url: "/dashboard/calendar",
+      url: "/board/calendar",
       icon: Calendar,
     },
     {
       title: "Search",
-      url: "/dashboard/search",
+      url: "/board/search",
       icon: Search,
     },
     {
       title: "Settings",
-      url: "/dashboard/settings",
+      url: "/board/settings",
       icon: Settings,
     },
   ];

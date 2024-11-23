@@ -31,7 +31,7 @@ const KanbanLogo = () => {
         </motion.div>
 
         <span
-          className={`bg-gradient-to-r from-[#4F6373] via-[#3F8DA0] to-[#4DA3E8] bg-clip-text text-lg font-bold tracking-wide text-transparent md:text-xl`}
+          className={`bg-gradient-to-r from-[#4F6373] via-[#3F8DA0] to-[#4DA3E8] bg-clip-text text-lg font-bold tracking-tight text-transparent md:text-xl`}
         >
           KanbanFlow
         </span>
