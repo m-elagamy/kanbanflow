@@ -8,19 +8,10 @@ import {
   DropdownMenuContent,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import ConfirmDeleteMessage from "./modals/confirm-delete-message";
 import TaskCreationModal from "./modals/task-creation";
 
 type ColumnHeaderProps = {
@@ -73,29 +64,12 @@ export default function ColumnHeader({
           </DropdownMenu>
         </div>
       </CardHeader>
-      <AlertDialog
-        open={shouldShowDeleteDialog}
-        onOpenChange={setShouldShowDeleteDialog}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Column</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete this column and all its tasks. This
-              action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => handleDeleteColumn(columnId)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete Column
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteMessage
+        columnId={columnId}
+        handleDeleteColumn={handleDeleteColumn}
+        shouldShowDeleteDialog={shouldShowDeleteDialog}
+        setShouldShowDeleteDialog={setShouldShowDeleteDialog}
+      />
     </>
   );
 }
