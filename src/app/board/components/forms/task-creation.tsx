@@ -1,3 +1,8 @@
+import { Loader } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,9 +23,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import AddTaskSchema from "@/schemas/task-schema";
 import useBoardStore from "@/store/useBoardStore";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import type { z } from "zod";
 import { formatTags } from "../../utils/format-tags";
 import getBadgeStyle from "../../utils/get-badge-style";
 
@@ -161,7 +163,10 @@ const TaskCreationForm = ({
           )}
         />
         <div className="text-end">
-          <Button className="p-2 md:p-3">Add Task</Button>
+          <Button className="p-2 md:p-3" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting && <Loader className="animate-spin" />}
+            Add Task
+          </Button>
         </div>
       </form>
     </Form>

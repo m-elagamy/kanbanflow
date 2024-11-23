@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sidebar";
 import HeaderContent from "./header-content";
 
-export function DashboardSidebar() {
+export function WorkspaceSidebar() {
   const pathname = usePathname();
 
   const items = [

@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import useBoardStore from "@/store/useBoardStore";
 import type Column from "@/lib/types/column";
+import { Loader } from "lucide-react";
 
 const templates = [
   {
@@ -94,9 +95,8 @@ const BoardCreationForm = () => {
       );
 
       addBoardToStore({ title, description, columns });
-      router.push(`/board/${encodedTitle}`);
 
-      console.log(data);
+      router.push(`/board/${encodedTitle}`);
     }
   };
 
@@ -137,7 +137,7 @@ const BoardCreationForm = () => {
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
-                  <SelectTrigger className="*:max-w-[120px]">
+                  <SelectTrigger className="*:max-w-[105px]">
                     <SelectValue placeholder="Select a template" />
                   </SelectTrigger>
                   <SelectContent>
@@ -186,7 +186,10 @@ const BoardCreationForm = () => {
 
         {/* Submit Button */}
         <DialogFooter>
-          <Button>Confirm</Button>
+          <Button disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting && <Loader className="animate-spin" />}
+            Confirm
+          </Button>
         </DialogFooter>
       </form>
     </Form>

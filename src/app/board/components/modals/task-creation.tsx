@@ -13,17 +13,20 @@ import TaskCreationForm from "../forms/task-creation";
 
 type AddTaskModalProps = {
   columnId: string;
+  trigger?: React.ReactNode;
 };
 
-const TaskCreationModal = ({ columnId }: AddTaskModalProps) => {
+const TaskCreationModal = ({ columnId, trigger }: AddTaskModalProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <PlusIcon />
-        </Button>
+        {trigger || (
+          <Button variant="ghost" size="icon" className="size-8">
+            <PlusIcon />
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="rounded-lg">
         <DialogHeader>

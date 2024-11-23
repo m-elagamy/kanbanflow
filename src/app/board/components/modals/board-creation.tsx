@@ -16,7 +16,7 @@ const BoardCreationModal = () => {
       <DialogTrigger asChild>
         <Button className="group">
           <PlusCircle className="transition-transform group-hover:rotate-90" />
-          Create
+          Create your first board
         </Button>
       </DialogTrigger>
       <DialogContent className="rounded-lg">
