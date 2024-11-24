@@ -78,7 +78,7 @@ const BoardCreationForm = () => {
     });
   };
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     const { title, template, description } = data;
 
     const selectedTemplate = templates.find((t) => t.id === template);
@@ -95,7 +95,7 @@ const BoardCreationForm = () => {
       );
 
       addBoardToStore({ title, description, columns });
-
+      await new Promise((resolve) => setTimeout(resolve, 500));
       router.push(`/board/${encodedTitle}`);
     }
   };

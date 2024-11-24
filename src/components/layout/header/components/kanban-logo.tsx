@@ -7,31 +7,34 @@ import { Kanban } from "lucide-react";
 
 const KanbanLogo = () => {
   const pathName = usePathname();
+
   return (
     <motion.div
-      className={`${pathName === "/" ? "mx-0" : "mx-auto"} md:mx-0`}
+      className={`${pathName === "/" ? "mx-0" : "mx-auto"} relative z-[1] md:mx-0`}
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.03 }}
       transition={{ type: "spring", stiffness: 250, damping: 3 }}
     >
+      <div className="absolute inset-0 z-[-1] flex items-center justify-center">
+        <div className="size-60 rounded-full bg-gradient-to-tr from-primary/10 via-primary/5 to-secondary/10 blur-3xl dark:from-primary/20 dark:via-primary/10 dark:to-secondary/20" />
+      </div>
       <Link
         href="/"
-        className="group flex items-center gap-2"
+        className="group flex items-center gap-1"
         aria-label="Go to KanbanFlow homepage"
       >
         <motion.div
-          className={`grid size-5 rotate-45 transform place-content-center rounded-lg bg-gradient-to-r from-[#4F6373] via-[#3F8DA0] to-[#4DA3E8] md:size-6`}
           animate={{
             rotate: 45,
             transition: { type: "spring", stiffness: 250, damping: 3 },
           }}
         >
-          <Kanban className="size-4 -rotate-45 text-white md:size-5" />
+          <Kanban className="size-6 -rotate-45 text-primary/90 md:size-8" />
         </motion.div>
 
         <span
-          className={`bg-gradient-to-r from-[#4F6373] via-[#3F8DA0] to-[#4DA3E8] bg-clip-text text-lg font-bold tracking-tight text-transparent md:text-xl`}
+          className={`bg-primary bg-clip-text text-xl font-bold tracking-tight text-transparent md:text-2xl`}
         >
           KanbanFlow
         </span>

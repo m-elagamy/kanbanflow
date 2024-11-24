@@ -51,7 +51,8 @@ const TaskCreationForm = ({
     },
   });
 
-  const handleAddTask = (data: AddTaskFormValues) => {
+  const handleAddTask = async (data: AddTaskFormValues) => {
+    await new Promise((resolve) => setTimeout(resolve, 300));
     addTask({
       id: `item-${Date.now()}`,
       columnId,
