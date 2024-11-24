@@ -69,7 +69,9 @@ const BoardCreationForm = () => {
           columns,
         });
 
-        await delay();
+        router.prefetch(`/board/${encodedTitle}`);
+
+        await delay(300);
         router.push(`/board/${encodedTitle}`);
       }
     } catch (error) {
