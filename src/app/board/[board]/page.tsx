@@ -1,7 +1,6 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { v4 as uuidv4 } from "uuid";
 
 import { Card, CardContent } from "@/components/ui/card";
 import BoardHeader from "../components/board-header";
@@ -9,11 +8,12 @@ import TaskCard from "../components/task-card";
 import ColumnHeader from "../components/column-header";
 import useBoardStore from "@/store/useBoardStore";
 import NoTasksMessage from "../components/no-tasks-message";
+import generateUniqueID from "@/utils/generate-unique-ID";
 
 export default function Board() {
   const params = useParams();
   const { boards, addColumn, deleteColumn } = useBoardStore();
-  const generateUniqueId = () => uuidv4();
+  const uniqueID = () => generateUniqueID();
 
   const currentBoard = boards.find(
     (board) =>
@@ -31,7 +31,7 @@ export default function Board() {
 
   const handleAddColumn = () => {
     addColumn(currentBoard.id, {
-      id: generateUniqueId(),
+      id: uniqueID(),
       title: "",
       tasks: [],
     });

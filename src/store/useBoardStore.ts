@@ -2,14 +2,14 @@ import { create } from "zustand";
 import type Column from "@/lib/types/column";
 import type Task from "@/lib/types/task";
 
-type Board = {
+export type Board = {
   id: string;
   title: string;
   description?: string;
   columns: Column[];
 };
 
-type BoardState = {
+export type BoardState = {
   boards: Board[];
   addBoard: (board: Board) => void;
   addTask: (task: Task) => void;

@@ -3,9 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { v4 as uuidv4 } from "uuid";
+import { Loader } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,10 +14,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { DialogFooter } from "@/components/ui/dialog";
-import boardSchema from "@/schemas/board-schema";
-import FormData from "@/lib/types/board-creation-form";
 import {
   Select,
   SelectContent,
@@ -26,35 +21,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { DialogFooter } from "@/components/ui/dialog";
+import boardSchema from "@/schemas/board-schema";
+import FormData from "@/lib/types/board-creation-form";
 import useBoardStore from "@/store/useBoardStore";
-import type Column from "@/lib/types/column";
-import { Loader } from "lucide-react";
-
-const templates = [
-  {
-    id: "personal",
-    title: "Personal Productivity",
-    description: "Track personal tasks and goals",
-    columns: ["To Do", "In Progress", "Completed"],
-  },
-  {
-    id: "agile",
-    title: "Agile Development",
-    description: "Manage software development workflow",
-    columns: ["Backlog", "To Do", "In Progress", "Review", "Done"],
-  },
-  {
-    id: "custom",
-    title: "Custom Workflow",
-    description: "Create your own unique workflow",
-    columns: [],
-  },
-];
+import generateUniqueID from "@/utils/generate-unique-ID";
+import delay from "@/utils/delay";
+import addBoardToStore from "../../utils/add-board-to-store";
+import columnsTemplates from "../../data/columns-templates";
 
 const BoardCreationForm = () => {
   const router = useRouter();
   const { addBoard } = useBoardStore();
-  const generateUniqueId = () => uuidv4();
 
   const form = useForm<FormData>({
     resolver: zodResolver(boardSchema),
@@ -65,38 +45,35 @@ const BoardCreationForm = () => {
     },
   });
 
-  const addBoardToStore = (board: {
-    title: string;
-    description?: string;
-    columns: Column[];
-  }) => {
-    addBoard({
-      id: generateUniqueId(),
-      title: board.title,
-      description: board.description,
-      columns: board.columns,
-    });
-  };
-
   const onSubmit = async (data: FormData) => {
-    const { title, template, description } = data;
+    try {
+      const { title, template, description } = data;
 
-    const selectedTemplate = templates.find((t) => t.id === template);
+      const selectedTemplate = columnsTemplates.find((t) => t.id === template);
 
-    if (selectedTemplate) {
-      const columns = selectedTemplate.columns.map((columnTitle) => ({
-        id: generateUniqueId(), // Generate unique ID for the column
-        title: columnTitle,
-        tasks: [], // Start with an empty task list
-      }));
+      if (selectedTemplate) {
+        const columns = selectedTemplate.columns.map((columnTitle) => ({
+          id: generateUniqueID(),
+          title: columnTitle,
+          tasks: [],
+        }));
 
-      const encodedTitle = encodeURIComponent(
-        title.replace(/\s+/g, "-").toLowerCase().trim(),
-      );
+        const encodedTitle = encodeURIComponent(
+          title.replace(/\s+/g, "-").toLowerCase().trim(),
+        );
 
-      addBoardToStore({ title, description, columns });
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      router.push(`/board/${encodedTitle}`);
+        addBoardToStore(addBoard, {
+          id: generateUniqueID(),
+          title,
+          description,
+          columns,
+        });
+
+        await delay();
+        router.push(`/board/${encodedTitle}`);
+      }
+    } catch (error) {
+      console.error("Error during form submission:", error);
     }
   };
 
@@ -141,7 +118,7 @@ const BoardCreationForm = () => {
                     <SelectValue placeholder="Select a template" />
                   </SelectTrigger>
                   <SelectContent>
-                    {templates.map((template) => (
+                    {columnsTemplates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>
                         <h2 className="text-xs font-semibold">
                           {template.title}
