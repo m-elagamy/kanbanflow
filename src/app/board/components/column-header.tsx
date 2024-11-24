@@ -31,7 +31,7 @@ export default function ColumnHeader({
 
   return (
     <>
-      <CardHeader className="sticky top-0 flex-row items-center justify-between border-b bg-card/80 p-2 px-3 drop-shadow-sm backdrop-blur-sm">
+      <CardHeader className="sticky top-0 z-[5] flex-row items-center justify-between border-b bg-card/80 p-2 px-3 drop-shadow-sm backdrop-blur-sm">
         <CardTitle className="flex gap-2 text-sm">
           {columnTitle}
           {tasksCount > 0 && (
