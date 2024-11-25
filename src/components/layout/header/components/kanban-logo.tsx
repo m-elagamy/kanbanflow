@@ -16,9 +16,6 @@ const KanbanLogo = () => {
       whileHover={{ scale: 1.03 }}
       transition={{ type: "spring", stiffness: 250, damping: 3 }}
     >
-      <div className="absolute inset-0 z-[-1] flex items-center justify-center">
-        <div className="size-60 rounded-full bg-gradient-to-tr from-primary/10 via-primary/5 to-secondary/10 blur-3xl dark:from-primary/20 dark:via-primary/10 dark:to-secondary/20" />
-      </div>
       <Link
         href="/"
         className="group flex items-center gap-1"
@@ -39,6 +36,9 @@ const KanbanLogo = () => {
           KanbanFlow
         </span>
       </Link>
+      <div className="absolute inset-0 -z-10 flex items-center justify-center">
+        <div className="size-40 rounded-full bg-gradient-to-tr from-primary/10 via-primary/5 to-secondary/10 blur-3xl dark:from-primary/20 dark:via-primary/10 dark:to-secondary/20" />
+      </div>
     </motion.div>
   );
 };

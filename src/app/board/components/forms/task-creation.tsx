@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -19,27 +18,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import AddTaskSchema from "@/schemas/task-schema";
+import AddTaskSchema from "@/validations/task-schema";
 import useBoardStore from "@/store/useBoardStore";
 import { formatTags } from "../../utils/format-tags";
 import getBadgeStyle from "../../utils/get-badge-style";
+import taskPriorities from "../../data/task-priorities";
+import generateUniqueID from "@/utils/generate-unique-ID";
+import delay from "@/utils/delay";
 
 type AddTaskFormValues = z.infer<typeof AddTaskSchema>;
-
 type TaskCreationFormProps = {
   columnId: string;
   setIsModalOpen: (isOpen: boolean) => void;
 };
 
-const PRIORITIES = ["low", "medium", "high"];
-
 const TaskCreationForm = ({
   columnId,
   setIsModalOpen,
 }: TaskCreationFormProps) => {
-  const { addTask } = useBoardStore();
+  const { addTask, currentBoardId } = useBoardStore();
 
   const form = useForm<AddTaskFormValues>({
     resolver: zodResolver(AddTaskSchema),
@@ -52,10 +52,9 @@ const TaskCreationForm = ({
   });
 
   const handleAddTask = async (data: AddTaskFormValues) => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    addTask({
-      id: `item-${Date.now()}`,
-      columnId,
+    await delay(150);
+    addTask(currentBoardId as string, columnId, {
+      id: generateUniqueID(),
       title: data.title,
       description: data.description,
       priority: data.priority,
@@ -124,7 +123,7 @@ const TaskCreationForm = ({
                     <SelectValue placeholder="Select a template" />
                   </SelectTrigger>
                   <SelectContent>
-                    {PRIORITIES.map((priority) => (
+                    {taskPriorities.map((priority) => (
                       <SelectItem key={priority} value={priority}>
                         <div className="flex items-center">
                           <span

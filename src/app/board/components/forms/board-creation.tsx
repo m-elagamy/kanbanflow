@@ -24,7 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DialogFooter } from "@/components/ui/dialog";
-import boardSchema from "@/schemas/board-schema";
+import boardSchema from "@/validations/board-schema";
 import FormData from "@/lib/types/board-creation-form";
 import useBoardStore from "@/store/useBoardStore";
 import generateUniqueID from "@/utils/generate-unique-ID";
@@ -45,7 +45,7 @@ const BoardCreationForm = () => {
     },
   });
 
-  const onSubmit = async (data: FormData) => {
+  const handleAddBoard = async (data: FormData) => {
     try {
       const { title, template, description } = data;
 
@@ -81,7 +81,7 @@ const BoardCreationForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleAddBoard)} className="space-y-4">
         {/* Board Name */}
         <FormField
           control={form.control}
@@ -116,22 +116,21 @@ const BoardCreationForm = () => {
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
-                  <SelectTrigger className="*:max-w-[105px]">
+                  <SelectTrigger>
                     <SelectValue placeholder="Select a template" />
                   </SelectTrigger>
                   <SelectContent>
-                    {columnsTemplates.map((template) => (
-                      <SelectItem key={template.id} value={template.id}>
-                        <h2 className="text-xs font-semibold">
-                          {template.title}
-                        </h2>
-                        <p
-                          className={`text-[0.625rem] text-muted-foreground md:text-xs`}
-                        >
-                          {template.description}
-                        </p>
-                      </SelectItem>
-                    ))}
+                    {columnsTemplates.map((template) => {
+                      const Icon = template.icon;
+                      return (
+                        <SelectItem key={template.id} value={template.id}>
+                          <div className="flex items-center gap-2">
+                            <Icon className="size-4" />
+                            <h2>{template.title}</h2>
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </FormControl>

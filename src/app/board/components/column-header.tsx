@@ -13,36 +13,34 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ConfirmDeleteMessage from "./modals/confirm-delete-message";
 import TaskCreationModal from "./modals/task-creation";
+import type Column from "@/lib/types/column";
+import stateOptions from "../data/column-state-options";
 
-type ColumnHeaderProps = {
-  columnTitle: string;
-  columnId: string;
-  tasksCount: number;
-  handleDeleteColumn: (id: string) => void;
-};
-
-export default function ColumnHeader({
-  columnTitle,
-  columnId,
-  tasksCount,
-  handleDeleteColumn,
-}: ColumnHeaderProps) {
+export default function ColumnHeader({ column }: { column: Column }) {
   const [shouldShowDeleteDialog, setShouldShowDeleteDialog] = useState(false);
+
+  const { id: columnId, title: columnTitle, tasks: tasksCount } = column;
+
+  const { icon: Icon, color } =
+    stateOptions[columnTitle as keyof typeof stateOptions];
 
   return (
     <>
       <CardHeader className="sticky top-0 z-[5] flex-row items-center justify-between border-b bg-card/80 p-2 px-3 drop-shadow-sm backdrop-blur-sm">
-        <CardTitle className="flex gap-2 text-sm">
+        <CardTitle className="flex items-center gap-2 text-sm">
+          {Icon && <Icon size={16} color={color} />}
           {columnTitle}
-          {tasksCount > 0 && (
-            <Badge variant="secondary" className="h-5">
-              {tasksCount}
+          {tasksCount && tasksCount.length > 0 && (
+            <Badge variant="outline" className="h-5">
+              {tasksCount.length}
             </Badge>
           )}
         </CardTitle>
 
         <div className="flex items-center gap-1">
-          {tasksCount >= 1 && <TaskCreationModal columnId={columnId} />}
+          {tasksCount && tasksCount.length >= 1 && (
+            <TaskCreationModal columnId={columnId} />
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -66,7 +64,6 @@ export default function ColumnHeader({
       </CardHeader>
       <ConfirmDeleteMessage
         columnId={columnId}
-        handleDeleteColumn={handleDeleteColumn}
         shouldShowDeleteDialog={shouldShowDeleteDialog}
         setShouldShowDeleteDialog={setShouldShowDeleteDialog}
       />

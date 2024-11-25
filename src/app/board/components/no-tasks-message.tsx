@@ -31,7 +31,7 @@ export default function NoTasksMessage({ columnId }: { columnId: string }) {
           No tasks yet
         </CardTitle>
 
-        <CardDescription className="text-muted-foreground/70 dark:text-muted-foreground/60">
+        <CardDescription className="text-muted-foreground/80 dark:text-muted-foreground/60">
           Start organizing your workflow
         </CardDescription>
       </CardHeader>
@@ -46,7 +46,7 @@ export default function NoTasksMessage({ columnId }: { columnId: string }) {
               size="sm"
             >
               <PlusIcon />
-              Add Task
+              Add a Task
             </Button>
           }
         />

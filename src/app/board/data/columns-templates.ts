@@ -1,20 +1,29 @@
+import { Bug, Layers, Sliders, UserRoundCheck } from "lucide-react";
+
 const columnsTemplates = [
   {
     id: "personal",
     title: "Personal Productivity",
-    description: "Track personal tasks and goals",
-    columns: ["To Do", "In Progress", "Completed"],
+    icon: UserRoundCheck,
+
+    columns: ["To Do", "In Progress", "Done"],
   },
   {
     id: "agile",
     title: "Agile Development",
-    description: "Manage software development workflow",
-    columns: ["Backlog", "To Do", "In Progress", "Review", "Done"],
+    icon: Layers,
+    columns: ["In Progress", "Under Review", "Ready for Development"],
+  },
+  {
+    id: "bug-tracking",
+    title: "Bug Tracking",
+    icon: Bug,
+    columns: ["Testing", "Under Review", "Done"],
   },
   {
     id: "custom",
     title: "Custom Workflow",
-    description: "Create your own unique workflow",
+    icon: Sliders,
     columns: [],
   },
 ];

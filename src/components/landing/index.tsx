@@ -69,12 +69,12 @@ const Landing = () => {
             >
               <Link href="/login">
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-black/10 to-transparent dark:via-white/10"
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-black/10 to-transparent dark:via-white/5"
                   animate={{
                     x: ["-100%", "100%"],
                     transition: {
                       repeat: Infinity,
-                      duration: 1.5,
+                      duration: 2,
                       ease: "linear",
                     },
                   }}
@@ -130,7 +130,7 @@ const Landing = () => {
                     {feature.description}
                   </p>
 
-                  <div className="absolute bottom-0 left-0 h-[1px] w-0 bg-gradient-to-r from-blue-500/40 to-purple-500/40 transition-all duration-500 group-hover:w-full dark:from-blue-500/30 dark:to-purple-500/30" />
+                  <div className="absolute bottom-0 left-0 h-[1px] w-0 bg-gradient-to-r from-blue-500/50 to-purple-500/50 transition-all duration-500 group-hover:w-full dark:from-blue-500/30 dark:to-purple-500/30" />
                 </CardContent>
               </Card>
             </motion.div>

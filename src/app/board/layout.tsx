@@ -1,5 +1,5 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { WorkspaceSidebar } from "./components/sidebar";
+import { WorkspaceSidebar } from "../../components/layout/sidebar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

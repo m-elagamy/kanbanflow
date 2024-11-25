@@ -9,20 +9,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import useBoardStore from "@/store/useBoardStore";
 
 type ConfirmDeleteMessageProps = {
   shouldShowDeleteDialog: boolean;
   setShouldShowDeleteDialog: React.Dispatch<React.SetStateAction<boolean>>;
-  handleDeleteColumn: (columnId: string) => void;
   columnId: string;
 };
 
 export default function ConfirmDeleteMessage({
   shouldShowDeleteDialog,
   setShouldShowDeleteDialog,
-  handleDeleteColumn,
   columnId,
 }: ConfirmDeleteMessageProps) {
+  const { currentBoardId, deleteColumn } = useBoardStore();
+
+  const handleDeleteColumn = () => {
+    deleteColumn(currentBoardId as string, columnId);
+  };
+
   return (
     <AlertDialog
       open={shouldShowDeleteDialog}
@@ -41,7 +46,7 @@ export default function ConfirmDeleteMessage({
 
         <AlertDialogFooter className="justify-center">
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => handleDeleteColumn(columnId)}>
+          <AlertDialogAction onClick={handleDeleteColumn}>
             Confirm
           </AlertDialogAction>
         </AlertDialogFooter>

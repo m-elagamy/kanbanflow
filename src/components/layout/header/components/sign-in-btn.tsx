@@ -15,12 +15,12 @@ function SignInButton() {
       >
         <Link href="/board" className="flex items-center gap-2">
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-black/10 to-transparent dark:via-white/10"
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-black/10 to-transparent dark:via-white/5"
             animate={{
               x: ["-100%", "100%"],
               transition: {
                 repeat: Infinity,
-                duration: 1.5,
+                duration: 2,
                 ease: "linear",
               },
             }}
