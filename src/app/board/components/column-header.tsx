@@ -56,7 +56,9 @@ export default function ColumnHeader({ column }: { column: Column }) {
       <CardHeader className="sticky top-0 z-[5] flex-row items-center justify-between border-b bg-card/80 p-2 px-3 drop-shadow-sm backdrop-blur-sm">
         <CardTitle className="flex items-center gap-2 text-ellipsis whitespace-nowrap text-sm">
           {<Icon size={16} color={color} />}
-          {columnTitle}
+          <span className="max-w-[125px] overflow-x-hidden text-ellipsis whitespace-nowrap">
+            {columnTitle}
+          </span>
           {tasksCount && tasksCount.length > 0 && (
             <Badge variant="outline" className="h-5">
               {tasksCount.length}
@@ -89,7 +91,6 @@ export default function ColumnHeader({ column }: { column: Column }) {
                   <Command>
                     <CommandInput
                       placeholder="Search column status..."
-                      autoFocus
                       className="h-9"
                     />
                     <CommandList>
