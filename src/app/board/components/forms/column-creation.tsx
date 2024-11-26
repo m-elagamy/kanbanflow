@@ -43,7 +43,7 @@ export default function AddColumnForm({
   });
 
   const onSubmit = async (data: FormData) => {
-    await delay(150);
+    await delay(250);
     addColumn(currentBoardId as string, {
       id: generateUniqueID(),
       title: data.state,

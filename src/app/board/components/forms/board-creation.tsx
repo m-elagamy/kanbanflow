@@ -71,7 +71,7 @@ const BoardCreationForm = () => {
 
         router.prefetch(`/board/${encodedTitle}`);
 
-        await delay(300);
+        await delay(500);
         router.push(`/board/${encodedTitle}`);
       }
     } catch (error) {

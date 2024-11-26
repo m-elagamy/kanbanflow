@@ -17,7 +17,7 @@ type ConfirmDeleteMessageProps = {
   columnId: string;
 };
 
-export default function ConfirmDeleteMessage({
+export default function AlertConfirmation({
   shouldShowDeleteDialog,
   setShouldShowDeleteDialog,
   columnId,

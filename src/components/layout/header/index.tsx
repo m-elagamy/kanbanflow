@@ -19,6 +19,8 @@ const Header = () => {
   const { scrollY } = useScroll();
   const [isScrolled, setIsScrolled] = useState(false);
 
+  const isHomePage = pathName === "/";
+
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 10);
   });
@@ -48,7 +50,7 @@ const Header = () => {
             </Button>
           </div>
         </div>
-        {pathName !== "/" && (
+        {!isHomePage && (
           <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-[#3F8DA0]/50 to-transparent opacity-50 dark:via-[#4f637399]" />
         )}
       </nav>

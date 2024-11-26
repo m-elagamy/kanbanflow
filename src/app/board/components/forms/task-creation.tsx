@@ -52,7 +52,7 @@ const TaskCreationForm = ({
   });
 
   const handleAddTask = async (data: AddTaskFormValues) => {
-    await delay(150);
+    await delay(250);
     addTask(currentBoardId as string, columnId, {
       id: generateUniqueID(),
       title: data.title,
