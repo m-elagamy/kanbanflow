@@ -12,7 +12,7 @@ const AddColumnCard = () => {
   if (columnsCount >= 10) return null;
 
   return (
-    <Card className="group relative flex h-full w-72 min-w-72 cursor-pointer flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 bg-background/50 transition-all duration-300 hover:border-primary/50 hover:bg-accent/10">
+    <Card className="group relative flex h-full w-72 min-w-72 cursor-pointer snap-start flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 bg-background/50 transition-all duration-300 hover:border-primary/50 hover:bg-accent/10">
       <CardContent>
         <div className="group/icon relative rounded-xl bg-background p-3 shadow-lg ring-1 ring-black/[0.2] transition-all duration-300 group-hover:shadow-primary/20 group-hover:ring-primary/30 dark:bg-card dark:ring-white/[0.09]">
           <PlusCircle className="size-6 text-muted-foreground/50 transition-colors duration-300 group-hover:text-primary" />

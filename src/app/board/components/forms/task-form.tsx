@@ -28,31 +28,51 @@ import getBadgeStyle from "../../utils/get-badge-style";
 import taskPriorities from "../../data/task-priorities";
 import generateUniqueID from "@/utils/generate-unique-ID";
 import delay from "@/utils/delay";
+import type Task from "@/lib/types/task";
+import prefillTags from "../../utils/prefill-tags";
 
 type AddTaskFormValues = z.infer<typeof AddTaskSchema>;
-type TaskCreationFormProps = {
+type TaskFormProps = {
   columnId: string;
   setIsModalOpen: (isOpen: boolean) => void;
+  taskToEdit?: Task | null;
+  setCloseDropdown?: (isOpen: boolean) => void;
 };
 
-const TaskCreationForm = ({
+const TaskForm = ({
   columnId,
   setIsModalOpen,
-}: TaskCreationFormProps) => {
-  const { addTask, currentBoardId } = useBoardStore();
+  taskToEdit,
+  setCloseDropdown,
+}: TaskFormProps) => {
+  const { addTask, currentBoardId, updateTask } = useBoardStore();
 
   const form = useForm<AddTaskFormValues>({
     resolver: zodResolver(AddTaskSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      priority: "medium",
-      tags: "",
+      title: taskToEdit?.title ?? "",
+      description: taskToEdit?.description ?? "",
+      priority: taskToEdit?.priority ?? "medium",
+      tags: prefillTags(taskToEdit?.tags) ?? "",
     },
   });
 
-  const handleAddTask = async (data: AddTaskFormValues) => {
+  const handleTaskActions = async (data: AddTaskFormValues) => {
+    setCloseDropdown?.(false);
     await delay(250);
+
+    if (taskToEdit) {
+      updateTask(currentBoardId as string, columnId, taskToEdit.id, (task) => ({
+        ...task,
+        title: data.title,
+        description: data.description,
+        priority: data.priority,
+        tags: formatTags(data.tags),
+      }));
+      setIsModalOpen(false);
+      return;
+    }
+
     addTask(currentBoardId as string, columnId, {
       id: generateUniqueID(),
       title: data.title,
@@ -66,7 +86,10 @@ const TaskCreationForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleAddTask)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(handleTaskActions)}
+        className="space-y-4"
+      >
         {/* Title Field */}
         <FormField
           control={form.control}
@@ -165,7 +188,7 @@ const TaskCreationForm = ({
         <div className="text-end">
           <Button className="p-2 md:p-3" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting && <Loader className="animate-spin" />}
-            Add Task
+            {taskToEdit ? "Update" : "Add Task"}
           </Button>
         </div>
       </form>
@@ -173,4 +196,4 @@ const TaskCreationForm = ({
   );
 };
 
-export default TaskCreationForm;
+export default TaskForm;

@@ -23,7 +23,7 @@ import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import AlertConfirmation from "./modals/alert-confirmation";
-import TaskCreationModal from "./modals/task-creation";
+import TaskModal from "./modals/task-modal";
 import type Column from "@/lib/types/column";
 import stateOptions from "../data/column-state-options";
 import useBoardStore from "@/store/useBoardStore";
@@ -56,7 +56,9 @@ export default function ColumnHeader({ column }: { column: Column }) {
       <CardHeader className="sticky top-0 z-[5] flex-row items-center justify-between border-b bg-card/80 p-2 px-3 drop-shadow-sm backdrop-blur-sm">
         <CardTitle className="flex items-center gap-2 text-ellipsis whitespace-nowrap text-sm">
           {<Icon size={16} color={color} />}
-          <span className="max-w-[125px] overflow-x-hidden text-ellipsis whitespace-nowrap">
+          <span
+            className={`${tasksCount.length ? "max-w-[115px] overflow-x-hidden text-ellipsis whitespace-nowrap" : ""}`}
+          >
             {columnTitle}
           </span>
           {tasksCount && tasksCount.length > 0 && (
@@ -68,15 +70,15 @@ export default function ColumnHeader({ column }: { column: Column }) {
 
         <div className="flex items-center gap-1">
           {tasksCount && tasksCount.length >= 1 && (
-            <TaskCreationModal columnId={columnId} />
+            <TaskModal columnId={columnId} />
           )}
           <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="size-8">
                 <Ellipsis />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent>
               <DropdownMenuLabel>Column Actions</DropdownMenuLabel>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>

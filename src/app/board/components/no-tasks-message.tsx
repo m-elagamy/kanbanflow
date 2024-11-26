@@ -7,7 +7,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import TaskCreationModal from "./modals/task-creation";
+import TaskModal from "./modals/task-modal";
 
 export default function NoTasksMessage({ columnId }: { columnId: string }) {
   return (
@@ -37,7 +37,7 @@ export default function NoTasksMessage({ columnId }: { columnId: string }) {
       </CardHeader>
 
       <CardFooter className="flex justify-center pb-6">
-        <TaskCreationModal
+        <TaskModal
           columnId={columnId}
           trigger={
             <Button

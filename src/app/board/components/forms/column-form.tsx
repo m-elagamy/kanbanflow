@@ -28,7 +28,7 @@ import stateOptions from "../../data/column-state-options";
 
 type FormData = z.infer<typeof columnFormSchema>;
 
-export default function AddColumnForm({
+export default function ColumnForm({
   setIsModalOpen,
 }: {
   setIsModalOpen: (isOpen: boolean) => void;

@@ -27,7 +27,7 @@ const BoardHeader = () => {
 
   return (
     <div className="py-8">
-      <div className="container flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ListTodoIcon size={24} />
           <h1 className="text-base font-semibold capitalize md:text-lg">

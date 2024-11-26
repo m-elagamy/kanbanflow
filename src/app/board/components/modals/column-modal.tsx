@@ -7,10 +7,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import AddColumnCard from "../add-column-card";
-import AddColumnForm from "../forms/column-creation";
+import ColumnForm from "../forms/column-form";
 import { useState } from "react";
 
-const ColumnCreationModal = () => {
+const ColumnModal = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -26,10 +26,10 @@ const ColumnCreationModal = () => {
             Progress&apos; to keep your tasks organized.
           </DialogDescription>
         </DialogHeader>
-        <AddColumnForm setIsModalOpen={setIsModalOpen} />
+        <ColumnForm setIsModalOpen={setIsModalOpen} />
       </DialogContent>
     </Dialog>
   );
 };
 
-export default ColumnCreationModal;
+export default ColumnModal;

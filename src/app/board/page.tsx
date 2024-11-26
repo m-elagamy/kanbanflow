@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import BoardCreationModal from "./components/modals/board-creation";
+import BoardModal from "./components/modals/board-modal";
 import { Layout } from "lucide-react";
 
 const Dashboard = () => {
@@ -22,7 +22,7 @@ const Dashboard = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <BoardCreationModal />
+          <BoardModal />
         </CardContent>
       </Card>
     </section>

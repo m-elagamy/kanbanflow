@@ -32,7 +32,7 @@ import delay from "@/utils/delay";
 import addBoardToStore from "../../utils/add-board-to-store";
 import columnsTemplates from "../../data/columns-templates";
 
-const BoardCreationForm = () => {
+const BoardForm = () => {
   const router = useRouter();
   const { addBoard } = useBoardStore();
 
@@ -174,4 +174,4 @@ const BoardCreationForm = () => {
   );
 };
 
-export default BoardCreationForm;
+export default BoardForm;

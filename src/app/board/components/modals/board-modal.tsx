@@ -8,9 +8,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import BoardCreationForm from "../forms/board-creation";
+import BoardForm from "../forms/board-form";
 
-const BoardCreationModal = () => {
+const BoardModal = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -26,10 +26,10 @@ const BoardCreationModal = () => {
             Set up your board with a name, description, and template.
           </DialogDescription>
         </DialogHeader>
-        <BoardCreationForm />
+        <BoardForm />
       </DialogContent>
     </Dialog>
   );
 };
 
-export default BoardCreationModal;
+export default BoardModal;

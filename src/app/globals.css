@@ -85,6 +85,14 @@
   }
 
   :is(input, textarea)::placeholder {
-    @apply text-xs md:text-sm;
+    @apply text-sm;
+  }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  ::-webkit-scrollbar {
+    display: none;
   }
 }
