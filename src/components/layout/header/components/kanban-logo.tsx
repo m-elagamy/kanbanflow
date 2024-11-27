@@ -27,11 +27,11 @@ const KanbanLogo = () => {
             transition: { type: "spring", stiffness: 250, damping: 3 },
           }}
         >
-          <Kanban className="size-6 -rotate-45 text-primary/90 md:size-8" />
+          <Kanban className="size-6 -rotate-45 text-foreground/90 md:size-8" />
         </motion.div>
 
         <span
-          className={`bg-primary bg-clip-text text-xl font-bold tracking-tight text-transparent md:text-2xl`}
+          className={`bg-foreground bg-clip-text text-xl font-bold tracking-tight text-transparent md:text-2xl`}
         >
           KanbanFlow
         </span>

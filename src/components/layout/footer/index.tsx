@@ -16,7 +16,12 @@ const Footer = () => {
           <div className="flex items-center justify-center gap-2">
             {links.map((link) => (
               <div key={link.label}>
-                <Button variant="link" size="sm" asChild>
+                <Button
+                  className="text-foreground"
+                  variant="link"
+                  size="sm"
+                  asChild
+                >
                   <a href={link.href} target="_blank" rel="noopener noreferrer">
                     {link.icon}
                     <span className="font-medium">{link.label}</span>
