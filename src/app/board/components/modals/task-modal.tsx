@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CirclePlus, Pen, PlusIcon } from "lucide-react";
+import { CirclePlus, Edit, PlusIcon } from "lucide-react";
 
 import {
   Dialog,
@@ -39,7 +39,7 @@ const TaskModal = ({
       <DialogContent className="rounded-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {taskToEdit ? <Pen size={16} /> : <CirclePlus size={16} />}
+            {taskToEdit ? <Edit size={16} /> : <CirclePlus size={16} />}
             {taskToEdit ? "Edit Task" : "New Task"}
           </DialogTitle>
         </DialogHeader>

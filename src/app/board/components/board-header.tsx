@@ -1,25 +1,12 @@
-import {
-  Ellipsis,
-  InfoIcon,
-  ListTodoIcon,
-  Settings2,
-  TrashIcon,
-} from "lucide-react";
+import { InfoIcon, ListTodoIcon } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import useBoardStore from "@/store/useBoardStore";
+import BoardActions from "./board-actions";
 
 const BoardHeader = () => {
   const { getCurrentBoard } = useBoardStore();
@@ -46,25 +33,7 @@ const BoardHeader = () => {
             </TooltipProvider>
           )}
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <Ellipsis />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Board Actions</DropdownMenuLabel>
-            <DropdownMenuItem>
-              <Settings2 /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              // onClick={() => setShouldShowDeleteDialog(true)}
-              className="text-destructive focus:text-destructive"
-            >
-              <TrashIcon /> Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <BoardActions />
       </div>
     </div>
   );

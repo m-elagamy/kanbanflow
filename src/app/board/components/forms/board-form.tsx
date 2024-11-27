@@ -32,56 +32,74 @@ import delay from "@/utils/delay";
 import addBoardToStore from "../../utils/add-board-to-store";
 import columnsTemplates from "../../data/columns-templates";
 
-const BoardForm = () => {
+type BoardFormProps = {
+  mode: "create" | "edit";
+  setIsModalOpen?: (isOpen: boolean) => void;
+};
+
+const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
   const router = useRouter();
-  const { addBoard } = useBoardStore();
+  const { addBoard, getCurrentBoard, updateBoard } = useBoardStore();
+
+  const currentBoard = mode === "edit" ? getCurrentBoard() : null;
 
   const form = useForm<FormData>({
-    resolver: zodResolver(boardSchema),
+    resolver: zodResolver(
+      mode === "edit" ? boardSchema.omit({ template: true }) : boardSchema,
+    ),
     defaultValues: {
-      title: "",
-      description: "",
+      title: currentBoard?.title ?? "",
+      description: currentBoard?.description ?? "",
       template: "",
     },
   });
 
-  const handleAddBoard = async (data: FormData) => {
-    try {
-      const { title, template, description } = data;
+  const handleBoardActions = async (data: FormData) => {
+    const { title, template, description } = data;
 
-      const selectedTemplate = columnsTemplates.find((t) => t.id === template);
+    if (mode === "edit" && currentBoard) {
+      await delay(250);
+      updateBoard(currentBoard.id, (board) => ({
+        ...board,
+        title,
+        description,
+      }));
+      setIsModalOpen?.(false);
+      return;
+    }
 
-      if (selectedTemplate) {
-        const columns = selectedTemplate.columns.map((columnTitle) => ({
-          id: generateUniqueID(),
-          title: columnTitle,
-          tasks: [],
-        }));
+    const encodedTitle = encodeURIComponent(
+      title.replace(/\s+/g, "-").toLowerCase().trim(),
+    );
 
-        const encodedTitle = encodeURIComponent(
-          title.replace(/\s+/g, "-").toLowerCase().trim(),
-        );
+    const selectedTemplate = columnsTemplates.find((t) => t.id === template);
 
-        addBoardToStore(addBoard, {
-          id: generateUniqueID(),
-          title,
-          description,
-          columns,
-        });
+    if (selectedTemplate) {
+      const columns = selectedTemplate.columns.map((columnTitle) => ({
+        id: generateUniqueID(),
+        title: columnTitle,
+        tasks: [],
+      }));
 
-        router.prefetch(`/board/${encodedTitle}`);
+      addBoardToStore(addBoard, {
+        id: generateUniqueID(),
+        title,
+        description,
+        columns,
+      });
 
-        await delay(500);
-        router.push(`/board/${encodedTitle}`);
-      }
-    } catch (error) {
-      console.error("Error during form submission:", error);
+      router.prefetch(`/board/${encodedTitle}`);
+      await delay(500);
+      router.push(`/board/${encodedTitle}`);
     }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleAddBoard)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(handleBoardActions)}
+        className="space-y-4"
+      >
         {/* Board Name */}
         <FormField
           control={form.control}
@@ -103,44 +121,46 @@ const BoardForm = () => {
         />
 
         {/* Template Selection */}
-        <FormField
-          control={form.control}
-          name="template"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                Board Template <span className="text-destructive">*</span>
-              </FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a template" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {columnsTemplates.map((template) => {
-                      const Icon = template.icon;
-                      return (
-                        <SelectItem key={template.id} value={template.id}>
-                          <div className="flex items-center gap-2">
-                            <Icon className="size-4" />
-                            <h2>{template.title}</h2>
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormDescription>
-                Start with a ready-made template or customize it later.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {mode === "create" && (
+          <FormField
+            control={form.control}
+            name="template"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Board Template <span className="text-destructive">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a template" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {columnsTemplates.map((template) => {
+                        const Icon = template.icon;
+                        return (
+                          <SelectItem key={template.id} value={template.id}>
+                            <div className="flex items-center gap-2">
+                              <Icon className="size-4" />
+                              <h2>{template.title}</h2>
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormDescription>
+                  Start with a ready-made template or customize it later.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         {/* Board Description */}
         <FormField
@@ -164,9 +184,9 @@ const BoardForm = () => {
 
         {/* Submit Button */}
         <DialogFooter>
-          <Button disabled={form.formState.isSubmitting}>
+          <Button className="px-2" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting && <Loader className="animate-spin" />}
-            Confirm
+            {mode === "create" ? "Create" : "Save"}
           </Button>
         </DialogFooter>
       </form>

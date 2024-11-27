@@ -22,7 +22,7 @@ import {
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import AlertConfirmation from "./modals/alert-confirmation";
+import AlertConfirmation from "../../../components/ui/alert-confirmation";
 import TaskModal from "./modals/task-modal";
 import type Column from "@/lib/types/column";
 import stateOptions from "../data/column-state-options";
@@ -33,7 +33,7 @@ export default function ColumnHeader({ column }: { column: Column }) {
   const [showAlertConfirmation, setShowAlertConfirmation] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { currentBoardId, updateColumn } = useBoardStore();
+  const { currentBoardId, updateColumn, deleteColumn } = useBoardStore();
 
   const { id: columnId, title: columnTitle, tasks: tasksCount } = column;
 
@@ -49,6 +49,10 @@ export default function ColumnHeader({ column }: { column: Column }) {
     }));
     setIsOpen(false);
     setIsLoading(false);
+  };
+
+  const handleDeleteColumn = () => {
+    deleteColumn(currentBoardId as string, columnId);
   };
 
   return (
@@ -133,9 +137,11 @@ export default function ColumnHeader({ column }: { column: Column }) {
         </div>
       </CardHeader>
       <AlertConfirmation
-        columnId={columnId}
-        shouldShowDeleteDialog={showAlertConfirmation}
-        setShouldShowDeleteDialog={setShowAlertConfirmation}
+        open={showAlertConfirmation}
+        setOpen={setShowAlertConfirmation}
+        title="Delete Column"
+        description="Are you sure you want to delete this column? This action cannot be undone."
+        onConfirm={handleDeleteColumn}
       />
     </>
   );

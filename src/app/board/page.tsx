@@ -22,7 +22,7 @@ const Dashboard = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <BoardModal />
+          <BoardModal mode="create" />
         </CardContent>
       </Card>
     </section>
