@@ -10,8 +10,8 @@ import useBoardStore from "@/store/useBoardStore";
 import { Ellipsis, Settings2, TrashIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import AlertConfirmation from "../../../components/ui/alert-confirmation";
-import BoardModal from "./modals/board-modal";
+import AlertConfirmation from "../../../../components/ui/alert-confirmation";
+import BoardModal from "./board-modal";
 
 export default function BoardActions() {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -20,9 +20,9 @@ export default function BoardActions() {
   const currentBoard = getCurrentBoard();
 
   const handleDeleteBoard = () => {
-    deleteBoard(currentBoard?.id ?? ""); // Optimistically update state
-    setIsAlertOpen(false); // Close dialog
-    router.push("/board"); // Redirect to dashboard
+    deleteBoard(currentBoard?.id ?? "");
+    setIsAlertOpen(false);
+    router.push("/boards");
   };
 
   return (

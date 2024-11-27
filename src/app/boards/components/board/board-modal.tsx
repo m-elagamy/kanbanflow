@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Edit, PlusCircle } from "lucide-react";
-import BoardForm from "../forms/board-form";
+import BoardForm from "./board-form";
 import { useState } from "react";
 
 type BoardModalProps = {

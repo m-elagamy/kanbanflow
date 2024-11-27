@@ -6,8 +6,8 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import AddColumnCard from "../add-column-card";
-import ColumnForm from "../forms/column-form";
+import AddColumnCard from "./add-column-card";
+import ColumnForm from "./column-form";
 import { useState } from "react";
 
 const ColumnModal = () => {

@@ -13,7 +13,7 @@ function SignInButton() {
         className="group relative overflow-hidden transition-colors duration-300 hover:bg-accent/25"
         asChild
       >
-        <Link href="/board" className="flex items-center gap-2">
+        <Link href="/boards" className="flex items-center gap-2">
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-black/10 to-transparent dark:via-white/5"
             animate={{

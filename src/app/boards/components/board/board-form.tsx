@@ -88,9 +88,9 @@ const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
         columns,
       });
 
-      router.prefetch(`/board/${encodedTitle}`);
+      router.prefetch(`/boards/${encodedTitle}`);
       await delay(500);
-      router.push(`/board/${encodedTitle}`);
+      router.push(`/boards/${encodedTitle}`);
     }
   };
 

@@ -28,22 +28,22 @@ export function WorkspaceSidebar() {
     },
     {
       title: "Inbox",
-      url: "/board/inbox",
+      url: "/boards/inbox",
       icon: Inbox,
     },
     {
       title: "Calendar",
-      url: "/board/calendar",
+      url: "/boards/calendar",
       icon: Calendar,
     },
     {
       title: "Search",
-      url: "/board/search",
+      url: "/boards/search",
       icon: Search,
     },
     {
       title: "Settings",
-      url: "/board/settings",
+      url: "/boards/settings",
       icon: Settings,
     },
   ];

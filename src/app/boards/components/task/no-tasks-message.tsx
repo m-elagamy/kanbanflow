@@ -7,7 +7,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import TaskModal from "./modals/task-modal";
+import TaskModal from "./task-modal";
 
 export default function NoTasksMessage({ columnId }: { columnId: string }) {
   return (

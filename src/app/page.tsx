@@ -4,7 +4,7 @@ import Footer from "@/components/layout/footer";
 const Home = () => {
   return (
     <>
-      <main className="md:h-content grid flex-grow place-content-center">
+      <main className="grid flex-grow place-content-center md:h-content">
         <Landing />
       </main>
       <Footer />

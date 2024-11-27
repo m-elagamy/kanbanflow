@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import Task from "@/lib/types/task";
 import Column from "@/lib/types/column";
-import { slugifyTitle } from "@/app/board/utils/slugify";
+import { slugifyTitle } from "@/app/boards/utils/slugify";
 
 export type Board = {
   id: string;

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import useBoardStore from "@/store/useBoardStore";
 import { Ellipsis, Settings2, TrashIcon } from "lucide-react";
-import TaskModal from "../modals/task-modal";
+import TaskModal from "./task-modal";
 import type Task from "@/lib/types/task";
 import { useState } from "react";
 

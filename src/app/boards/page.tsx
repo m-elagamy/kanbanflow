@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import BoardModal from "./components/modals/board-modal";
+import BoardModal from "./components/board/board-modal";
 import { Layout } from "lucide-react";
 
 const Dashboard = () => {

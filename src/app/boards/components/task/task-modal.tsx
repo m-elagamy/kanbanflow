@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import TaskForm from "../forms/task-form";
+import TaskForm from "./task-form";
 import type Task from "@/lib/types/task";
 
 type TaskModalProps = {

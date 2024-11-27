@@ -1,12 +1,12 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import BoardHeader from "../components/board-header";
+import BoardHeader from "../components/board/board-header";
 import TaskCard from "../components/task/task-card";
-import ColumnHeader from "../components/column-header";
+import ColumnHeader from "../components/column/column-header";
 import useBoardStore from "@/store/useBoardStore";
-import NoTasksMessage from "../components/no-tasks-message";
-import ColumnModal from "../components/modals/column-modal";
+import NoTasksMessage from "../components/task/no-tasks-message";
+import ColumnModal from "../components/column/column-modal";
 
 export default function Board() {
   const { getCurrentBoard } = useBoardStore();

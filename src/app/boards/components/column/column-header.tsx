@@ -22,10 +22,10 @@ import {
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import AlertConfirmation from "../../../components/ui/alert-confirmation";
-import TaskModal from "./modals/task-modal";
+import AlertConfirmation from "../../../../components/ui/alert-confirmation";
+import TaskModal from "../task/task-modal";
 import type Column from "@/lib/types/column";
-import stateOptions from "../data/column-state-options";
+import stateOptions from "../../data/column-state-options";
 import useBoardStore from "@/store/useBoardStore";
 import delay from "@/utils/delay";
 
