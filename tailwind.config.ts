@@ -11,6 +11,9 @@ export default {
     container: {
       center: true,
       padding: "1rem",
+      screens: {
+        xl: "1280px",
+      },
     },
     extend: {
       fontFamily: {
@@ -72,10 +75,6 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-      },
-      height: {
-        sidebar: "calc(100vh - 8rem)",
-        content: "calc(100vh - 65.23px)",
       },
     },
   },
