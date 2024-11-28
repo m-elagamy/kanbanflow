@@ -10,7 +10,7 @@ import { Layout } from "lucide-react";
 
 const Dashboard = () => {
   return (
-    <section className="relative right-[10px] grid h-dvh flex-grow place-content-center">
+    <section className="relative right-[10px] grid flex-grow place-content-center">
       <Card className="border-none text-center shadow-none">
         <CardHeader>
           <CardTitle className="flex flex-col items-center gap-6 text-xl md:text-3xl">

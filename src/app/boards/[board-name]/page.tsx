@@ -26,7 +26,7 @@ export default function Board() {
   }
 
   return (
-    <div className="container relative right-3 flex h-full w-full flex-col overflow-hidden p-0 pb-4 pt-16 md:right-4">
+    <div className="container relative right-3 flex h-full flex-col overflow-hidden p-0 pb-8 md:right-4">
       <BoardHeader />
 
       <div className="scrollbar-hide flex h-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth md:justify-start">

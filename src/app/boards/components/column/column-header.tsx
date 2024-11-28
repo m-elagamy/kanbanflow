@@ -82,7 +82,7 @@ export default function ColumnHeader({ column }: { column: Column }) {
                 <Ellipsis />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent align="start">
               <DropdownMenuLabel>Column Actions</DropdownMenuLabel>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>
