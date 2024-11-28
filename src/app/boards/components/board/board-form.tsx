@@ -91,7 +91,7 @@ const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
       });
 
       router.prefetch(`/boards/${encodedTitle}`);
-      await delay(500);
+      await delay(600);
       router.push(`/boards/${encodedTitle}`);
       await delay(250);
       toast.success(getToastMessage());
