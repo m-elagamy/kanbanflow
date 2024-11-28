@@ -4,13 +4,11 @@ import FloatingParticles from "./floating-particles";
 
 const Landing = () => {
   return (
-    <section>
-      <div className="container relative pb-16 pt-32">
-        <Hero />
-        <Features />
-      </div>
+    <div className="container">
+      <Hero />
+      <Features />
       <FloatingParticles />
-    </section>
+    </div>
   );
 };
 

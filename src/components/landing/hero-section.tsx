@@ -7,7 +7,7 @@ import { ArrowRight, Eye } from "lucide-react";
 
 export default function Hero() {
   return (
-    <div className="mx-auto mb-8 max-w-3xl text-center">
+    <div className="mx-auto max-w-3xl pb-8 text-center">
       <div className="relative mb-6">
         <h1 className="text-4xl font-extrabold tracking-tighter md:text-6xl">
           <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent dark:from-white dark:via-gray-200 dark:to-gray-300">
@@ -15,7 +15,7 @@ export default function Hero() {
           </span>
         </h1>
         <motion.div
-          className="absolute -left-4 -top-4 h-8 w-8 rounded-full bg-blue-500/10"
+          className="absolute -left-2 -top-4 h-8 w-8 rounded-full bg-blue-500/10"
           animate={{
             scale: [1, 1.2, 1],
             transition: {
@@ -25,7 +25,7 @@ export default function Hero() {
           }}
         />
         <motion.div
-          className="absolute -bottom-4 -right-4 h-8 w-8 rounded-full bg-purple-500/10"
+          className="absolute -bottom-4 -right-2 h-8 w-8 rounded-full bg-purple-500/10"
           animate={{
             scale: [1, 1.2, 1],
             transition: {
