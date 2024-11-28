@@ -11,6 +11,7 @@ import { Ellipsis, Settings2, TrashIcon } from "lucide-react";
 import TaskModal from "./task-modal";
 import type Task from "@/lib/types/task";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface TaskActionsProps {
   task: Task;
@@ -23,6 +24,7 @@ export default function TaskActions({ task, columnId }: TaskActionsProps) {
 
   const handleDelete = () => {
     deleteTask(currentBoardId as string, columnId, task.id);
+    toast.success("Task was deleted successfully!");
   };
 
   return (

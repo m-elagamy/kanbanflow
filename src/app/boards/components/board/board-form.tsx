@@ -31,6 +31,8 @@ import generateUniqueID from "@/utils/generate-unique-ID";
 import delay from "@/utils/delay";
 import addBoardToStore from "../../utils/add-board-to-store";
 import columnsTemplates from "../../data/columns-templates";
+import { toast } from "sonner";
+import getToastMessage from "../../utils/get-toast-message";
 
 type BoardFormProps = {
   mode: "create" | "edit";
@@ -91,6 +93,8 @@ const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
       router.prefetch(`/boards/${encodedTitle}`);
       await delay(500);
       router.push(`/boards/${encodedTitle}`);
+      await delay(250);
+      toast.success(getToastMessage());
     }
   };
 
