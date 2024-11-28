@@ -6,9 +6,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <SidebarProvider defaultOpen={false}>
       <WorkspaceSidebar />
       <SidebarTrigger className="relative left-3 top-5 z-50 md:left-2 md:top-[70px]" />
-      <div className="container mx-0 overflow-hidden md:overflow-auto">
-        {children}
-      </div>
+      {children}
     </SidebarProvider>
   );
 }

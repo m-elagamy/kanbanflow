@@ -7,7 +7,7 @@ import UserAvatar from "./components/user-avatar";
 import KanbanLogo from "./components/kanban-logo";
 import SignInButton from "./components/sign-in-btn";
 import { Button } from "@/components/ui/button";
-import { motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { useMotionValueEvent, useScroll } from "framer-motion";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 
@@ -30,11 +30,11 @@ const Header = () => {
   };
 
   return (
-    <motion.header initial={{ y: -70 }} animate={{ y: 0 }}>
+    <header>
       <nav
         className={`fixed left-0 right-0 top-0 z-50 backdrop-blur-sm ${
           isScrolled
-            ? "bg-background/80 drop-shadow-sm backdrop-blur-sm"
+            ? "border-b bg-background/80 drop-shadow-sm backdrop-blur-sm"
             : "bg-transparent"
         }`}
       >
@@ -54,7 +54,7 @@ const Header = () => {
           <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-[#3F8DA0]/50 to-transparent opacity-50 dark:via-[#4f637399]" />
         )}
       </nav>
-    </motion.header>
+    </header>
   );
 };
 

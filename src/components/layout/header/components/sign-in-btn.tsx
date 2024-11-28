@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 function SignInButton() {
   return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+    <div>
       <Button
         variant="outline"
         className="group relative overflow-hidden transition-colors duration-300 hover:bg-accent/25"
@@ -29,7 +29,7 @@ function SignInButton() {
           <span className="relative z-10">Sign In</span>
         </Link>
       </Button>
-    </motion.div>
+    </div>
   );
 }
 

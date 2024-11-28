@@ -26,14 +26,14 @@ export default function Board() {
   }
 
   return (
-    <div className="relative right-3 flex h-full w-full flex-col overflow-hidden p-0 pb-4 pt-16 md:right-0">
+    <div className="container relative right-3 flex h-full w-full flex-col overflow-hidden p-0 pb-4 pt-16 md:right-4">
       <BoardHeader />
 
       <div className="scrollbar-hide flex h-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth md:justify-start">
         {currentBoard?.columns?.map((column) => (
           <Card
             key={column.id}
-            className="max-h-[550px] w-72 min-w-72 snap-start overflow-y-auto"
+            className="max-h-[550px] w-64 min-w-64 snap-start overflow-y-auto md:w-72 md:min-w-72"
           >
             <ColumnHeader column={column} />
             <CardContent className="flex-grow space-y-2 overflow-y-auto p-3">

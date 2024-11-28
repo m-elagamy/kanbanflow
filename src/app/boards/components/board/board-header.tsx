@@ -13,7 +13,7 @@ const BoardHeader = () => {
   const currentBoard = getCurrentBoard();
 
   return (
-    <div className="py-8">
+    <div className="py-8 md:mr-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ListTodoIcon size={24} />

@@ -15,7 +15,7 @@ const ColumnModal = () => {
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-      <DialogTrigger className="max-h-[550px] outline-none">
+      <DialogTrigger className="mx-auto h-full max-h-[550px] outline-none md:mx-0">
         <AddColumnCard />
       </DialogTrigger>
       <DialogContent className="rounded-lg">
