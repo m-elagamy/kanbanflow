@@ -1,3 +1,4 @@
+import { Layout } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -6,9 +7,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import BoardModal from "./components/board/board-modal";
-import { Layout } from "lucide-react";
 
-const Dashboard = () => {
+const Boards = () => {
   return (
     <section className="grid flex-grow place-content-center">
       <Card className="border-none text-center shadow-none">
@@ -28,4 +28,4 @@ const Dashboard = () => {
     </section>
   );
 };
-export default Dashboard;
+export default Boards;

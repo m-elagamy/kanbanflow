@@ -1,4 +1,4 @@
-import { ClipboardPenLine } from "lucide-react";
+import { FolderKanban } from "lucide-react";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -10,8 +10,8 @@ const HeaderContent = () => {
     <SidebarMenu className="pointer-events-none">
       <SidebarMenuItem>
         <SidebarMenuButton>
-          <ClipboardPenLine />
-          Boards
+          <FolderKanban />
+          Workspace
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>

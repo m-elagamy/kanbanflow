@@ -1,4 +1,4 @@
-import { ClipboardPenLine, PlusIcon } from "lucide-react";
+import { CirclePlus, ClipboardPenLine } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -36,7 +36,7 @@ export default function NoTasksMessage({ columnId }: { columnId: string }) {
         </CardDescription>
       </CardHeader>
 
-      <CardFooter className="flex justify-center pb-6">
+      <CardFooter className="flex justify-center">
         <TaskModal
           columnId={columnId}
           trigger={
@@ -45,7 +45,7 @@ export default function NoTasksMessage({ columnId }: { columnId: string }) {
               variant="outline"
               size="sm"
             >
-              <PlusIcon />
+              <CirclePlus />
               Add a Task
             </Button>
           }

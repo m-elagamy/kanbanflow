@@ -14,7 +14,7 @@ export default function Board() {
 
   if (!currentBoard) {
     return (
-      <div className="flex h-screen flex-grow items-center justify-center">
+      <div className="flex min-h-[calc(100vh-4rem)] flex-grow items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800">Board not found</h2>
           <p className="mt-2 text-gray-600">
@@ -24,6 +24,8 @@ export default function Board() {
       </div>
     );
   }
+
+  console.log(currentBoard);
 
   return (
     <div className="container relative right-3 flex h-full flex-col overflow-hidden p-0 pb-8 md:right-4">

@@ -29,9 +29,9 @@ const Header = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 h-[65px] backdrop-blur ${isScrolled ? "border-b bg-background/50" : ""}`}
+      className={`sticky top-0 z-50 h-16 backdrop-blur-sm transition-colors ${isScrolled ? "border-b bg-background/50" : ""}`}
     >
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex h-full items-center justify-between">
         <KanbanLogo />
 
         <div className="flex items-center gap-4">

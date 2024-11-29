@@ -5,7 +5,7 @@ import FloatingParticles from "./floating-particles";
 
 export default function Hero() {
   return (
-    <div className="grid h-[calc(100vh-64px)] place-content-center pb-8 text-center">
+    <div className="grid min-h-[calc(100vh-4rem)] place-content-center text-center">
       <div className="relative mb-6">
         <FloatingParticles />
         <h1 className="text-gradient text-4xl font-extrabold tracking-tighter md:text-6xl">

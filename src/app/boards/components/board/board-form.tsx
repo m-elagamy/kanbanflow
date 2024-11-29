@@ -33,6 +33,7 @@ import addBoardToStore from "../../utils/add-board-to-store";
 import columnsTemplates from "../../data/columns-templates";
 import { toast } from "sonner";
 import getToastMessage from "../../utils/get-toast-message";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type BoardFormProps = {
   mode: "create" | "edit";
@@ -41,6 +42,7 @@ type BoardFormProps = {
 
 const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
   const router = useRouter();
+  const isMobile = useIsMobile();
   const { addBoard, getCurrentBoard, updateBoard } = useBoardStore();
 
   const currentBoard = mode === "edit" ? getCurrentBoard() : null;
@@ -91,9 +93,9 @@ const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
       });
 
       router.prefetch(`/boards/${encodedTitle}`);
-      await delay(600);
+      await delay(isMobile ? 800 : 500);
       router.push(`/boards/${encodedTitle}`);
-      await delay(250);
+      await delay(isMobile ? 400 : 250);
       toast.success(getToastMessage());
     }
   };
