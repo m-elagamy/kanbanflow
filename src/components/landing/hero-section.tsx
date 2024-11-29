@@ -1,6 +1,6 @@
-import { Button } from "../ui/button";
 import Link from "next/link";
 import { ArrowRight, Eye } from "lucide-react";
+import { Button } from "../ui/button";
 import FloatingParticles from "./floating-particles";
 
 export default function Hero() {

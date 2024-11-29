@@ -14,6 +14,7 @@ const FloatingParticles = () => {
             duration: 2,
           },
         }}
+        aria-hidden="true"
       />
       <motion.div
         className="absolute -bottom-4 -right-2 h-8 w-8 rounded-full bg-purple-500/10"
@@ -25,6 +26,7 @@ const FloatingParticles = () => {
             delay: 0.5,
           },
         }}
+        aria-hidden="true"
       />
     </>
   );
