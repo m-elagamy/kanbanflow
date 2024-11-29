@@ -10,14 +10,14 @@ import { Layout } from "lucide-react";
 
 const Dashboard = () => {
   return (
-    <section className="relative right-[10px] grid flex-grow place-content-center">
+    <section className="grid flex-grow place-content-center">
       <Card className="border-none text-center shadow-none">
         <CardHeader>
-          <CardTitle className="flex flex-col items-center gap-6 text-xl md:text-3xl">
-            <Layout size={32} />
+          <CardTitle className="text-gradient flex flex-col items-center gap-4 text-xl md:text-3xl">
+            <Layout size={32} className="text-primary" />
             Welcome to Your Workspace
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm md:text-base">
             Let&apos;s create your first board and start organizing your work.
           </CardDescription>
         </CardHeader>

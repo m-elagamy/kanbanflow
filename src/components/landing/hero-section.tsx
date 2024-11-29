@@ -19,7 +19,7 @@ export default function Hero() {
       </p>
 
       <div className="flex justify-center gap-4">
-        <Button className="group rounded-full" asChild>
+        <Button className="group" asChild>
           <Link href="/login">
             <span className="relative z-10 flex items-center gap-2 font-semibold">
               Get Started
@@ -28,11 +28,7 @@ export default function Hero() {
           </Link>
         </Button>
 
-        <Button
-          variant="outline"
-          className="group rounded-full hover:bg-accent/25"
-          asChild
-        >
+        <Button variant="outline" className="group hover:bg-accent/25" asChild>
           <Link href="/demo">
             View Demo
             <Eye className="transition-transform duration-300 group-hover:scale-110" />

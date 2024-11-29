@@ -5,7 +5,7 @@ export function Features() {
   return (
     <>
       <div className="flex flex-wrap items-center justify-center gap-4 pb-12 text-center">
-        <h2 className="text-2xl font-bold md:text-3xl">
+        <h2 className="text-gradient text-2xl font-bold tracking-tighter md:text-3xl">
           What&apos;s in KanbanFlow?
         </h2>
         <p className="text-sm text-muted-foreground md:text-base">

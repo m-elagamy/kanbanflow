@@ -14,10 +14,10 @@ const KanbanLogo = () => {
         className="flex items-center gap-1"
         aria-label="Go to KanbanFlow homepage"
       >
-        <Kanban className="size-6 text-foreground/90 md:size-8" />
+        <Kanban className="size-6 text-primary/70 md:size-8" />
 
         <span
-          className={`bg-foreground bg-clip-text text-xl font-bold tracking-tight text-transparent md:text-2xl`}
+          className={`bg-gradient-to-r from-primary/90 to-primary/70 bg-clip-text text-xl font-bold tracking-tight text-transparent md:text-2xl`}
         >
           KanbanFlow
         </span>
