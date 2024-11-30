@@ -6,7 +6,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import useBoardStore from "@/store/useBoardStore";
+import useBoardStore from "@/stores/use-board-store";
 import { Ellipsis, Settings2, TrashIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

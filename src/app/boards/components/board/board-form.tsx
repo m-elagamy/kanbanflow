@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { DialogFooter } from "@/components/ui/dialog";
 import boardSchema from "@/validations/board-schema";
 import FormData from "@/lib/types/board-creation-form";
-import useBoardStore from "@/store/useBoardStore";
+import useBoardStore from "@/stores/use-board-store";
 import generateUniqueID from "@/utils/generate-unique-ID";
 import delay from "@/utils/delay";
 import addBoardToStore from "../../utils/add-board-to-store";

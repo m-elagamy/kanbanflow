@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import AddTaskSchema from "@/validations/task-schema";
-import useBoardStore from "@/store/useBoardStore";
+import useBoardStore from "@/stores/use-board-store";
 import { formatTags } from "../../utils/format-tags";
 import getBadgeStyle from "../../utils/get-badge-style";
 import taskPriorities from "../../data/task-priorities";

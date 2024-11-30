@@ -5,7 +5,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import useBoardStore from "@/store/useBoardStore";
+import useBoardStore from "@/stores/use-board-store";
 import BoardActions from "./board-actions";
 
 const BoardHeader = () => {

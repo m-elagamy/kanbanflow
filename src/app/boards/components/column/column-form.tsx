@@ -23,7 +23,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import delay from "@/utils/delay";
 import columnFormSchema from "@/validations/column-schema";
 import generateUniqueID from "@/utils/generate-unique-ID";
-import useBoardStore from "@/store/useBoardStore";
+import useBoardStore from "@/stores/use-board-store";
 import stateOptions from "../../data/column-state-options";
 
 type FormData = z.infer<typeof columnFormSchema>;

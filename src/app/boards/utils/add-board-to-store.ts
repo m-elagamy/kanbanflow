@@ -1,5 +1,5 @@
 import generateUniqueID from "@/utils/generate-unique-ID";
-import type { Board, BoardState } from "@/store/useBoardStore";
+import type { Board, BoardState } from "@/stores/use-board-store";
 
 const addBoardToStore = (addBoard: BoardState["addBoard"], board: Board) => {
   addBoard({

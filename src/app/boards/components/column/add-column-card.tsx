@@ -1,7 +1,7 @@
 import React from "react";
 import { PlusCircle } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import useBoardStore from "@/store/useBoardStore";
+import useBoardStore from "@/stores/use-board-store";
 
 const AddColumnCard = () => {
   const { getCurrentBoard } = useBoardStore();

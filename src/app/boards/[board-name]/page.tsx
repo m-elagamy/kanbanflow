@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import BoardHeader from "../components/board/board-header";
 import TaskCard from "../components/task/task-card";
 import ColumnHeader from "../components/column/column-header";
-import useBoardStore from "@/store/useBoardStore";
+import useBoardStore from "@/stores/use-board-store";
 import NoTasksMessage from "../components/task/no-tasks-message";
 import ColumnModal from "../components/column/column-modal";
 
@@ -24,8 +24,6 @@ export default function Board() {
       </div>
     );
   }
-
-  console.log(currentBoard);
 
   return (
     <div className="container relative right-3 flex h-full flex-col overflow-hidden p-0 pb-8 md:right-4">

@@ -14,17 +14,18 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
+import { Badge } from "@/components/ui/badge";
 import HeaderContent from "./header-content";
-import useBoardStore from "@/store/useBoardStore";
+import useBoardStore from "@/stores/use-board-store";
 import { slugifyTitle } from "@/app/boards/utils/slugify";
 import BoardModal from "@/app/boards/components/board/board-modal";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 export function WorkspaceSidebar() {
   const pathname = usePathname();
-  const { boards } = useBoardStore();
+  const { state } = useSidebar();
+  const { boards, setCurrentBoardId } = useBoardStore();
 
   return (
     <Sidebar collapsible="icon" className="top-16">
@@ -34,15 +35,11 @@ export function WorkspaceSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="justify-between">
-            {boards.length > 0 ? (
-              <>
-                Boards
-                <Badge variant="outline" className="h-5 px-2">
-                  {boards.length}
-                </Badge>
-              </>
-            ) : (
-              <>No boards yet. Add your first board!</>
+            Boards
+            {boards.length > 0 && (
+              <Badge variant="outline" className="h-5 px-2 text-[0.625rem]">
+                {boards.length}
+              </Badge>
             )}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -50,7 +47,7 @@ export function WorkspaceSidebar() {
               {boards.length > 0 &&
                 boards.map((board) => {
                   return (
-                    <SidebarMenuItem key={board.title}>
+                    <SidebarMenuItem key={board.id}>
                       <SidebarMenuButton
                         tooltip={board.title}
                         asChild
@@ -58,7 +55,10 @@ export function WorkspaceSidebar() {
                           pathname === `/boards/${slugifyTitle(board.title)}`
                         }
                       >
-                        <Link href={`/boards/${slugifyTitle(board.title)}`}>
+                        <Link
+                          href={`/boards/${slugifyTitle(board.title)}`}
+                          onClick={() => setCurrentBoardId(board.id)}
+                        >
                           <Clipboard size={24} />
 
                           <span>{board.title}</span>
@@ -74,17 +74,19 @@ export function WorkspaceSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <BoardModal
-                    mode="create"
-                    trigger={
-                      <Button variant="ghost" className="group/icon h-8 w-full">
-                        <CirclePlus className="!size-5 text-muted-foreground transition duration-300 ease-in-out group-hover/icon:rotate-90 group-hover/icon:scale-110 group-hover/icon:text-primary" />
-                        <span className="sr-only">Add a Board</span>
-                      </Button>
-                    }
-                  />
-                </SidebarMenuButton>
+                <BoardModal
+                  mode="create"
+                  trigger={
+                    <SidebarMenuButton
+                      className={`group/icon ${state === "expanded" ? "justify-center" : "justify-start"}`}
+                      tooltip="New Board"
+                      variant="outline"
+                    >
+                      <CirclePlus className="text-muted-foreground transition-colors group-hover/icon:text-primary" />
+                      <span>New Board</span>
+                    </SidebarMenuButton>
+                  }
+                />
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>

@@ -26,7 +26,7 @@ import AlertConfirmation from "../../../../components/ui/alert-confirmation";
 import TaskModal from "../task/task-modal";
 import type Column from "@/lib/types/column";
 import stateOptions from "../../data/column-state-options";
-import useBoardStore from "@/store/useBoardStore";
+import useBoardStore from "@/stores/use-board-store";
 import delay from "@/utils/delay";
 
 export default function ColumnHeader({ column }: { column: Column }) {
