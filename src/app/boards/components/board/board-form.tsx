@@ -93,10 +93,10 @@ const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
       });
 
       router.prefetch(`/boards/${encodedTitle}`);
-      await delay(isMobile ? 800 : 500);
+      await delay(isMobile ? 800 : 550);
       setIsModalOpen?.(false);
       router.push(`/boards/${encodedTitle}`);
-      await delay(isMobile ? 400 : 250);
+      await delay(isMobile ? 400 : 300);
       toast.success(getToastMessage());
     }
   };

@@ -1,7 +1,9 @@
+import { Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import getBadgeStyle from "../../utils/get-badge-style";
 import Task from "@/lib/types/task";
 import TaskActions from "./task-actions";
+import formatDate from "@/utils/format-date";
 
 type TaskCardProps = {
   task: Task;
@@ -34,7 +36,13 @@ export default function TaskCard({ task, columnId }: TaskCardProps) {
                 </Badge>
               ))}
           </div>
-          <TaskActions task={task} columnId={columnId} />
+          <div className="flex flex-col-reverse items-center gap-2">
+            <p className="flex items-center justify-center gap-1 text-[0.625rem] text-muted-foreground">
+              <Calendar size={12} />
+              {formatDate(new Date().toLocaleDateString())}
+            </p>
+            <TaskActions task={task} columnId={columnId} />
+          </div>
         </div>
       </div>
     </div>

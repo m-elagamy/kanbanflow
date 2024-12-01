@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { slugifyTitle } from "@/app/boards/utils/slugify";
 import type { BoardState } from "@/lib/types/board-state";
 
 const useBoardStore = create<BoardState>()(
@@ -14,18 +13,8 @@ const useBoardStore = create<BoardState>()(
       return boards.find((board) => board.id === currentBoardId) || null;
     },
 
-    findBoardBySlug(slug) {
-      return get().boards.find((b) => slugifyTitle(b.title) === slug) || null;
-    },
-
-    // Set the current board ID directly
+    //Set the current board ID directly
     setCurrentBoardId: (boardId) => set({ currentBoardId: boardId }),
-
-    // Set the current board based on the slug
-    setCurrentBoardBySlug: (slug) => {
-      const board = get().boards.find((b) => slugifyTitle(b.title) === slug);
-      set({ currentBoardId: board ? board.id : null });
-    },
 
     // Add a new board
     addBoard: (board) => {

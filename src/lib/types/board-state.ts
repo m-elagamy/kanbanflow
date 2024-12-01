@@ -8,11 +8,9 @@ export type BoardState = {
 
   // Getters
   getCurrentBoard: () => Board | null;
-  findBoardBySlug(slug: string): Board | null;
 
   // Setters
   setCurrentBoardId: (boardId: string | null) => void;
-  setCurrentBoardBySlug: (slug: string) => void;
 
   // Actions
   addBoard: (board: Board) => void;

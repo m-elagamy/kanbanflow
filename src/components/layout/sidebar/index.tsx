@@ -39,8 +39,8 @@ export function WorkspaceSidebar() {
                   <SidebarMenuItem key={board.id}>
                     <SidebarMenuButton
                       tooltip={board.title}
-                      asChild
                       isActive={isActive}
+                      asChild
                     >
                       <Link
                         href={href}
