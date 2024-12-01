@@ -45,7 +45,11 @@ const TaskForm = ({
   taskToEdit,
   setCloseDropdown,
 }: TaskFormProps) => {
-  const { addTask, currentBoardId, updateTask } = useKanbanStore();
+  const {
+    addTask,
+    activeBoardId: currentBoardId,
+    updateTask,
+  } = useKanbanStore();
 
   const form = useForm<AddTaskFormValues>({
     resolver: zodResolver(AddTaskSchema),
@@ -61,7 +65,7 @@ const TaskForm = ({
     await delay(250);
 
     if (taskToEdit) {
-      updateTask(currentBoardId as string, columnId, taskToEdit.id, (task) => ({
+      updateTask(currentBoardId, columnId, taskToEdit.id, (task) => ({
         ...task,
         title: data.title,
         description: data.description,
@@ -73,7 +77,7 @@ const TaskForm = ({
       return;
     }
 
-    addTask(currentBoardId as string, columnId, {
+    addTask(currentBoardId, columnId, {
       id: generateUniqueID(),
       title: data.title,
       description: data.description,

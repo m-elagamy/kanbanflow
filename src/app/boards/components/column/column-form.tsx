@@ -33,7 +33,7 @@ export default function ColumnForm({
 }: {
   setIsModalOpen: (isOpen: boolean) => void;
 }) {
-  const { addColumn, currentBoardId } = useKanbanStore();
+  const { addColumn, activeBoardId: currentBoardId } = useKanbanStore();
 
   const form = useForm<FormData>({
     resolver: zodResolver(columnFormSchema),
@@ -44,7 +44,7 @@ export default function ColumnForm({
 
   const onSubmit = async (data: FormData) => {
     await delay(250);
-    addColumn(currentBoardId as string, {
+    addColumn(currentBoardId, {
       id: generateUniqueID(),
       title: data.state,
       tasks: [],

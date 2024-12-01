@@ -19,11 +19,11 @@ interface TaskActionsProps {
 }
 
 export default function TaskActions({ task, columnId }: TaskActionsProps) {
-  const { currentBoardId, deleteTask } = useKanbanStore();
+  const { activeBoardId: currentBoardId, deleteTask } = useKanbanStore();
   const [closeDropdown, setCloseDropdown] = useState(false);
 
   const handleDelete = () => {
-    deleteTask(currentBoardId as string, columnId, task.id);
+    deleteTask(currentBoardId, columnId, task.id);
     toast.success("Task was deleted successfully!");
   };
 

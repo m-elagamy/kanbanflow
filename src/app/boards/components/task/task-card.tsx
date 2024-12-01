@@ -10,7 +10,7 @@ type TaskCardProps = {
   columnId: string;
 };
 
-export default function TaskCard({ task, columnId }: TaskCardProps) {
+const TaskCard = ({ task, columnId }: TaskCardProps) => {
   return (
     <div className="group max-h-[165px] cursor-grab overflow-y-auto rounded-lg border border-border bg-card p-3 transition-colors hover:bg-accent/25 active:cursor-grabbing">
       <div className="space-y-3">
@@ -47,4 +47,6 @@ export default function TaskCard({ task, columnId }: TaskCardProps) {
       </div>
     </div>
   );
-}
+};
+
+export default TaskCard;

@@ -10,7 +10,7 @@ import BoardModal from "./components/board/board-modal";
 
 const Boards = () => {
   return (
-    <section className="grid flex-grow place-content-center">
+    <section className="relative right-3 grid flex-grow place-content-center">
       <Card className="border-none text-center shadow-none">
         <CardHeader>
           <CardTitle className="text-gradient flex flex-col items-center gap-4 text-xl md:text-3xl">

@@ -1,187 +1,179 @@
 import { create } from "zustand";
-import { devtools } from "zustand/middleware";
+import { devtools, persist } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
+import type { Board } from "@/lib/types/board";
+import type Column from "@/lib/types/column";
 import type { KanbanState } from "@/lib/types/kanban-state";
+import type Task from "@/lib/types/task";
+import { findBoard, findColumn } from "@/utils/kanban-store";
 
 const useKanbanStore = create<KanbanState>()(
-  devtools((set, get) => ({
-    boards: [],
-    currentBoardId: null,
+  devtools(
+    immer(
+      persist(
+        (set, get) => ({
+          boards: [],
+          activeBoardId: null,
 
-    // Get the current board based on the currentBoardId
-    getCurrentBoard: () => {
-      const { boards, currentBoardId } = get();
-      return boards.find((board) => board.id === currentBoardId) || null;
-    },
+          getCurrentBoard: () => {
+            const { boards, activeBoardId } = get();
+            return findBoard(boards, activeBoardId) || null;
+          },
 
-    //Set the current board ID directly
-    setCurrentBoardId: (boardId) => set({ currentBoardId: boardId }),
+          getColumns: () => {
+            const currentBoard = get().getCurrentBoard();
+            return currentBoard ? currentBoard.columns : [];
+          },
 
-    // Add a new board
-    addBoard: (board) => {
-      set((state) => ({
-        boards: [...state.boards, board],
-        currentBoardId: board.id,
-      }));
-    },
+          getColumnTasks: (columnId: string) => {
+            const currentBoard = get().getCurrentBoard();
+            const column = currentBoard?.columns.find(
+              (col) => col.id === columnId,
+            );
+            return column ? column.tasks : [];
+          },
 
-    // Update a board
-    updateBoard: (boardId, updateFn) => {
-      set((state) => ({
-        boards: state.boards.map((board) =>
-          board.id === boardId ? updateFn(board) : board,
-        ),
-      }));
-    },
+          setActiveBoard: (id) =>
+            set((state) => {
+              state.activeBoardId = id;
+            }),
 
-    // Delete a board
-    deleteBoard: (boardId) => {
-      set((state) => ({
-        boards: state.boards.filter((board) => board.id !== boardId),
-        currentBoardId:
-          state.currentBoardId === boardId ? null : state.currentBoardId,
-      }));
-    },
+          addBoard: (board) =>
+            set((state) => {
+              state.boards.push(board);
+              state.activeBoardId = board.id;
+            }),
 
-    // Add a new column
-    addColumn: (boardId, column) => {
-      set((state) => ({
-        boards: state.boards.map((board) =>
-          board.id === boardId
-            ? { ...board, columns: [...board.columns, column] }
-            : board,
-        ),
-      }));
-    },
-
-    // Update an existing column
-    updateColumn: (boardId, columnId, updateFn) => {
-      set((state) => ({
-        boards: state.boards.map((board) =>
-          board.id === boardId
-            ? {
-                ...board,
-                columns: board.columns.map((col) =>
-                  col.id === columnId ? updateFn(col) : col,
-                ),
+          updateBoard: (boardId, updateFn) =>
+            set((state) => {
+              const boardIndex = state.boards.findIndex(
+                (board) => board.id === boardId,
+              );
+              if (boardIndex !== -1) {
+                const updatedBoard = updateFn(state.boards[boardIndex]);
+                if (updatedBoard !== state.boards[boardIndex]) {
+                  state.boards[boardIndex] = updatedBoard;
+                }
               }
-            : board,
-        ),
-      }));
-    },
+            }),
 
-    // Delete a column
-    deleteColumn: (boardId, columnId) => {
-      set((state) => ({
-        boards: state.boards.map((board) =>
-          board.id === boardId
-            ? {
-                ...board,
-                columns: board.columns.filter((col) => col.id !== columnId),
+          deleteBoard: (boardId) =>
+            set((state) => {
+              state.boards = state.boards.filter(
+                (board: Board) => board.id !== boardId,
+              );
+              state.activeBoardId =
+                state.activeBoardId === boardId ? null : state.activeBoardId;
+            }),
+
+          addColumn: (boardId, column) =>
+            set((state) => {
+              const board = findBoard(state.boards, boardId);
+              if (board) {
+                board.columns.push(column);
               }
-            : board,
-        ),
-      }));
-    },
+            }),
 
-    // Add a new task
-    addTask: (boardId, columnId, task) => {
-      set((state) => ({
-        boards: state.boards.map((board) =>
-          board.id === boardId
-            ? {
-                ...board,
-                columns: board.columns.map((col) =>
-                  col.id === columnId
-                    ? { ...col, tasks: [...col.tasks, task] }
-                    : col,
-                ),
+          updateColumn: (boardId, columnId, updateFn) =>
+            set((state) => {
+              const board = findBoard(state.boards, boardId);
+              if (board) {
+                const columnIndex = board.columns.findIndex(
+                  (col: Column) => col.id === columnId,
+                );
+                if (columnIndex !== -1) {
+                  board.columns[columnIndex] = updateFn(
+                    board.columns[columnIndex],
+                  );
+                }
               }
-            : board,
-        ),
-      }));
-    },
+            }),
 
-    // Update an existing task
-    updateTask: (boardId, columnId, taskId, updateFn) => {
-      set((state) => ({
-        boards: state.boards.map((board) =>
-          board.id === boardId
-            ? {
-                ...board,
-                columns: board.columns.map((col) =>
-                  col.id === columnId
-                    ? {
-                        ...col,
-                        tasks: col.tasks.map((task) =>
-                          task.id === taskId ? updateFn(task) : task,
-                        ),
-                      }
-                    : col,
-                ),
+          deleteColumn: (boardId, columnId) =>
+            set((state) => {
+              const board = findBoard(state.boards, boardId);
+              if (board) {
+                board.columns = board.columns.filter(
+                  (col: Column) => col.id !== columnId,
+                );
               }
-            : board,
-        ),
-      }));
-    },
+            }),
 
-    // Delete a task
-    deleteTask: (boardId, columnId, taskId) => {
-      set((state) => ({
-        boards: state.boards.map((board) =>
-          board.id === boardId
-            ? {
-                ...board,
-                columns: board.columns.map((col) =>
-                  col.id === columnId
-                    ? {
-                        ...col,
-                        tasks: col.tasks.filter((task) => task.id !== taskId),
-                      }
-                    : col,
-                ),
+          addTask: (boardId, columnId, task) =>
+            set((state) => {
+              const board = findBoard(state.boards, boardId);
+              if (board) {
+                const column = findColumn(board, columnId);
+                if (column) {
+                  column.tasks.push(task);
+                }
               }
-            : board,
-        ),
-      }));
-    },
+            }),
 
-    moveTask: (taskId, sourceColumnId, destinationColumnId) => {
-      const currentBoard = get().getCurrentBoard();
-      if (!currentBoard) return;
-
-      const sourceColumn = currentBoard.columns.find(
-        (col) => col.id === sourceColumnId,
-      );
-      const task = sourceColumn?.tasks.find((t) => t.id === taskId);
-
-      if (!sourceColumn || !task) return;
-
-      set((state) => ({
-        boards: state.boards.map((board) =>
-          board.id === currentBoard.id
-            ? {
-                ...board,
-                columns: board.columns.map((col) => {
-                  if (col.id === sourceColumnId) {
-                    return {
-                      ...col,
-                      tasks: col.tasks.filter((t) => t.id !== taskId),
-                    };
+          updateTask: (boardId, columnId, taskId, updateFn) =>
+            set((state) => {
+              const board = findBoard(state.boards, boardId);
+              if (board) {
+                const column = findColumn(board, columnId);
+                if (column) {
+                  const taskIndex = column.tasks.findIndex(
+                    (task: Task) => task.id === taskId,
+                  );
+                  if (taskIndex !== -1) {
+                    column.tasks[taskIndex] = updateFn(column.tasks[taskIndex]);
                   }
-                  if (col.id === destinationColumnId) {
-                    return {
-                      ...col,
-                      tasks: [...col.tasks, task],
-                    };
-                  }
-                  return col;
-                }),
+                }
               }
-            : board,
-        ),
-      }));
-    },
-  })),
+            }),
+
+          deleteTask: (boardId, columnId, taskId) =>
+            set((state) => {
+              const board = findBoard(state.boards, boardId);
+              if (board) {
+                const column = findColumn(board, columnId);
+                if (column) {
+                  column.tasks = column.tasks.filter(
+                    (task: Task) => task.id !== taskId,
+                  );
+                }
+              }
+            }),
+
+          moveTask: (taskId, sourceColumnId, destinationColumnId) =>
+            set((state) => {
+              const board = findBoard(state.boards, get().activeBoardId);
+
+              if (board) {
+                const sourceColumn = findColumn(board, sourceColumnId);
+                const destinationColumn = findColumn(
+                  board,
+                  destinationColumnId,
+                );
+
+                if (sourceColumn && destinationColumn) {
+                  const taskIndex = sourceColumn.tasks.findIndex(
+                    (task: Task) => task.id === taskId,
+                  );
+
+                  if (taskIndex !== -1) {
+                    const [movedTask] = sourceColumn.tasks.splice(taskIndex, 1);
+                    destinationColumn.tasks.push(movedTask);
+                  }
+                }
+              }
+            }),
+        }),
+        {
+          name: "kanban-storage",
+          partialize: (state) => ({
+            boards: state.boards,
+            activeBoardId: state.activeBoardId,
+          }),
+        },
+      ),
+    ),
+    { name: "KanbanStore" },
+  ),
 );
 
 export default useKanbanStore;

@@ -21,7 +21,7 @@ import SidebarLabel from "./sidebar-label";
 
 export function WorkspaceSidebar() {
   const pathname = usePathname();
-  const { boards, setCurrentBoardId } = useKanbanStore();
+  const { boards, setActiveBoard: setCurrentBoardId } = useKanbanStore();
 
   return (
     <Sidebar collapsible="icon" className="top-16">

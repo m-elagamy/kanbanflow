@@ -21,7 +21,7 @@ export default function SidebarActions() {
               mode="create"
               trigger={
                 <SidebarMenuButton
-                  className={`group/icon ${state === "expanded" && !isMobile ? "justify-center" : "justify-start"}`}
+                  className={`group/icon ${state === "expanded" || isMobile ? "justify-center" : "justify-start"}`}
                   tooltip="New Board"
                   variant="outline"
                 >

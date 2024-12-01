@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import AddColumnCard from "./add-column-card";
 import ColumnForm from "./column-form";
-import { useState } from "react";
 
 const ColumnModal = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

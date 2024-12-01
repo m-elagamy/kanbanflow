@@ -4,22 +4,27 @@ import type Task from "./task";
 
 export type KanbanState = {
   boards: Board[]; // List of all boards
-  currentBoardId: string | null; // ID of the currently selected board
+  activeBoardId: string | null; // ID of the currently selected board
 
   // Getters
   getCurrentBoard: () => Board | null;
+  getColumns: () => Column[];
+  getColumnTasks: (columnId: string) => Task[];
 
   // Setters
-  setCurrentBoardId: (boardId: string | null) => void;
+  setActiveBoard: (boardId: string | null) => void;
 
   // Actions
   addBoard: (board: Board) => void;
-  updateBoard: (boardId: string, updateFn: (board: Board) => Board) => void;
-  deleteBoard: (boardId: string) => void;
+  updateBoard: (
+    boardId: string | null,
+    updateFn: (board: Board) => Board,
+  ) => void;
+  deleteBoard: (boardId: string | null) => void;
 
-  addColumn: (boardId: string, column: Column) => void;
+  addColumn: (boardId: string | null, column: Column) => void;
   updateColumn: (
-    boardId: string,
+    boardId: string | null,
     columnId: string,
     updateFn: (col: Column) => Column,
   ) => void;
@@ -28,11 +33,11 @@ export type KanbanState = {
     sourceIndex: number,
     destinationIndex: number,
   ) => void;
-  deleteColumn: (boardId: string, columnId: string) => void;
+  deleteColumn: (boardId: string | null, columnId: string) => void;
 
-  addTask: (boardId: string, columnId: string, task: Task) => void;
+  addTask: (boardId: string | null, columnId: string, task: Task) => void;
   updateTask: (
-    boardId: string,
+    boardId: string | null,
     columnId: string,
     taskId: string,
     updateFn: (task: Task) => Task,
@@ -42,5 +47,9 @@ export type KanbanState = {
     sourceColumnId: string,
     destinationColumnId: string,
   ) => void;
-  deleteTask: (boardId: string, columnId: string, taskId: string) => void;
+  deleteTask: (
+    boardId: string | null,
+    columnId: string,
+    taskId: string,
+  ) => void;
 };
