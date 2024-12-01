@@ -26,14 +26,14 @@ import AlertConfirmation from "../../../../components/ui/alert-confirmation";
 import TaskModal from "../task/task-modal";
 import type Column from "@/lib/types/column";
 import stateOptions from "../../data/column-state-options";
-import useBoardStore from "@/stores/use-board-store";
+import useKanbanStore from "@/stores/use-kanban-store";
 import delay from "@/utils/delay";
 
 export default function ColumnHeader({ column }: { column: Column }) {
   const [showAlertConfirmation, setShowAlertConfirmation] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { currentBoardId, updateColumn, deleteColumn } = useBoardStore();
+  const { currentBoardId, updateColumn, deleteColumn } = useKanbanStore();
 
   const { id: columnId, title: columnTitle, tasks: tasksCount } = column;
 

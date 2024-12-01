@@ -6,7 +6,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import useBoardStore from "@/stores/use-board-store";
+import useKanbanStore from "@/stores/use-kanban-store";
 import { Ellipsis, Settings2, TrashIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -15,7 +15,7 @@ import BoardModal from "./board-modal";
 
 export default function BoardActions() {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const { getCurrentBoard, deleteBoard } = useBoardStore();
+  const { getCurrentBoard, deleteBoard } = useKanbanStore();
   const router = useRouter();
   const currentBoard = getCurrentBoard();
 

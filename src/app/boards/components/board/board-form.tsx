@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { DialogFooter } from "@/components/ui/dialog";
 import boardSchema from "@/validations/board-schema";
 import FormData from "@/lib/types/board-creation-form";
-import useBoardStore from "@/stores/use-board-store";
+import useKanbanStore from "@/stores/use-kanban-store";
 import generateUniqueID from "@/utils/generate-unique-ID";
 import delay from "@/utils/delay";
 import addBoardToStore from "../../utils/add-board-to-store";
@@ -43,7 +43,7 @@ type BoardFormProps = {
 const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
   const router = useRouter();
   const isMobile = useIsMobile();
-  const { addBoard, getCurrentBoard, updateBoard } = useBoardStore();
+  const { addBoard, getCurrentBoard, updateBoard } = useKanbanStore();
 
   const currentBoard = mode === "edit" ? getCurrentBoard() : null;
 
@@ -93,7 +93,7 @@ const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
       });
 
       router.prefetch(`/boards/${encodedTitle}`);
-      await delay(isMobile ? 800 : 550);
+      await delay(isMobile ? 800 : 600);
       setIsModalOpen?.(false);
       router.push(`/boards/${encodedTitle}`);
       await delay(isMobile ? 400 : 300);
@@ -193,7 +193,7 @@ const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
         <DialogFooter>
           <Button className="px-2" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting && <Loader className="animate-spin" />}
-            {mode === "create" ? "Create" : "Save"}
+            {mode === "create" ? "Create" : "Save Changes"}
           </Button>
         </DialogFooter>
       </form>

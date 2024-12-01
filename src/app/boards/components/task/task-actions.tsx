@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import useBoardStore from "@/stores/use-board-store";
+import useKanbanStore from "@/stores/use-kanban-store";
 import { Ellipsis, Settings2, TrashIcon } from "lucide-react";
 import TaskModal from "./task-modal";
 import type Task from "@/lib/types/task";
@@ -19,7 +19,7 @@ interface TaskActionsProps {
 }
 
 export default function TaskActions({ task, columnId }: TaskActionsProps) {
-  const { currentBoardId, deleteTask } = useBoardStore();
+  const { currentBoardId, deleteTask } = useKanbanStore();
   const [closeDropdown, setCloseDropdown] = useState(false);
 
   const handleDelete = () => {

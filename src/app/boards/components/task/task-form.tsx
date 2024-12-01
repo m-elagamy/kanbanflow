@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import AddTaskSchema from "@/validations/task-schema";
-import useBoardStore from "@/stores/use-board-store";
+import useKanbanStore from "@/stores/use-kanban-store";
 import { formatTags } from "../../utils/format-tags";
 import getBadgeStyle from "../../utils/get-badge-style";
 import taskPriorities from "../../data/task-priorities";
@@ -45,7 +45,7 @@ const TaskForm = ({
   taskToEdit,
   setCloseDropdown,
 }: TaskFormProps) => {
-  const { addTask, currentBoardId, updateTask } = useBoardStore();
+  const { addTask, currentBoardId, updateTask } = useKanbanStore();
 
   const form = useForm<AddTaskFormValues>({
     resolver: zodResolver(AddTaskSchema),
@@ -58,7 +58,6 @@ const TaskForm = ({
   });
 
   const handleTaskActions = async (data: AddTaskFormValues) => {
-    setCloseDropdown?.(false);
     await delay(250);
 
     if (taskToEdit) {
@@ -70,6 +69,7 @@ const TaskForm = ({
         tags: formatTags(data.tags),
       }));
       setIsModalOpen(false);
+      setCloseDropdown?.(false);
       return;
     }
 
@@ -82,6 +82,11 @@ const TaskForm = ({
     });
     setIsModalOpen(false);
     form.reset();
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setCloseDropdown?.(false);
   };
 
   return (
@@ -185,7 +190,10 @@ const TaskForm = ({
             </FormItem>
           )}
         />
-        <div className="text-end">
+        <div className="flex items-center justify-end gap-2">
+          <Button type="button" variant="ghost" onClick={closeModal}>
+            Cancel
+          </Button>
           <Button className="p-2 md:p-3" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting && <Loader className="animate-spin" />}
             {taskToEdit ? "Update" : "Add Task"}

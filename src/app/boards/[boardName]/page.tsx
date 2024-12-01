@@ -4,12 +4,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import BoardHeader from "../components/board/board-header";
 import TaskCard from "../components/task/task-card";
 import ColumnHeader from "../components/column/column-header";
-import useBoardStore from "@/stores/use-board-store";
+import useKanbanStore from "@/stores/use-kanban-store";
 import NoTasksMessage from "../components/task/no-tasks-message";
 import ColumnModal from "../components/column/column-modal";
 
 export default function Board() {
-  const { getCurrentBoard } = useBoardStore();
+  const { getCurrentBoard } = useKanbanStore();
 
   const currentBoard = getCurrentBoard();
 
@@ -35,7 +35,7 @@ export default function Board() {
         {currentBoard?.columns?.map((column) => (
           <Card
             key={column.id}
-            className="max-h-[550px] w-64 min-w-64 snap-start overflow-y-auto md:w-72 md:min-w-72"
+            className="max-h-[500px] w-64 min-w-64 snap-start overflow-y-auto md:w-72 md:min-w-72"
           >
             <ColumnHeader column={column} />
             <CardContent className="flex-grow space-y-2 overflow-y-auto p-3">

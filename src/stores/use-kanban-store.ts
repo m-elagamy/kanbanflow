@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import type { BoardState } from "@/lib/types/board-state";
+import type { KanbanState } from "@/lib/types/kanban-state";
 
-const useBoardStore = create<BoardState>()(
+const useKanbanStore = create<KanbanState>()(
   devtools((set, get) => ({
     boards: [],
     currentBoardId: null,
@@ -184,4 +184,4 @@ const useBoardStore = create<BoardState>()(
   })),
 );
 
-export default useBoardStore;
+export default useKanbanStore;

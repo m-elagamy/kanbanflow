@@ -1,8 +1,8 @@
 import type { Board } from "@/lib/types/board";
-import type { BoardState } from "@/lib/types/board-state";
+import type { KanbanState } from "@/lib/types/kanban-state";
 import generateUniqueID from "@/utils/generate-unique-ID";
 
-const addBoardToStore = (addBoard: BoardState["addBoard"], board: Board) => {
+const addBoardToStore = (addBoard: KanbanState["addBoard"], board: Board) => {
   addBoard({
     id: generateUniqueID(),
     title: board.title,

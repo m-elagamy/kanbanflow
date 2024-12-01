@@ -23,7 +23,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import delay from "@/utils/delay";
 import columnFormSchema from "@/validations/column-schema";
 import generateUniqueID from "@/utils/generate-unique-ID";
-import useBoardStore from "@/stores/use-board-store";
+import useKanbanStore from "@/stores/use-kanban-store";
 import stateOptions from "../../data/column-state-options";
 
 type FormData = z.infer<typeof columnFormSchema>;
@@ -33,7 +33,7 @@ export default function ColumnForm({
 }: {
   setIsModalOpen: (isOpen: boolean) => void;
 }) {
-  const { addColumn, currentBoardId } = useBoardStore();
+  const { addColumn, currentBoardId } = useKanbanStore();
 
   const form = useForm<FormData>({
     resolver: zodResolver(columnFormSchema),

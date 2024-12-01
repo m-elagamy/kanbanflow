@@ -13,7 +13,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import useBoardStore from "@/stores/use-board-store";
+import useKanbanStore from "@/stores/use-kanban-store";
 import { slugifyTitle } from "@/app/boards/utils/slugify";
 import SidebarTitle from "./sidebar-title";
 import SidebarActions from "./sidebar-actions";
@@ -21,7 +21,7 @@ import SidebarLabel from "./sidebar-label";
 
 export function WorkspaceSidebar() {
   const pathname = usePathname();
-  const { boards, setCurrentBoardId } = useBoardStore();
+  const { boards, setCurrentBoardId } = useKanbanStore();
 
   return (
     <Sidebar collapsible="icon" className="top-16">

@@ -1,10 +1,10 @@
 import React from "react";
 import { PlusCircle } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import useBoardStore from "@/stores/use-board-store";
+import useKanbanStore from "@/stores/use-kanban-store";
 
 const AddColumnCard = () => {
-  const { getCurrentBoard } = useBoardStore();
+  const { getCurrentBoard } = useKanbanStore();
   const currentBoard = getCurrentBoard();
 
   const columnsCount = currentBoard?.columns?.length ?? 0;

@@ -5,11 +5,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import useBoardStore from "@/stores/use-board-store";
+import useKanbanStore from "@/stores/use-kanban-store";
 import BoardActions from "./board-actions";
 
 const BoardHeader = () => {
-  const { getCurrentBoard } = useBoardStore();
+  const { getCurrentBoard } = useKanbanStore();
   const currentBoard = getCurrentBoard();
 
   return (

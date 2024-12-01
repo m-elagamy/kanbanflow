@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import { SidebarGroupLabel } from "@/components/ui/sidebar";
-import useBoardStore from "@/stores/use-board-store";
+import useKanbanStore from "@/stores/use-kanban-store";
 
 const SidebarLabel = () => {
-  const { boards } = useBoardStore();
+  const { boards } = useKanbanStore();
 
   return (
     <SidebarGroupLabel className="justify-between">
