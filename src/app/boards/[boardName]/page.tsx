@@ -7,9 +7,11 @@ import ColumnHeader from "../components/column/column-header";
 import useBoardStore from "@/stores/use-board-store";
 import NoTasksMessage from "../components/task/no-tasks-message";
 import ColumnModal from "../components/column/column-modal";
+import { useParams } from "next/navigation";
 
 export default function Board() {
   const { getCurrentBoard } = useBoardStore();
+
   const currentBoard = getCurrentBoard();
 
   if (!currentBoard) {

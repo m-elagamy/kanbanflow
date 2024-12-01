@@ -1,54 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import Task from "@/lib/types/task";
-import Column from "@/lib/types/column";
 import { slugifyTitle } from "@/app/boards/utils/slugify";
-
-export type Board = {
-  id: string;
-  title: string;
-  description?: string;
-  columns: Column[];
-};
-
-export type BoardState = {
-  boards: Board[]; // List of all boards
-  currentBoardId: string | null; // ID of the currently selected board
-
-  // Getters
-  getCurrentBoard: () => Board | null;
-
-  // Setters
-  setCurrentBoardId: (boardId: string | null) => void;
-  setCurrentBoardBySlug: (slug: string) => void;
-
-  // Actions
-  addBoard: (board: Board) => void;
-  updateBoard: (boardId: string, updateFn: (board: Board) => Board) => void;
-  deleteBoard: (boardId: string) => void;
-
-  addColumn: (boardId: string, column: Column) => void;
-  updateColumn: (
-    boardId: string,
-    columnId: string,
-    updateFn: (col: Column) => Column,
-  ) => void;
-  deleteColumn: (boardId: string, columnId: string) => void;
-
-  addTask: (boardId: string, columnId: string, task: Task) => void;
-  updateTask: (
-    boardId: string,
-    columnId: string,
-    taskId: string,
-    updateFn: (task: Task) => Task,
-  ) => void;
-  deleteTask: (boardId: string, columnId: string, taskId: string) => void;
-  moveTask: (
-    taskId: string,
-    sourceColumnId: string,
-    destinationColumnId: string,
-  ) => void;
-};
+import type { BoardState } from "@/lib/types/board-state";
 
 const useBoardStore = create<BoardState>()(
   devtools((set, get) => ({
@@ -59,6 +12,10 @@ const useBoardStore = create<BoardState>()(
     getCurrentBoard: () => {
       const { boards, currentBoardId } = get();
       return boards.find((board) => board.id === currentBoardId) || null;
+    },
+
+    findBoardBySlug(slug) {
+      return get().boards.find((b) => slugifyTitle(b.title) === slug) || null;
     },
 
     // Set the current board ID directly

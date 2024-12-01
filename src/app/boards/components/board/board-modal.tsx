@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { Edit, PlusCircle } from "lucide-react";
+
 import {
   Dialog,
   DialogContent,
@@ -9,9 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Edit, PlusCircle } from "lucide-react";
 import BoardForm from "./board-form";
-import { useState } from "react";
 
 type BoardModalProps = {
   mode: "create" | "edit";
