@@ -1,4 +1,7 @@
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Ellipsis, Settings2, TrashIcon } from "lucide-react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,10 +9,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import useKanbanStore from "@/stores/use-kanban-store";
-import { Ellipsis, Settings2, TrashIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import AlertConfirmation from "../../../../components/ui/alert-confirmation";
 import BoardModal from "./board-modal";
 

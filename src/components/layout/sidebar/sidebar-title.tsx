@@ -5,8 +5,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { memo } from "react";
 
-export default function SidebarTitle() {
+const SidebarTitle = memo(() => {
   return (
     <SidebarHeader>
       <SidebarMenu className="pointer-events-none">
@@ -19,4 +20,8 @@ export default function SidebarTitle() {
       </SidebarMenu>
     </SidebarHeader>
   );
-}
+});
+
+SidebarTitle.displayName = "SidebarTitle";
+
+export default SidebarTitle;
