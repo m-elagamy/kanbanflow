@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { CirclePlus } from "lucide-react";
 import BoardModal from "@/app/boards/components/board/board-modal";
 import {
@@ -10,7 +9,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const SidebarActions = memo(() => {
+const SidebarActions = () => {
   const { state, isMobile } = useSidebar();
 
   return (
@@ -36,8 +35,6 @@ const SidebarActions = memo(() => {
       </SidebarGroupContent>
     </SidebarGroup>
   );
-});
-
-SidebarActions.displayName = "SidebarActions";
+};
 
 export default SidebarActions;

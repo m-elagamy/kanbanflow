@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Clipboard } from "lucide-react";
@@ -22,11 +21,8 @@ import SidebarLabel from "./sidebar-label";
 
 export function WorkspaceSidebar() {
   const pathname = usePathname();
-  const boards = useKanbanStore(useCallback((state) => state.boards, []));
-
-  const setActiveBoard = useKanbanStore(
-    useCallback((state) => state.setActiveBoard, []),
-  );
+  const boards = useKanbanStore((state) => state.boards);
+  const setActiveBoard = useKanbanStore((state) => state.setActiveBoard);
 
   return (
     <Sidebar collapsible="icon" className="top-16">

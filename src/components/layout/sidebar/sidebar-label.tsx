@@ -1,12 +1,9 @@
-import { memo, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { SidebarGroupLabel } from "@/components/ui/sidebar";
 import useKanbanStore from "@/stores/use-kanban-store";
 
-const SidebarLabel = memo(() => {
-  const boardsLength = useKanbanStore(
-    useCallback((state) => state.boards.length, []),
-  );
+const SidebarLabel = () => {
+  const boardsLength = useKanbanStore((state) => state.boards.length);
 
   return (
     <SidebarGroupLabel className="justify-between">
@@ -18,8 +15,6 @@ const SidebarLabel = memo(() => {
       )}
     </SidebarGroupLabel>
   );
-});
-
-SidebarLabel.displayName = "SidebarLabel";
+};
 
 export default SidebarLabel;

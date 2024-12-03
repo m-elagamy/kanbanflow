@@ -4,13 +4,17 @@ const DndContext = dynamic(
   () => import("@dnd-kit/core").then((mod) => mod.DndContext),
   {
     ssr: false,
+    loading: () => null,
   },
+);
+const DragOverlay = dynamic(
+  () => import("@dnd-kit/core").then((mod) => mod.DragOverlay),
+  { ssr: false },
 );
 import { memo, ReactNode, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import {
-  DragOverlay,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -58,10 +62,6 @@ const DndProvider = memo(({ children }: { children: ReactNode }) => {
     [getTaskById, setActiveTask],
   );
 
-  const handleDragOver = (event: DragOverEvent) => {
-    console.log("Dragged over:", event.over?.id);
-  };
-
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
@@ -89,6 +89,10 @@ const DndProvider = memo(({ children }: { children: ReactNode }) => {
     [moveTask, setActiveTask],
   );
 
+  const handleDragOver = (event: DragOverEvent) => {
+    console.log("Dragged over:", event.over?.id);
+  };
+
   const handleDragCancel = () => setActiveTask(null);
 
   return (
@@ -101,7 +105,11 @@ const DndProvider = memo(({ children }: { children: ReactNode }) => {
       onDragCancel={handleDragCancel}
     >
       {children}
-      <DragOverlay>{activeTask && <TaskCard task={activeTask} />}</DragOverlay>
+      {activeTask && (
+        <DragOverlay>
+          <TaskCard task={activeTask} />
+        </DragOverlay>
+      )}
     </DndContext>
   );
 });
