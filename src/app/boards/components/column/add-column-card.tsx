@@ -22,9 +22,11 @@ const AddColumnCard = () => {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="text-muted-foreground">
-        {columnsCount === 0 ? "Create Your First Column" : "New Column"}
-      </CardFooter>
+      {columnsCount === 0 && (
+        <CardFooter className="text-muted-foreground">
+          Create Your First Column
+        </CardFooter>
+      )}
     </Card>
   );
 };

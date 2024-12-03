@@ -14,6 +14,7 @@ const useKanbanStore = create<KanbanState>()(
         (set, get) => ({
           boards: [],
           activeBoardId: null,
+          activeTask: null,
 
           getCurrentBoard: () => {
             const { boards, activeBoardId } = get();
@@ -33,10 +34,17 @@ const useKanbanStore = create<KanbanState>()(
             return column ? column.tasks : [];
           },
 
+          getTaskById: (columnId: string, taskId: string) => {
+            const columnTasks = get().getColumnTasks(columnId);
+            return columnTasks.find((task) => task.id === taskId) || null;
+          },
+
           setActiveBoard: (id) =>
             set((state) => {
               state.activeBoardId = id;
             }),
+
+          setActiveTask: (task) => set({ activeTask: task }),
 
           addBoard: (board) =>
             set((state) => {
@@ -139,7 +147,12 @@ const useKanbanStore = create<KanbanState>()(
               }
             }),
 
-          moveTask: (taskId, sourceColumnId, destinationColumnId) =>
+          moveTask: (
+            taskId,
+            sourceColumnId,
+            destinationColumnId,
+            destinationIndex,
+          ) =>
             set((state) => {
               const board = findBoard(state.boards, get().activeBoardId);
 
@@ -157,12 +170,17 @@ const useKanbanStore = create<KanbanState>()(
 
                   if (taskIndex !== -1) {
                     const [movedTask] = sourceColumn.tasks.splice(taskIndex, 1);
-                    destinationColumn.tasks.push(movedTask);
+                    destinationColumn.tasks.splice(
+                      destinationIndex,
+                      0,
+                      movedTask,
+                    );
                   }
                 }
               }
             }),
         }),
+
         {
           name: "kanban-storage",
           partialize: (state) => ({

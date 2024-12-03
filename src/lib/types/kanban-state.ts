@@ -5,14 +5,17 @@ import type Task from "./task";
 export type KanbanState = {
   boards: Board[]; // List of all boards
   activeBoardId: string | null; // ID of the currently selected board
+  activeTask: Task | null;
 
   // Getters
   getCurrentBoard: () => Board | null;
   getColumns: () => Column[];
   getColumnTasks: (columnId: string) => Task[];
+  getTaskById: (columnId: string, taskId: string) => Task | null;
 
   // Setters
   setActiveBoard: (boardId: string | null) => void;
+  setActiveTask: (task: Task | null) => void;
 
   // Actions
   addBoard: (board: Board) => void;
@@ -46,6 +49,7 @@ export type KanbanState = {
     taskId: string,
     sourceColumnId: string,
     destinationColumnId: string,
+    destinationIndex: number,
   ) => void;
   deleteTask: (
     boardId: string | null,

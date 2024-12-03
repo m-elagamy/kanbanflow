@@ -1,4 +1,7 @@
+import { memo } from "react";
 import { Calendar } from "lucide-react";
+import { useSortable } from "@dnd-kit/sortable";
+
 import { Badge } from "@/components/ui/badge";
 import getBadgeStyle from "../../utils/get-badge-style";
 import Task from "@/lib/types/task";
@@ -7,12 +10,21 @@ import formatDate from "@/utils/format-date";
 
 type TaskCardProps = {
   task: Task;
-  columnId: string;
+  columnId?: string;
 };
 
-const TaskCard = ({ task, columnId }: TaskCardProps) => {
+const TaskCard = memo(({ task, columnId }: TaskCardProps) => {
+  const { attributes, listeners, setNodeRef } = useSortable({
+    id: `${columnId}_${task.id}`,
+  });
+
   return (
-    <div className="group max-h-[165px] cursor-grab overflow-y-auto rounded-lg border border-border bg-card p-3 transition-colors hover:bg-accent/25 active:cursor-grabbing">
+    <div
+      className="group max-h-[165px] cursor-grab overflow-y-auto rounded-lg border border-border bg-card p-3 transition-colors hover:bg-accent/25 active:cursor-grabbing"
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+    >
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="max-w-[160px] overflow-x-hidden text-ellipsis whitespace-nowrap text-sm font-medium md:text-base">
@@ -41,12 +53,14 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
               <Calendar size={12} />
               {formatDate(new Date().toLocaleDateString())}
             </p>
-            <TaskActions task={task} columnId={columnId} />
+            {columnId && <TaskActions task={task} columnId={columnId} />}
           </div>
         </div>
       </div>
     </div>
   );
-};
+});
+
+TaskCard.displayName = "TaskCard";
 
 export default TaskCard;

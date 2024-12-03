@@ -3,7 +3,7 @@ import ColumnCard from "./column-card";
 import ColumnModal from "./column-modal";
 import useKanbanStore from "@/stores/use-kanban-store";
 
-export default function ColumnsWrapper() {
+const ColumnsWrapper = () => {
   const columns = useKanbanStore(
     useCallback((state) => state.getColumns(), []),
   );
@@ -14,4 +14,6 @@ export default function ColumnsWrapper() {
       <ColumnModal />
     </div>
   );
-}
+};
+
+export default ColumnsWrapper;
