@@ -152,4 +152,8 @@
   .text-gradient {
     @apply bg-gradient-to-tr from-[#111] via-[#333] to-[#555] bg-clip-text text-transparent dark:from-gray-300 dark:via-gray-400 dark:to-gray-200;
   }
+
+  .necessary-ellipsis {
+    @apply overflow-x-hidden text-ellipsis whitespace-nowrap;
+  }
 }

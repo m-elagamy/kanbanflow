@@ -183,7 +183,7 @@ const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
                 />
               </FormControl>
               <FormDescription>
-                Add context to help you remember the board&apos;s purpose.
+                Add a context to help you remember the board&apos;s purpose.
               </FormDescription>
             </FormItem>
           )}

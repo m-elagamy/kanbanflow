@@ -1,6 +1,6 @@
-import { memo } from "react";
 import { Calendar } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 import { Badge } from "@/components/ui/badge";
 import getBadgeStyle from "../../utils/get-badge-style";
@@ -10,24 +10,43 @@ import formatDate from "@/utils/format-date";
 
 type TaskCardProps = {
   task: Task;
-  columnId?: string;
+  columnId?: string | null;
+  isDragging?: boolean;
 };
 
-const TaskCard = memo(({ task, columnId }: TaskCardProps) => {
-  const { attributes, listeners, setNodeRef } = useSortable({
+const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging: isSortableDragging,
+  } = useSortable({
     id: `${columnId}_${task.id}`,
   });
 
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isSortableDragging ? 0.4 : 1,
+    cursor: isDragging ? "grabbing" : "grab",
+  };
+
   return (
     <div
-      className="group max-h-[165px] cursor-grab overflow-y-auto rounded-lg border border-border bg-card p-3 transition-colors hover:bg-accent/25 active:cursor-grabbing"
+      className={`group max-h-[165px] touch-manipulation overflow-y-auto rounded-lg border border-border bg-card p-3 transition-all`}
       ref={setNodeRef}
       {...attributes}
       {...listeners}
+      style={style}
     >
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="max-w-[160px] overflow-x-hidden text-ellipsis whitespace-nowrap text-sm font-medium md:text-base">
+          <h3
+            className={`${task.title.length > 20 ? "necessary-ellipsis max-w-[140px] md:max-w-[180px]" : ""} text-sm font-medium md:text-base`}
+            title={task.title}
+          >
             {task.title}
           </h3>
           <Badge
@@ -59,8 +78,6 @@ const TaskCard = memo(({ task, columnId }: TaskCardProps) => {
       </div>
     </div>
   );
-});
-
-TaskCard.displayName = "TaskCard";
+};
 
 export default TaskCard;

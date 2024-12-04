@@ -1,4 +1,5 @@
-import { useCallback } from "react";
+"use client";
+
 import { InfoIcon, ListTodoIcon } from "lucide-react";
 
 import {
@@ -7,13 +8,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import useKanbanStore from "@/stores/use-kanban-store";
 import BoardActions from "./board-actions";
+import useKanbanStore from "@/stores/use-kanban-store";
 
 const BoardHeader = () => {
-  const currentBoard = useKanbanStore(
-    useCallback((state) => state.getCurrentBoard(), []),
-  );
+  const currentBoard = useKanbanStore((state) => state.getCurrentBoard());
 
   return (
     <div className="py-8 md:mr-8">

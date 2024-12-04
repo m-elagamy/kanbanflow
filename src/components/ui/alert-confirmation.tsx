@@ -33,7 +33,7 @@ const AlertConfirmation = ({
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent className="max-w-96 rounded-lg p-4">
         <AlertDialogHeader className="items-center">
-          <AlertDialogTitle>
+          <AlertDialogTitle className="flex flex-col gap-2">
             <Trash2 className="mx-auto text-red-500" />
             {title}
           </AlertDialogTitle>

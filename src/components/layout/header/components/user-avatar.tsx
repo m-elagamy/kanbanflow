@@ -5,7 +5,7 @@ const UserAvatar = () => {
   return (
     <Link href="/boards">
       <Avatar>
-        <AvatarImage src="https://github.com/shadcn.png" />
+        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
         <AvatarFallback>SC</AvatarFallback>
       </Avatar>
     </Link>

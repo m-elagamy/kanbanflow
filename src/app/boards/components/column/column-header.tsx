@@ -1,5 +1,7 @@
-import { useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import { Ellipsis, Settings2, TrashIcon } from "lucide-react";
+import { useShallow } from "zustand/shallow";
+import clsx from "clsx";
 
 import {
   Command,
@@ -26,40 +28,34 @@ import AlertConfirmation from "../../../../components/ui/alert-confirmation";
 import TaskModal from "../task/task-modal";
 import stateOptions from "../../data/column-state-options";
 import useKanbanStore from "@/stores/use-kanban-store";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type Column from "@/lib/types/column";
 
 export default function ColumnHeader({ column }: { column: Column }) {
-  const [showAlertConfirmation, setShowAlertConfirmation] = useState(false);
+  const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
-
-  const activeBoardId = useKanbanStore(
-    useCallback((state) => state.activeBoardId, []),
-  );
-  const updateColumn = useKanbanStore(
-    useCallback((state) => state.updateColumn, []),
-  );
-  const deleteColumn = useKanbanStore(
-    useCallback((state) => state.deleteColumn, []),
+  const [showAlertConfirmation, setShowAlertConfirmation] = useState(false);
+  const { activeBoardId, updateColumn, deleteColumn } = useKanbanStore(
+    useShallow((state) => ({
+      activeBoardId: state.activeBoardId,
+      updateColumn: state.updateColumn,
+      deleteColumn: state.deleteColumn,
+    })),
   );
 
   const { id: columnId, title: columnTitle, tasks: tasksCount } = column;
 
-  const { icon: Icon, color } = useMemo(
-    () => stateOptions[columnTitle as keyof typeof stateOptions],
-    [columnTitle],
-  );
+  const { icon: Icon, color } =
+    stateOptions[columnTitle as keyof typeof stateOptions];
 
-  const handleUpdateColumn = useCallback(
-    (updates: Pick<Column, "title">) => {
-      updateColumn(activeBoardId, column.id, (col) => ({ ...col, ...updates }));
-      setIsOpen(false);
-    },
-    [activeBoardId, column.id, updateColumn, setIsOpen],
-  );
+  const handleUpdateColumn = (updates: Pick<Column, "title">) => {
+    updateColumn(activeBoardId, column.id, (col) => ({ ...col, ...updates }));
+    setIsOpen(false);
+  };
 
-  const handleDeleteColumn = useCallback(() => {
+  const handleDeleteColumn = () => {
     deleteColumn(activeBoardId, column.id);
-  }, [activeBoardId, column.id, deleteColumn]);
+  };
 
   return (
     <>
@@ -67,7 +63,10 @@ export default function ColumnHeader({ column }: { column: Column }) {
         <CardTitle className="flex items-center gap-2 text-ellipsis whitespace-nowrap text-sm">
           {<Icon size={16} color={color} />}
           <span
-            className={`${tasksCount.length ? "max-w-[115px] overflow-x-hidden text-ellipsis whitespace-nowrap" : ""}`}
+            className={clsx(
+              columnTitle.length > 15 && "necessary-ellipsis max-w-[115px]",
+            )}
+            title={columnTitle.length > 15 ? columnTitle : ""}
           >
             {columnTitle}
           </span>
@@ -89,7 +88,7 @@ export default function ColumnHeader({ column }: { column: Column }) {
                 <span className="sr-only">Column Actions</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
+            <DropdownMenuContent align={isMobile ? "start" : "center"}>
               <DropdownMenuLabel>Column Actions</DropdownMenuLabel>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>

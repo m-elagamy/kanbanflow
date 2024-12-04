@@ -1,5 +1,8 @@
 "use client";
 
+import { ReactNode } from "react";
+import dynamic from "next/dynamic";
+import { useShallow } from "zustand/shallow";
 const DndContext = dynamic(
   () => import("@dnd-kit/core").then((mod) => mod.DndContext),
   {
@@ -7,33 +10,29 @@ const DndContext = dynamic(
     loading: () => null,
   },
 );
-const DragOverlay = dynamic(
-  () => import("@dnd-kit/core").then((mod) => mod.DragOverlay),
-  { ssr: false },
-);
-import { memo, ReactNode, useCallback } from "react";
-import dynamic from "next/dynamic";
-import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import {
-  KeyboardSensor,
+  DragOverlay,
   PointerSensor,
   useSensor,
   useSensors,
-  type DragStartEvent,
-  type DragOverEvent,
-  type DragEndEvent,
   TouchSensor,
   closestCorners,
+  type DragStartEvent,
+  type DragEndEvent,
 } from "@dnd-kit/core";
 
-import useKanbanStore from "@/stores/use-kanban-store";
 import TaskCard from "@/app/boards/components/task/task-card";
+import useKanbanStore from "@/stores/use-kanban-store";
 
-const DndProvider = memo(({ children }: { children: ReactNode }) => {
-  const moveTask = useKanbanStore((state) => state.moveTask);
-  const getTaskById = useKanbanStore((state) => state.getTaskById);
-  const activeTask = useKanbanStore((state) => state.activeTask);
-  const setActiveTask = useKanbanStore((state) => state.setActiveTask);
+const DndProvider = ({ children }: { children: ReactNode }) => {
+  const { moveTask, getTaskById, activeTask, setActiveTask } = useKanbanStore(
+    useShallow((state) => ({
+      moveTask: state.moveTask,
+      getTaskById: state.getTaskById,
+      activeTask: state.activeTask,
+      setActiveTask: state.setActiveTask,
+    })),
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -43,54 +42,40 @@ const DndProvider = memo(({ children }: { children: ReactNode }) => {
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 250,
+        delay: 150,
         tolerance: 5,
       },
     }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
   );
 
-  const handleDragStart = useCallback(
-    (event: DragStartEvent) => {
-      const { id } = event.active;
-      const [columnId, taskId] = (id as string).split("_");
-      const task = getTaskById(columnId, taskId);
-      setActiveTask(task);
-    },
-    [getTaskById, setActiveTask],
-  );
+  const handleDragStart = (event: DragStartEvent) => {
+    const { id } = event.active;
+    const [columnId, taskId] = (id as string).split("_");
+    const task = getTaskById(columnId, taskId);
+    setActiveTask(task);
+  };
 
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
 
-      if (!over) return;
+    if (!over) return;
 
-      const [fromColumn, taskId] = (active.id as string).split("_");
-      const [toColumn] = (over.id as string).split("_");
+    const [fromColumn, taskId] = (active.id as string).split("_");
+    const [toColumn] = (over.id as string).split("_");
 
-      if (fromColumn && toColumn) {
-        const destinationTasks = useKanbanStore
-          .getState()
-          .getColumnTasks(toColumn);
+    if (fromColumn && toColumn) {
+      const destinationTasks = useKanbanStore
+        .getState()
+        .getColumnTasks(toColumn);
 
-        const overIndex = destinationTasks.findIndex(
-          (task) => `${toColumn}_${task.id}` === over.id,
-        );
+      const overIndex = destinationTasks.findIndex(
+        (task) => `${toColumn}_${task.id}` === over.id,
+      );
 
-        const dropIndex =
-          overIndex === -1 ? destinationTasks.length : overIndex;
-        moveTask(taskId, fromColumn, toColumn, dropIndex);
-      }
-      setActiveTask(null);
-    },
-    [moveTask, setActiveTask],
-  );
-
-  const handleDragOver = (event: DragOverEvent) => {
-    console.log("Dragged over:", event.over?.id);
+      const dropIndex = overIndex === -1 ? destinationTasks.length : overIndex;
+      moveTask(taskId, fromColumn, toColumn, dropIndex);
+    }
+    setActiveTask(null);
   };
 
   const handleDragCancel = () => setActiveTask(null);
@@ -100,20 +85,15 @@ const DndProvider = memo(({ children }: { children: ReactNode }) => {
       sensors={sensors}
       collisionDetection={closestCorners}
       onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
       {children}
-      {activeTask && (
-        <DragOverlay>
-          <TaskCard task={activeTask} />
-        </DragOverlay>
-      )}
+      <DragOverlay>
+        {activeTask && <TaskCard task={activeTask} isDragging />}
+      </DragOverlay>
     </DndContext>
   );
-});
-
-DndProvider.displayName = "DndProvider";
+};
 
 export default DndProvider;

@@ -1,5 +1,5 @@
-import { memo, useMemo } from "react";
-import { useSortable } from "@dnd-kit/sortable";
+import { SortableContext } from "@dnd-kit/sortable";
+import { useDroppable } from "@dnd-kit/core";
 
 import { Card, CardContent } from "@/components/ui/card";
 import ColumnHeader from "./column-header";
@@ -8,14 +8,14 @@ import TaskCard from "../task/task-card";
 import useKanbanStore from "@/stores/use-kanban-store";
 import type Column from "@/lib/types/column";
 
-const ColumnCard = memo(({ column }: { column: Column }) => {
-  const tasks = useKanbanStore(
-    useMemo(() => (state) => state.getColumnTasks(column.id), [column.id]),
-  );
+const ColumnCard = ({ column }: { column: Column }) => {
+  const tasks = useKanbanStore((state) => state.getColumnTasks(column.id));
 
-  const { setNodeRef } = useSortable({
+  const { setNodeRef } = useDroppable({
     id: column.id,
   });
+
+  const taskIds = tasks.map((task) => `${column.id}_${task.id}`);
 
   return (
     <Card
@@ -27,15 +27,15 @@ const ColumnCard = memo(({ column }: { column: Column }) => {
         {tasks?.length === 0 ? (
           <NoTasksMessage columnId={column.id} />
         ) : (
-          tasks?.map((task) => (
-            <TaskCard key={task.id} task={task} columnId={column.id} />
-          ))
+          <SortableContext items={taskIds}>
+            {tasks?.map((task) => (
+              <TaskCard key={task.id} task={task} columnId={column.id} />
+            ))}
+          </SortableContext>
         )}
       </CardContent>
     </Card>
   );
-});
-
-ColumnCard.displayName = "ColumnCard";
+};
 
 export default ColumnCard;

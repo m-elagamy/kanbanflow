@@ -6,12 +6,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
 
 const SidebarActions = () => {
-  const { state, isMobile } = useSidebar();
-
   return (
     <SidebarGroup>
       <SidebarGroupContent>
@@ -20,11 +17,7 @@ const SidebarActions = () => {
             <BoardModal
               mode="create"
               trigger={
-                <SidebarMenuButton
-                  className={`group/icon ${state === "expanded" || isMobile ? "justify-center" : "justify-start"}`}
-                  tooltip="New Board"
-                  variant="outline"
-                >
+                <SidebarMenuButton className={`group/icon`} tooltip="New Board">
                   <CirclePlus className="text-muted-foreground transition-colors group-hover/icon:text-primary" />
                   <span>New Board</span>
                 </SidebarMenuButton>
