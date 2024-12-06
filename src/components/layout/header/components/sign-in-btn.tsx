@@ -6,7 +6,7 @@ function SignInButton() {
   return (
     <div>
       <Button className="group" size="sm" asChild>
-        <Link href="/boards" className="flex items-center gap-2">
+        <Link href="/sign-in" className="flex items-center gap-2">
           <LogIn className="transition-transform duration-300 group-hover:translate-x-1" />
           <span className="relative z-10">Sign In</span>
         </Link>

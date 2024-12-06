@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Eye } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
 import FloatingParticles from "./floating-particles";
 
@@ -17,24 +17,14 @@ export default function Hero() {
         helps you manage tasks, organize projects, and boost productivity with
         real-time updates.
       </p>
-
-      <div className="flex justify-center gap-4">
-        <Button className="group" asChild>
-          <Link href="/login">
-            <span className="relative z-10 flex items-center gap-2 font-semibold">
-              Get Started
-              <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105" />
-            </span>
-          </Link>
-        </Button>
-
-        <Button variant="outline" className="group hover:bg-accent/25" asChild>
-          <Link href="/demo">
-            View Demo
-            <Eye className="transition-transform duration-300 group-hover:scale-110" />
-          </Link>
-        </Button>
-      </div>
+      <Button className="group mx-auto w-fit" asChild>
+        <Link href="/sign-in">
+          <span className="relative z-10 flex items-center gap-2 font-semibold">
+            Get Started
+            <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105" />
+          </span>
+        </Link>
+      </Button>
     </div>
   );
 }
