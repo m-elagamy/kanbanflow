@@ -2,177 +2,87 @@
 
 import * as Clerk from "@clerk/elements/common";
 import * as SignUp from "@clerk/elements/sign-up";
-import Link from "next/link";
-import { Loader } from "lucide-react";
+import { Lock } from "lucide-react";
+import { motion } from "framer-motion";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Icons } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
+import SocialConnectionButtons from "../../components/social-connection-buttons";
+import AuthStrategiesSeparator from "../../components/auth-strategies-separator";
+import EmailInput from "../../components/email-input";
+import { LegalDocumentModal } from "../../components/legal-document";
+import BackgroundEffect from "../../components/background-effect";
+import { fadeIn } from "@/utils/motion-variants";
+import { AuthCard } from "../../components/auth-card";
+import KanbanLogo from "@/components/layout/header/components/kanban-logo";
+import SubmitButton from "../../components/submit-button";
+import AuthModeSwitcher from "../../components/auth-mode-switcher";
+import ResendCodeButton from "../../components/resend-code-button";
 
 export default function SignUpPage() {
   return (
-    <section className="grid min-h-dvh w-full grow items-center px-4 sm:justify-center">
-      <SignUp.Root>
-        <Clerk.Loading>
-          {(isGlobalLoading) => (
-            <>
-              <SignUp.Step name="start">
-                <Card className="w-full sm:w-96">
-                  <CardHeader>
-                    <CardTitle>Create your account</CardTitle>
-                    <CardDescription>
-                      Welcome! Please fill in the details to get started.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="grid gap-y-4">
-                    <div className="grid grid-cols-2 gap-x-4">
-                      <Clerk.Connection name="github" asChild>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          type="button"
-                          disabled={isGlobalLoading}
-                        >
-                          <Clerk.Loading scope="provider:github">
-                            {(isLoading) =>
-                              isLoading ? (
-                                <Loader className="size-4 animate-spin" />
-                              ) : (
-                                <>
-                                  <Icons.gitHub className="mr-2 size-4" />
-                                  GitHub
-                                </>
-                              )
-                            }
-                          </Clerk.Loading>
-                        </Button>
-                      </Clerk.Connection>
-                      <Clerk.Connection name="google" asChild>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          type="button"
-                          disabled={isGlobalLoading}
-                        >
-                          <Clerk.Loading scope="provider:google">
-                            {(isLoading) =>
-                              isLoading ? (
-                                <Loader className="size-4 animate-spin" />
-                              ) : (
-                                <>
-                                  <Icons.google className="mr-2 size-4" />
-                                  Google
-                                </>
-                              )
-                            }
-                          </Clerk.Loading>
-                        </Button>
-                      </Clerk.Connection>
-                    </div>
-                    <p className="flex items-center gap-x-3 text-sm text-muted-foreground before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
-                      or
-                    </p>
-                    <Clerk.Field name="emailAddress" className="space-y-2">
-                      <Clerk.Label asChild>
-                        <Label>Email address</Label>
-                      </Clerk.Label>
-                      <Clerk.Input type="email" required asChild>
-                        <Input />
-                      </Clerk.Input>
-                      <Clerk.FieldError className="block text-sm text-destructive" />
-                    </Clerk.Field>
+    <main className="relative grid min-h-dvh w-full grow items-center overflow-hidden px-4 sm:justify-center">
+      <BackgroundEffect />
+      <motion.section variants={fadeIn} initial="initial" animate="animate">
+        <SignUp.Root>
+          <Clerk.Loading>
+            {(isGlobalLoading) => (
+              <>
+                <SignUp.Step name="start">
+                  <AuthCard
+                    title={<KanbanLogo />}
+                    description="Welcome! Please fill in the details to get started."
+                    footer={
+                      <>
+                        <SignUp.Captcha className="empty:hidden" />
+                        <SignUp.Action submit asChild>
+                          <SubmitButton isGlobalLoading={isGlobalLoading} />
+                        </SignUp.Action>
+                        <AuthModeSwitcher
+                          message="Already have an account?"
+                          linkText="Sign in"
+                          linkHref="sign-in"
+                        />
+                      </>
+                    }
+                  >
+                    <SocialConnectionButtons
+                      isGlobalLoading={isGlobalLoading}
+                    />
+                    <AuthStrategiesSeparator />
+                    <EmailInput inputName="emailAddress" />
                     <Clerk.Field name="password" className="space-y-2">
                       <Clerk.Label asChild>
-                        <Label>Password</Label>
+                        <Label className="flex items-center gap-1">
+                          <Lock size={14} />
+                          Password
+                        </Label>
                       </Clerk.Label>
-                      <Clerk.Input type="password" required asChild>
+                      <Clerk.Input
+                        type="password"
+                        placeholder="••••••••"
+                        required
+                        asChild
+                      >
                         <Input />
                       </Clerk.Input>
                       <Clerk.FieldError className="block text-sm text-destructive" />
                     </Clerk.Field>
-                  </CardContent>
-                  <CardFooter>
-                    <div className="grid w-full gap-y-4">
-                      <SignUp.Captcha className="empty:hidden" />
-                      <SignUp.Action submit asChild>
-                        <Button disabled={isGlobalLoading}>
-                          <Clerk.Loading>
-                            {(isLoading) => {
-                              return isLoading ? (
-                                <Loader className="size-4 animate-spin" />
-                              ) : (
-                                "Continue"
-                              );
-                            }}
-                          </Clerk.Loading>
-                        </Button>
-                      </SignUp.Action>
-                      <Button variant="link" size="sm" asChild>
-                        <Link href="/sign-in">
-                          Already have an account? Sign in
-                        </Link>
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
-              </SignUp.Step>
+                  </AuthCard>
+                </SignUp.Step>
 
-              <SignUp.Step name="continue">
-                <Card className="w-full sm:w-96">
-                  <CardHeader>
-                    <CardTitle>Continue registration</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Clerk.Field name="username" className="space-y-2">
-                      <Clerk.Label>
-                        <Label>Username</Label>
-                      </Clerk.Label>
-                      <Clerk.Input type="text" required asChild>
-                        <Input />
-                      </Clerk.Input>
-                      <Clerk.FieldError className="block text-sm text-destructive" />
-                    </Clerk.Field>
-                  </CardContent>
-                  <CardFooter>
-                    <div className="grid w-full gap-y-4">
-                      <SignUp.Action submit asChild>
-                        <Button disabled={isGlobalLoading}>
-                          <Clerk.Loading>
-                            {(isLoading) => {
-                              return isLoading ? (
-                                <Loader className="size-4 animate-spin" />
-                              ) : (
-                                "Continue"
-                              );
-                            }}
-                          </Clerk.Loading>
-                        </Button>
-                      </SignUp.Action>
-                    </div>
-                  </CardFooter>
-                </Card>
-              </SignUp.Step>
-
-              <SignUp.Step name="verifications">
-                <SignUp.Strategy name="email_code">
-                  <Card className="w-full sm:w-96">
-                    <CardHeader>
-                      <CardTitle>Verify your email</CardTitle>
-                      <CardDescription>
-                        Use the verification link sent to your email address
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="grid gap-y-4">
+                <SignUp.Step name="verifications">
+                  <SignUp.Strategy name="email_code">
+                    <AuthCard
+                      title="Verify your email"
+                      description="Use the verification link sent to your email address"
+                      footer={
+                        <SignUp.Action submit asChild>
+                          <SubmitButton isGlobalLoading={isGlobalLoading} />
+                        </SignUp.Action>
+                      }
+                    >
                       <div className="grid items-center justify-center gap-y-2">
                         <Clerk.Field name="code" className="space-y-2">
                           <Clerk.Label className="sr-only">
@@ -209,50 +119,22 @@ export default function SignUpPage() {
                           </div>
                           <Clerk.FieldError className="block text-center text-sm text-destructive" />
                         </Clerk.Field>
-                        <SignUp.Action
-                          asChild
-                          resend
-                          className="text-muted-foreground"
-                          fallback={({ resendableAfter }) => (
-                            <Button variant="link" size="sm" disabled>
-                              Didn&apos;t receive a code? Resend (
-                              <span className="tabular-nums">
-                                {resendableAfter}
-                              </span>
-                              )
-                            </Button>
-                          )}
-                        >
-                          <Button type="button" variant="link" size="sm">
-                            Didn&apos;t receive a code? Resend
-                          </Button>
-                        </SignUp.Action>
+                        <ResendCodeButton />
                       </div>
-                    </CardContent>
-                    <CardFooter>
-                      <div className="grid w-full gap-y-4">
-                        <SignUp.Action submit asChild>
-                          <Button disabled={isGlobalLoading}>
-                            <Clerk.Loading>
-                              {(isLoading) => {
-                                return isLoading ? (
-                                  <Loader className="size-4 animate-spin" />
-                                ) : (
-                                  "Continue"
-                                );
-                              }}
-                            </Clerk.Loading>
-                          </Button>
-                        </SignUp.Action>
-                      </div>
-                    </CardFooter>
-                  </Card>
-                </SignUp.Strategy>
-              </SignUp.Step>
-            </>
-          )}
-        </Clerk.Loading>
-      </SignUp.Root>
-    </section>
+                    </AuthCard>
+                  </SignUp.Strategy>
+                </SignUp.Step>
+              </>
+            )}
+          </Clerk.Loading>
+          <div className="mt-4 text-center text-sm">
+            <span className="text-muted-foreground">
+              By signing up, you agree to our
+            </span>
+            <LegalDocumentModal />
+          </div>
+        </SignUp.Root>
+      </motion.section>
+    </main>
   );
 }

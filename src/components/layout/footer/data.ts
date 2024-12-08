@@ -1,4 +1,5 @@
-import { Github, Globe } from "lucide-react";
+import { Icons } from "@/components/ui/icons";
+import { Globe } from "lucide-react";
 
 const links = [
   {
@@ -8,7 +9,7 @@ const links = [
   },
   {
     href: "https://github.com/Mahmoud-Elagamy/kanban-app",
-    icon: Github,
+    icon: Icons.gitHub,
     label: "GitHub",
   },
 ];

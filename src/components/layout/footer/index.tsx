@@ -8,11 +8,9 @@ const Footer = () => {
     <footer className="border-t py-4 text-center">
       <div className="container">
         <div className="flex flex-col justify-center gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">
-              © {currentYear} KanbanFlow. All rights reserved.
-            </p>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            © {currentYear} KanbanFlow. All rights reserved.
+          </p>
           <div className="flex items-center justify-center gap-2">
             {links.map((link) => {
               const Icon = link.icon;
