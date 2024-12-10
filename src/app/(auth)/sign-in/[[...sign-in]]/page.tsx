@@ -12,7 +12,7 @@ import BackgroundEffect from "../../components/background-effect";
 import { fadeIn } from "@/utils/motion-variants";
 import { AuthCard } from "../../components/auth-card";
 import SubmitButton from "../../components/submit-button";
-import KanbanLogo from "@/components/layout/header/components/kanban-logo";
+import KanbanLogo from "@/components/layout/header/kanban-logo";
 import AuthModeSwitcher from "../../components/auth-mode-switcher";
 import ResendCodeButton from "../../components/resend-code-button";
 

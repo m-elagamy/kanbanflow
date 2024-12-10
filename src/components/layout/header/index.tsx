@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Moon, Sun } from "lucide-react";
 
-import UserAvatar from "./components/user-avatar";
-import KanbanLogo from "./components/kanban-logo";
-import SignInButton from "./components/sign-in-btn";
+import UserAvatar from "./user-avatar";
+import KanbanLogo from "./kanban-logo";
+import SignInButton from "./sign-in-btn";
 import { Button } from "@/components/ui/button";
 import { useMotionValueEvent, useScroll } from "framer-motion";
 import { useTheme } from "next-themes";
