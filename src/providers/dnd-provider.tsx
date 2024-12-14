@@ -21,8 +21,8 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 
-import TaskCard from "@/app/boards/components/task/task-card";
-import useKanbanStore from "@/stores/use-kanban-store";
+import TaskCard from "@/app/dashboard/components/task/task-card";
+import useKanbanStore from "@/stores/kanban";
 
 const DndProvider = ({ children }: { children: ReactNode }) => {
   const { moveTask, getTaskById, activeTask, setActiveTask } = useKanbanStore(

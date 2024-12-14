@@ -21,8 +21,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import AddTaskSchema from "@/validations/task-schema";
-import useKanbanStore from "@/stores/use-kanban-store";
+import AddTaskSchema from "@/schemas/task";
+import useKanbanStore from "@/stores/kanban";
 import { formatTags } from "../../utils/format-tags";
 import getBadgeStyle from "../../utils/get-badge-style";
 import taskPriorities from "../../data/task-priorities";

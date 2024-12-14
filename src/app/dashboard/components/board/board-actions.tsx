@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import useKanbanStore from "@/stores/use-kanban-store";
+import useKanbanStore from "@/stores/kanban";
 import AlertConfirmation from "../../../../components/ui/alert-confirmation";
 import BoardModal from "./board-modal";
 
@@ -23,7 +23,7 @@ export default function BoardActions() {
   const handleDeleteBoard = () => {
     deleteBoard(currentBoard?.id ?? "");
     setIsAlertOpen(false);
-    router.push("/boards");
+    router.push("/dashboard");
   };
 
   return (

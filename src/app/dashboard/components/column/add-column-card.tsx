@@ -1,7 +1,7 @@
 import React from "react";
 import { PlusCircle } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import useKanbanStore from "@/stores/use-kanban-store";
+import useKanbanStore from "@/stores/kanban";
 
 const AddColumnCard = () => {
   const { getCurrentBoard } = useKanbanStore();

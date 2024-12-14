@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import BoardModal from "./components/board/board-modal";
 
-const Boards = () => {
+const Boards = async () => {
   return (
     <section className="relative right-3 grid flex-grow place-content-center">
       <Card className="border-none text-center shadow-none">

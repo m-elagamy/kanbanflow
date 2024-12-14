@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import BoardActions from "./board-actions";
-import useKanbanStore from "@/stores/use-kanban-store";
+import useKanbanStore from "@/stores/kanban";
 
 const BoardHeader = () => {
   const currentBoard = useKanbanStore((state) => state.getCurrentBoard());

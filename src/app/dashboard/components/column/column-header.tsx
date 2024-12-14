@@ -27,7 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import AlertConfirmation from "../../../../components/ui/alert-confirmation";
 import TaskModal from "../task/task-modal";
 import stateOptions from "../../data/column-state-options";
-import useKanbanStore from "@/stores/use-kanban-store";
+import useKanbanStore from "@/stores/kanban";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type Column from "@/lib/types/column";
 
@@ -71,7 +71,7 @@ export default function ColumnHeader({ column }: { column: Column }) {
             {columnTitle}
           </span>
           {tasksCount && tasksCount.length > 0 && (
-            <Badge variant="outline" className="h-5">
+            <Badge variant="outline" className="h-5 px-[7px] text-[0.690rem]">
               {tasksCount.length}
             </Badge>
           )}

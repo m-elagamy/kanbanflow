@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import useKanbanStore from "@/stores/use-kanban-store";
+import useKanbanStore from "@/stores/kanban";
 import { Ellipsis, Settings2, TrashIcon } from "lucide-react";
 import TaskModal from "./task-modal";
 import type Task from "@/lib/types/task";

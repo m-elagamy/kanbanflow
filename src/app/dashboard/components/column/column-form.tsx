@@ -21,9 +21,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import delay from "@/utils/delay";
-import columnFormSchema from "@/validations/column-schema";
+import columnFormSchema from "@/schemas/column";
 import generateUniqueID from "@/utils/generate-unique-ID";
-import useKanbanStore from "@/stores/use-kanban-store";
+import useKanbanStore from "@/stores/kanban";
 import stateOptions from "../../data/column-state-options";
 
 type FormData = z.infer<typeof columnFormSchema>;

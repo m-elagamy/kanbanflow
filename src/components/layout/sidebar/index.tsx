@@ -1,64 +1,37 @@
-"use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Clipboard } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import useKanbanStore from "@/stores/use-kanban-store";
-import { slugifyTitle } from "@/app/boards/utils/slugify";
 import SidebarTitle from "./sidebar-title";
 import SidebarActions from "./sidebar-actions";
 import SidebarLabel from "./sidebar-label";
+import BoardsList from "./boards-list";
+import { NavUser } from "@/app/dashboard/components/nav-user";
 
 export function WorkspaceSidebar() {
-  const pathname = usePathname();
-  const boards = useKanbanStore((state) => state.boards);
-  const setActiveBoard = useKanbanStore((state) => state.setActiveBoard);
-
+  const user = {
+    name: "Mahmoud Elagamy",
+    avatar: "https://github.com/Mahmoud-Elagamy.png",
+    email: "mahmoudelagamy474@gmail.com",
+  };
   return (
-    <Sidebar collapsible="icon" className="top-16">
+    <Sidebar collapsible="icon">
       <SidebarTitle />
       <SidebarContent>
         <SidebarGroup>
           <SidebarLabel />
           <SidebarGroupContent>
-            <SidebarMenu>
-              {boards?.map((board) => {
-                const isActive =
-                  pathname === `/boards/${slugifyTitle(board.title)}`;
-                const href = `/boards/${slugifyTitle(board.title)}`;
-                return (
-                  <SidebarMenuItem key={board.id}>
-                    <SidebarMenuButton
-                      tooltip={board.title}
-                      isActive={isActive}
-                      asChild
-                    >
-                      <Link
-                        href={href}
-                        onClick={() => setActiveBoard(board.id)}
-                      >
-                        <Clipboard size={24} />
-                        <span>{board.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
+            <BoardsList />
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarActions />
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={user} />
+      </SidebarFooter>
     </Sidebar>
   );
 }

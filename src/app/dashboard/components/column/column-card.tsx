@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import ColumnHeader from "./column-header";
 import NoTasksMessage from "../task/no-tasks-message";
 import TaskCard from "../task/task-card";
-import useKanbanStore from "@/stores/use-kanban-store";
+import useKanbanStore from "@/stores/kanban";
 import type Column from "@/lib/types/column";
 
 const ColumnCard = ({ column }: { column: Column }) => {

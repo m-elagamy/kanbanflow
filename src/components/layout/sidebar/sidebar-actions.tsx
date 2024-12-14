@@ -1,5 +1,5 @@
 import { CirclePlus } from "lucide-react";
-import BoardModal from "@/app/boards/components/board/board-modal";
+import BoardModal from "@/app/dashboard/components/board/board-modal";
 import {
   SidebarGroup,
   SidebarGroupContent,

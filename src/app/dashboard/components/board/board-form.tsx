@@ -24,9 +24,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DialogFooter } from "@/components/ui/dialog";
-import boardSchema from "@/validations/board-schema";
-import FormData from "@/lib/types/board-creation-form";
-import useKanbanStore from "@/stores/use-kanban-store";
+import { boardSchema, BoardCreationForm } from "@/schemas/board";
+import useKanbanStore from "@/stores/kanban";
 import generateUniqueID from "@/utils/generate-unique-ID";
 import delay from "@/utils/delay";
 import addBoardToStore from "../../utils/add-board-to-store";
@@ -34,6 +33,7 @@ import columnsTemplates from "../../data/columns-templates";
 import { toast } from "sonner";
 import getToastMessage from "../../utils/get-toast-message";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { slugify } from "../../utils/slugify";
 
 type BoardFormProps = {
   mode: "create" | "edit";
@@ -47,7 +47,7 @@ const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
 
   const currentBoard = mode === "edit" ? getCurrentBoard() : null;
 
-  const form = useForm<FormData>({
+  const form = useForm<BoardCreationForm>({
     resolver: zodResolver(
       mode === "edit" ? boardSchema.omit({ template: true }) : boardSchema,
     ),
@@ -58,7 +58,7 @@ const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
     },
   });
 
-  const handleBoardActions = async (data: FormData) => {
+  const handleBoardActions = async (data: BoardCreationForm) => {
     const { title, template, description } = data;
 
     if (mode === "edit" && currentBoard) {
@@ -71,10 +71,6 @@ const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
       setIsModalOpen?.(false);
       return;
     }
-
-    const encodedTitle = encodeURIComponent(
-      title.replace(/\s+/g, "-").toLowerCase().trim(),
-    );
 
     const selectedTemplate = columnsTemplates.find((t) => t.id === template);
 
@@ -92,10 +88,10 @@ const BoardForm = ({ mode, setIsModalOpen }: BoardFormProps) => {
         columns,
       });
 
-      router.prefetch(`/boards/${encodedTitle}`);
+      router.prefetch(`/dashboard/${slugify(title)}`);
       await delay(isMobile ? 800 : 600);
       setIsModalOpen?.(false);
-      router.push(`/boards/${encodedTitle}`);
+      router.push(`/dashboard/${slugify(title)}`);
       await delay(isMobile ? 400 : 300);
       toast.success(getToastMessage());
     }

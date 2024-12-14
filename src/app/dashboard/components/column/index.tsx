@@ -3,7 +3,7 @@
 import { useShallow } from "zustand/shallow";
 import ColumnCard from "./column-card";
 import ColumnModal from "./column-modal";
-import useKanbanStore from "@/stores/use-kanban-store";
+import useKanbanStore from "@/stores/kanban";
 
 const ColumnsWrapper = () => {
   const columns = useKanbanStore(useShallow((state) => state.getColumns()));
