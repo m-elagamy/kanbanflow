@@ -33,7 +33,7 @@ import columnsTemplates from "../../data/columns-templates";
 import { toast } from "sonner";
 import getToastMessage from "../../utils/get-toast-message";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { slugify } from "../../utils/slugify";
+import { slugify } from "@/utils/slugify";
 
 type BoardFormProps = {
   mode: "create" | "edit";

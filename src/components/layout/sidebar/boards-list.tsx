@@ -9,7 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { slugify } from "@/app/dashboard/utils/slugify";
+import { slugify } from "@/utils/slugify";
 import useKanbanStore from "@/stores/kanban";
 
 export default function BoardsList() {

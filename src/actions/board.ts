@@ -13,16 +13,20 @@ import {
 import columnsTemplates from "@/app/dashboard/data/columns-templates";
 import db from "@/lib/db";
 import { boardSchema, BoardCreationForm } from "@/schemas/board";
-import { slugify } from "@/app/dashboard/utils/slugify";
+import { slugify } from "@/utils/slugify";
+import ensureUniqueSlug from "@/utils/ensure-unique-slug";
 
 export const createBoardAction = async (formData: BoardCreationForm) => {
   try {
+    const user = await currentUser();
+    if (!user) return { success: false, message: "Authentication required!" };
+
     const validatedData = boardSchema.safeParse(formData);
 
     if (!validatedData.success) {
       return {
         success: false,
-        errors: validatedData.error.flatten().fieldErrors,
+        message: validatedData.error.flatten().fieldErrors,
       };
     }
 
@@ -32,37 +36,28 @@ export const createBoardAction = async (formData: BoardCreationForm) => {
 
     const template = columnsTemplates.find((t) => t.id === templateId);
 
-    const user = await currentUser();
-
-    if (!user) {
-      return {
-        success: false,
-        message: "Authentication required",
-        errors: { _form: ["You must be logged in to create a board"] },
-      };
-    }
-
+    //TODO: Replace this logic with explicit prevention when creating the board.
     const boardSlug = slugify(name);
-
-    const board = await db.$transaction(async () => {
-      try {
-        return await createBoard(
-          name,
-          user.id,
-          boardSlug,
-          description,
-          template?.columns,
-        );
-      } catch (dbError) {
-        console.error("Database creation error:", dbError);
-        throw new Error("Failed to create board");
-      }
+    const existingSlugs = await db.board.findMany({
+      where: { userId: user.id },
+      select: { slug: true },
     });
+    const uniqueSlug = await ensureUniqueSlug(
+      boardSlug,
+      existingSlugs.map((b) => b.slug).filter(Boolean),
+    );
+
+    await createBoard(
+      name,
+      user.id,
+      uniqueSlug,
+      description,
+      template?.columns,
+    );
 
     return {
       success: true,
       message: "Board created successfully",
-      boardId: board.id,
     };
   } catch (error) {
     return {

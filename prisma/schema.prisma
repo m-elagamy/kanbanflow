@@ -18,12 +18,11 @@ model Board {
   id        String   @id @default(cuid())
   name      String
   slug        String @unique
-  description String?
+  description String? @default("")
   columns   Column[]
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@index([userId])
-  @@unique([userId, name])
 }
 
 model Column {
@@ -38,10 +37,10 @@ model Column {
 model Task {
   id          String   @id @default(cuid())
   title       String
-  description String?
+  description String?  @default("")
   priority    Priority   @default(medium)
-tag           String[]
-  order       Int        @default(autoincrement())
+  tag           String[]
+  order       Float    @default(1.0)
   columnId    String
   column      Column   @relation(fields: [columnId], references: [id], onDelete: Cascade)
   @@index([columnId])
@@ -50,7 +49,7 @@ tag           String[]
 enum Priority {
   low
   medium
-  hight
+  high
 }
 
 

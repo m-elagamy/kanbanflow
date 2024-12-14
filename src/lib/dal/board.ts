@@ -8,7 +8,8 @@ const createBoard = async (
   description?: string,
   columns?: string[],
 ): Promise<Board> => {
-  const columnData = columns?.map((column) => ({ name: column })) || [];
+  const columnData =
+    columns?.filter(Boolean).map((column) => ({ name: column })) || [];
   return db.board.create({
     data: {
       name,
