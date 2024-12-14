@@ -15,7 +15,10 @@ const inter = Inter({
 
 // Metadata
 export const metadata: Metadata = {
-  title: "KanbanFlow",
+  title: {
+    default: "KanbanFlow | Modern Task Management",
+    template: "%s | KanbanFlow",
+  },
   description:
     "KanbanFlow is a modern Kanban app that helps you manage tasks, organize projects, and boost productivity with ease.",
   keywords: [
