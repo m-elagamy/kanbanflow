@@ -46,6 +46,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
           <h3
             className={`${task.title.length > 20 ? "necessary-ellipsis max-w-[140px] md:max-w-[180px]" : ""} text-sm font-medium md:text-base`}
             title={task.title}
+            dir="auto"
           >
             {task.title}
           </h3>
@@ -56,7 +57,9 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
           </Badge>
         </div>
         {task.description && (
-          <p className="text-xs text-muted-foreground">{task.description}</p>
+          <p className="text-xs text-muted-foreground" dir="auto">
+            {task.description}
+          </p>
         )}
         <div className={`flex items-center justify-end`}>
           <div className="flex flex-col-reverse items-center gap-2">

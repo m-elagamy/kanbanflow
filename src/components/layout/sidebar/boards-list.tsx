@@ -31,7 +31,7 @@ export default function BoardsList({ boards }: { boards?: Board[] }) {
             >
               <Link href={href}>
                 <Clipboard size={24} />
-                <span>{board.title}</span>
+                <span dir="auto">{board.title}</span>
               </Link>
             </SidebarMenuButton>
             <BoardActions
