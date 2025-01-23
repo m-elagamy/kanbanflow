@@ -19,6 +19,7 @@ export default function AuthTemplate({
           <span className="text-muted-foreground">
             By signing in, you agree to our
           </span>
+          {/* TODO: Lazy load this component */}
           <LegalDocumentModal />.
         </div>
       </motion.section>

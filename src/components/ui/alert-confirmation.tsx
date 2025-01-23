@@ -43,9 +43,11 @@ const AlertConfirmation = ({
         </AlertDialogHeader>
         <AlertDialogFooter className="justify-center">
           <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>
-            {confirmLabel}
-          </AlertDialogAction>
+          <form>
+            <AlertDialogAction type="submit" formAction={onConfirm}>
+              {confirmLabel}
+            </AlertDialogAction>
+          </form>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

@@ -1,19 +1,24 @@
-"use client";
-
 import { Badge } from "@/components/ui/badge";
 import { SidebarGroupLabel } from "@/components/ui/sidebar";
-import useKanbanStore from "@/stores/kanban";
+import { Inbox } from "lucide-react";
 
-const SidebarLabel = () => {
-  const boardsLength = useKanbanStore((state) => state.boards.length);
-
+const SidebarLabel = ({ boardsCount }: { boardsCount?: number }) => {
   return (
-    <SidebarGroupLabel className="justify-between">
-      Boards
-      {boardsLength > 0 && (
-        <Badge variant="outline" className="h-5 px-[7px] text-[0.690rem]">
-          {boardsLength}
-        </Badge>
+    <SidebarGroupLabel
+      className={`${boardsCount ? "flex-row justify-between pr-0" : "flex-col justify-center gap-2 pt-4"} uppercase`}
+    >
+      {boardsCount ? (
+        <>
+          Boards
+          <Badge variant="outline" className="h-5 px-[7px] text-[0.690rem]">
+            {boardsCount}
+          </Badge>
+        </>
+      ) : (
+        <>
+          <Inbox />
+          Your list is empty
+        </>
       )}
     </SidebarGroupLabel>
   );

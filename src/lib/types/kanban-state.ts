@@ -1,6 +1,6 @@
 import type { Board } from "./board";
 import type Column from "./column";
-import type Task from "./task";
+import { Task } from "./task";
 
 export type KanbanState = {
   boards: Board[]; // List of all boards

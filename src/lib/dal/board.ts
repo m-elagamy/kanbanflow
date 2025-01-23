@@ -2,17 +2,17 @@ import db from "../db";
 import { Board } from "@prisma/client";
 
 const createBoard = async (
-  name: string,
+  title: string,
   userId: string,
   slug: string,
-  description?: string,
+  description?: string | null,
   columns?: string[],
 ): Promise<Board> => {
   const columnData =
-    columns?.filter(Boolean).map((column) => ({ name: column })) || [];
+    columns?.filter(Boolean).map((column) => ({ title: column })) || [];
   return db.board.create({
     data: {
-      name,
+      title,
       slug,
       description,
       userId,
@@ -26,7 +26,7 @@ const createBoard = async (
 
 const updateBoard = async (
   boardId: string,
-  data: Partial<Pick<Board, "name" | "description">>,
+  data: Partial<Pick<Board, "title" | "description" | "slug">>,
 ) => {
   return db.board.update({
     where: {
@@ -47,7 +47,13 @@ const deleteBoard = async (boardId: string) => {
 const getBoardBySlug = async (slug: string) => {
   return db.board.findUnique({
     where: { slug },
-    include: { columns: true },
+    include: {
+      columns: {
+        include: {
+          tasks: true,
+        },
+      },
+    },
   });
 };
 

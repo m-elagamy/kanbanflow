@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import {
   Dialog,
@@ -10,7 +12,7 @@ import {
 import AddColumnCard from "./add-column-card";
 import ColumnForm from "./column-form";
 
-const ColumnModal = () => {
+const ColumnModal = ({ boardId }: { boardId: string }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -26,7 +28,7 @@ const ColumnModal = () => {
             Progress&apos; to keep your tasks organized.
           </DialogDescription>
         </DialogHeader>
-        <ColumnForm setIsModalOpen={setIsModalOpen} />
+        <ColumnForm setIsModalOpen={setIsModalOpen} boardId={boardId} />
       </DialogContent>
     </Dialog>
   );

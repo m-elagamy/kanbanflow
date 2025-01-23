@@ -17,7 +17,7 @@ const KanbanLogo = () => {
         <Kanban className="size-6 text-primary/70 md:size-8" />
 
         <span
-          className={`bg-gradient-to-r from-primary/90 to-primary/70 bg-clip-text text-xl font-bold tracking-tight text-transparent md:text-2xl`}
+          className={`text-gradient text-xl font-bold tracking-tight md:text-2xl`}
         >
           KanbanFlow
         </span>

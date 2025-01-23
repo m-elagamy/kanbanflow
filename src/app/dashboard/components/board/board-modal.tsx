@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import { Edit, PlusCircle } from "lucide-react";
 
 import {
@@ -13,17 +10,20 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import BoardForm from "./board-form";
+import type { Board } from "@prisma/client";
+import { getInitialState } from "@/utils/board";
 
 type BoardModalProps = {
   mode: "create" | "edit";
+  board?: Pick<Board, "id" | "title" | "description">;
   trigger?: React.ReactNode;
 };
 
-const BoardModal = ({ mode, trigger }: BoardModalProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const BoardModal = ({ mode, board, trigger }: BoardModalProps) => {
+  const initialState = getInitialState(mode, board);
 
   return (
-    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+    <Dialog>
       <DialogTrigger asChild>
         {trigger ?? (
           <Button className="group">
@@ -49,7 +49,13 @@ const BoardModal = ({ mode, trigger }: BoardModalProps) => {
               : "Modify the board details below."}
           </DialogDescription>
         </DialogHeader>
-        <BoardForm mode={mode} setIsModalOpen={setIsModalOpen} />
+        {mode === "create" && (
+          <BoardForm mode="create" initialState={initialState} />
+        )}
+
+        {mode === "edit" && board && (
+          <BoardForm mode="edit" initialState={initialState} />
+        )}
       </DialogContent>
     </Dialog>
   );

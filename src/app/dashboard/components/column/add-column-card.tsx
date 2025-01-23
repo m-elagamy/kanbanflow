@@ -1,16 +1,8 @@
 import React from "react";
 import { PlusCircle } from "lucide-react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import useKanbanStore from "@/stores/kanban";
+import { Card, CardContent } from "@/components/ui/card";
 
 const AddColumnCard = () => {
-  const { getCurrentBoard } = useKanbanStore();
-  const currentBoard = getCurrentBoard();
-
-  const columnsCount = currentBoard?.columns?.length ?? 0;
-
-  if (columnsCount >= 10) return null;
-
   return (
     <Card className="group relative flex h-full w-64 min-w-64 cursor-pointer snap-start flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 bg-background/50 transition-all duration-300 hover:border-primary/50 hover:bg-accent/10 md:w-72 md:min-w-72">
       <CardContent>
@@ -22,11 +14,6 @@ const AddColumnCard = () => {
           </div>
         </div>
       </CardContent>
-      {columnsCount === 0 && (
-        <CardFooter className="text-muted-foreground">
-          Create Your First Column
-        </CardFooter>
-      )}
     </Card>
   );
 };

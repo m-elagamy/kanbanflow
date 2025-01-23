@@ -1,27 +1,23 @@
 "use server";
 
-import {
-  createColumn,
-  updateColumn,
-  deleteColumn,
-  getColumnById,
-  getColumnsByBoardId,
-} from "../lib/dal/column";
+import { revalidatePath } from "next/cache";
 import { Column } from "@prisma/client";
+import { createColumn, updateColumn, deleteColumn } from "../lib/dal/column";
 
-export async function createColumnAction(boardId: string, name: string) {
-  try {
-    const column = await createColumn(boardId, name);
-    return { success: true, column };
-  } catch (error) {
-    console.error("Error creating column:", error);
-    return { success: false, error: "Failed to create column" };
-  }
+export async function createColumnAction(
+  _prevState: unknown,
+  formData: FormData,
+) {
+  const boardId = formData.get("boardId") as string;
+  const columnTitle = formData.get("state") as string;
+  await createColumn(boardId, columnTitle);
+  revalidatePath("/");
+  return boardId;
 }
 
 export async function updateColumnAction(
   columnId: string,
-  data: Partial<Pick<Column, "name">>,
+  data: Partial<Pick<Column, "title">>,
 ) {
   try {
     const updatedColumn = await updateColumn(columnId, data);
@@ -29,6 +25,8 @@ export async function updateColumnAction(
   } catch (error) {
     console.error("Error updating column:", error);
     return { success: false, error: "Failed to update column" };
+  } finally {
+    revalidatePath("/dashboard/[board]", "page");
   }
 }
 
@@ -39,25 +37,7 @@ export async function deleteColumnAction(columnId: string) {
   } catch (error) {
     console.error("Error deleting column:", error);
     return { success: false, error: "Failed to delete column" };
-  }
-}
-
-export async function getColumnByIdAction(columnId: string) {
-  try {
-    const column = await getColumnById(columnId);
-    return { success: true, column };
-  } catch (error) {
-    console.error("Error getting column:", error);
-    return { success: false, error: "Failed to get column" };
-  }
-}
-
-export async function getColumnsByBoardIdAction(boardId: string) {
-  try {
-    const columns = await getColumnsByBoardId(boardId);
-    return { success: true, columns };
-  } catch (error) {
-    console.error("Error getting columns:", error);
-    return { success: false, error: "Failed to get columns" };
+  } finally {
+    revalidatePath("/dashboard/[board]", "page");
   }
 }

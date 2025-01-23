@@ -3,11 +3,11 @@ import { Column } from "@prisma/client";
 
 export const createColumn = async (
   boardId: string,
-  name: string,
+  title: string,
 ): Promise<Column> => {
   return db.column.create({
     data: {
-      name,
+      title,
       boardId,
     },
   });
@@ -15,7 +15,7 @@ export const createColumn = async (
 
 export const updateColumn = async (
   columnId: string,
-  data: Partial<Pick<Column, "name">>,
+  data: Partial<Pick<Column, "title">>,
 ): Promise<Column> => {
   return db.column.update({
     where: { id: columnId },
@@ -26,23 +26,5 @@ export const updateColumn = async (
 export const deleteColumn = async (columnId: string): Promise<Column> => {
   return db.column.delete({
     where: { id: columnId },
-  });
-};
-
-export const getColumnById = async (
-  columnId: string,
-): Promise<Column | null> => {
-  return db.column.findUnique({
-    where: { id: columnId },
-    include: { tasks: true },
-  });
-};
-
-export const getColumnsByBoardId = async (
-  boardId: string,
-): Promise<Column[]> => {
-  return db.column.findMany({
-    where: { boardId },
-    include: { tasks: true },
   });
 };

@@ -1,16 +1,6 @@
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useActionState } from "react";
 import { Loader } from "lucide-react";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -20,82 +10,62 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
-import delay from "@/utils/delay";
-import columnFormSchema from "@/schemas/column";
-import generateUniqueID from "@/utils/generate-unique-ID";
-import useKanbanStore from "@/stores/kanban";
 import stateOptions from "../../data/column-state-options";
-
-type FormData = z.infer<typeof columnFormSchema>;
+import { Label } from "@/components/ui/label";
+import { createColumnAction } from "@/actions/column";
+import { Input } from "@/components/ui/input";
 
 export default function ColumnForm({
   setIsModalOpen,
+  boardId,
 }: {
   setIsModalOpen: (isOpen: boolean) => void;
+  boardId: string;
 }) {
-  const { addColumn, activeBoardId: currentBoardId } = useKanbanStore();
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(columnFormSchema),
-    defaultValues: {
-      state: "Backlog",
-    },
-  });
-
-  const onSubmit = async (data: FormData) => {
-    await delay(250);
-    addColumn(currentBoardId, {
-      id: generateUniqueID(),
-      title: data.state,
-      tasks: [],
-    });
-    setIsModalOpen(false);
-  };
+  const [state, formAction, isPending] = useActionState(
+    createColumnAction,
+    boardId,
+  );
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="state"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Select Column State</FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a state" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(stateOptions).map(
-                      ([state, { icon: Icon, color }]) => (
-                        <SelectItem key={state} value={state}>
-                          <div className="flex items-center space-x-2">
-                            <Icon size={16} color={color} />
-                            <span>{state}</span>
-                          </div>
-                        </SelectItem>
-                      ),
-                    )}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <form action={formAction} className="space-y-4">
+      <section className="space-y-2">
+        <Input type="hidden" name="boardId" value={state ?? ""} />
+        <Label>Select Column State</Label>
+        <Select name="state" defaultValue="To Do">
+          <SelectTrigger>
+            <SelectValue placeholder="Choose a state" />
+          </SelectTrigger>
+          <SelectContent className="max-h-80">
+            {Object.entries(stateOptions).map(
+              ([state, { icon: Icon, color }]) => (
+                <SelectItem key={state} value={state}>
+                  <div className="flex items-center space-x-2">
+                    <Icon size={16} color={color} />
+                    <span>{state}</span>
+                  </div>
+                </SelectItem>
+              ),
+            )}
+          </SelectContent>
+        </Select>
+      </section>
 
-        {/* Submit Button */}
-        <DialogFooter>
-          <Button disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting && <Loader className="animate-spin" />}
-            Add Column
-          </Button>
-        </DialogFooter>
-      </form>
-    </Form>
+      {/* Submit Button */}
+      <DialogFooter className="gap-1">
+        <Button
+          type="button"
+          className="px-2"
+          variant="ghost"
+          onClick={() => setIsModalOpen(false)}
+        >
+          Cancel
+        </Button>
+        <Button className="px-2" disabled={isPending}>
+          {isPending && <Loader className="animate-spin" />}
+          Add Column
+        </Button>
+      </DialogFooter>
+    </form>
   );
 }

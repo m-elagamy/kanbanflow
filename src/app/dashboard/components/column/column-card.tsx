@@ -5,12 +5,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import ColumnHeader from "./column-header";
 import NoTasksMessage from "../task/no-tasks-message";
 import TaskCard from "../task/task-card";
-import useKanbanStore from "@/stores/kanban";
-import type Column from "@/lib/types/column";
+import { Column, type Task } from "@prisma/client";
 
-const ColumnCard = ({ column }: { column: Column }) => {
-  const tasks = useKanbanStore((state) => state.getColumnTasks(column.id));
-
+const ColumnCard = ({ column, tasks }: { tasks: Task[]; column: Column }) => {
   const { setNodeRef } = useDroppable({
     id: column.id,
   });
@@ -22,7 +19,7 @@ const ColumnCard = ({ column }: { column: Column }) => {
       className="max-h-[500px] w-64 shrink-0 snap-start overflow-y-auto md:w-72"
       ref={setNodeRef}
     >
-      <ColumnHeader column={column} />
+      <ColumnHeader column={column} tasksCount={tasks.length} />
       <CardContent className="flex-grow space-y-2 overflow-y-auto p-3">
         {tasks?.length === 0 ? (
           <NoTasksMessage columnId={column.id} />

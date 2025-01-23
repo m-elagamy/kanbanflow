@@ -18,7 +18,7 @@ export default function Hero() {
         real-time updates.
       </p>
       <Button className="group mx-auto w-fit" asChild>
-        <Link href="/sign-in">
+        <Link href="/sign-up">
           <span className="relative z-10 flex items-center gap-2 font-semibold">
             Get Started
             <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105" />

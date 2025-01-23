@@ -38,6 +38,7 @@ export default function NoTasksMessage({ columnId }: { columnId: string }) {
 
       <CardFooter className="flex justify-center">
         <TaskModal
+          mode="create"
           columnId={columnId}
           trigger={
             <Button
@@ -46,7 +47,7 @@ export default function NoTasksMessage({ columnId }: { columnId: string }) {
               size="sm"
             >
               <CirclePlus />
-              Add a Task
+              New Task
             </Button>
           }
         />

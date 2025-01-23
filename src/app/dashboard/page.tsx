@@ -1,4 +1,7 @@
+import { unauthorized } from "next/navigation";
+import { currentUser } from "@clerk/nextjs/server";
 import { Layout } from "lucide-react";
+
 import {
   Card,
   CardContent,
@@ -8,7 +11,13 @@ import {
 } from "@/components/ui/card";
 import BoardModal from "./components/board/board-modal";
 
-const Boards = async () => {
+const Dashboard = async () => {
+  const authUser = await currentUser();
+
+  if (!authUser) {
+    unauthorized();
+  }
+
   return (
     <section className="relative right-3 grid flex-grow place-content-center">
       <Card className="border-none text-center shadow-none">
@@ -18,7 +27,7 @@ const Boards = async () => {
             Welcome to Your Workspace
           </CardTitle>
           <CardDescription className="text-sm md:text-base">
-            Let&apos;s create your first board and start organizing your work.
+            Manage your boards and create new ones.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -28,4 +37,4 @@ const Boards = async () => {
     </section>
   );
 };
-export default Boards;
+export default Dashboard;

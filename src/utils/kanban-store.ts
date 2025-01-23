@@ -1,6 +1,6 @@
 import type { Board } from "@/lib/types/board";
 import type Column from "@/lib/types/column";
-import type Task from "@/lib/types/task";
+import { Task } from "@/lib/types/task";
 
 const findBoard = (boards: Board[], boardId: string | null) =>
   boards.find((b: Board) => b.id === boardId);

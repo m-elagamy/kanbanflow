@@ -1,10 +1,11 @@
 import db from "../db";
-import { Task } from "@prisma/client";
+import { Task, type Priority } from "@prisma/client";
 
 export const createTask = async (
   columnId: string,
   title: string,
   description?: string,
+  priority?: Priority,
   order?: number,
 ): Promise<Task> => {
   const highestOrderTask = await db.task.findFirst({
@@ -18,6 +19,7 @@ export const createTask = async (
     data: {
       title,
       description,
+      priority,
       columnId,
       order: order ?? newOrder,
     },
@@ -26,7 +28,7 @@ export const createTask = async (
 
 export const updateTask = async (
   taskId: string,
-  data: Partial<Pick<Task, "title" | "description" | "order" | "columnId">>,
+  data: Partial<Pick<Task, "title" | "description" | "priority" | "columnId">>,
 ): Promise<Task> => {
   return db.task.update({
     where: { id: taskId },
@@ -38,31 +40,4 @@ export const deleteTask = async (taskId: string): Promise<Task> => {
   return db.task.delete({
     where: { id: taskId },
   });
-};
-
-export const getTaskById = async (taskId: string): Promise<Task | null> => {
-  return db.task.findUnique({
-    where: { id: taskId },
-  });
-};
-
-export const getTasksByColumnId = async (columnId: string): Promise<Task[]> => {
-  return db.task.findMany({
-    where: { columnId },
-    orderBy: { order: "asc" },
-  });
-};
-
-export const reorderTasks = async (
-  columnId: string,
-  taskIds: string[],
-): Promise<void> => {
-  await db.$transaction(
-    taskIds.map((id, index) =>
-      db.task.update({
-        where: { id },
-        data: { order: index },
-      }),
-    ),
-  );
 };

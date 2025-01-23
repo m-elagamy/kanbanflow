@@ -4,9 +4,9 @@ import { CSS } from "@dnd-kit/utilities";
 
 import { Badge } from "@/components/ui/badge";
 import getBadgeStyle from "../../utils/get-badge-style";
-import Task from "@/lib/types/task";
 import TaskActions from "./task-actions";
 import formatDate from "@/utils/format-date";
+import { Task } from "@prisma/client";
 
 type TaskCardProps = {
   task: Task;
@@ -58,15 +58,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
         {task.description && (
           <p className="text-xs text-muted-foreground">{task.description}</p>
         )}
-        <div className="flex items-center justify-between">
-          <div>
-            {task.tags.length > 0 &&
-              task.tags.map((tag) => (
-                <Badge key={tag} variant="outline" className="mr-1 text-xs">
-                  {tag}
-                </Badge>
-              ))}
-          </div>
+        <div className={`flex items-center justify-end`}>
           <div className="flex flex-col-reverse items-center gap-2">
             <p className="flex items-center justify-center gap-1 text-[0.625rem] text-muted-foreground">
               <Calendar size={12} />

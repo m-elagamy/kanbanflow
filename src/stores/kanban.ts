@@ -4,7 +4,7 @@ import { immer } from "zustand/middleware/immer";
 import type { Board } from "@/lib/types/board";
 import type Column from "@/lib/types/column";
 import type { KanbanState } from "@/lib/types/kanban-state";
-import type Task from "@/lib/types/task";
+import { Task } from "@/lib/types/task";
 import { findBoard, findColumn } from "@/utils/kanban-store";
 
 const useKanbanStore = create<KanbanState>()(

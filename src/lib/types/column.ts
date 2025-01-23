@@ -1,4 +1,4 @@
-import type Task from "./task";
+import { Task } from "./task";
 
 type Column = {
   id: string;

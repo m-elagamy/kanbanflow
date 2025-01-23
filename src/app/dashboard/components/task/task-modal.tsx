@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { CirclePlus, Edit, PlusIcon } from "lucide-react";
 
@@ -9,14 +11,18 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+// import TaskForm from "./task-form";
+// import type Task from "@/lib/types/task";
+import { Task } from "@prisma/client";
 import TaskForm from "./task-form";
-import type Task from "@/lib/types/task";
+import type { Mode } from "@/lib/types";
 
 type TaskModalProps = {
   columnId: string;
   trigger?: React.ReactNode;
   taskToEdit?: Task | null;
   setCloseDropdown?: (isOpen: boolean) => void;
+  mode: Mode;
 };
 
 const TaskModal = ({
@@ -24,6 +30,7 @@ const TaskModal = ({
   trigger,
   taskToEdit,
   setCloseDropdown,
+  mode,
 }: TaskModalProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -44,10 +51,19 @@ const TaskModal = ({
           </DialogTitle>
         </DialogHeader>
         <TaskForm
-          columnId={columnId}
-          setIsModalOpen={setIsModalOpen}
-          taskToEdit={taskToEdit}
-          setCloseDropdown={setCloseDropdown}
+          mode={mode}
+          initialState={{
+            success: false,
+            message: "",
+            errors: undefined,
+            fields: {
+              columnId,
+              taskId: taskToEdit?.id,
+              title: taskToEdit?.title ?? "",
+              description: taskToEdit?.description ?? "",
+              priority: taskToEdit?.priority ?? "medium",
+            },
+          }}
         />
       </DialogContent>
     </Dialog>

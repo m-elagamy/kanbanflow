@@ -1,6 +1,7 @@
+"use client";
+
 import { useState } from "react";
 import { Ellipsis, Settings2, TrashIcon } from "lucide-react";
-import { useShallow } from "zustand/shallow";
 import clsx from "clsx";
 
 import {
@@ -27,34 +28,35 @@ import { Badge } from "@/components/ui/badge";
 import AlertConfirmation from "../../../../components/ui/alert-confirmation";
 import TaskModal from "../task/task-modal";
 import stateOptions from "../../data/column-state-options";
-import useKanbanStore from "@/stores/kanban";
 import { useIsMobile } from "@/hooks/use-mobile";
-import type Column from "@/lib/types/column";
+import { Column } from "@prisma/client";
+import { deleteColumnAction, updateColumnAction } from "@/actions/column";
 
-export default function ColumnHeader({ column }: { column: Column }) {
+export default function ColumnHeader({
+  tasksCount,
+  column,
+}: {
+  tasksCount: number;
+  column: Column;
+}) {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [showAlertConfirmation, setShowAlertConfirmation] = useState(false);
-  const { activeBoardId, updateColumn, deleteColumn } = useKanbanStore(
-    useShallow((state) => ({
-      activeBoardId: state.activeBoardId,
-      updateColumn: state.updateColumn,
-      deleteColumn: state.deleteColumn,
-    })),
-  );
 
-  const { id: columnId, title: columnTitle, tasks: tasksCount } = column;
+  const { id: columnId, title: columnTitle } = column;
 
   const { icon: Icon, color } =
     stateOptions[columnTitle as keyof typeof stateOptions];
 
-  const handleUpdateColumn = (updates: Pick<Column, "title">) => {
-    updateColumn(activeBoardId, column.id, (col) => ({ ...col, ...updates }));
+  const handleUpdateColumn = async (updates: Pick<Column, "title">) => {
+    await updateColumnAction(columnId, {
+      title: updates.title,
+    });
     setIsOpen(false);
   };
 
   const handleDeleteColumn = () => {
-    deleteColumn(activeBoardId, column.id);
+    deleteColumnAction(columnId);
   };
 
   return (
@@ -70,17 +72,15 @@ export default function ColumnHeader({ column }: { column: Column }) {
           >
             {columnTitle}
           </span>
-          {tasksCount && tasksCount.length > 0 && (
+          {tasksCount > 0 && (
             <Badge variant="outline" className="h-5 px-[7px] text-[0.690rem]">
-              {tasksCount.length}
+              {tasksCount}
             </Badge>
           )}
         </CardTitle>
 
         <div className="flex items-center gap-1">
-          {tasksCount && tasksCount.length >= 1 && (
-            <TaskModal columnId={columnId} />
-          )}
+          {tasksCount >= 1 && <TaskModal mode="create" columnId={columnId} />}
           <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="size-8">
@@ -114,6 +114,7 @@ export default function ColumnHeader({ column }: { column: Column }) {
                               <CommandItem
                                 key={state}
                                 value={state}
+                                defaultValue={columnTitle}
                                 onSelect={(value) => {
                                   handleUpdateColumn({ title: value });
                                 }}

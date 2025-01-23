@@ -10,12 +10,12 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { slugify } from "@/utils/slugify";
-import useKanbanStore from "@/stores/kanban";
+import type { Board } from "@prisma/client";
 
-export default function BoardsList() {
+import BoardActions from "@/app/dashboard/components/board/board-actions";
+
+export default function BoardsList({ boards }: { boards?: Board[] }) {
   const pathname = usePathname();
-  const boards = useKanbanStore((state) => state.boards);
-  const setActiveBoard = useKanbanStore((state) => state.setActiveBoard);
 
   return (
     <SidebarMenu>
@@ -23,17 +23,23 @@ export default function BoardsList() {
         const isActive = pathname === `/dashboard/${slugify(board.title)}`;
         const href = `/dashboard/${slugify(board.title)}`;
         return (
-          <SidebarMenuItem key={board.id}>
+          <SidebarMenuItem key={board.id} className="flex">
             <SidebarMenuButton
               tooltip={board.title}
               isActive={isActive}
               asChild
             >
-              <Link href={href} onClick={() => setActiveBoard(board.id)}>
+              <Link href={href}>
                 <Clipboard size={24} />
                 <span>{board.title}</span>
               </Link>
             </SidebarMenuButton>
+            <BoardActions
+              isSidebarTrigger
+              id={board.id}
+              title={board.title}
+              description={board.description}
+            />
           </SidebarMenuItem>
         );
       })}

@@ -1,16 +1,11 @@
 "use server";
 
-import {
-  createUser,
-  getUserById,
-  getUserBoards,
-  updateUser,
-} from "../lib/dal/user";
+import { insertUser, getUserById, getUserBoards } from "../lib/dal/user";
 import { User } from "@prisma/client";
 
-export async function createUserAction(data: User) {
+export async function insertUserAction(data: User) {
   try {
-    const user = await createUser(data);
+    const user = await insertUser(data);
     return { success: true, user };
   } catch (error) {
     console.error("Error creating user:", error);
@@ -35,18 +30,5 @@ export async function getUserBoardsAction(userId: string) {
   } catch (error) {
     console.error("Error getting user boards:", error);
     return { success: false, error: "Failed to get user boards" };
-  }
-}
-
-export async function updateUserAction(
-  userId: string,
-  data: Partial<Pick<User, "name" | "email">>,
-) {
-  try {
-    const updatedUser = await updateUser(userId, data);
-    return { success: true, user: updatedUser };
-  } catch (error) {
-    console.error("Error updating user:", error);
-    return { success: false, error: "Failed to update user" };
   }
 }
