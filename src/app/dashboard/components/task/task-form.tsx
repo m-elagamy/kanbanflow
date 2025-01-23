@@ -80,6 +80,7 @@ const TaskForm = ({
             !!validationErrors?.title || !!(errorMessage && !validationErrors)
           }
           aria-describedby="title-error"
+          aria-required
         />
         {validationErrors?.title ||
         (errorMessage && !validationErrors && !state.success) ? (

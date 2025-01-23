@@ -68,6 +68,7 @@ export default function BoardForm({
             !!validationErrors?.title || !!(errorMessage && !validationErrors)
           }
           aria-describedby="title-error"
+          aria-required
           autoFocus
         />
         <p className="text-[0.8rem] text-muted-foreground">
