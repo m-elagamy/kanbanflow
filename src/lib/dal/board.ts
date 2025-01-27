@@ -8,31 +8,33 @@ const createBoard = async (
   description?: string | null,
   columns?: string[],
 ): Promise<Board> => {
-  const lastBoard = await db.board.findFirst({
-    where: { userId },
-    orderBy: { order: "desc" },
-    select: { order: true },
-  });
+  return db.$transaction(async (prisma) => {
+    const lastBoard = await prisma.board.findFirst({
+      where: { userId },
+      orderBy: { order: "desc" },
+      select: { order: true },
+    });
 
-  const newOrder = lastBoard ? lastBoard.order + 1 : 0;
+    const newOrder = lastBoard ? lastBoard.order + 1 : 0;
 
-  const columnData =
-    columns
-      ?.filter(Boolean)
-      .map((column, index) => ({ title: column, order: index })) || [];
+    const columnData =
+      columns
+        ?.filter(Boolean)
+        .map((column, index) => ({ title: column, order: index })) || [];
 
-  return db.board.create({
-    data: {
-      title,
-      slug,
-      description,
-      userId,
-      columns: columnData.length ? { create: columnData } : undefined,
-      order: newOrder,
-    },
-    include: {
-      columns: true,
-    },
+    return prisma.board.create({
+      data: {
+        title,
+        slug,
+        description,
+        userId,
+        columns: columnData.length ? { create: columnData } : undefined,
+        order: newOrder,
+      },
+      include: {
+        columns: true,
+      },
+    });
   });
 };
 

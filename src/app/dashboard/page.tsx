@@ -13,9 +13,22 @@ import {
 import BoardModal from "./components/board/board-modal";
 import { insertUserAction } from "@/actions/user";
 
-export const metadata: Metadata = {
-  title: "Dashboard",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const user = await currentUser();
+
+  if (!user) {
+    return {
+      title: "Access Denied",
+      description:
+        "You do not have permission to view this page. Please log in or return to the homepage.",
+    };
+  }
+
+  return {
+    title: "Dashboard",
+    description: "Manage your tasks and projects with ease using KanbanFlow.",
+  };
+}
 
 const Dashboard = async () => {
   const user = await currentUser();

@@ -12,7 +12,24 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
+    document.title = "KanbanFlow | Error";
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute(
+        "content",
+        "An error occurred while processing your request. Please try again.",
+      );
+    }
+
+    return () => {
+      document.title = "KanbanFlow | Dashboard";
+      if (metaDescription) {
+        metaDescription.setAttribute(
+          "content",
+          "Manage your tasks and projects with ease using KanbanFlow.",
+        );
+      }
+    };
   }, [error]);
 
   return (
