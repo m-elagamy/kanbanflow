@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/sidebar";
 import { slugify } from "@/utils/slugify";
 import type { Board } from "@prisma/client";
-
 import BoardActions from "@/app/dashboard/components/board/board-actions";
 
 type BoardsListProps = {
