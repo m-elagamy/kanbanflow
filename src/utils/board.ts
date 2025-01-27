@@ -1,8 +1,8 @@
-import type { Mode } from "@/lib/types";
+import type { ActionMode } from "@/lib/types";
 import { Board } from "@prisma/client";
 
 export const getInitialState = (
-  mode: Mode,
+  mode: ActionMode,
   board?: Pick<Board, "id" | "title" | "description">,
 ) => {
   return mode === "create"

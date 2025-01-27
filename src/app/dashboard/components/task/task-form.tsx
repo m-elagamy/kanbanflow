@@ -5,87 +5,78 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import getBadgeStyle from "../../utils/get-badge-style";
 import taskPriorities from "../../data/task-priorities";
-import { Task } from "@prisma/client";
 import { Label } from "@/components/ui/label";
 import { useTaskAction } from "@/hooks/use-task-action";
-import type { Mode } from "@/lib/types";
+import type { ActionMode } from "@/lib/types";
 import type {
   CreateTaskActionState,
   EditTaskActionState,
 } from "@/lib/types/task";
 import RequiredFieldSymbol from "@/components/ui/required-field-symbol";
 import ErrorMessage from "@/components/ui/error-message";
-import { Loader } from "lucide-react";
+import FormActions from "@/components/ui/form-actions";
 
 type TaskFormProps = {
-  setIsModalOpen?: (isOpen: boolean) => void;
-  taskToEdit?: Task | null;
-  setCloseDropdown?: (isOpen: boolean) => void;
-  mode: Mode;
+  mode: ActionMode;
   initialState: CreateTaskActionState | EditTaskActionState;
+  modalId: string;
 };
 
-const TaskForm = ({
-  setIsModalOpen,
-  taskToEdit,
-  setCloseDropdown,
-  mode,
-  initialState,
-}: TaskFormProps) => {
+const TaskForm = ({ mode, initialState, modalId }: TaskFormProps) => {
   const {
-    state,
-    formAction,
+    serverState,
+    serverError,
     isPending,
-    validationErrors,
-    errorMessage,
-    clearError,
     titleRef,
+    clearFieldValidationError,
+    fieldErrors,
+    handleServerAction,
+    formValues,
   } = useTaskAction({
     initialState,
-    mode,
+    actionMode: mode,
+    modalId,
   });
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={handleServerAction} className="space-y-4">
       <section className="space-y-2">
         <Label
-          className={`${validationErrors?.title || (errorMessage && !validationErrors && !state.success) ? "text-destructive" : ""}`}
+          className={`${fieldErrors?.title || (serverError && !fieldErrors && !serverState.success) ? "text-destructive" : ""}`}
         >
           What&apos;s the task? <RequiredFieldSymbol />
         </Label>
         <Input
           type="hidden"
           name="columnId"
-          value={state.fields?.columnId ?? ""}
+          value={initialState.fields?.columnId ?? ""}
         />
+
         {mode === "edit" && (
           <Input
             type="hidden"
             name="taskId"
-            value={state.fields?.taskId ?? ""}
+            value={initialState.fields?.taskId ?? ""}
           />
         )}
+
         <Input
           ref={titleRef}
           name="title"
           placeholder="e.g., Create a stunning new landing page"
-          defaultValue={state.fields?.title ?? ""}
-          onChange={() => clearError("title")}
-          aria-invalid={
-            !!validationErrors?.title || !!(errorMessage && !validationErrors)
+          defaultValue={
+            (formValues.title as string) || serverState.fields?.title
           }
-          aria-describedby="title-error"
+          onChange={() => clearFieldValidationError("title")}
           aria-required
         />
-        {validationErrors?.title ||
-        (errorMessage && !validationErrors && !state.success) ? (
+        {fieldErrors?.title || serverError ? (
           <ErrorMessage id="title-error">
-            {validationErrors?.title?._errors?.at(0) ?? errorMessage}
+            {fieldErrors?.title?._errors?.at(0) ?? serverError}
           </ErrorMessage>
         ) : null}
       </section>
@@ -96,13 +87,21 @@ const TaskForm = ({
           name="description"
           placeholder="e.g., Design a modern, mobile-friendly layout for the homepage"
           className="resize-none"
-          defaultValue={state.fields?.description ?? ""}
+          defaultValue={
+            (formValues.description as string) ||
+            serverState.fields?.description
+          }
         />
       </section>
 
       <section className="space-y-2">
         <Label>How urgent is this?</Label>
-        <Select name="priority" defaultValue={state.fields?.priority ?? ""}>
+        <Select
+          name="priority"
+          defaultValue={
+            (formValues.priority as string) || serverState.fields?.priority
+          }
+        >
           <SelectTrigger className="*:max-w-[120px]">
             <SelectValue placeholder="Select a template" />
           </SelectTrigger>
@@ -125,15 +124,7 @@ const TaskForm = ({
         </Select>
       </section>
 
-      <div className="!mt-6 flex items-center justify-end gap-2">
-        <Button className="px-2" type="button" variant="ghost">
-          Cancel
-        </Button>
-        <Button className="px-2" disabled={isPending}>
-          {isPending && <Loader className="animate-spin" />}
-          {mode === "edit" ? "Update" : "Add Task"}
-        </Button>
-      </div>
+      <FormActions isPending={isPending} mode={mode} />
     </form>
   );
 };

@@ -1,7 +1,5 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -9,10 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import columnsTemplates from "../../data/columns-templates";
-import { DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
 import RequiredFieldSymbol from "@/components/ui/required-field-symbol";
 import { Textarea } from "@/components/ui/textarea";
 import { useBoardAction } from "@/hooks/use-board-action";
@@ -20,32 +17,36 @@ import ErrorMessage from "@/components/ui/error-message";
 import type {
   CreateBoardActionState,
   EditBoardActionState,
-  Mode,
+  ActionMode,
 } from "@/lib/types";
+import FormActions from "@/components/ui/form-actions";
 
 export default function BoardForm({
   mode,
   initialState,
+  modalId,
 }: {
-  mode: Mode;
+  mode: ActionMode;
   initialState: CreateBoardActionState | EditBoardActionState;
+  modalId: string;
 }) {
   const {
-    state,
-    formAction,
+    serverState,
+    serverError,
     isPending,
     titleRef,
-    clearError,
-    validationErrors,
-    errorMessage,
-  } = useBoardAction({ mode: mode, initialState });
+    clearFieldValidationError,
+    fieldErrors,
+    handleServerAction,
+    formValues,
+  } = useBoardAction({ actionMode: mode, initialState, modalId });
 
   return (
-    <form action={formAction} className="space-y-4 *:space-y-2">
+    <form action={handleServerAction} className="space-y-4 *:space-y-2">
       <div>
         <Label
           htmlFor="title"
-          className={`${validationErrors?.title || (errorMessage && !validationErrors && !state.success) ? "text-destructive" : ""}`}
+          className={`${fieldErrors?.title || serverError ? "text-destructive" : ""}`}
         >
           Board Name <RequiredFieldSymbol />
         </Label>
@@ -53,7 +54,7 @@ export default function BoardForm({
           <Input
             type="hidden"
             name="boardId"
-            value={state.fields?.boardId ?? ""}
+            value={serverState.fields?.boardId ?? ""}
           />
         )}
         <Input
@@ -62,23 +63,19 @@ export default function BoardForm({
           type="text"
           name="title"
           placeholder="e.g., Personal Tasks"
-          defaultValue={state.fields?.title ?? ""}
-          onChange={() => clearError("title")}
-          aria-invalid={
-            !!validationErrors?.title || !!(errorMessage && !validationErrors)
+          defaultValue={
+            (formValues.title as string) || serverState.fields?.title
           }
-          aria-describedby="title-error"
+          onChange={() => clearFieldValidationError("title")}
           aria-required
           autoFocus
         />
         <p className="text-[0.8rem] text-muted-foreground">
           Choose a clear and descriptive name for your board.
         </p>
-        {/* Show error message if the title field is invalid or there's a generic error. */}
-        {validationErrors?.title ||
-        (errorMessage && !validationErrors && !state.success) ? (
+        {fieldErrors?.title || serverError ? (
           <ErrorMessage id="title-error">
-            {validationErrors?.title?._errors?.at(0) ?? errorMessage}
+            {fieldErrors?.title?._errors?.at(0) ?? serverError}
           </ErrorMessage>
         ) : null}
       </div>
@@ -87,15 +84,17 @@ export default function BoardForm({
         <div>
           <Label
             htmlFor="template"
-            className={`${validationErrors?.template ? "text-destructive" : ""}`}
+            className={`${
+              fieldErrors && "template" in fieldErrors && fieldErrors.template
+                ? "text-destructive"
+                : ""
+            }`}
           >
             Board Template <RequiredFieldSymbol />
           </Label>
           <Select
             name="template"
-            onValueChange={() => clearError("template")}
-            aria-invalid={!!validationErrors?.template}
-            aria-describedby="template-error"
+            onValueChange={() => clearFieldValidationError("template")}
           >
             <SelectTrigger id="template">
               <SelectValue placeholder="Select a template" />
@@ -117,11 +116,14 @@ export default function BoardForm({
           <p className="text-[0.8rem] text-muted-foreground">
             Start with a ready-made template or customize it later.
           </p>
-          {validationErrors?.template && (
-            <ErrorMessage id="template-error">
-              {validationErrors?.template._errors?.at(0)}
-            </ErrorMessage>
-          )}
+
+          {fieldErrors &&
+            "template" in fieldErrors &&
+            fieldErrors.template?._errors?.at(0) && (
+              <ErrorMessage id="template-error">
+                {fieldErrors.template._errors.at(0)}
+              </ErrorMessage>
+            )}
         </div>
       )}
 
@@ -131,7 +133,11 @@ export default function BoardForm({
           id="description"
           name="description"
           placeholder="Organize my daily and work tasks"
-          defaultValue={state.fields?.description ?? ""}
+          defaultValue={
+            ((formValues.description as string) ||
+              serverState.fields?.description) ??
+            ""
+          }
           className="resize-none"
         />
         <p className="text-[0.8rem] text-muted-foreground">
@@ -139,15 +145,7 @@ export default function BoardForm({
         </p>
       </div>
 
-      <DialogFooter>
-        <Button className="px-2" disabled={isPending}>
-          {isPending && <Loader className="animate-spin" aria-hidden />}
-          {mode === "create" ? "Create" : "Update"}
-        </Button>
-      </DialogFooter>
-      <p aria-live="polite" className="sr-only" role="status">
-        {state.message}
-      </p>
+      {<FormActions isPending={isPending} mode={mode} />}
     </form>
   );
 }

@@ -23,7 +23,7 @@ export default function Unauthorized() {
         </CardHeader>
         <CardContent>
           <p className="text-center text-muted-foreground">
-            You don't have permission to access this page. Please log in or
+            You don&apos;t have permission to access this page. Please log in or
             return to the homepage.
           </p>
         </CardContent>

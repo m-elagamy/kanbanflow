@@ -46,7 +46,7 @@ export default function NoTasksMessage({ columnId }: { columnId: string }) {
               variant="outline"
               size="sm"
             >
-              <CirclePlus />
+              <CirclePlus className="!size-[14px]" />
               New Task
             </Button>
           }

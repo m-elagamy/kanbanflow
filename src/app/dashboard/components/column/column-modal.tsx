@@ -1,36 +1,25 @@
-"use client";
-
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { CirclePlus } from "lucide-react";
 import AddColumnCard from "./add-column-card";
 import ColumnForm from "./column-form";
+import Modal from "@/components/ui/modal";
 
 const ColumnModal = ({ boardId }: { boardId: string }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const modalId = `new-column-${boardId}`;
 
   return (
-    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-      <DialogTrigger className="mx-auto h-full max-h-[500px] outline-none md:mx-0">
-        <AddColumnCard />
-      </DialogTrigger>
-      <DialogContent className="rounded-lg">
-        <DialogHeader>
-          <DialogTitle>Create New Column</DialogTitle>
-          <DialogDescription>
-            Pick a state for your new column like &apos;To Do&apos; or &apos;In
-            Progress&apos; to keep your tasks organized.
-          </DialogDescription>
-        </DialogHeader>
-        <ColumnForm setIsModalOpen={setIsModalOpen} boardId={boardId} />
-      </DialogContent>
-    </Dialog>
+    <Modal
+      trigger={<AddColumnCard onClick={() => {}} />}
+      title={
+        <>
+          <CirclePlus size={16} /> New Column
+        </>
+      }
+      description="Pick a status for your new column like 'To Do' or 'In Progress' to keep your tasks organized."
+      modalType="column"
+      modalId={modalId}
+    >
+      <ColumnForm boardId={boardId} modalId={modalId} />
+    </Modal>
   );
 };
 

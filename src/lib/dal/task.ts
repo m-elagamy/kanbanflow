@@ -6,11 +6,11 @@ export const createTask = async (
   title: string,
   description?: string,
   priority?: Priority,
-  order?: number,
 ): Promise<Task> => {
   const highestOrderTask = await db.task.findFirst({
     where: { columnId },
     orderBy: { order: "desc" },
+    select: { order: true },
   });
 
   const newOrder = highestOrderTask ? highestOrderTask.order + 1 : 0;
@@ -21,14 +21,14 @@ export const createTask = async (
       description,
       priority,
       columnId,
-      order: order ?? newOrder,
+      order: newOrder,
     },
   });
 };
 
 export const updateTask = async (
   taskId: string,
-  data: Partial<Pick<Task, "title" | "description" | "priority" | "columnId">>,
+  data: Omit<Partial<Task>, "id" | "order">,
 ): Promise<Task> => {
   return db.task.update({
     where: { id: taskId },

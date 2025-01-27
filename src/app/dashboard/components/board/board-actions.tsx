@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { Ellipsis, SquarePen, TrashIcon } from "lucide-react";
 
 import {
@@ -30,16 +30,21 @@ export default function BoardActions({
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const { isMobile } = useSidebar();
 
-  const handleDeleteBoard = () => {
-    deleteBoardAction(id ?? "");
-    setIsAlertOpen(false);
-  };
+  const [, formAction, isPending] = useActionState(deleteBoardAction, {
+    success: false,
+    message: "",
+    error: "",
+    fields: { boardId: id },
+  });
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {isSidebarTrigger ? (
-          <SidebarMenuAction className="!top-[3px] size-7" showOnHover>
+          <SidebarMenuAction
+            className="!top-[3px] size-7 peer-data-[active=true]/menu-button:opacity-100"
+            showOnHover
+          >
             <Ellipsis />
             <span className="sr-only">Open menu</span>
           </SidebarMenuAction>
@@ -54,7 +59,7 @@ export default function BoardActions({
         side={isSidebarTrigger && !isMobile ? "right" : "bottom"}
         align={isSidebarTrigger ? "start" : "end"}
       >
-        <DropdownMenuLabel>Board Actions</DropdownMenuLabel>
+        <DropdownMenuLabel>Board Actions:</DropdownMenuLabel>
         <BoardModal
           mode="edit"
           trigger={
@@ -78,9 +83,11 @@ export default function BoardActions({
       <AlertConfirmation
         open={isAlertOpen}
         setOpen={setIsAlertOpen}
-        title={`Delete the board "${title}"?`}
+        title={`Delete Board`}
         description="This action will permanently remove the board and all its data."
-        onConfirm={handleDeleteBoard}
+        formAction={formAction}
+        isPending={isPending}
+        boardId={id}
       />
     </DropdownMenu>
   );

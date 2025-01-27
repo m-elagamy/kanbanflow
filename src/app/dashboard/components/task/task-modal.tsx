@@ -1,72 +1,54 @@
-"use client";
-
-import { useState } from "react";
-import { CirclePlus, Edit, PlusIcon } from "lucide-react";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-// import TaskForm from "./task-form";
-// import type Task from "@/lib/types/task";
-import { Task } from "@prisma/client";
 import TaskForm from "./task-form";
-import type { Mode } from "@/lib/types";
+import type { Task } from "@prisma/client";
+import type { ActionMode } from "@/lib/types";
+import Modal from "@/components/ui/modal";
+import { getModalTitle } from "../../utils/get-modal-title";
+import { getModalDescription } from "../../utils/get-modal-description";
 
 type TaskModalProps = {
   columnId: string;
   trigger?: React.ReactNode;
   taskToEdit?: Task | null;
-  setCloseDropdown?: (isOpen: boolean) => void;
-  mode: Mode;
+  mode: ActionMode;
 };
 
-const TaskModal = ({
-  columnId,
-  trigger,
-  taskToEdit,
-  setCloseDropdown,
-  mode,
-}: TaskModalProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const TaskModal = ({ columnId, trigger, taskToEdit, mode }: TaskModalProps) => {
+  const modalId = taskToEdit ? `task-${taskToEdit.id}` : `new-task-${columnId}`;
 
   return (
-    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
+    <Modal
+      trigger={
+        trigger || (
           <Button variant="ghost" size="icon" className="size-8">
             <PlusIcon />
+            <span className="sr-only">New Task</span>
           </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent className="rounded-lg">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {taskToEdit ? <Edit size={16} /> : <CirclePlus size={16} />}
-            {taskToEdit ? "Edit Task" : "New Task"}
-          </DialogTitle>
-        </DialogHeader>
-        <TaskForm
-          mode={mode}
-          initialState={{
-            success: false,
-            message: "",
-            errors: undefined,
-            fields: {
-              columnId,
-              taskId: taskToEdit?.id,
-              title: taskToEdit?.title ?? "",
-              description: taskToEdit?.description ?? "",
-              priority: taskToEdit?.priority ?? "medium",
-            },
-          }}
-        />
-      </DialogContent>
-    </Dialog>
+        )
+      }
+      title={getModalTitle("task", mode)}
+      description={getModalDescription("task", mode)}
+      modalType="task"
+      modalId={modalId}
+    >
+      <TaskForm
+        mode={mode}
+        initialState={{
+          success: false,
+          message: "",
+          errors: undefined,
+          fields: {
+            columnId,
+            taskId: taskToEdit?.id,
+            title: taskToEdit?.title ?? "",
+            description: taskToEdit?.description ?? "",
+            priority: taskToEdit?.priority ?? "medium",
+          },
+        }}
+        modalId={modalId}
+      />
+    </Modal>
   );
 };
 

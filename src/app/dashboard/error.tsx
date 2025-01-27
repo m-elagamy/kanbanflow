@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { useEffect } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Error({
   error,
@@ -12,12 +12,11 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
     console.error(error);
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 text-foreground">
+    <div className="flex min-h-screen flex-grow flex-col items-center justify-center bg-background p-4 text-foreground">
       <h1 className="mb-2 text-4xl font-bold">Something went wrong!</h1>
       <p className="mb-8 text-xl">We apologize for the inconvenience.</p>
       <div className="flex space-x-4">

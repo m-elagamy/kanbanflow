@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect, RedirectType } from "next/navigation";
+import { redirect } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
 
 import {
@@ -21,8 +21,6 @@ export const createBoardAction = async (
 ): Promise<CreateBoardActionState> => {
   const user = await currentUser();
   if (!user) return { success: false, message: "Authentication required!" };
-
-  //TODO: handle the case when the user choose an exist name for a board without filling out required fields.
 
   const data = Object.fromEntries(formData.entries());
   const validatedData = boardSchema.safeParse(data);
@@ -59,7 +57,11 @@ export const createBoardAction = async (
 
   await createBoard(title, user.id, boardSlug, description, template?.columns);
 
-  redirect(`/dashboard/${boardSlug}`);
+  return {
+    success: true,
+    message: "Board was created successfully",
+    boardSlug: `/dashboard/${slugify(title)}`,
+  };
 };
 
 export const updateBoardAction = async (
@@ -112,13 +114,31 @@ export const updateBoardAction = async (
     slug: slugify(title),
   });
 
-  redirect(`/dashboard/${slugify(title)}`, RedirectType.replace);
+  return {
+    success: true,
+    message: "Board was updated successfully",
+    isUpdating: true,
+    boardSlug: `/dashboard/${slugify(title)}`,
+  };
 };
 
-export async function deleteBoardAction(boardId: string) {
+export async function deleteBoardAction(
+  _prevState: unknown,
+  formData: FormData,
+): Promise<{
+  success: boolean;
+  message?: string;
+  error?: string;
+  fields?: { boardId: string };
+}> {
   try {
-    const deletedBoard = await deleteBoard(boardId);
-    return { success: true, board: deletedBoard };
+    const boardId = formData.get("boardId") as string;
+    await deleteBoard(boardId);
+    return {
+      success: true,
+      message: "Board deleted successfully",
+      fields: { boardId },
+    };
   } catch (error) {
     console.error("Error deleting board:", error);
     return { success: false, error: "Failed to delete board" };

@@ -9,10 +9,16 @@ export async function createColumnAction(
   formData: FormData,
 ) {
   const boardId = formData.get("boardId") as string;
-  const columnTitle = formData.get("state") as string;
+  const columnTitle = formData.get("status") as string;
   await createColumn(boardId, columnTitle);
-  revalidatePath("/");
-  return boardId;
+
+  revalidatePath("/dashboard/[board]", "page");
+
+  return {
+    success: true,
+    message: `Column was added successfully.`,
+    fields: { boardId },
+  };
 }
 
 export async function updateColumnAction(
@@ -30,10 +36,23 @@ export async function updateColumnAction(
   }
 }
 
-export async function deleteColumnAction(columnId: string) {
+export async function deleteColumnAction(
+  _prevState: unknown,
+  formData: FormData,
+): Promise<{
+  success: boolean;
+  message?: string;
+  error?: string;
+  fields?: { columnId: string };
+}> {
   try {
+    const columnId = formData.get("columnId") as string;
     await deleteColumn(columnId);
-    return { success: true };
+    return {
+      success: true,
+      message: "Column deleted successfully",
+      fields: { columnId },
+    };
   } catch (error) {
     console.error("Error deleting column:", error);
     return { success: false, error: "Failed to delete column" };

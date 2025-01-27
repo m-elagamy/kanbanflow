@@ -5,10 +5,19 @@ export const createColumn = async (
   boardId: string,
   title: string,
 ): Promise<Column> => {
+  const highestOrderColumn = await db.column.findFirst({
+    where: { boardId },
+    orderBy: { order: "desc" },
+    select: { order: true },
+  });
+
+  const newOrder = highestOrderColumn ? highestOrderColumn.order + 1 : 0;
+
   return db.column.create({
     data: {
       title,
       boardId,
+      order: newOrder,
     },
   });
 };

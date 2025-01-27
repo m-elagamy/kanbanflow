@@ -12,9 +12,9 @@ import SidebarLabel from "./sidebar-label";
 import BoardsList from "./boards-list";
 import { NavUser } from "@/components/layout/sidebar/nav-user";
 import { currentUser } from "@clerk/nextjs/server";
-import { getUserBoardsAction } from "@/actions/user";
 import { unauthorized } from "next/navigation";
 import { Suspense } from "react";
+import { getAllUserBoards } from "@/lib/dal/user";
 
 export async function WorkspaceSidebar() {
   const authUser = await currentUser();
@@ -23,14 +23,7 @@ export async function WorkspaceSidebar() {
     unauthorized();
   }
 
-  const userBoards = (await getUserBoardsAction(authUser?.id)).userWithBoards
-    ?.boards;
-
-  const user = {
-    name: "Mahmoud Elagamy",
-    avatar: "https://github.com/Mahmoud-Elagamy.png",
-    email: "mahmoudelagamy474@gmail.com",
-  };
+  const userBoards = await getAllUserBoards(authUser?.id);
 
   return (
     <Sidebar collapsible="icon">
@@ -47,7 +40,7 @@ export async function WorkspaceSidebar() {
         <SidebarActions />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );

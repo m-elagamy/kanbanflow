@@ -10,6 +10,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import BoardModal from "./components/board/board-modal";
+import type { Metadata } from "next";
+// import { insertUserAction } from "@/actions/user";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+};
 
 const Dashboard = async () => {
   const authUser = await currentUser();
@@ -17,6 +23,12 @@ const Dashboard = async () => {
   if (!authUser) {
     unauthorized();
   }
+
+  // await insertUserAction({
+  //   id: authUser.id,
+  //   email: authUser.emailAddresses[0].emailAddress,
+  //   name: authUser.fullName,
+  // });
 
   return (
     <section className="relative right-3 grid flex-grow place-content-center">

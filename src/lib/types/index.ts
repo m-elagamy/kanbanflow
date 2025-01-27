@@ -7,6 +7,7 @@ export type CreateBoardActionState = {
   boardSlug?: string;
   errors?: z.ZodFormattedError<BoardCreationForm>;
   fields?: Partial<BoardCreationForm> & { boardId?: string };
+  isUpdating?: boolean;
 };
 
 export type EditBoardActionState = {
@@ -17,6 +18,9 @@ export type EditBoardActionState = {
     Pick<BoardCreationForm, "title" | "description">
   >;
   fields?: Partial<BoardCreationForm> & { boardId?: string };
+  isUpdating?: boolean;
 };
 
-export type Mode = "create" | "edit";
+export type ActionMode = "create" | "edit";
+
+export type ModalType = "task" | "board";

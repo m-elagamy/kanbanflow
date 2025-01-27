@@ -17,6 +17,8 @@ export type CreateTaskActionState = {
   message: string;
   errors?: z.ZodFormattedError<Pick<AddTask, "title">>;
   fields?: Partial<AddTask> & { columnId?: string; taskId?: string };
+  boardSlug?: string;
+  isUpdating?: boolean;
 };
 
 export type EditTaskActionState = {
@@ -24,4 +26,6 @@ export type EditTaskActionState = {
   message: string;
   errors?: z.ZodFormattedError<Pick<AddTask, "title">>;
   fields?: Partial<AddTask> & { columnId?: string; taskId?: string };
+  boardSlug?: string;
+  isUpdating?: boolean;
 };

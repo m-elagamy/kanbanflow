@@ -1,17 +1,11 @@
-import { Edit, PlusCircle } from "lucide-react";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BoardForm from "./board-form";
 import type { Board } from "@prisma/client";
+import Modal from "@/components/ui/modal";
 import { getInitialState } from "@/utils/board";
+import { getModalTitle } from "../../utils/get-modal-title";
+import { getModalDescription } from "../../utils/get-modal-description";
 
 type BoardModalProps = {
   mode: "create" | "edit";
@@ -21,43 +15,25 @@ type BoardModalProps = {
 
 const BoardModal = ({ mode, board, trigger }: BoardModalProps) => {
   const initialState = getInitialState(mode, board);
+  const modalId = board ? `board-${board.id}` : "new-board";
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        {trigger ?? (
+    <Modal
+      trigger={
+        trigger || (
           <Button className="group">
             <PlusCircle className="transition-transform group-hover:rotate-90" />
             Create your first board
           </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent className="rounded-lg">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {mode === "create" ? (
-              "Create New Board"
-            ) : (
-              <>
-                <Edit size={16} /> Edit Board
-              </>
-            )}
-          </DialogTitle>
-          <DialogDescription>
-            {mode === "create"
-              ? "Set up your board with a name, description, and template."
-              : "Modify the board details below."}
-          </DialogDescription>
-        </DialogHeader>
-        {mode === "create" && (
-          <BoardForm mode="create" initialState={initialState} />
-        )}
-
-        {mode === "edit" && board && (
-          <BoardForm mode="edit" initialState={initialState} />
-        )}
-      </DialogContent>
-    </Dialog>
+        )
+      }
+      title={getModalTitle("board", mode)}
+      description={getModalDescription("board", mode)}
+      modalType="board"
+      modalId={modalId}
+    >
+      <BoardForm mode={mode} initialState={initialState} modalId={modalId} />
+    </Modal>
   );
 };
 

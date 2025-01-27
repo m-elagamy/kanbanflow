@@ -14,7 +14,11 @@ import type { Board } from "@prisma/client";
 
 import BoardActions from "@/app/dashboard/components/board/board-actions";
 
-export default function BoardsList({ boards }: { boards?: Board[] }) {
+type BoardsListProps = {
+  boards: Omit<Board, "userId">[];
+};
+
+export default function BoardsList({ boards }: BoardsListProps) {
   const pathname = usePathname();
 
   return (

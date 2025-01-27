@@ -14,6 +14,24 @@ export const getUserById = async (userId: string) => {
 export const getUserBoards = async (userId: string) => {
   return db.user.findUnique({
     where: { id: userId },
-    include: { boards: true },
+    include: {
+      boards: {
+        orderBy: { order: "asc" },
+      },
+    },
+  });
+};
+
+export const getAllUserBoards = async (userId: string) => {
+  return db.board.findMany({
+    where: { userId },
+    orderBy: { order: "asc" },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      order: true,
+    },
   });
 };

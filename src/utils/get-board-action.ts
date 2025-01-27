@@ -2,12 +2,12 @@ import { createBoardAction, updateBoardAction } from "@/actions/board";
 import type {
   CreateBoardActionState,
   EditBoardActionState,
-  Mode,
+  ActionMode,
 } from "@/lib/types";
 
-type BoardActionState = CreateBoardActionState | EditBoardActionState;
+export type BoardActionState = CreateBoardActionState | EditBoardActionState;
 
-const getBoardAction = (mode: Mode) => {
+const getBoardAction = (mode: ActionMode) => {
   return (
     state: BoardActionState,
     formData: FormData,

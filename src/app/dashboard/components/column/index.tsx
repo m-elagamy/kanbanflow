@@ -3,14 +3,10 @@
 import ColumnCard from "./column-card";
 import ColumnModal from "./column-modal";
 import type { Task } from "@prisma/client";
+import { Column } from "@prisma/client";
 
 type ColumnsWrapperProps = {
-  columns: Array<{
-    id: string;
-    boardId: string;
-    title: string;
-    tasks: Array<Task>;
-  }>;
+  columns: (Column & { tasks: Task[] })[];
   boardId: string;
 };
 

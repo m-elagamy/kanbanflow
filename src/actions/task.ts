@@ -34,8 +34,6 @@ export const createTaskAction = async (
   });
 
   if (existingTask) {
-    console.log("task is existing");
-
     return {
       success: false,
       message: `A task with the name "${title}" already exists.`,
@@ -45,14 +43,10 @@ export const createTaskAction = async (
 
   await createTask(columnId, title, description, priority);
 
-  console.log("Task added!");
-
-  revalidatePath(`/dashboard/[board]`, "page");
-
   return {
     success: true,
     message: `Task was added successfully.`,
-    fields: validatedData.data,
+    fields: { title, description, priority },
   };
 };
 
@@ -107,11 +101,9 @@ export async function updateTaskAction(
     priority,
   });
 
-  revalidatePath(`/dashboard/[board]`, "page");
-
   return {
     success: true,
-    message: `Task was added successfully.`,
+    message: `Task was updated successfully.`,
     fields: validatedData.data,
   };
 }

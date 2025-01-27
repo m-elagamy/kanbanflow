@@ -1,6 +1,11 @@
 "use server";
 
-import { insertUser, getUserById, getUserBoards } from "../lib/dal/user";
+import {
+  insertUser,
+  getUserById,
+  getUserBoards,
+  getAllUserBoards,
+} from "../lib/dal/user";
 import { User } from "@prisma/client";
 
 export async function insertUserAction(data: User) {
@@ -27,6 +32,16 @@ export async function getUserBoardsAction(userId: string) {
   try {
     const userWithBoards = await getUserBoards(userId);
     return { success: true, userWithBoards };
+  } catch (error) {
+    console.error("Error getting user boards:", error);
+    return { success: false, error: "Failed to get user boards" };
+  }
+}
+
+export async function getAllUserBoardsAction(userId: string) {
+  try {
+    const userBoards = await getAllUserBoards(userId);
+    return { success: true, userBoards };
   } catch (error) {
     console.error("Error getting user boards:", error);
     return { success: false, error: "Failed to get user boards" };

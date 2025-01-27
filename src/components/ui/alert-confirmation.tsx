@@ -1,7 +1,6 @@
-import { Trash2 } from "lucide-react";
+import { Loader } from "lucide-react";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -9,15 +8,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "./button";
 
 type AlertConfirmationProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   title: string;
   description: string;
-  onConfirm: () => void;
   confirmLabel?: string;
   cancelLabel?: string;
+  formAction: (payload: FormData) => void;
+  isPending: boolean;
+  columnId?: string;
+  boardId?: string;
+  columnConfirmation?: boolean;
 };
 
 const AlertConfirmation = ({
@@ -25,28 +29,36 @@ const AlertConfirmation = ({
   setOpen,
   title,
   description,
-  onConfirm,
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
+  formAction,
+  isPending,
+  columnId,
+  boardId,
+  columnConfirmation,
 }: AlertConfirmationProps) => {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogContent className="max-w-96 rounded-lg p-4">
-        <AlertDialogHeader className="items-center">
-          <AlertDialogTitle className="flex flex-col gap-2">
-            <Trash2 className="mx-auto text-red-500" />
-            {title}
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-center">
-            {description}
-          </AlertDialogDescription>
+      <AlertDialogContent className="p-4">
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}?</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="justify-center">
-          <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
-          <form>
-            <AlertDialogAction type="submit" formAction={onConfirm}>
+          <AlertDialogCancel className="px-2">{cancelLabel}</AlertDialogCancel>
+          <form action={formAction}>
+            <input
+              type="hidden"
+              name={columnConfirmation ? "columnId" : "boardId"}
+              value={columnId ?? boardId}
+            />
+            <Button
+              className="w-full gap-1 bg-destructive px-2 text-destructive-foreground hover:bg-destructive/90"
+              disabled={isPending}
+            >
+              {isPending && <Loader className="animate-spin" aria-hidden />}
               {confirmLabel}
-            </AlertDialogAction>
+            </Button>
           </form>
         </AlertDialogFooter>
       </AlertDialogContent>

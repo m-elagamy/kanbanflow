@@ -1,57 +1,30 @@
-import { useActionState, useEffect, useRef, useState } from "react";
-import { debounce } from "@/utils/debounce";
-
+import { addTaskSchema } from "@/schemas/task";
+import getTaskAction from "@/utils/get-task-action";
 import type {
   CreateTaskActionState,
   EditTaskActionState,
 } from "@/lib/types/task";
-import type { Mode } from "@/lib/types";
-import getTaskAction from "@/utils/get-task-action";
+import { useAction } from "./use-action";
+import type { ActionMode } from "@/lib/types";
 
 type UseTaskAction = {
   initialState: CreateTaskActionState | EditTaskActionState;
-  mode: Mode;
+  actionMode: ActionMode;
+  modalId: string;
 };
 
-export function useTaskAction({ initialState, mode }: UseTaskAction) {
-  const [state, formAction, isPending] = useActionState(
-    getTaskAction(mode),
+export function useTaskAction({
+  initialState,
+  actionMode,
+  modalId,
+}: UseTaskAction) {
+  return useAction({
     initialState,
-  );
-
-  const [validationErrors, setValidationErrors] =
-    useState<CreateTaskActionState["errors"]>(undefined);
-  const [errorMessage, setErrorMessage] = useState<
-    CreateTaskActionState["message"] | null
-  >(null);
-
-  const titleRef = useRef<HTMLInputElement>(null);
-  if (validationErrors?.title || (state.message && !validationErrors)) {
-    titleRef.current?.focus();
-  }
-
-  const clearError = debounce((field: string) => {
-    setValidationErrors((prevErrors) => {
-      if (prevErrors) {
-        return { ...prevErrors, [field]: "" };
-      }
-      return prevErrors;
-    });
-    setErrorMessage(null);
-  }, 300);
-
-  useEffect(() => {
-    setValidationErrors(state.errors);
-    setErrorMessage(state.message);
-  }, [state.errors, state]);
-
-  return {
-    state,
-    formAction,
-    isPending,
-    titleRef,
-    clearError,
-    validationErrors,
-    errorMessage,
-  };
+    actionMode,
+    getAction: getTaskAction,
+    schema: addTaskSchema,
+    fields: ["title"],
+    modalType: "task",
+    modalId,
+  });
 }
