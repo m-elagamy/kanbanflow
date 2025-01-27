@@ -1,5 +1,6 @@
 "use server";
 
+import db from "@/lib/db";
 import {
   insertUser,
   getUserById,
@@ -10,6 +11,13 @@ import { User } from "@prisma/client";
 
 export async function insertUserAction(data: User) {
   try {
+    const existingUser = await db.user.findUnique({
+      where: { email: data.email },
+    });
+    if (existingUser) {
+      return { success: true, user: existingUser };
+    }
+
     const user = await insertUser(data);
     return { success: true, user };
   } catch (error) {

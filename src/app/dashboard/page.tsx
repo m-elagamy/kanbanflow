@@ -1,4 +1,5 @@
 import { unauthorized } from "next/navigation";
+import type { Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
 import { Layout } from "lucide-react";
 
@@ -10,25 +11,26 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import BoardModal from "./components/board/board-modal";
-import type { Metadata } from "next";
-// import { insertUserAction } from "@/actions/user";
+import { insertUserAction } from "@/actions/user";
 
 export const metadata: Metadata = {
   title: "Dashboard",
 };
 
 const Dashboard = async () => {
-  const authUser = await currentUser();
+  const user = await currentUser();
 
-  if (!authUser) {
+  if (!user) {
     unauthorized();
   }
 
-  // await insertUserAction({
-  //   id: authUser.id,
-  //   email: authUser.emailAddresses[0].emailAddress,
-  //   name: authUser.fullName,
-  // });
+  const userData = {
+    id: user.id,
+    name: user.fullName,
+    email: user.emailAddresses[0].emailAddress,
+  };
+
+  await insertUserAction(userData);
 
   return (
     <section className="relative right-3 grid flex-grow place-content-center">
