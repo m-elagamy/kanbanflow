@@ -6,7 +6,7 @@ const LandingPage = () => {
   return (
     <>
       <Header />
-      <main className="relative z-[1] overflow-hidden">
+      <main className="flex-grow">
         <Landing />
       </main>
       <Footer />

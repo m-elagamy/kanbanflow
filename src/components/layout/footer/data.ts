@@ -3,14 +3,19 @@ import { Globe } from "lucide-react";
 
 const links = [
   {
+    href: "https://github.com/Mahmoud-Elagamy/",
+    icon: Icons.gitHub,
+    label: "GitHub",
+  },
+  {
+    href: "https://www.linkedin.com/in/mahmoudelagamy/",
+    icon: Icons.linkedIn,
+    label: "LinkedIn",
+  },
+  {
     href: "https://agamy.netlify.app",
     icon: Globe,
     label: "Portfolio",
-  },
-  {
-    href: "https://github.com/Mahmoud-Elagamy/kanban-app",
-    icon: Icons.gitHub,
-    label: "GitHub",
   },
 ];
 
