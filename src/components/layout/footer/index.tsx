@@ -11,7 +11,7 @@ const Footer = () => {
           <p className="text-sm text-muted-foreground">
             © {currentYear} KanbanFlow. All rights reserved.
           </p>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center justify-center gap-1">
             {links.map((link, index) => {
               const Icon = link.icon;
               return (

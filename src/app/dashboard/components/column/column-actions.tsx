@@ -30,12 +30,14 @@ type ColumnActionsProps = {
   columnTitle: string;
   tasksCount: number;
   setShowAlertConfirmation: (value: boolean) => void;
+  boardTitle: string;
 };
 
 const ColumnActions = ({
   columnId,
   columnTitle,
   tasksCount,
+  boardTitle,
   setShowAlertConfirmation,
 }: ColumnActionsProps) => {
   const isMobile = useIsMobile();
@@ -44,7 +46,7 @@ const ColumnActions = ({
 
   const handleUpdateColumn = async (updates: Pick<Column, "title">) => {
     setUpdating(updates.title);
-    await updateColumnAction(columnId, {
+    await updateColumnAction(columnId, boardTitle, {
       title: updates.title,
     });
     setIsOpen(false);

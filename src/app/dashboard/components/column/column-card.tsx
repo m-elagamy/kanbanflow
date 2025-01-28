@@ -7,7 +7,15 @@ import NoTasksMessage from "../task/no-tasks-message";
 import TaskCard from "../task/task-card";
 import { Column, type Task } from "@prisma/client";
 
-const ColumnCard = ({ column, tasks }: { tasks: Task[]; column: Column }) => {
+const ColumnCard = ({
+  column,
+  tasks,
+  boardTitle,
+}: {
+  tasks: Task[];
+  column: Column;
+  boardTitle: string;
+}) => {
   const { setNodeRef } = useDroppable({
     id: column.id,
   });
@@ -19,7 +27,11 @@ const ColumnCard = ({ column, tasks }: { tasks: Task[]; column: Column }) => {
       className="max-h-[500px] w-64 shrink-0 snap-start overflow-y-auto md:w-72"
       ref={setNodeRef}
     >
-      <ColumnHeader column={column} tasksCount={tasks.length} />
+      <ColumnHeader
+        column={column}
+        tasksCount={tasks.length}
+        boardTitle={boardTitle}
+      />
       <CardContent className="flex-grow space-y-2 overflow-y-auto p-3">
         {tasks?.length === 0 ? (
           <NoTasksMessage columnId={column.id} />

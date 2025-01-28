@@ -17,13 +17,15 @@ import { useModalStore } from "@/stores/modal";
 export default function ColumnForm({
   boardId,
   modalId,
+  boardTitle,
 }: {
   boardId: string;
   modalId: string;
+  boardTitle: string;
 }) {
   const [serverState, formAction, isPending] = useActionState(
     createColumnAction,
-    { success: false, message: "", fields: { boardId } },
+    { success: false, message: "" },
   );
 
   const closeModal = useModalStore((state) => state.closeModal);
@@ -37,11 +39,8 @@ export default function ColumnForm({
   return (
     <form action={formAction} className="space-y-4">
       <section className="space-y-2">
-        <Input
-          type="hidden"
-          name="boardId"
-          value={serverState.fields.boardId ?? ""}
-        />
+        <Input type="hidden" name="boardId" value={boardId ?? ""} />
+        <Input type="hidden" name="boardTitle" value={boardTitle ?? ""} />
         <Label>Select Column Status</Label>
         <Select name="status" defaultValue="To Do">
           <SelectTrigger>

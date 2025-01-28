@@ -9,20 +9,21 @@ export async function createColumnAction(
   formData: FormData,
 ) {
   const boardId = formData.get("boardId") as string;
+  const boardTitle = formData.get("boardTitle") as string;
   const columnTitle = formData.get("status") as string;
   await createColumn(boardId, columnTitle);
 
-  revalidatePath("/dashboard/[board]", "page");
+  revalidatePath(`/dashboard/${boardTitle}`, "page");
 
   return {
     success: true,
     message: `Column was added successfully.`,
-    fields: { boardId },
   };
 }
 
 export async function updateColumnAction(
   columnId: string,
+  boardTitle: string,
   data: Partial<Pick<Column, "title">>,
 ) {
   try {
@@ -32,7 +33,7 @@ export async function updateColumnAction(
     console.error("Error updating column:", error);
     return { success: false, error: "Failed to update column" };
   } finally {
-    revalidatePath("/dashboard/[board]", "page");
+    revalidatePath(`/dashboard/${boardTitle}`, "page");
   }
 }
 
@@ -42,21 +43,20 @@ export async function deleteColumnAction(
 ): Promise<{
   success: boolean;
   message?: string;
-  error?: string;
-  fields?: { columnId: string };
 }> {
+  let boardTitle: string | undefined;
   try {
     const columnId = formData.get("columnId") as string;
+    boardTitle = formData.get("boardTitle") as string;
     await deleteColumn(columnId);
     return {
       success: true,
       message: "Column deleted successfully",
-      fields: { columnId },
     };
   } catch (error) {
     console.error("Error deleting column:", error);
-    return { success: false, error: "Failed to delete column" };
+    return { success: false, message: "Failed to delete column" };
   } finally {
-    revalidatePath("/dashboard/[board]", "page");
+    revalidatePath(`/dashboard/${boardTitle}`, "page");
   }
 }

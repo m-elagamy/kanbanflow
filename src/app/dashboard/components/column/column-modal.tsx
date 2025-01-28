@@ -3,7 +3,13 @@ import AddColumnCard from "./add-column-card";
 import ColumnForm from "./column-form";
 import Modal from "@/components/ui/modal";
 
-const ColumnModal = ({ boardId }: { boardId: string }) => {
+const ColumnModal = ({
+  boardId,
+  boardTitle,
+}: {
+  boardId: string;
+  boardTitle: string;
+}) => {
   const modalId = `new-column-${boardId}`;
 
   return (
@@ -18,7 +24,7 @@ const ColumnModal = ({ boardId }: { boardId: string }) => {
       modalType="column"
       modalId={modalId}
     >
-      <ColumnForm boardId={boardId} modalId={modalId} />
+      <ColumnForm boardId={boardId} boardTitle={boardTitle} modalId={modalId} />
     </Modal>
   );
 };

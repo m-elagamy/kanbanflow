@@ -13,17 +13,17 @@ import ColumnActions from "./column-actions";
 export default function ColumnHeader({
   tasksCount,
   column,
+  boardTitle,
 }: {
   tasksCount: number;
   column: Column;
+  boardTitle: string;
 }) {
   const [showAlertConfirmation, setShowAlertConfirmation] = useState(false);
 
   const [, formAction, isPending] = useActionState(deleteColumnAction, {
     success: false,
     message: "",
-    error: "",
-    fields: { columnId: column.id },
   });
 
   const { id: columnId, title: columnTitle } = column;
@@ -55,6 +55,7 @@ export default function ColumnHeader({
           columnTitle={columnTitle}
           tasksCount={tasksCount}
           setShowAlertConfirmation={setShowAlertConfirmation}
+          boardTitle={boardTitle}
         />
       </CardHeader>
 
@@ -66,6 +67,7 @@ export default function ColumnHeader({
         formAction={formAction}
         isPending={isPending}
         columnId={columnId}
+        boardTitle={boardTitle}
         columnConfirmation
       />
     </>
