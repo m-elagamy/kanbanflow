@@ -1,3 +1,5 @@
+"use client";
+
 import { CirclePlus } from "lucide-react";
 import AddColumnCard from "./add-column-card";
 import ColumnForm from "./column-form";

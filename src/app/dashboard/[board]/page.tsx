@@ -1,6 +1,5 @@
-import { getBoardBySlugAction } from "@/actions/board";
 import { notFound } from "next/navigation";
-import DndProvider from "@/providers/dnd-provider";
+import { getBoardBySlugAction } from "@/actions/board";
 import ColumnsWrapper from "../components/column";
 import BoardHeader from "../components/board/board-header";
 
@@ -22,13 +21,11 @@ export default async function Board({ params }: { params: Params }) {
         title={currentBoard.title}
         description={currentBoard.description}
       />
-      <DndProvider>
-        <ColumnsWrapper
-          columns={currentBoard.columns}
-          boardId={currentBoard.id}
-          boardTitle={currentBoard.title}
-        />
-      </DndProvider>
+      <ColumnsWrapper
+        columns={currentBoard.columns}
+        boardId={currentBoard.id}
+        boardTitle={currentBoard.title}
+      />
     </div>
   );
 }

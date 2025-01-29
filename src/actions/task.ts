@@ -119,3 +119,66 @@ export async function deleteTaskAction(taskId: string) {
     revalidatePath(`/dashboard/[board]`, "page");
   }
 }
+
+export async function updateTaskOrderAction(
+  _columnId: string,
+  taskIds: string[],
+) {
+  try {
+    await Promise.all(
+      taskIds.map((taskId, index) =>
+        db.task.update({
+          where: { id: taskId },
+          data: { order: index },
+        }),
+      ),
+    );
+  } catch (error) {
+    console.error("Failed to update task order:", error);
+  } finally {
+    revalidatePath("/dashboard/[board]", "page");
+  }
+}
+
+export async function moveTaskBetweenColumnsAction(
+  taskId: string,
+  oldColumnId: string,
+  newColumnId: string,
+  newTaskOrder: string[],
+): Promise<void> {
+  if (!taskId || !newColumnId || !newTaskOrder.length) {
+    throw new Error("Invalid parameters provided");
+  }
+
+  try {
+    await db.$transaction(async (tx) => {
+      const task = await tx.task.findUnique({
+        where: {
+          id: taskId,
+          columnId: oldColumnId,
+        },
+      });
+
+      if (!task) {
+        throw new Error("Task not found in the specified column");
+      }
+
+      await tx.task.update({
+        where: { id: taskId },
+        data: { columnId: newColumnId },
+      });
+
+      await Promise.all(
+        newTaskOrder.map((id, index) =>
+          tx.task.update({
+            where: { id },
+            data: { order: index },
+          }),
+        ),
+      );
+    });
+  } catch (error) {
+    console.error("Failed to move task:", error);
+    throw new Error("Failed to move task between columns");
+  }
+}

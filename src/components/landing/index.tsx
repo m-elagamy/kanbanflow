@@ -1,4 +1,4 @@
-import Hero from "./hero-section";
+import Hero from "./hero";
 import { Features } from "./features";
 
 const Landing = () => {

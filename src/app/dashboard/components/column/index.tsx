@@ -1,9 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
+import DndProvider from "@/providers/dnd-provider";
 import ColumnCard from "./column-card";
 import ColumnModal from "./column-modal";
 import type { Task } from "@prisma/client";
 import { Column } from "@prisma/client";
+import { useKanbanStore } from "@/stores/kanban";
 
 type ColumnsWrapperProps = {
   columns: (Column & { tasks: Task[] })[];
@@ -12,20 +15,30 @@ type ColumnsWrapperProps = {
 };
 
 const ColumnsWrapper = ({
-  columns,
+  columns: initialColumns,
   boardId,
   boardTitle,
 }: ColumnsWrapperProps) => {
+  const columns = useKanbanStore((state) => state.columns);
+
+  useEffect(() => {
+    if (initialColumns) {
+      useKanbanStore.setState({ columns: initialColumns });
+    }
+  }, [initialColumns]);
+
   return (
     <div className="scrollbar-hide flex h-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth md:justify-start">
-      {columns?.map((column) => (
-        <ColumnCard
-          key={column.id}
-          column={column}
-          tasks={column.tasks}
-          boardTitle={boardTitle}
-        />
-      ))}
+      <DndProvider>
+        {columns?.map((column) => (
+          <ColumnCard
+            key={column.id}
+            column={column}
+            tasks={column.tasks}
+            boardTitle={boardTitle}
+          />
+        ))}
+      </DndProvider>
       <ColumnModal boardId={boardId} boardTitle={boardTitle} />
     </div>
   );

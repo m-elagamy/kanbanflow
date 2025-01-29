@@ -1,5 +1,3 @@
-"use client";
-
 import { InfoIcon, ListTodoIcon } from "lucide-react";
 
 import {

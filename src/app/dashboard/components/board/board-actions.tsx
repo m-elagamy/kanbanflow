@@ -1,3 +1,5 @@
+"use client";
+
 import { useActionState, useState } from "react";
 import { Ellipsis, SquarePen, TrashIcon } from "lucide-react";
 

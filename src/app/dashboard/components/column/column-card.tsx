@@ -1,4 +1,7 @@
-import { SortableContext } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,15 +19,17 @@ const ColumnCard = ({
   column: Column;
   boardTitle: string;
 }) => {
-  const { setNodeRef } = useDroppable({
+  const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   });
 
-  const taskIds = tasks.map((task) => `${column.id}_${task.id}`);
+  const taskIds = tasks.map((task) => task.id);
 
   return (
     <Card
-      className="max-h-[500px] w-64 shrink-0 snap-start overflow-y-auto md:w-72"
+      className={`max-h-[500px] w-64 shrink-0 snap-start overflow-y-auto md:w-72 ${
+        isOver ? "border-blue-500" : "border-border"
+      }`}
       ref={setNodeRef}
     >
       <ColumnHeader
@@ -36,7 +41,10 @@ const ColumnCard = ({
         {tasks?.length === 0 ? (
           <NoTasksMessage columnId={column.id} />
         ) : (
-          <SortableContext items={taskIds}>
+          <SortableContext
+            items={taskIds}
+            strategy={verticalListSortingStrategy}
+          >
             {tasks?.map((task) => (
               <TaskCard key={task.id} task={task} columnId={column.id} />
             ))}

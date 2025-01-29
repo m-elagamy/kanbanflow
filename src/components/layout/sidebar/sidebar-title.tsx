@@ -13,7 +13,7 @@ const SidebarTitle = () => {
         <SidebarMenuItem>
           <SidebarMenuButton>
             <FolderKanban />
-            Workspace
+            KanbanFlow
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

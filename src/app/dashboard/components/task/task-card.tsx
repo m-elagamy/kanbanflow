@@ -23,14 +23,19 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
     transition,
     isDragging: isSortableDragging,
   } = useSortable({
-    id: `${columnId}_${task.id}`,
+    id: task.id,
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isSortableDragging ? 0.4 : 1,
+    opacity: isSortableDragging || isDragging ? 0.5 : 1,
     cursor: isDragging ? "grabbing" : "grab",
+    scale: isSortableDragging || isDragging ? 0.95 : 1,
+    boxShadow:
+      isSortableDragging || isDragging
+        ? "0 4px 12px rgba(0,0,0,0.2)"
+        : undefined,
   };
 
   return (

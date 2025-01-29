@@ -1,3 +1,5 @@
+"use client";
+
 import { useActionState, useEffect, useRef, useState } from "react";
 import { debounce } from "@/utils/debounce";
 import type { ZodError, ZodSchema } from "zod";
