@@ -41,6 +41,8 @@ export const metadata: Metadata = {
   },
 };
 
+const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -56,7 +58,7 @@ export default function RootLayout({
           defaultTheme="dark"
           disableTransitionOnChange
         >
-          <ClerkProvider>
+          <ClerkProvider publishableKey={publishableKey}>
             {children}
             <Toaster />
             <SpeedInsights />
