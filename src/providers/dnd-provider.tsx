@@ -63,11 +63,7 @@ const DndProvider = ({ children }: { children: ReactNode }) => {
           <DragOverlay>
             {activeTask ? (
               <div className="w-64">
-                <TaskCard
-                  task={activeTask}
-                  columnId={activeTask.columnId}
-                  isDragging
-                />
+                <TaskCard task={activeTask} isDragging />
               </div>
             ) : null}
           </DragOverlay>,
