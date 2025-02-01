@@ -7,6 +7,7 @@ import ColumnModal from "./column-modal";
 import type { Task } from "@prisma/client";
 import { Column } from "@prisma/client";
 import { useKanbanStore } from "@/stores/kanban";
+import { useShallow } from "zustand/react/shallow";
 
 type ColumnsWrapperProps = {
   columns: (Column & { tasks: Task[] })[];
@@ -20,12 +21,13 @@ const ColumnsWrapper = ({
   boardTitle,
 }: ColumnsWrapperProps) => {
   const columns = useKanbanStore((state) => state.columns);
+  const setColumns = useKanbanStore(useShallow((state) => state.setColumns));
 
   useEffect(() => {
     if (initialColumns) {
-      useKanbanStore.setState({ columns: initialColumns });
+      setColumns(initialColumns);
     }
-  }, [initialColumns]);
+  }, [initialColumns, setColumns]);
 
   return (
     <div className="scrollbar-hide flex h-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth md:justify-start">

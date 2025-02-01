@@ -28,19 +28,15 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isSortableDragging || isDragging ? 0.5 : 1,
+    transition: transition ?? undefined,
     cursor: isDragging ? "grabbing" : "grab",
-    scale: isSortableDragging || isDragging ? 0.95 : 1,
-    boxShadow:
-      isSortableDragging || isDragging
-        ? "0 4px 12px rgba(0,0,0,0.2)"
-        : undefined,
+    opacity: isSortableDragging ? "0.5" : "1",
+    scale: isSortableDragging ? "0.95" : "1",
   };
 
   return (
     <div
-      className={`group max-h-[165px] touch-manipulation overflow-y-auto rounded-lg border border-border bg-card p-3 transition-all`}
+      className={`group max-h-[165px] touch-manipulation overflow-y-auto rounded-lg border border-border bg-card p-3 transition-all ${isDragging ? "rotate-2 scale-105 shadow-xl" : "shadow-sm hover:shadow-md"}`}
       ref={setNodeRef}
       {...attributes}
       {...listeners}

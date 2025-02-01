@@ -13,20 +13,24 @@ import {
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import TaskCard from "@/app/dashboard/components/task/task-card";
-
 import { useDndHandlers } from "@/hooks/use-dnd-handlers";
 
 const DndContext = dynamic(
   () => import("@dnd-kit/core").then((mod) => mod.DndContext),
   {
     ssr: false,
-    loading: () => null,
+    loading: () => <div>Loading...</div>,
   },
 );
 
 const DndProvider = ({ children }: { children: ReactNode }) => {
-  const { activeTask, handleDragStart, handleDragEnd, handleDragCancel } =
-    useDndHandlers();
+  const {
+    activeTask,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
+    handleDragCancel,
+  } = useDndHandlers();
   const [isMounted, setIsMounted] = useState(false);
 
   const sensors = useSensors(
@@ -54,6 +58,7 @@ const DndProvider = ({ children }: { children: ReactNode }) => {
     <DndContext
       sensors={sensors}
       onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
@@ -61,11 +66,7 @@ const DndProvider = ({ children }: { children: ReactNode }) => {
       {isMounted &&
         createPortal(
           <DragOverlay>
-            {activeTask ? (
-              <div className="w-64">
-                <TaskCard task={activeTask} isDragging />
-              </div>
-            ) : null}
+            {activeTask && <TaskCard task={activeTask} isDragging />}
           </DragOverlay>,
           document.body,
         )}

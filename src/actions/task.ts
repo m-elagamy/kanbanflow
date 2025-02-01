@@ -120,65 +120,71 @@ export async function deleteTaskAction(taskId: string) {
   }
 }
 
-export async function updateTaskOrderAction(
-  _columnId: string,
-  taskIds: string[],
-) {
-  try {
-    await Promise.all(
-      taskIds.map((taskId, index) =>
-        db.task.update({
-          where: { id: taskId },
-          data: { order: index },
-        }),
-      ),
-    );
-  } catch (error) {
-    console.error("Failed to update task order:", error);
-  } finally {
-    revalidatePath("/dashboard/[board]", "page");
-  }
-}
-
-export async function moveTaskBetweenColumnsAction(
+export async function updateTaskPositionAction(
   taskId: string,
   oldColumnId: string,
   newColumnId: string,
   newTaskOrder: string[],
 ): Promise<void> {
-  if (!taskId || !newColumnId || !newTaskOrder.length) {
+  if (!taskId || !oldColumnId || !newColumnId || !Array.isArray(newTaskOrder)) {
     throw new Error("Invalid parameters provided");
+  }
+
+  if (!newTaskOrder.length) {
+    throw new Error("moveTaskBetweenColumnsAction: newTaskOrder is invalid");
   }
 
   try {
     await db.$transaction(async (tx) => {
-      const task = await tx.task.findUnique({
-        where: {
-          id: taskId,
-          columnId: oldColumnId,
-        },
+      // Check if the task exists in the old column
+      const existingTask = await tx.task.findUnique({
+        where: { id: taskId },
+        select: { id: true },
       });
 
-      if (!task) {
+      if (!existingTask) {
         throw new Error("Task not found in the specified column");
       }
 
-      await tx.task.update({
-        where: { id: taskId },
-        data: { columnId: newColumnId },
+      // Fetch existing tasks in the new column
+      const existingOrders = await tx.task.findMany({
+        where: { columnId: newColumnId },
+        select: { id: true, order: true },
       });
 
-      await Promise.all(
-        newTaskOrder.map((id, index) =>
+      // Create a map of current orders
+      const currentOrders = new Map(
+        existingOrders.map((task) => [task.id, task.order]),
+      );
+
+      // Filter only tasks that need updating
+      const updates = newTaskOrder
+        .map((id, index) => ({
+          id,
+          newOrder: index,
+          currentOrder: currentOrders.get(id),
+        }))
+        .filter(({ newOrder, currentOrder }) => newOrder !== currentOrder);
+
+      // Move task and update orders in a single transaction
+      await Promise.all([
+        tx.task.update({
+          where: { id: taskId },
+          data: {
+            columnId: newColumnId,
+            order: newTaskOrder.indexOf(taskId),
+          },
+        }),
+        ...updates.map(({ id, newOrder }) =>
           tx.task.update({
             where: { id },
-            data: { order: index },
+            data: { order: newOrder },
           }),
         ),
-      );
+      ]);
     });
   } catch (error) {
-    console.error("Failed to move task:", error);
+    console.error("Error moving task between columns:", error);
     throw new Error("Failed to move task between columns");
   }
 }

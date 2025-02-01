@@ -27,7 +27,7 @@ export default function TaskActions({ task, columnId }: TaskActionsProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild className="z-10">
         <Button
           variant="ghost"
           size="icon"

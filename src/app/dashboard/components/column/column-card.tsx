@@ -27,8 +27,10 @@ const ColumnCard = ({
 
   return (
     <Card
-      className={`max-h-[500px] w-64 shrink-0 snap-start overflow-y-auto md:w-72 ${
-        isOver ? "border-blue-500" : "border-border"
+      className={`relative max-h-[500px] w-64 shrink-0 snap-start overflow-y-auto transition-all duration-300 md:w-72 ${
+        isOver
+          ? "before:absolute before:inset-0 before:animate-pulse before:rounded-lg before:bg-gradient-to-b before:from-blue-500/5 before:to-transparent before:opacity-100"
+          : "border-border before:opacity-0"
       }`}
       ref={setNodeRef}
     >

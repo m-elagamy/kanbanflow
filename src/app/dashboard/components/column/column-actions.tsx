@@ -73,7 +73,7 @@ const ColumnActions = ({
             <DropdownMenuSubContent className="p-0">
               <Command>
                 <CommandInput
-                  placeholder="Search column status..."
+                  placeholder="Search for a status"
                   className="h-9"
                 />
                 <CommandList>
