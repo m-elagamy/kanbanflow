@@ -7,6 +7,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { Card, CardContent } from "@/components/ui/card";
 import ColumnHeader from "./column-header";
 import NoTasksMessage from "../task/no-tasks-message";
+import SubtlePatternBackground from "@/components/ui/subtle-pattern-background";
 import TaskCard from "../task/task-card";
 import { Column, type Task } from "@prisma/client";
 
@@ -27,13 +28,14 @@ const ColumnCard = ({
 
   return (
     <Card
-      className={`relative max-h-[500px] w-64 shrink-0 snap-start overflow-y-auto transition-all duration-300 md:w-72 ${
+      className={`relative max-h-[500px] w-72 shrink-0 snap-start overflow-y-auto transition-all duration-300 md:w-80 ${
         isOver
-          ? "before:absolute before:inset-0 before:animate-pulse before:rounded-lg before:bg-gradient-to-b before:from-blue-500/5 before:to-transparent before:opacity-100"
+          ? "before:absolute before:inset-0 before:animate-pulse before:bg-gradient-to-b before:from-blue-500/5 before:to-transparent before:opacity-100"
           : "border-border before:opacity-0"
       }`}
       ref={setNodeRef}
     >
+      {tasks.length >= 1 && <SubtlePatternBackground />}
       <ColumnHeader
         column={column}
         tasksCount={tasks.length}

@@ -61,7 +61,7 @@ export const useDndHandlers = () => {
         reorderTaskWithinColumn(fromColumn.id, activeTaskId, overId);
       }
     } else {
-      moveTaskBetweenColumns(activeTaskId, fromColumn.id, toColumn.id);
+      moveTaskBetweenColumns(activeTaskId, fromColumn.id, toColumn.id, overId);
     }
   }, 150);
 
@@ -97,18 +97,14 @@ export const useDndHandlers = () => {
       return;
     }
 
-    try {
-      await updateTaskPositionAction(
-        activeTaskId,
-        fromColumn.id,
-        toColumn.id,
-        updatedTaskOrder,
-      );
-    } catch (error) {
-      console.error("[Server] moveTaskBetweenColumnsAction failed:", error);
-    } finally {
-      setActiveTask(null);
-    }
+    await updateTaskPositionAction(
+      activeTaskId,
+      fromColumn.id,
+      toColumn.id,
+      updatedTaskOrder,
+    );
+
+    setActiveTask(null);
   };
 
   const handleDragCancel = () => setActiveTask(null);

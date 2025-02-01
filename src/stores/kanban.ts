@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { produce } from "immer";
 import { Column, Task } from "@prisma/client";
 import { arrayMove } from "@dnd-kit/sortable";
 
@@ -29,52 +30,54 @@ export const useKanbanStore = create<KanbanState>((set) => ({
   setColumns: (columns) => set(() => ({ columns })),
 
   reorderTaskWithinColumn: (columnId, activeTaskId, overId) =>
-    set((state) => {
-      const columns = state.columns.map((col) => ({
-        ...col,
-        tasks: [...col.tasks],
-      }));
+    set(
+      produce((state) => {
+        const column = state.columns.find(
+          (col: ColumnWithTasks) => col.id === columnId,
+        );
+        if (!column) return;
 
-      const column = columns.find((col) => col.id === columnId);
-      if (!column) return { columns };
+        const oldIndex = column.tasks.findIndex(
+          (task: Task) => task.id === activeTaskId,
+        );
+        const newIndex = column.tasks.findIndex(
+          (task: Task) => task.id === overId,
+        );
 
-      const oldIndex = column.tasks.findIndex(
-        (task) => task.id === activeTaskId,
-      );
-      const newIndex = column.tasks.findIndex((task) => task.id === overId);
+        if (oldIndex === newIndex || oldIndex === -1 || newIndex === -1) return;
 
-      if (oldIndex === -1 || newIndex === -1) return { columns };
-
-      column.tasks = arrayMove(column.tasks, oldIndex, newIndex);
-
-      return { columns };
-    }),
+        column.tasks = arrayMove(column.tasks, oldIndex, newIndex);
+      }),
+    ),
 
   moveTaskBetweenColumns: (taskId, fromColumnId, toColumnId, targetTaskId) =>
-    set((state) => {
-      const columns = state.columns.map((col) => ({
-        ...col,
-        tasks: [...col.tasks],
-      }));
+    set(
+      produce((state) => {
+        const fromColumn = state.columns.find(
+          (col: ColumnWithTasks) => col.id === fromColumnId,
+        );
+        const toColumn = state.columns.find(
+          (col: ColumnWithTasks) => col.id === toColumnId,
+        );
 
-      const fromColumn = columns.find((col) => col.id === fromColumnId);
-      const toColumn = columns.find((col) => col.id === toColumnId);
+        if (!fromColumn || !toColumn) return;
 
-      if (!fromColumn || !toColumn) return { columns };
+        const taskIndex = fromColumn.tasks.findIndex(
+          (task: Task) => task.id === taskId,
+        );
+        if (taskIndex === -1) return;
 
-      const taskIndex = fromColumn.tasks.findIndex(
-        (task) => task.id === taskId,
-      );
-      if (taskIndex === -1) return { columns };
+        const [task] = fromColumn.tasks.splice(taskIndex, 1);
 
-      const [task] = fromColumn.tasks.splice(taskIndex, 1);
+        let targetIndex = toColumn.tasks.findIndex(
+          (task: Task) => task.id === targetTaskId,
+        );
 
-      const targetIndex = targetTaskId
-        ? toColumn.tasks.findIndex((task) => task.id === targetTaskId)
-        : toColumn.tasks.length;
+        if (targetIndex === -1) {
+          targetIndex = toColumn.tasks.length;
+        }
 
-      toColumn.tasks.splice(targetIndex, 0, task);
-
-      return { columns };
-    }),
+        toColumn.tasks.splice(targetIndex, 0, task);
+      }),
+    ),
 }));

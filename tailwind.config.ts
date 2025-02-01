@@ -97,11 +97,20 @@ export default {
             height: "0",
           },
         },
+        "drop-bounce": {
+          "0%,100%": {
+            transform: "translateY(0)",
+          },
+          "50%": {
+            transform: "translateY(-5px)",
+          },
+        },
       },
       animation: {
         "caret-blink": "caret-blink 1.25s ease-out infinite",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "drop-bounce": "drop-bounce 0.3s ease-out",
       },
     },
   },

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Calendar } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -7,6 +8,7 @@ import getBadgeStyle from "../../utils/get-badge-style";
 import TaskActions from "./task-actions";
 import formatDate from "@/utils/format-date";
 import { Task } from "@prisma/client";
+import accentStyles from "../../utils/accent-styles";
 
 type TaskCardProps = {
   task: Task;
@@ -15,6 +17,8 @@ type TaskCardProps = {
 };
 
 const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
+  const [isDropped, setIsDropped] = useState(false);
+
   const {
     attributes,
     listeners,
@@ -34,9 +38,17 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
     scale: isSortableDragging ? "0.95" : "1",
   };
 
+  useEffect(() => {
+    if (!isDragging) {
+      setIsDropped(true);
+      const timer = setTimeout(() => setIsDropped(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isDragging]);
+
   return (
     <div
-      className={`group max-h-[165px] touch-manipulation overflow-y-auto rounded-lg border border-border bg-card p-3 transition-all ${isDragging ? "rotate-2 scale-105 shadow-xl" : "shadow-sm hover:shadow-md"}`}
+      className={`group max-h-[165px] touch-manipulation overflow-y-auto rounded-lg border border-border bg-card/25 p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] ${isDragging ? "rotate-2 scale-105 shadow-xl" : "shadow-sm hover:shadow-md"} ${isDropped ? "animate-drop-bounce" : ""}`}
       ref={setNodeRef}
       {...attributes}
       {...listeners}
@@ -45,7 +57,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3
-            className={`${task.title.length > 20 ? "necessary-ellipsis max-w-[140px] md:max-w-[180px]" : ""} text-sm font-medium md:text-base`}
+            className={`${task.title.length > 25 ? "necessary-ellipsis max-w-[150px] md:max-w-[190px]" : ""} text-sm font-medium md:text-base`}
             title={task.title}
             dir="auto"
           >
@@ -72,6 +84,9 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
           </div>
         </div>
       </div>
+      <div
+        className={`group-hover:w-full ${accentStyles({ priority: task.priority })}`}
+      />
     </div>
   );
 };
