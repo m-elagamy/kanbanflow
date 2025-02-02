@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import BoardActions from "./board-actions";
+import { TaskPriorityFilter } from "../task/tasks-filter";
 
 type BoardHeaderProps = {
   id: string;
@@ -36,7 +37,10 @@ const BoardHeader = ({ id, title, description }: BoardHeaderProps) => {
             </TooltipProvider>
           )}
         </div>
-        <BoardActions id={id} title={title} description={description} />
+        <div className="flex items-center gap-2">
+          <TaskPriorityFilter title={title} />
+          <BoardActions id={id} title={title} description={description} />
+        </div>
       </div>
     </section>
   );

@@ -9,17 +9,21 @@ import ColumnHeader from "./column-header";
 import NoTasksMessage from "../task/no-tasks-message";
 import SubtlePatternBackground from "@/components/ui/subtle-pattern-background";
 import TaskCard from "../task/task-card";
-import { Column, type Task } from "@prisma/client";
+import { Column } from "@prisma/client";
+import { useKanbanStore } from "@/stores/kanban";
+import { useShallow } from "zustand/react/shallow";
 
 const ColumnCard = ({
   column,
-  tasks,
   boardTitle,
 }: {
-  tasks: Task[];
   column: Column;
   boardTitle: string;
 }) => {
+  const tasks = useKanbanStore(
+    useShallow((state) => state.getFilteredTasks(boardTitle, column.id)),
+  );
+
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   });

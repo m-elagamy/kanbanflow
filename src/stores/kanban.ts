@@ -5,9 +5,15 @@ import { arrayMove } from "@dnd-kit/sortable";
 
 type ColumnWithTasks = Column & { tasks: Task[] };
 
+export type Priority = "high" | "medium" | "low" | "all";
+
 type KanbanState = {
   activeTask: Task | null;
   columns: ColumnWithTasks[];
+  priorityFilter: Priority;
+  boardFilters: { boardSlug: string; priority: Priority }[];
+  setPriorityFilter: (boardSlug: string, filter: Priority) => void;
+  resetBoardFilter: (boardSlug: string) => void;
   setActiveTask: (task: Task | null) => void;
   setColumns: (columns: ColumnWithTasks[]) => void;
   reorderTaskWithinColumn: (
@@ -21,11 +27,44 @@ type KanbanState = {
     toColumnId: string,
     targetTaskId?: string,
   ) => void;
+  getFilteredTasks: (boardSlug: string, columnId: string) => Task[];
 };
 
-export const useKanbanStore = create<KanbanState>((set) => ({
+export const useKanbanStore = create<KanbanState>((set, get) => ({
   columns: [],
   activeTask: null,
+  priorityFilter: "all",
+  boardFilters: [],
+  setPriorityFilter: (boardSlug, priority) =>
+    set((state) => {
+      const boardFilters = state.boardFilters.filter(
+        (filter) => filter.boardSlug !== boardSlug,
+      );
+
+      if (priority !== "all") {
+        boardFilters.push({ boardSlug, priority });
+      }
+
+      const priorityFilter =
+        boardFilters.find((filter) => filter.boardSlug === boardSlug)
+          ?.priority || "all";
+
+      return { boardFilters, priorityFilter };
+    }),
+
+  resetBoardFilter: (boardSlug) =>
+    set((state) => {
+      const boardFilters = state.boardFilters.filter(
+        (filter) => filter.boardSlug !== boardSlug,
+      );
+
+      const priorityFilter =
+        boardFilters.find((filter) => filter.boardSlug === boardSlug)
+          ?.priority || "all";
+
+      return { boardFilters, priorityFilter };
+    }),
+
   setActiveTask: (activeTask) => set(() => ({ activeTask })),
   setColumns: (columns) => set(() => ({ columns })),
 
@@ -80,4 +119,18 @@ export const useKanbanStore = create<KanbanState>((set) => ({
         toColumn.tasks.splice(targetIndex, 0, task);
       }),
     ),
+  getFilteredTasks: (boardSlug, columnId) => {
+    const state = get();
+    const column = state.columns.find((col) => col.id === columnId);
+    const boardFilter =
+      state.boardFilters.find((f) => f.boardSlug === boardSlug)?.priority ||
+      "all";
+
+    if (!column) return [];
+
+    return column.tasks.filter((task) => {
+      if (boardFilter === "all") return true;
+      return task.priority === boardFilter;
+    });
+  },
 }));

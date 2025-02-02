@@ -32,7 +32,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: transition ?? undefined,
+    transition: transition,
     cursor: isDragging ? "grabbing" : "grab",
     opacity: isSortableDragging ? "0.5" : "1",
     scale: isSortableDragging ? "0.95" : "1",
@@ -48,7 +48,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
 
   return (
     <div
-      className={`group max-h-[165px] touch-manipulation overflow-y-auto rounded-lg border border-border bg-card/25 p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] ${isDragging ? "rotate-2 scale-105 shadow-xl" : "shadow-sm hover:shadow-md"} ${isDropped ? "animate-drop-bounce" : ""}`}
+      className={`group max-h-[165px] touch-manipulation overflow-y-auto rounded-lg border border-border bg-card/25 p-3 duration-300 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] ${isDragging ? "rotate-2 scale-105 shadow-xl" : "shadow-sm hover:shadow-md"} ${isDropped ? "animate-drop-bounce" : ""}`}
       ref={setNodeRef}
       {...attributes}
       {...listeners}

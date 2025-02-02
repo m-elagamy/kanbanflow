@@ -20,7 +20,7 @@ const SidebarActions = () => {
             mode="create"
             trigger={
               <SidebarMenuButton
-                className={`group/icon justify-center ${open ? "gap-1" : "gap-0"}`}
+                className={`group/icon justify-center ${open ? "gap-2" : "gap-0"}`}
                 tooltip="New Board"
                 variant="outline"
               >

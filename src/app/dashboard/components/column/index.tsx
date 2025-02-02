@@ -33,12 +33,7 @@ const ColumnsWrapper = ({
     <div className="scrollbar-hide flex h-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth md:justify-start">
       <DndProvider>
         {columns?.map((column) => (
-          <ColumnCard
-            key={column.id}
-            column={column}
-            tasks={column.tasks}
-            boardTitle={boardTitle}
-          />
+          <ColumnCard key={column.id} column={column} boardTitle={boardTitle} />
         ))}
       </DndProvider>
       <ColumnModal boardId={boardId} boardTitle={boardTitle} />
