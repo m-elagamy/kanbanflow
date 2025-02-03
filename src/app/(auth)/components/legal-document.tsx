@@ -4,22 +4,23 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import PrivacyPolicy from "./privacy-policy";
 import TermsOfService from "./terms-of-service";
 
-export function LegalDocumentModal() {
+type LegalDocumentModalProps = {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+};
+
+export function LegalDocumentModal({
+  isOpen,
+  setIsOpen,
+}: LegalDocumentModalProps) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="link" className="px-1 pr-0">
-          Terms of Service
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="p-0">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="flex items-center gap-1 text-2xl font-bold">

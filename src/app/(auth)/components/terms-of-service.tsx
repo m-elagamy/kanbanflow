@@ -73,18 +73,18 @@ const TermsOfService = () => (
       <CardContent>
         <ul className="space-y-3 text-sm">
           <li className="flex items-center">
-            <UserCircle className="mr-2 h-4 w-4 text-blue-500" />
+            <UserCircle className="mr-2 size-5 text-blue-500" />
             <span>
               You retain full ownership of all data you input into the
               application
             </span>
           </li>
           <li className="flex items-center">
-            <Download className="mr-2 h-4 w-4 text-green-500" />
+            <Download className="mr-2 size-5 text-green-500" />
             <span>You have the right to export your data at any time</span>
           </li>
           <li className="flex items-center">
-            <HardDrive className="mr-2 h-4 w-4 text-yellow-500" />
+            <HardDrive className="mr-2 size-5 text-yellow-500" />
             <span>
               You are responsible for managing and backing up your exported data
             </span>
