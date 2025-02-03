@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import BoardModal from "./components/board/board-modal";
-import { insertUserAction } from "@/actions/user";
+import insertUserData from "./utils/insert-user-data";
 
 export async function generateMetadata(): Promise<Metadata> {
   const user = await currentUser();
@@ -37,13 +37,8 @@ const Dashboard = async () => {
     unauthorized();
   }
 
-  const userData = {
-    id: user.id,
-    name: user.fullName,
-    email: user.emailAddresses[0].emailAddress,
-  };
-
-  await insertUserAction(userData);
+  // Insert user data into the database when the user logs in for the first time.
+  insertUserData(user.id, user.fullName, user.emailAddresses[0].emailAddress);
 
   return (
     <section className="relative right-3 grid flex-grow place-content-center">
