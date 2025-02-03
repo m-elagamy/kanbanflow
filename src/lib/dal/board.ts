@@ -58,9 +58,9 @@ const deleteBoard = async (boardId: string) => {
   });
 };
 
-const getBoardBySlug = async (slug: string) => {
+const getBoardBySlug = async (userId: string, slug: string) => {
   return db.board.findUnique({
-    where: { slug },
+    where: { userId_slug: { userId, slug } },
     select: {
       id: true,
       title: true,

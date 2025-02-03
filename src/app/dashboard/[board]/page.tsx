@@ -1,4 +1,5 @@
-import { notFound } from "next/navigation";
+import { notFound, unauthorized } from "next/navigation";
+import { currentUser } from "@clerk/nextjs/server";
 import { getBoardBySlugAction } from "@/actions/board";
 import ColumnsWrapper from "../components/column";
 import BoardHeader from "../components/board/board-header";
@@ -6,9 +7,15 @@ import BoardHeader from "../components/board/board-header";
 type Params = Promise<{ board: string }>;
 
 export default async function Board({ params }: { params: Params }) {
+  const user = await currentUser();
+
+  if (!user) {
+    return unauthorized();
+  }
+
   const { board } = await params;
 
-  const { board: currentBoard } = await getBoardBySlugAction(board);
+  const { board: currentBoard } = await getBoardBySlugAction(user.id, board);
 
   if (!currentBoard) {
     notFound();

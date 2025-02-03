@@ -38,7 +38,7 @@ export const createBoardAction = async (
 
   const existingBoard = await db.board.findUnique({
     where: {
-      userId_title: { userId: user.id, title },
+      userId_slug: { userId: user.id, slug: slugify(title) },
     },
     select: { title: true },
   });
@@ -94,7 +94,7 @@ export const updateBoardAction = async (
   if (currentBoard?.title !== title) {
     const existingBoard = await db.board.findUnique({
       where: {
-        userId_title: { userId: user.id, title },
+        userId_slug: { userId: user.id, slug: slugify(title) },
       },
       select: { title: true },
     });
@@ -147,9 +147,9 @@ export async function deleteBoardAction(
   }
 }
 
-export async function getBoardBySlugAction(slug: string) {
+export async function getBoardBySlugAction(userId: string, slug: string) {
   try {
-    const board = await getBoardBySlug(slug);
+    const board = await getBoardBySlug(userId, slug);
     return { success: true, board };
   } catch (error) {
     console.error("Error getting board:", error);
