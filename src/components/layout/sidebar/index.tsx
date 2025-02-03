@@ -1,3 +1,7 @@
+import { Suspense } from "react";
+import { unauthorized } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+
 import {
   Sidebar,
   SidebarContent,
@@ -11,19 +15,16 @@ import SidebarActions from "./sidebar-actions";
 import SidebarLabel from "./sidebar-label";
 import BoardsList from "./boards-list";
 import { NavUser } from "@/components/layout/sidebar/nav-user";
-import { currentUser } from "@clerk/nextjs/server";
-import { unauthorized } from "next/navigation";
-import { Suspense } from "react";
-import { getAllUserBoards } from "@/lib/dal/user";
+import { getAllUserBoardsAction } from "@/actions/user";
 
 export async function WorkspaceSidebar() {
-  const authUser = await currentUser();
+  const { userId } = await auth();
 
-  if (!authUser) {
+  if (!userId) {
     unauthorized();
   }
 
-  const userBoards = await getAllUserBoards(authUser?.id);
+  const userBoards = (await getAllUserBoardsAction(userId)).data;
 
   return (
     <Sidebar collapsible="icon">
@@ -33,7 +34,7 @@ export async function WorkspaceSidebar() {
           <SidebarLabel boardsCount={userBoards?.length} />
           <SidebarGroupContent>
             <Suspense fallback={<SidebarMenuSkeleton showIcon />}>
-              <BoardsList boards={userBoards} />
+              {userBoards && <BoardsList boards={userBoards} />}
             </Suspense>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -14,6 +14,7 @@ import { boardSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slugify";
 import db from "@/lib/db";
 import type { CreateBoardActionState, EditBoardActionState } from "@/lib/types";
+import { revalidatePath } from "next/cache";
 
 export const createBoardAction = async (
   _prevState: CreateBoardActionState,
@@ -40,7 +41,7 @@ export const createBoardAction = async (
     where: {
       userId_slug: { userId: user.id, slug: slugify(title) },
     },
-    select: { title: true },
+    select: { slug: true },
   });
 
   if (existingBoard) {
@@ -55,7 +56,20 @@ export const createBoardAction = async (
 
   const boardSlug = slugify(title);
 
-  await createBoard(title, user.id, boardSlug, description, template?.columns);
+  const result = await createBoard(
+    user.id,
+    title,
+    boardSlug,
+    description,
+    template?.columns,
+  );
+
+  if (!result) {
+    return {
+      success: false,
+      message: "Failed to create board",
+    };
+  }
 
   return {
     success: true,
@@ -108,11 +122,18 @@ export const updateBoardAction = async (
     }
   }
 
-  await updateBoard(boardId, {
+  const result = await updateBoard(boardId, {
     title,
     description,
     slug: slugify(title),
   });
+
+  if (!result) {
+    return {
+      success: false,
+      message: "Failed to update board",
+    };
+  }
 
   return {
     success: true,
@@ -148,11 +169,17 @@ export async function deleteBoardAction(
 }
 
 export async function getBoardBySlugAction(userId: string, slug: string) {
-  try {
-    const board = await getBoardBySlug(userId, slug);
-    return { success: true, board };
-  } catch (error) {
-    console.error("Error getting board:", error);
-    return { success: false, error: "Failed to get board" };
+  const result = await getBoardBySlug(userId, slug);
+
+  if (!result) {
+    return {
+      success: false,
+      message: "Board not found",
+    };
   }
+
+  return {
+    success: true,
+    board: result.data,
+  };
 }

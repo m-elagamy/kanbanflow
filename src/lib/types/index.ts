@@ -24,3 +24,5 @@ export type EditBoardActionState = {
 export type ActionMode = "create" | "edit";
 
 export type ModalType = "task" | "board";
+
+export type ActionResult<T> = { success: boolean; message: string; data?: T };

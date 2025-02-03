@@ -1,64 +1,69 @@
 import db from "../db";
 import { Board } from "@prisma/client";
+import withAuth from "@/utils/with-DAL-auth";
 
-const createBoard = async (
-  title: string,
-  userId: string,
-  slug: string,
-  description?: string | null,
-  columns?: string[],
-): Promise<Board> => {
-  return db.$transaction(async (prisma) => {
-    const lastBoard = await prisma.board.findFirst({
-      where: { userId },
-      orderBy: { order: "desc" },
-      select: { order: true },
+const createBoard = withAuth(
+  async (
+    userId: string,
+    title: string,
+    slug: string,
+    description?: string | null,
+    columns?: string[],
+  ): Promise<Board> => {
+    return db.$transaction(async (prisma) => {
+      const lastBoard = await prisma.board.findFirst({
+        where: { userId },
+        orderBy: { order: "desc" },
+        select: { order: true },
+      });
+
+      const newOrder = lastBoard ? lastBoard.order + 1 : 0;
+
+      const columnData =
+        columns
+          ?.filter(Boolean)
+          .map((column, index) => ({ title: column, order: index })) || [];
+
+      return prisma.board.create({
+        data: {
+          title,
+          slug,
+          description,
+          userId,
+          columns: columnData.length ? { create: columnData } : undefined,
+          order: newOrder,
+        },
+        include: {
+          columns: true,
+        },
+      });
     });
+  },
+);
 
-    const newOrder = lastBoard ? lastBoard.order + 1 : 0;
-
-    const columnData =
-      columns
-        ?.filter(Boolean)
-        .map((column, index) => ({ title: column, order: index })) || [];
-
-    return prisma.board.create({
-      data: {
-        title,
-        slug,
-        description,
-        userId,
-        columns: columnData.length ? { create: columnData } : undefined,
-        order: newOrder,
+const updateBoard = withAuth(
+  async (
+    boardId: string,
+    data: Partial<Omit<Board, "id" | "userId" | "order">>,
+  ) => {
+    return db.board.update({
+      where: {
+        id: boardId,
       },
-      include: {
-        columns: true,
-      },
+      data,
     });
-  });
-};
+  },
+);
 
-const updateBoard = async (
-  boardId: string,
-  data: Partial<Omit<Board, "id" | "userId" | "order">>,
-) => {
-  return db.board.update({
-    where: {
-      id: boardId,
-    },
-    data,
-  });
-};
-
-const deleteBoard = async (boardId: string) => {
+const deleteBoard = withAuth(async (boardId: string) => {
   await db.board.delete({
     where: {
       id: boardId,
     },
   });
-};
+});
 
-const getBoardBySlug = async (userId: string, slug: string) => {
+const getBoardBySlug = withAuth(async (userId: string, slug: string) => {
   return db.board.findUnique({
     where: { userId_slug: { userId, slug } },
     select: {
@@ -88,6 +93,6 @@ const getBoardBySlug = async (userId: string, slug: string) => {
       },
     },
   });
-};
+});
 
 export { createBoard, getBoardBySlug, updateBoard, deleteBoard };

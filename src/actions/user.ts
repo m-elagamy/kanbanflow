@@ -1,24 +1,43 @@
 "use server";
 
 import { insertUser, getAllUserBoards } from "../lib/dal/user";
-import { User } from "@prisma/client";
+import { User, Board } from "@prisma/client";
+import type { ActionResult } from "@/lib/types";
 
-export async function insertUserAction(data: User) {
-  try {
-    const user = await insertUser(data);
-    return { success: true, user };
-  } catch (error) {
-    console.error("Error creating user:", error);
-    return { success: false, error: "Failed to create user" };
+export async function insertUserAction(
+  data: User,
+): Promise<ActionResult<User>> {
+  const result = await insertUser(data);
+
+  if (!result) {
+    return {
+      success: false,
+      message: "Failed to insert user.",
+    };
   }
+
+  return {
+    success: true,
+    message: "User inserted successfully.",
+    data: result?.data,
+  };
 }
 
-export async function getAllUserBoardsAction(userId: string) {
-  try {
-    const userBoards = await getAllUserBoards(userId);
-    return { success: true, userBoards };
-  } catch (error) {
-    console.error("Error getting user boards:", error);
-    return { success: false, error: "Failed to get user boards" };
+export async function getAllUserBoardsAction(
+  userId: string,
+): Promise<ActionResult<Omit<Board, "userId">[]>> {
+  const result = await getAllUserBoards(userId);
+
+  if (!result) {
+    return {
+      success: false,
+      message: "Failed to fetch user boards.",
+    };
   }
+
+  return {
+    success: true,
+    message: "All user boards fetched successfully.",
+    data: result.data,
+  };
 }
