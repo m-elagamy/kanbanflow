@@ -8,32 +8,34 @@ datasource db {
 }
 
 model User {
-  id        String   @id 
-  email     String   @unique
-  name      String?
-  boards    Board[]
+  id     String  @id
+  email  String  @unique
+  name   String?
+  boards Board[]
 }
 
 model Board {
-  id        String   @id @default(cuid())
-  title      String
-  slug        String @unique
-  description String? @default("")
-  order     Int
-  columns   Column[]
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@index([userId])
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String?  @default("")
+  order       Int
+  columns     Column[]
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, title])
+  @@index([userId])
 }
 
 model Column {
-  id        String   @id @default(cuid())
-  title     String
-  order     Int
-  boardId   String
-  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  tasks     Task[]
+  id      String @id @default(cuid())
+  title   String
+  order   Int
+  boardId String
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks   Task[]
+
   @@index([boardId])
 }
 
@@ -41,12 +43,13 @@ model Task {
   id          String   @id @default(cuid())
   title       String
   description String?  @default("")
-  priority    Priority   @default(medium)
-  order     Int
+  priority    Priority @default(medium)
+  order       Int
   columnId    String
   column      Column   @relation(fields: [columnId], references: [id], onDelete: Cascade)
-  @@index([columnId])
+
   @@unique([columnId, title])
+  @@index([columnId])
 }
 
 enum Priority {
@@ -54,6 +57,3 @@ enum Priority {
   medium
   high
 }
-
-
-

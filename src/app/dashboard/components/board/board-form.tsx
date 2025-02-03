@@ -54,7 +54,7 @@ export default function BoardForm({
           <Input
             type="hidden"
             name="boardId"
-            value={serverState.fields?.boardId ?? ""}
+            value={initialState.fields?.boardId ?? ""}
           />
         )}
         <Input

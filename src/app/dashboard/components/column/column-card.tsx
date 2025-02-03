@@ -3,15 +3,14 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
+import { useShallow } from "zustand/react/shallow";
 
 import { Card, CardContent } from "@/components/ui/card";
 import ColumnHeader from "./column-header";
 import NoTasksMessage from "../task/no-tasks-message";
-import SubtlePatternBackground from "@/components/ui/subtle-pattern-background";
 import TaskCard from "../task/task-card";
 import { Column } from "@prisma/client";
 import { useKanbanStore } from "@/stores/kanban";
-import { useShallow } from "zustand/react/shallow";
 
 const ColumnCard = ({
   column,
@@ -39,7 +38,6 @@ const ColumnCard = ({
       }`}
       ref={setNodeRef}
     >
-      {tasks.length >= 1 && <SubtlePatternBackground />}
       <ColumnHeader
         column={column}
         tasksCount={tasks.length}

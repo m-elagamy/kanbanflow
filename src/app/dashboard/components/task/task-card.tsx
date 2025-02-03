@@ -55,16 +55,16 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
       style={style}
     >
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between text-sm font-medium">
           <h3
-            className={`${task.title.length > 25 ? "necessary-ellipsis max-w-[150px] md:max-w-[190px]" : ""} text-sm font-medium md:text-base`}
+            className={`${task.title.length > 25 ? "necessary-ellipsis max-w-[150px] md:max-w-[220px]" : ""}`}
             title={task.title}
             dir="auto"
           >
             {task.title}
           </h3>
           <Badge
-            className={`${getBadgeStyle(task.priority)} pointer-events-none rounded-full px-2 text-[0.625rem] uppercase tracking-wider`}
+            className={`${getBadgeStyle(task.priority)} h-5 rounded-full p-1 text-[0.525rem] uppercase`}
           >
             {task.priority}
           </Badge>
@@ -84,9 +84,11 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
           </div>
         </div>
       </div>
-      <div
-        className={`group-hover:w-full ${accentStyles({ priority: task.priority })}`}
-      />
+      {!isDragging && (
+        <div
+          className={`group-hover:w-full ${accentStyles({ priority: task.priority })}`}
+        />
+      )}
     </div>
   );
 };

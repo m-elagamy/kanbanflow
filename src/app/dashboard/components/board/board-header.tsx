@@ -1,4 +1,4 @@
-import { InfoIcon, ListTodoIcon } from "lucide-react";
+import { InfoIcon, PanelsTopLeft } from "lucide-react";
 
 import {
   Tooltip,
@@ -17,10 +17,10 @@ type BoardHeaderProps = {
 
 const BoardHeader = ({ id, title, description }: BoardHeaderProps) => {
   return (
-    <section className="mb-4 border-b pb-6 pt-8">
+    <section className="mb-4 pb-6 pt-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ListTodoIcon size={24} />
+          <PanelsTopLeft size={24} />
           <h1 className="text-base font-semibold capitalize md:text-lg">
             {title?.replace(/-/g, " ")}
           </h1>
