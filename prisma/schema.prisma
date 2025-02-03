@@ -17,15 +17,15 @@ model User {
 model Board {
   id          String   @id @default(cuid())
   title       String
-  slug        String   @unique
+  slug        String
   description String?  @default("")
   order       Int
   columns     Column[]
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, title])
-  @@index([userId])
+  @@unique([userId, slug])
+  @@index([userId, order])
 }
 
 model Column {
@@ -36,7 +36,7 @@ model Column {
   board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   tasks   Task[]
 
-  @@index([boardId])
+  @@index([boardId, order])
 }
 
 model Task {
@@ -49,7 +49,7 @@ model Task {
   column      Column   @relation(fields: [columnId], references: [id], onDelete: Cascade)
 
   @@unique([columnId, title])
-  @@index([columnId])
+  @@index([columnId, order])
 }
 
 enum Priority {
