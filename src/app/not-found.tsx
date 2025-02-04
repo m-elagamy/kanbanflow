@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
@@ -16,7 +16,11 @@ import {
 
 export default function NotFound() {
   const router = useRouter();
-  const { isSignedIn: isAuthenticated } = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | undefined>(
+    false,
+  );
+
+  const { isSignedIn } = useAuth();
 
   const handleGoBack = () => {
     router.back();
@@ -33,7 +37,9 @@ export default function NotFound() {
         "We apologize, but the page you're looking for doesn't exist. Please return to the dashboard or go back to the previous page.",
       );
     }
-  }, []);
+
+    setIsAuthenticated(isSignedIn);
+  }, [isSignedIn]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
