@@ -110,6 +110,7 @@ export const useDndHandlers = () => {
   const handleDragCancel = () => setActiveTask(null);
 
   return {
+    columns,
     activeTask,
     handleDragStart,
     handleDragOver,

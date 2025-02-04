@@ -14,7 +14,6 @@ import { boardSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slugify";
 import db from "@/lib/db";
 import type { CreateBoardActionState, EditBoardActionState } from "@/lib/types";
-import { revalidatePath } from "next/cache";
 
 export const createBoardAction = async (
   _prevState: CreateBoardActionState,

@@ -46,8 +46,7 @@ export default function NotFound() {
         </CardHeader>
         <CardContent>
           <p className="text-center text-muted-foreground">
-            We apologize&nbsp; the page you&apos;re looking for doesn&apos;t
-            exist.
+            We apologize, the page you&apos;re looking for doesn&apos;t exist.
           </p>
         </CardContent>
         <CardFooter className="items-center justify-center gap-4">
