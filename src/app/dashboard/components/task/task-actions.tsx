@@ -44,15 +44,15 @@ export default function TaskActions({ task, columnId }: TaskActionsProps) {
             columnId={columnId}
             taskToEdit={task}
             trigger={
-              <span className="flex cursor-default items-center gap-2 rounded p-2 py-1 text-sm font-normal hover:bg-muted">
+              <DropdownMenuLabel className="w-full cursor-default justify-start rounded p-2">
                 <Settings2 size={16} /> Edit
-              </span>
+              </DropdownMenuLabel>
             }
           />
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          className="p-2 py-1 text-destructive focus:text-destructive"
+          className="h-[30px] p-2 !py-1 text-destructive focus:text-destructive"
           onClick={handleDelete}
         >
           <TrashIcon /> Delete

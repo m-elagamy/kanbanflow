@@ -1,31 +1,45 @@
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import type { ModalStore, ModalType } from "@/lib/types/modal";
 
-type ModalType = "board" | "task" | "column";
+const generateModalKey = (type: ModalType, id: string) => `${type}-${id}`;
 
-type ModalStore = {
-  openModals: Record<ModalType, Record<string, boolean>>;
-  openModal: (modalType: ModalType, id: string) => void;
-  closeModal: (modalType: ModalType, id: string) => void;
-};
+export const useModalStore = create<ModalStore>()(
+  devtools(
+    (set, get) => ({
+      modals: new Map(),
+      activeModals: [],
 
-export const useModalStore = create<ModalStore>((set) => ({
-  openModals: {
-    board: {},
-    task: {},
-    column: {},
-  },
-  openModal: (modalType, id) =>
-    set((state) => ({
-      openModals: {
-        ...state.openModals,
-        [modalType]: { ...state.openModals[modalType], [id]: true },
+      openModal: (type, id) => {
+        const key = generateModalKey(type, id);
+        const { modals, activeModals } = get();
+
+        const newModals = new Map(modals);
+        newModals.set(key, { id, type, isOpen: true });
+
+        set({
+          modals: newModals,
+          activeModals: [...activeModals, key],
+        });
       },
-    })),
-  closeModal: (modalType, id) =>
-    set((state) => ({
-      openModals: {
-        ...state.openModals,
-        [modalType]: { ...state.openModals[modalType], [id]: false },
+
+      closeModal: (type, id) => {
+        const key = generateModalKey(type, id);
+        const { modals, activeModals } = get();
+
+        const newModals = new Map(modals);
+        newModals.delete(key);
+
+        set({
+          modals: newModals,
+          activeModals: activeModals.filter((k) => k !== key),
+        });
       },
-    })),
-}));
+
+      closeAll: () => {
+        set({ modals: new Map(), activeModals: [] });
+      },
+    }),
+    { name: "modal-store" },
+  ),
+);

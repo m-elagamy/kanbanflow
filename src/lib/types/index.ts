@@ -26,3 +26,13 @@ export type ActionMode = "create" | "edit";
 export type ModalType = "task" | "board";
 
 export type ActionResult<T> = { success: boolean; message: string; data?: T };
+
+export type ButtonVariants =
+  | "default"
+  | "link"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost"
+  | null
+  | undefined;

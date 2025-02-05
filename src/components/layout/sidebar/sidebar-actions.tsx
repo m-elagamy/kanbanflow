@@ -12,6 +12,7 @@ import {
 
 const SidebarActions = () => {
   const { open } = useSidebar();
+
   return (
     <SidebarGroup>
       <SidebarMenu>
@@ -22,12 +23,15 @@ const SidebarActions = () => {
               <SidebarMenuButton
                 className={`group/icon justify-center ${open ? "gap-2" : "gap-0"}`}
                 tooltip="New Board"
-                variant="outline"
+                asChild
               >
-                <CirclePlus className="text-muted-foreground transition-colors group-hover/icon:text-primary" />
-                <span>New Board</span>
+                <button>
+                  <CirclePlus className="text-muted-foreground transition-colors group-hover/icon:text-primary" />
+                  <span>New Board</span>
+                </button>
               </SidebarMenuButton>
             }
+            variant="outline"
           />
         </SidebarMenuItem>
       </SidebarMenu>

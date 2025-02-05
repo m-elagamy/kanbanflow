@@ -1,7 +1,7 @@
 import { unauthorized } from "next/navigation";
 import type { Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
-import { Layout } from "lucide-react";
+import { Layout, PlusCircle } from "lucide-react";
 
 import {
   Card,
@@ -53,7 +53,15 @@ const Dashboard = async () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <BoardModal mode="create" />
+          <BoardModal
+            mode="create"
+            trigger={
+              <button>
+                <PlusCircle className="transition-transform group-hover:rotate-90" />
+                Create your first board
+              </button>
+            }
+          />
         </CardContent>
       </Card>
     </section>

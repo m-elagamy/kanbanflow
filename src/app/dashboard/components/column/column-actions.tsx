@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Ellipsis, Loader, Settings2, TrashIcon } from "lucide-react";
+import { Ellipsis, Loader, PlusIcon, Settings2, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TaskModal from "../task/task-modal";
 import {
@@ -55,7 +55,18 @@ const ColumnActions = ({
 
   return (
     <div className="flex items-center gap-1">
-      {tasksCount >= 1 && <TaskModal mode="create" columnId={columnId} />}
+      {tasksCount >= 1 && (
+        <TaskModal
+          mode="create"
+          columnId={columnId}
+          trigger={
+            <Button variant="ghost" size="icon" className="size-8">
+              <PlusIcon />
+              <span className="sr-only">New Task</span>
+            </Button>
+          }
+        />
+      )}
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="size-8">

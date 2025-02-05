@@ -1,18 +1,24 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
+import dynamic from "next/dynamic";
 import {
   Dialog,
-  DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useModalStore } from "@/stores/modal";
 
+const DialogContent = dynamic(
+  () => import("@/components/ui/dialog").then((mod) => mod.DialogContent),
+  {
+    ssr: false,
+    loading: () => null,
+  },
+);
+
 type ModalProps = {
-  trigger: ReactNode;
   title: ReactNode;
   description?: ReactNode;
   children: ReactNode;
@@ -22,7 +28,6 @@ type ModalProps = {
 };
 
 const Modal = ({
-  trigger,
   title,
   description,
   children,
@@ -30,27 +35,42 @@ const Modal = ({
   modalType,
   modalId,
 }: ModalProps) => {
-  const { openModals, openModal, closeModal } = useModalStore();
+  const { modals, openModal, closeModal } = useModalStore();
 
-  const isOpen = openModals[modalType][modalId] || false;
+  const modalKey = `${modalType}-${modalId}`;
+  const isOpen = modals.has(modalKey);
+
+  const handleOpen = () => {
+    openModal(modalType, modalId);
+  };
+
+  const handleClose = () => {
+    closeModal(modalType, modalId);
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    return () => closeModal(modalType, modalId);
+  }, [isOpen, closeModal, modalType, modalId]);
 
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) =>
-        open ? openModal(modalType, modalId) : closeModal(modalType, modalId)
-      }
+      onOpenChange={(open) => (open ? handleOpen() : handleClose())}
     >
-      <DialogTrigger asChild className={`${className ?? ""}`}>
-        {trigger}
-      </DialogTrigger>
-      <DialogContent className={`rounded-lg ${className ?? ""}`}>
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
-        </DialogHeader>
-        {children}
-      </DialogContent>
+      {isOpen && (
+        <DialogContent className={`rounded-lg ${className ?? ""}`}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {title}
+            </DialogTitle>
+            {description && (
+              <DialogDescription>{description}</DialogDescription>
+            )}
+          </DialogHeader>
+          {children}
+        </DialogContent>
+      )}
     </Dialog>
   );
 };

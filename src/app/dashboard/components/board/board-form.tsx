@@ -48,7 +48,7 @@ export default function BoardForm({
           htmlFor="title"
           className={`${fieldErrors?.title || serverError ? "text-destructive" : ""}`}
         >
-          Board Name <RequiredFieldSymbol />
+          Name <RequiredFieldSymbol />
         </Label>
         {mode == "edit" && (
           <Input
@@ -90,7 +90,7 @@ export default function BoardForm({
                 : ""
             }`}
           >
-            Board Template <RequiredFieldSymbol />
+            Template <RequiredFieldSymbol />
           </Label>
           <Select
             name="template"
@@ -128,7 +128,7 @@ export default function BoardForm({
       )}
 
       <div>
-        <Label htmlFor="description">Board Description</Label>
+        <Label htmlFor="description"> Description</Label>
         <Textarea
           id="description"
           name="description"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
@@ -16,15 +16,10 @@ import {
 
 export default function NotFound() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | undefined>(
-    false,
-  );
 
-  const { isSignedIn } = useAuth();
+  const { isSignedIn: isAuthenticated } = useAuth();
 
-  const handleGoBack = () => {
-    router.back();
-  };
+  const handleGoBack = () => router.back();
 
   useEffect(() => {
     document.title = "KanbanFlow | 404 - Page Not Found";
@@ -37,9 +32,7 @@ export default function NotFound() {
         "We apologize, but the page you're looking for doesn't exist. Please return to the dashboard or go back to the previous page.",
       );
     }
-
-    setIsAuthenticated(isSignedIn);
-  }, [isSignedIn]);
+  }, []);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">

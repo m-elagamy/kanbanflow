@@ -65,18 +65,19 @@ export default function BoardActions({
         <BoardModal
           mode="edit"
           trigger={
-            <span className="flex cursor-default items-center gap-2 rounded p-2 py-1 text-sm font-normal hover:bg-muted">
+            <DropdownMenuLabel className="w-full cursor-default justify-start rounded p-2">
               <SquarePen size={16} /> Edit
-            </span>
+            </DropdownMenuLabel>
           }
           board={{
             id,
             title,
             description,
           }}
+          variant="ghost"
         />
         <DropdownMenuItem
-          className="text-destructive focus:text-destructive"
+          className="h-[30px] p-2 !py-1 text-destructive focus:text-destructive"
           onClick={() => setIsAlertOpen(true)}
         >
           <TrashIcon /> Delete
