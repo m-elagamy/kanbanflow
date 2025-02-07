@@ -1,14 +1,11 @@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import getBadgeStyle from "../../utils/get-badge-style";
-import taskPriorities from "../../data/task-priorities";
 import { Label } from "@/components/ui/label";
-import useTaskAction from "@/hooks/use-task-action";
-import type { formOperationMode } from "@/lib/types";
-import RequiredFieldSymbol from "@/components/ui/required-field-symbol";
 import ErrorMessage from "@/components/ui/error-message";
 import FormActions from "@/components/ui/form-actions";
-import type { TaskActionState } from "@/lib/types/task";
+import RequiredFieldSymbol from "@/components/ui/required-field-symbol";
+import useTaskAction from "@/hooks/use-task-action";
+import type { formOperationMode, TaskActionState } from "@/lib/types";
 import {
   Select,
   SelectContent,
@@ -16,6 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import getBadgeStyle from "../../utils/get-badge-style";
+import taskPriorities from "../../data/task-priorities";
 
 type TaskFormProps = {
   formOperationMode: formOperationMode;

@@ -3,7 +3,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { createTaskAction, updateTaskAction } from "@/actions/task";
 import validateFormData from "@/app/dashboard/utils/validate-form-data";
 import checkFormErrors from "@/app/dashboard/utils/check-form-errors";
-import type { TaskActionState } from "@/lib/types/task";
+import type { TaskActionState } from "@/lib/types";
 import processFormData from "@/app/dashboard/utils/process-form-data";
 import handleValidationErrors from "@/app/dashboard/utils/handle-validation-errors";
 import { taskSchema, type TaskSchema } from "@/schemas/task";

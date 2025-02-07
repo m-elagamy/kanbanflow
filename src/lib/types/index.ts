@@ -1,4 +1,5 @@
 import type { BoardFormSchema } from "@/schemas/board";
+import type { TaskSchema } from "@/schemas/task";
 
 export type BoardActionState = Partial<{
   boardId: string;
@@ -8,6 +9,16 @@ export type BoardActionState = Partial<{
   fields?: Partial<BoardFormSchema>;
   isUpdating: boolean;
 }>;
+
+export type TaskActionState = {
+  success: boolean;
+  message: string;
+  taskId: string;
+  columnId: string;
+  fields?: Partial<TaskSchema>;
+  boardSlug?: string;
+  isUpdating?: boolean;
+};
 
 export type formOperationMode = "create" | "edit";
 
