@@ -1,18 +1,18 @@
 "use server";
 
-import { addTaskSchema } from "@/schemas/task";
-import { createTask, updateTask, deleteTask } from "../lib/dal/task";
 import { revalidatePath } from "next/cache";
+import type { Task } from "@prisma/client";
+import { taskSchema } from "@/schemas/task";
 import db from "@/lib/db";
 import { ActionResult } from "@/lib/types";
-import type { Task } from "@prisma/client";
+import { createTask, updateTask, deleteTask } from "../lib/dal/task";
 
 export const createTaskAction = async (
   _prevState: unknown,
   formData: FormData,
 ): Promise<ActionResult<Pick<Task, "title" | "description" | "priority">>> => {
   const data = Object.fromEntries(formData.entries());
-  const validatedData = addTaskSchema.safeParse(data);
+  const validatedData = taskSchema.safeParse(data);
 
   if (!validatedData.success) {
     return {
@@ -23,6 +23,8 @@ export const createTaskAction = async (
   }
 
   const { title, description, priority } = validatedData.data;
+
+  const boardSlug = formData.get("boardSlug") as string;
   const columnId = formData.get("columnId") as string;
 
   const existingTask = await db.task.findUnique({
@@ -51,6 +53,8 @@ export const createTaskAction = async (
     };
   }
 
+  revalidatePath(`/dashboard/${boardSlug}`, "page");
+
   return {
     success: true,
     message: `Task was added successfully.`,
@@ -63,7 +67,7 @@ export async function updateTaskAction(
   formData: FormData,
 ): Promise<ActionResult<Pick<Task, "title" | "description" | "priority">>> {
   const data = Object.fromEntries(formData.entries());
-  const validatedData = addTaskSchema.safeParse(data);
+  const validatedData = taskSchema.safeParse(data);
 
   if (!validatedData.success) {
     return {
@@ -74,31 +78,26 @@ export async function updateTaskAction(
   }
 
   const { title, description, priority } = validatedData.data;
+
+  const boardSlug = formData.get("boardSlug") as string;
   const columnId = formData.get("columnId") as string;
   const taskId = formData.get("taskId") as string;
 
-  const currentTask = await db.task.findUnique({
-    where: { id: taskId },
+  const existingTask = await db.task.findFirst({
+    where: {
+      columnId,
+      title,
+      NOT: { id: taskId },
+    },
     select: { title: true },
   });
 
-  if (currentTask?.title !== title) {
-    const existingTask = await db.task.findUnique({
-      where: {
-        columnId_title: { columnId, title },
-      },
-      select: {
-        title: true,
-      },
-    });
-
-    if (existingTask) {
-      return {
-        success: false,
-        message: `A task with the name "${title}" already exists.`,
-        data: { title, description: description ?? null, priority },
-      };
-    }
+  if (existingTask) {
+    return {
+      success: false,
+      message: `A task with the name "${title}" already exists.`,
+      data: { title, description: description ?? null, priority },
+    };
   }
 
   const result = await updateTask(taskId, {
@@ -115,6 +114,8 @@ export async function updateTaskAction(
     };
   }
 
+  revalidatePath(`/dashboard/${boardSlug}`, "page");
+
   return {
     success: true,
     message: `Task was updated successfully.`,
@@ -124,6 +125,7 @@ export async function updateTaskAction(
 
 export async function deleteTaskAction(
   taskId: string,
+  boardSlug: string,
 ): Promise<ActionResult<Task>> {
   const result = await deleteTask(taskId);
 
@@ -134,7 +136,7 @@ export async function deleteTaskAction(
     };
   }
 
-  revalidatePath(`/dashboard/[board]`, "page");
+  revalidatePath(`/dashboard/${boardSlug}`, "page");
 
   return {
     success: true,
@@ -147,6 +149,7 @@ export async function updateTaskPositionAction(
   oldColumnId: string,
   newColumnId: string,
   newTaskOrder: string[],
+  boardSlug?: string,
 ): Promise<void> {
   if (!taskId || !oldColumnId || !newColumnId || !Array.isArray(newTaskOrder)) {
     throw new Error("updateTaskPositionAction: Invalid parameters provided");
@@ -201,6 +204,7 @@ export async function updateTaskPositionAction(
     });
   } catch (error) {
     console.error("Error moving task between columns:", error);
+    revalidatePath(`/dashboard/${boardSlug}`, "page");
     throw new Error(
       `Failed to move task: ${error instanceof Error ? error.message : error}`,
     );

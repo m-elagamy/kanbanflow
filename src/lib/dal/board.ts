@@ -69,6 +69,7 @@ const getBoardBySlug = withAuth(async (userId: string, slug: string) => {
     select: {
       id: true,
       title: true,
+      slug: true,
       description: true,
       order: true,
       columns: {

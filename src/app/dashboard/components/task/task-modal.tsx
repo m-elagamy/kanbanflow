@@ -1,21 +1,25 @@
-import { Button } from "@/components/ui/button";
-import TaskForm from "./task-form";
 import type { Task } from "@prisma/client";
-import type { ActionMode, ButtonVariants } from "@/lib/types";
+
+import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/modal";
+import { useModalStore } from "@/stores/modal";
+import type { formOperationMode, ButtonVariants } from "@/lib/types";
+
+import TaskForm from "./task-form";
 import { getModalTitle } from "../../utils/get-modal-title";
 import { getModalDescription } from "../../utils/get-modal-description";
-import { useModalStore } from "@/stores/modal";
 
 type TaskModalProps = {
+  boardSlug?: string;
   columnId: string;
   trigger?: React.ReactNode;
   taskToEdit?: Task | null;
-  mode: ActionMode;
+  mode: formOperationMode;
   variant?: ButtonVariants;
 };
 
 const TaskModal = ({
+  boardSlug,
   columnId,
   trigger,
   taskToEdit,
@@ -45,20 +49,20 @@ const TaskModal = ({
         modalId={modalId}
       >
         <TaskForm
-          mode={mode}
+          boardSlug={boardSlug}
+          formOperationMode={mode}
+          modalId={modalId}
           initialState={{
             success: false,
             message: "",
-            errors: undefined,
+            columnId,
+            taskId: taskToEdit?.id ?? "",
             fields: {
-              columnId,
-              taskId: taskToEdit?.id,
               title: taskToEdit?.title ?? "",
               description: taskToEdit?.description ?? "",
               priority: taskToEdit?.priority ?? "medium",
             },
           }}
-          modalId={modalId}
         />
       </Modal>
     </>

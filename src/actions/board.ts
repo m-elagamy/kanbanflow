@@ -1,24 +1,24 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
 
+import columnsTemplates from "@/app/dashboard/data/columns-templates";
+import { boardSchema, type BoardFormSchema } from "@/schemas/board";
+import { slugify } from "@/utils/slugify";
+import db from "@/lib/db";
+import { BoardActionState } from "@/lib/types";
 import {
   createBoard,
   deleteBoard,
   getBoardBySlug,
   updateBoard,
 } from "@/lib/dal/board";
-import columnsTemplates from "@/app/dashboard/data/columns-templates";
-import { boardSchema } from "@/schemas/board";
-import { slugify } from "@/utils/slugify";
-import db from "@/lib/db";
-import type { CreateBoardActionState, EditBoardActionState } from "@/lib/types";
 
 export const createBoardAction = async (
-  _prevState: CreateBoardActionState,
+  _prevState: BoardActionState,
   formData: FormData,
-): Promise<CreateBoardActionState> => {
+): Promise<BoardActionState> => {
   const user = await currentUser();
   if (!user) return { success: false, message: "Authentication required!" };
 
@@ -28,9 +28,8 @@ export const createBoardAction = async (
   if (!validatedData.success) {
     return {
       success: false,
-      message: "Invalid input",
-      errors: validatedData.error.format(),
-      fields: data,
+      message: "Validation Errors",
+      fields: data as BoardFormSchema,
     };
   }
 
@@ -47,7 +46,7 @@ export const createBoardAction = async (
     return {
       success: false,
       message: `A board with the name "${title}" already exists.`,
-      fields: data,
+      fields: data as BoardFormSchema,
     };
   }
 
@@ -70,17 +69,19 @@ export const createBoardAction = async (
     };
   }
 
-  return {
-    success: true,
-    message: "Board was created successfully",
-    boardSlug: `/dashboard/${slugify(title)}`,
-  };
+  redirect(`/dashboard/${boardSlug}`);
+
+  // return {
+  //   success: true,
+  //   message: "Board was created successfully",
+  //   boardSlug,
+  // };
 };
 
 export const updateBoardAction = async (
-  _prevState: EditBoardActionState,
+  _prevState: BoardActionState,
   formData: FormData,
-): Promise<EditBoardActionState> => {
+): Promise<BoardActionState> => {
   const user = await currentUser();
   if (!user) return { success: false, message: "Authentication required!" };
 
@@ -90,41 +91,37 @@ export const updateBoardAction = async (
   if (!validatedData.success) {
     return {
       success: false,
-      message: "Invalid input",
-      errors: validatedData.error.format(),
-      fields: data,
+      message: "Validation Errors",
+      fields: data as BoardFormSchema,
     };
   }
 
   const { title, description } = validatedData.data;
   const boardId = formData.get("boardId") as string;
 
-  const currentBoard = await db.board.findUnique({
-    where: { id: boardId },
+  const boardSlug = slugify(title);
+
+  const existingBoard = await db.board.findFirst({
+    where: {
+      userId: user.id,
+      slug: boardSlug,
+      NOT: { id: boardId },
+    },
     select: { title: true },
   });
 
-  if (currentBoard?.title !== title) {
-    const existingBoard = await db.board.findUnique({
-      where: {
-        userId_slug: { userId: user.id, slug: slugify(title) },
-      },
-      select: { title: true },
-    });
-
-    if (existingBoard) {
-      return {
-        success: false,
-        message: `A board with the name "${title}" already exists.`,
-        fields: data,
-      };
-    }
+  if (existingBoard) {
+    return {
+      success: false,
+      message: `A board with the name "${title}" already exists.`,
+      fields: data as BoardFormSchema,
+    };
   }
 
   const result = await updateBoard(boardId, {
     title,
     description,
-    slug: slugify(title),
+    slug: boardSlug,
   });
 
   if (!result) {
@@ -134,12 +131,14 @@ export const updateBoardAction = async (
     };
   }
 
-  return {
-    success: true,
-    message: "Board was updated successfully",
-    isUpdating: true,
-    boardSlug: `/dashboard/${slugify(title)}`,
-  };
+  redirect(`/dashboard/${boardSlug}`, RedirectType.replace);
+
+  // return {
+  //   success: true,
+  //   message: "Board was updated successfully",
+  //   boardSlug,
+  //   isUpdating: true,
+  // };
 };
 
 export async function deleteBoardAction(

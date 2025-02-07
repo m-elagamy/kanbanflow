@@ -1,25 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { useShallow } from "zustand/react/shallow";
+import { Task, Column } from "@prisma/client";
+
 import DndProvider from "@/providers/dnd-provider";
+import { useKanbanStore } from "@/stores/kanban";
+
 import ColumnCard from "./column-card";
 import ColumnModal from "./column-modal";
-import type { Task } from "@prisma/client";
-import { Column } from "@prisma/client";
-import { useKanbanStore } from "@/stores/kanban";
 import ColumnSkeleton from "./column-skeleton";
 
 type ColumnsWrapperProps = {
   columns: (Column & { tasks: Task[] })[];
   boardId: string;
-  boardTitle: string;
+  boardSlug: string;
 };
 
 const ColumnsWrapper = ({
   columns: initialColumns,
   boardId,
-  boardTitle,
+  boardSlug,
 }: ColumnsWrapperProps) => {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,17 +43,13 @@ const ColumnsWrapper = ({
           tasksPerColumn={initialColumns.map((column) => column.tasks.length)}
         />
       ) : (
-        <DndProvider>
+        <DndProvider boardSlug={boardSlug}>
           {columns?.map((column) => (
-            <ColumnCard
-              key={column.id}
-              column={column}
-              boardTitle={boardTitle}
-            />
+            <ColumnCard key={column.id} column={column} boardSlug={boardSlug} />
           ))}
         </DndProvider>
       )}
-      <ColumnModal boardId={boardId} boardTitle={boardTitle} />
+      <ColumnModal boardId={boardId} boardSlug={boardSlug} />
     </div>
   );
 };

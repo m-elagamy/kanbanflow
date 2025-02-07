@@ -31,7 +31,7 @@ export default async function Board({ params }: { params: Params }) {
       <ColumnsWrapper
         columns={currentBoard.columns}
         boardId={currentBoard.id}
-        boardTitle={currentBoard.title}
+        boardSlug={currentBoard.slug}
       />
     </div>
   );

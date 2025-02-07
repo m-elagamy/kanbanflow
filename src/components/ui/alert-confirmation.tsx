@@ -21,7 +21,7 @@ type AlertConfirmationProps = {
   isPending: boolean;
   columnId?: string;
   boardId?: string;
-  boardTitle?: string;
+  boardSlug?: string;
   columnConfirmation?: boolean;
 };
 
@@ -36,7 +36,7 @@ const AlertConfirmation = ({
   isPending,
   columnId,
   boardId,
-  boardTitle,
+  boardSlug,
   columnConfirmation,
 }: AlertConfirmationProps) => {
   return (
@@ -55,7 +55,7 @@ const AlertConfirmation = ({
               value={columnId ?? boardId}
             />
             {columnConfirmation && (
-              <input type="hidden" name="boardTitle" value={boardTitle} />
+              <input type="hidden" name="boardSlug" value={boardSlug} />
             )}
             <Button
               className="w-full gap-1 bg-destructive px-2 text-destructive-foreground hover:bg-destructive/90"

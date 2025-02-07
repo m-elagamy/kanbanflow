@@ -1,3 +1,14 @@
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import getBadgeStyle from "../../utils/get-badge-style";
+import taskPriorities from "../../data/task-priorities";
+import { Label } from "@/components/ui/label";
+import useTaskAction from "@/hooks/use-task-action";
+import type { formOperationMode } from "@/lib/types";
+import RequiredFieldSymbol from "@/components/ui/required-field-symbol";
+import ErrorMessage from "@/components/ui/error-message";
+import FormActions from "@/components/ui/form-actions";
+import type { TaskActionState } from "@/lib/types/task";
 import {
   Select,
   SelectContent,
@@ -5,80 +16,75 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import getBadgeStyle from "../../utils/get-badge-style";
-import taskPriorities from "../../data/task-priorities";
-import { Label } from "@/components/ui/label";
-import { useTaskAction } from "@/hooks/use-task-action";
-import type { ActionMode } from "@/lib/types";
-import type {
-  CreateTaskActionState,
-  EditTaskActionState,
-} from "@/lib/types/task";
-import RequiredFieldSymbol from "@/components/ui/required-field-symbol";
-import ErrorMessage from "@/components/ui/error-message";
-import FormActions from "@/components/ui/form-actions";
 
 type TaskFormProps = {
-  mode: ActionMode;
-  initialState: CreateTaskActionState | EditTaskActionState;
+  formOperationMode: formOperationMode;
+  initialState: TaskActionState;
   modalId: string;
+  boardSlug?: string;
 };
 
-const TaskForm = ({ mode, initialState, modalId }: TaskFormProps) => {
+const TaskForm = ({
+  formOperationMode,
+  initialState,
+  modalId,
+  boardSlug,
+}: TaskFormProps) => {
+  const isEditMode = formOperationMode === "edit";
+
   const {
-    serverState,
-    serverError,
+    handleAction,
+    state,
     isPending,
-    titleRef,
-    clearFieldValidationError,
-    fieldErrors,
-    handleServerAction,
-    formValues,
+    taskFormData,
+    errors,
+    clearError,
+    isFormInvalid,
+    inputRef,
   } = useTaskAction({
     initialState,
-    actionMode: mode,
+    isEditMode,
     modalId,
   });
 
   return (
-    <form action={handleServerAction} className="space-y-4">
+    <form action={handleAction} className="space-y-4">
       <section className="space-y-2">
         <Label
-          className={`${fieldErrors?.title || (serverError && !fieldErrors && !serverState.success) ? "text-destructive" : ""}`}
+          className={`${errors.clientErrors.title || errors.serverError ? "text-destructive" : ""}`}
         >
           What&apos;s the task? <RequiredFieldSymbol />
         </Label>
         <Input
           type="hidden"
           name="columnId"
-          value={initialState.fields?.columnId ?? ""}
+          value={initialState.columnId ?? ""}
         />
+        <Input type="hidden" name="boardSlug" value={boardSlug ?? ""} />
 
-        {mode === "edit" && (
+        {isEditMode && (
           <Input
             type="hidden"
             name="taskId"
-            value={initialState.fields?.taskId ?? ""}
+            value={initialState.taskId ?? ""}
           />
         )}
 
         <Input
-          ref={titleRef}
+          ref={inputRef}
           name="title"
           placeholder="e.g., Create a stunning new landing page"
-          defaultValue={
-            (formValues.title as string) || serverState.fields?.title
-          }
-          onChange={() => clearFieldValidationError("title")}
+          defaultValue={taskFormData.title || state.data?.title}
+          onChange={() => clearError("title")}
+          aria-invalid={!!errors}
+          aria-describedby="title-error"
           aria-required
         />
-        {fieldErrors?.title || serverError ? (
+        {(errors.clientErrors.title || errors.serverError) && (
           <ErrorMessage id="title-error">
-            {fieldErrors?.title?._errors?.at(0) ?? serverError}
+            {errors.clientErrors.title || errors.serverError}
           </ErrorMessage>
-        ) : null}
+        )}
       </section>
 
       <section className="space-y-2">
@@ -88,8 +94,7 @@ const TaskForm = ({ mode, initialState, modalId }: TaskFormProps) => {
           placeholder="e.g., Design a modern, mobile-friendly layout for the homepage"
           className="resize-none"
           defaultValue={
-            (formValues.description as string) ||
-            serverState.fields?.description
+            (taskFormData.description || state.data?.description) ?? ""
           }
         />
       </section>
@@ -98,12 +103,10 @@ const TaskForm = ({ mode, initialState, modalId }: TaskFormProps) => {
         <Label>How urgent is this?</Label>
         <Select
           name="priority"
-          defaultValue={
-            (formValues.priority as string) || serverState.fields?.priority
-          }
+          defaultValue={taskFormData.priority || state.data?.priority}
         >
           <SelectTrigger className="*:max-w-[120px]">
-            <SelectValue placeholder="Select a template" />
+            <SelectValue placeholder="Select a Priority" />
           </SelectTrigger>
           <SelectContent>
             {taskPriorities.map((priority) => (
@@ -124,7 +127,11 @@ const TaskForm = ({ mode, initialState, modalId }: TaskFormProps) => {
         </Select>
       </section>
 
-      <FormActions isPending={isPending} mode={mode} />
+      <FormActions
+        isFormInvalid={isFormInvalid}
+        isPending={isPending}
+        formOperationMode={formOperationMode}
+      />
     </form>
   );
 };

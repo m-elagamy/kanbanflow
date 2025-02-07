@@ -6,13 +6,12 @@ import ColumnForm from "./column-form";
 import Modal from "@/components/ui/modal";
 import { useModalStore } from "@/stores/modal";
 
-const ColumnModal = ({
-  boardId,
-  boardTitle,
-}: {
+type ColumnModalProps = {
   boardId: string;
-  boardTitle: string;
-}) => {
+  boardSlug: string;
+};
+
+const ColumnModal = ({ boardId, boardSlug }: ColumnModalProps) => {
   const openModal = useModalStore((state) => state.openModal);
 
   const modalId = `new-column-${boardId}`;
@@ -32,11 +31,7 @@ const ColumnModal = ({
         modalType="column"
         modalId={modalId}
       >
-        <ColumnForm
-          boardId={boardId}
-          boardTitle={boardTitle}
-          modalId={modalId}
-        />
+        <ColumnForm boardId={boardId} boardSlug={boardSlug} modalId={modalId} />
       </Modal>
     </>
   );

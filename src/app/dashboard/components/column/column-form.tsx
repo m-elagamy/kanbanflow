@@ -16,15 +16,17 @@ import { Input } from "@/components/ui/input";
 import FormActions from "@/components/ui/form-actions";
 import { useModalStore } from "@/stores/modal";
 
+type ColumnFormProps = {
+  boardId: string;
+  modalId: string;
+  boardSlug: string;
+};
+
 export default function ColumnForm({
   boardId,
   modalId,
-  boardTitle,
-}: {
-  boardId: string;
-  modalId: string;
-  boardTitle: string;
-}) {
+  boardSlug,
+}: ColumnFormProps) {
   const [serverState, formAction, isPending] = useActionState(
     createColumnAction,
     { success: false, message: "" },
@@ -42,7 +44,7 @@ export default function ColumnForm({
     <form action={formAction} className="space-y-4">
       <section className="space-y-2">
         <Input type="hidden" name="boardId" value={boardId ?? ""} />
-        <Input type="hidden" name="boardTitle" value={boardTitle ?? ""} />
+        <Input type="hidden" name="boardSlug" value={boardSlug ?? ""} />
         <Label>Select Column Status</Label>
         <Select name="status" defaultValue="To Do">
           <SelectTrigger>
@@ -62,7 +64,7 @@ export default function ColumnForm({
           </SelectContent>
         </Select>
       </section>
-      <FormActions isPending={isPending} mode="create" />
+      <FormActions isPending={isPending} formOperationMode="create" />
     </form>
   );
 }

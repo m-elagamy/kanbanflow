@@ -15,14 +15,19 @@ import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import TaskCard from "@/app/dashboard/components/task/task-card";
 import { useDndHandlers } from "@/hooks/use-dnd-handlers";
 
-const DndProvider = ({ children }: { children: ReactNode }) => {
+type DndProviderProps = {
+  children: ReactNode;
+  boardSlug?: string;
+};
+
+const DndProvider = ({ children, boardSlug }: DndProviderProps) => {
   const {
     activeTask,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
     handleDragCancel,
-  } = useDndHandlers();
+  } = useDndHandlers({ boardSlug });
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

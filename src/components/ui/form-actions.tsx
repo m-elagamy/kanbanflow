@@ -1,15 +1,19 @@
 import { Loader } from "lucide-react";
-import type { ActionMode } from "@/lib/types";
+import type { formOperationMode } from "@/lib/types";
 import { Button } from "./button";
 import { DialogClose } from "./dialog";
 
-export default function FormActions({
-  isPending,
-  mode,
-}: {
+type FormActionsProps = {
+  isFormInvalid?: boolean;
   isPending: boolean;
-  mode?: ActionMode;
-}) {
+  formOperationMode: formOperationMode;
+};
+
+export default function FormActions({
+  isFormInvalid,
+  isPending,
+  formOperationMode,
+}: Readonly<FormActionsProps>) {
   return (
     <div className="flex items-center justify-end gap-2">
       <DialogClose asChild>
@@ -17,9 +21,13 @@ export default function FormActions({
           Close
         </Button>
       </DialogClose>
-      <Button type="submit" className="!mt-0 px-2" disabled={isPending}>
+      <Button
+        type="submit"
+        className="!mt-0 px-2"
+        disabled={isFormInvalid || isPending}
+      >
         {isPending && <Loader className="animate-spin" aria-hidden />}
-        {mode === "create" ? "Create" : "Save"}
+        {formOperationMode === "create" ? "Create" : "Save"}
       </Button>
     </div>
   );

@@ -10,4 +10,4 @@ export const boardSchema = z.object({
   description: z.string().trim().optional().nullish(),
 });
 
-export type BoardCreationForm = z.infer<typeof boardSchema>;
+export type BoardFormSchema = z.infer<typeof boardSchema>;

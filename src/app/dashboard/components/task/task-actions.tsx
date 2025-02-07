@@ -17,11 +17,16 @@ import { deleteTaskAction } from "@/actions/task";
 type TaskActionsProps = {
   task: Task;
   columnId: string;
+  boardSlug?: string;
 };
 
-export default function TaskActions({ task, columnId }: TaskActionsProps) {
+export default function TaskActions({
+  task,
+  columnId,
+  boardSlug,
+}: TaskActionsProps) {
   const handleDelete = async () => {
-    await deleteTaskAction(task.id);
+    await deleteTaskAction(task.id, boardSlug ?? "");
     toast.success("Task was deleted successfully!");
   };
 

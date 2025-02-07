@@ -1,26 +1,26 @@
+import { useShallow } from "zustand/react/shallow";
+import { useDroppable } from "@dnd-kit/core";
+import { Column } from "@prisma/client";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useDroppable } from "@dnd-kit/core";
-import { useShallow } from "zustand/react/shallow";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { useKanbanStore } from "@/stores/kanban";
+
 import ColumnHeader from "./column-header";
 import NoTasksMessage from "../task/no-tasks-message";
 import TaskCard from "../task/task-card";
-import { Column } from "@prisma/client";
-import { useKanbanStore } from "@/stores/kanban";
 
-const ColumnCard = ({
-  column,
-  boardTitle,
-}: {
+type ColumnCardProps = {
   column: Column;
-  boardTitle: string;
-}) => {
+  boardSlug: string;
+};
+
+const ColumnCard = ({ column, boardSlug }: ColumnCardProps) => {
   const tasks = useKanbanStore(
-    useShallow((state) => state.getFilteredTasks(boardTitle, column.id)),
+    useShallow((state) => state.getFilteredTasks(boardSlug, column.id)),
   );
 
   const { setNodeRef, isOver } = useDroppable({
@@ -41,7 +41,7 @@ const ColumnCard = ({
       <ColumnHeader
         column={column}
         tasksCount={tasks.length}
-        boardTitle={boardTitle}
+        boardSlug={boardSlug}
       />
       <CardContent className="flex-grow space-y-2 overflow-y-auto p-3">
         {tasks?.length === 0 ? (
@@ -52,7 +52,12 @@ const ColumnCard = ({
             strategy={verticalListSortingStrategy}
           >
             {tasks?.map((task) => (
-              <TaskCard key={task.id} task={task} columnId={column.id} />
+              <TaskCard
+                key={task.id}
+                task={task}
+                columnId={column.id}
+                boardSlug={boardSlug}
+              />
             ))}
           </SortableContext>
         )}

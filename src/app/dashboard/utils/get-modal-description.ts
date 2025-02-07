@@ -1,7 +1,10 @@
-import type { ActionMode, ModalType } from "@/lib/types";
+import type { formOperationMode, ModalType } from "@/lib/types";
 
-export const getModalDescription = (type: ModalType, mode: ActionMode) => {
-  const descriptions: Record<ModalType, Record<ActionMode, string>> = {
+export const getModalDescription = (
+  type: ModalType,
+  mode: formOperationMode,
+) => {
+  const descriptions: Record<ModalType, Record<formOperationMode, string>> = {
     board: {
       create: "Set up your board with a name, description, and template.",
       edit: "Modify the board details below.",

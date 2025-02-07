@@ -1,14 +1,15 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import BoardForm from "./board-form";
 import type { Board } from "@prisma/client";
+
+import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/modal";
-import { getInitialState } from "@/utils/board";
-import { getModalTitle } from "../../utils/get-modal-title";
-import { getModalDescription } from "../../utils/get-modal-description";
 import { useModalStore } from "@/stores/modal";
 import type { ButtonVariants } from "@/lib/types";
+
+import BoardForm from "./board-form";
+import { getModalTitle } from "../../utils/get-modal-title";
+import { getModalDescription } from "../../utils/get-modal-description";
 
 type BoardModalProps = {
   mode: "create" | "edit";
@@ -18,8 +19,6 @@ type BoardModalProps = {
 };
 
 const BoardModal = ({ mode, board, trigger, variant }: BoardModalProps) => {
-  const initialState = getInitialState(mode, board);
-
   const openModal = useModalStore((state) => state.openModal);
 
   const modalId = board ? `board-${board.id}` : "new-board";
@@ -42,7 +41,17 @@ const BoardModal = ({ mode, board, trigger, variant }: BoardModalProps) => {
         modalType="board"
         modalId={modalId}
       >
-        <BoardForm mode={mode} initialState={initialState} modalId={modalId} />
+        <BoardForm
+          formOperationMode={mode}
+          modalId={modalId}
+          initialState={{
+            boardId: board?.id,
+            fields: {
+              title: board?.title ?? "",
+              description: board?.description ?? "",
+            },
+          }}
+        />
       </Modal>
     </>
   );

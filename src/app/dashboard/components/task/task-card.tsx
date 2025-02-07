@@ -14,9 +14,15 @@ type TaskCardProps = {
   task: Task;
   columnId?: string | null;
   isDragging?: boolean;
+  boardSlug?: string;
 };
 
-const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
+const TaskCard = ({
+  task,
+  columnId,
+  boardSlug,
+  isDragging = false,
+}: TaskCardProps) => {
   const [isDropped, setIsDropped] = useState(false);
 
   const {
@@ -80,7 +86,13 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
               <Calendar size={12} />
               {formatDate(new Date().toLocaleDateString())}
             </p>
-            {columnId && <TaskActions task={task} columnId={columnId} />}
+            {columnId && (
+              <TaskActions
+                task={task}
+                columnId={columnId}
+                boardSlug={boardSlug}
+              />
+            )}
           </div>
         </div>
       </div>

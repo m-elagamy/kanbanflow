@@ -4,14 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Clipboard } from "lucide-react";
 
+import type { Board } from "@prisma/client";
+import BoardActions from "@/app/dashboard/components/board/board-actions";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { slugify } from "@/utils/slugify";
-import type { Board } from "@prisma/client";
-import BoardActions from "@/app/dashboard/components/board/board-actions";
 
 type BoardsListProps = {
   boards: Omit<Board, "userId">[];
@@ -23,8 +22,8 @@ export default function BoardsList({ boards }: BoardsListProps) {
   return (
     <SidebarMenu>
       {boards?.map((board) => {
-        const isActive = pathname === `/dashboard/${slugify(board.title)}`;
-        const href = `/dashboard/${slugify(board.title)}`;
+        const isActive = pathname === `/dashboard/${board.slug}`;
+        const href = `/dashboard/${board.slug}`;
         return (
           <SidebarMenuItem key={board.id} className="flex">
             <SidebarMenuButton

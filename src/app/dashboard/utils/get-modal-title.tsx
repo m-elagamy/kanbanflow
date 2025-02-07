@@ -1,9 +1,9 @@
-import type { ActionMode, ModalType } from "@/lib/types";
+import type { formOperationMode, ModalType } from "@/lib/types";
 import { CirclePlus, Edit, type LucideIcon } from "lucide-react";
 
 const modalTitles: Record<
   ModalType,
-  Record<ActionMode, { icon: LucideIcon; text: string }>
+  Record<formOperationMode, { icon: LucideIcon; text: string }>
 > = {
   task: {
     create: { icon: CirclePlus, text: "New Task" },
@@ -15,7 +15,7 @@ const modalTitles: Record<
   },
 };
 
-export const getModalTitle = (type: ModalType, mode: ActionMode) => {
+export const getModalTitle = (type: ModalType, mode: formOperationMode) => {
   const { icon: Icon, text } = modalTitles[type]?.[mode] || {
     icon: null,
     text: "New Item",

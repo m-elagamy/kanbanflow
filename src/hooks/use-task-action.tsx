@@ -1,30 +1,104 @@
-import { addTaskSchema } from "@/schemas/task";
-import getTaskAction from "@/utils/get-task-action";
-import type {
-  CreateTaskActionState,
-  EditTaskActionState,
-} from "@/lib/types/task";
-import { useAction } from "./use-action";
-import type { ActionMode } from "@/lib/types";
+import { useActionState, useEffect, useRef, useState } from "react";
 
-type UseTaskAction = {
-  initialState: CreateTaskActionState | EditTaskActionState;
-  actionMode: ActionMode;
+import { createTaskAction, updateTaskAction } from "@/actions/task";
+import validateFormData from "@/app/dashboard/utils/validate-form-data";
+import checkFormErrors from "@/app/dashboard/utils/check-form-errors";
+import type { TaskActionState } from "@/lib/types/task";
+import processFormData from "@/app/dashboard/utils/process-form-data";
+import handleValidationErrors from "@/app/dashboard/utils/handle-validation-errors";
+import { taskSchema, type TaskSchema } from "@/schemas/task";
+
+import useAutoFocusOnError from "./use-auto-focus-on-error";
+import useClearError from "./use-clear-error";
+import { useModalStore } from "@/stores/modal";
+
+type UseTaskActionProps = {
+  initialState: TaskActionState;
+  isEditMode: boolean;
   modalId: string;
 };
 
-export function useTaskAction({
+type TaskTitle = Pick<TaskSchema, "title">;
+
+export default function useTaskAction({
   initialState,
-  actionMode,
+  isEditMode,
   modalId,
-}: UseTaskAction) {
-  return useAction({
-    initialState,
-    actionMode,
-    getAction: getTaskAction,
-    schema: addTaskSchema,
-    fields: ["title"],
-    modalType: "task",
-    modalId,
+}: UseTaskActionProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [requestId, setRequestId] = useState(0);
+
+  const { errors, setErrors, clearError } = useClearError<TaskTitle>();
+  const closeModal = useModalStore((state) => state.closeModal);
+
+  useAutoFocusOnError(errors, inputRef);
+
+  const isFormInvalid = checkFormErrors(errors);
+
+  const [state, formAction, isPending] = useActionState(
+    isEditMode ? updateTaskAction : createTaskAction,
+    {
+      success: false,
+      message: "",
+    },
+  );
+
+  const [taskFormData, setTaskFormData] = useState<TaskSchema>({
+    title: initialState.fields?.title ?? "",
+    description: initialState.fields?.description ?? "",
+    priority: initialState.fields?.priority ?? "medium",
   });
+
+  const handleAction = (formData: FormData) => {
+    const processedData = processFormData(formData);
+
+    const schema = taskSchema.pick({ title: true });
+
+    const validationResult = validateFormData(formData, schema);
+
+    if (!validationResult.success) {
+      handleValidationErrors(
+        validationResult.error.flatten().fieldErrors,
+        setErrors,
+      );
+      setTaskFormData(processedData as TaskSchema);
+      return;
+    }
+
+    setRequestId((prev) => prev + 1);
+
+    formAction(formData);
+
+    setTaskFormData({
+      title: "",
+      description: "",
+      priority: "medium",
+    });
+  };
+
+  useEffect(() => {
+    if (!state.success && state.message) {
+      setErrors((prev) => ({
+        ...prev,
+        serverError: state.message ?? "",
+      }));
+    }
+  }, [state.success, state.message, setErrors, requestId]);
+
+  useEffect(() => {
+    if (state.success) {
+      closeModal("task", modalId);
+    }
+  }, [state.success, modalId, closeModal]);
+
+  return {
+    handleAction,
+    state,
+    isPending,
+    isFormInvalid,
+    inputRef,
+    taskFormData,
+    errors,
+    clearError,
+  };
 }

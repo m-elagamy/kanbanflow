@@ -10,15 +10,17 @@ import { Column } from "@prisma/client";
 import { deleteColumnAction } from "@/actions/column";
 import ColumnActions from "./column-actions";
 
+type ColumnHeaderProps = {
+  tasksCount: number;
+  column: Column;
+  boardSlug: string;
+};
+
 export default function ColumnHeader({
   tasksCount,
   column,
-  boardTitle,
-}: {
-  tasksCount: number;
-  column: Column;
-  boardTitle: string;
-}) {
+  boardSlug,
+}: ColumnHeaderProps) {
   const [showAlertConfirmation, setShowAlertConfirmation] = useState(false);
 
   const [, formAction, isPending] = useActionState(deleteColumnAction, {
@@ -55,7 +57,7 @@ export default function ColumnHeader({
           columnTitle={columnTitle}
           tasksCount={tasksCount}
           setShowAlertConfirmation={setShowAlertConfirmation}
-          boardTitle={boardTitle}
+          boardSlug={boardSlug}
         />
       </CardHeader>
 
@@ -67,7 +69,7 @@ export default function ColumnHeader({
         formAction={formAction}
         isPending={isPending}
         columnId={columnId}
-        boardTitle={boardTitle}
+        boardSlug={boardSlug}
         columnConfirmation
       />
     </>

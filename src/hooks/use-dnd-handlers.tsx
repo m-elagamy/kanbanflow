@@ -8,7 +8,7 @@ import type {
 } from "@dnd-kit/core";
 import { debounce } from "@/utils/debounce";
 
-export const useDndHandlers = () => {
+export const useDndHandlers = ({ boardSlug }: { boardSlug?: string }) => {
   const {
     columns,
     moveTaskBetweenColumns,
@@ -102,6 +102,7 @@ export const useDndHandlers = () => {
       fromColumn.id,
       toColumn.id,
       updatedTaskOrder,
+      boardSlug,
     );
 
     setActiveTask(null);

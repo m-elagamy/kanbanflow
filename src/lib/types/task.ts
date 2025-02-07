@@ -1,6 +1,5 @@
-import type { AddTask } from "@/schemas/task";
+import type { TaskSchema } from "@/schemas/task";
 import type { Priority } from "@prisma/client";
-import type { z } from "zod";
 
 export type Task = {
   id: string;
@@ -12,20 +11,12 @@ export type Task = {
   tag: string[];
 };
 
-export type CreateTaskActionState = {
+export type TaskActionState = {
   success: boolean;
   message: string;
-  errors?: z.ZodFormattedError<Pick<AddTask, "title">>;
-  fields?: Partial<AddTask> & { columnId?: string; taskId?: string };
-  boardSlug?: string;
-  isUpdating?: boolean;
-};
-
-export type EditTaskActionState = {
-  success: boolean;
-  message: string;
-  errors?: z.ZodFormattedError<Pick<AddTask, "title">>;
-  fields?: Partial<AddTask> & { columnId?: string; taskId?: string };
+  taskId: string;
+  columnId: string;
+  fields?: Partial<TaskSchema>;
   boardSlug?: string;
   isUpdating?: boolean;
 };

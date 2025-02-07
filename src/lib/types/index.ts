@@ -1,27 +1,15 @@
-import type { z } from "zod";
-import type { BoardCreationForm } from "@/schemas/board";
+import type { BoardFormSchema } from "@/schemas/board";
 
-export type CreateBoardActionState = {
+export type BoardActionState = Partial<{
+  boardId: string;
+  boardSlug: string;
   success: boolean;
   message: string;
-  boardSlug?: string;
-  errors?: z.ZodFormattedError<BoardCreationForm>;
-  fields?: Partial<BoardCreationForm> & { boardId?: string };
-  isUpdating?: boolean;
-};
+  fields?: Partial<BoardFormSchema>;
+  isUpdating: boolean;
+}>;
 
-export type EditBoardActionState = {
-  success: boolean;
-  message: string;
-  boardSlug?: string;
-  errors?: z.ZodFormattedError<
-    Pick<BoardCreationForm, "title" | "description">
-  >;
-  fields?: Partial<BoardCreationForm> & { boardId?: string };
-  isUpdating?: boolean;
-};
-
-export type ActionMode = "create" | "edit";
+export type formOperationMode = "create" | "edit";
 
 export type ModalType = "task" | "board";
 
@@ -36,3 +24,8 @@ export type ButtonVariants =
   | "ghost"
   | null
   | undefined;
+
+export type FormErrors<T> = {
+  clientErrors: Partial<Record<keyof T, string>>;
+  serverError: string;
+};

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const addTaskSchema = z.object({
+export const taskSchema = z.object({
   title: z
     .string()
     .min(3, "Task name must be at least 3 characters")
@@ -9,4 +9,4 @@ export const addTaskSchema = z.object({
   priority: z.enum(["low", "medium", "high"]).default("medium"),
 });
 
-export type AddTask = z.infer<typeof addTaskSchema>;
+export type TaskSchema = z.infer<typeof taskSchema>;

@@ -10,7 +10,7 @@ export async function createColumnAction(
   formData: FormData,
 ): Promise<ActionResult<Column>> {
   const boardId = formData.get("boardId") as string;
-  const boardTitle = formData.get("boardTitle") as string;
+  const boardSlug = formData.get("boardSlug") as string;
   const columnTitle = formData.get("status") as string;
   const result = await createColumn(boardId, columnTitle);
 
@@ -21,7 +21,7 @@ export async function createColumnAction(
     };
   }
 
-  revalidatePath(`/dashboard/${boardTitle}`, "page");
+  revalidatePath(`/dashboard/${boardSlug}`, "page");
 
   return {
     success: true,
@@ -31,7 +31,7 @@ export async function createColumnAction(
 
 export async function updateColumnAction(
   columnId: string,
-  boardTitle: string,
+  boardSlug: string,
   data: Partial<Pick<Column, "title">>,
 ): Promise<ActionResult<Column>> {
   const updatedColumn = await updateColumn(columnId, data);
@@ -43,7 +43,7 @@ export async function updateColumnAction(
     };
   }
 
-  revalidatePath(`/dashboard/${boardTitle}`, "page");
+  revalidatePath(`/dashboard/${boardSlug}`, "page");
 
   return {
     success: true,
@@ -57,7 +57,7 @@ export async function deleteColumnAction(
   formData: FormData,
 ): Promise<ActionResult<Column>> {
   const columnId = formData.get("columnId") as string;
-  const boardTitle = formData.get("boardTitle") as string;
+  const boardSlug = formData.get("boardSlug") as string;
   const result = await deleteColumn(columnId);
 
   if (!result) {
@@ -67,7 +67,7 @@ export async function deleteColumnAction(
     };
   }
 
-  revalidatePath(`/dashboard/${boardTitle}`, "page");
+  revalidatePath(`/dashboard/${boardSlug}`, "page");
 
   return {
     success: true,
