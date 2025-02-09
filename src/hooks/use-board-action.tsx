@@ -1,3 +1,5 @@
+"use client";
+
 import { useActionState, useEffect, useRef, useState } from "react";
 
 import { createBoardAction, updateBoardAction } from "@/actions/board";
@@ -14,7 +16,6 @@ import useClearError from "./use-clear-error";
 type UseBoardActionProps = {
   initialState: BoardActionState;
   isEditMode: boolean;
-  modalId?: string;
 };
 
 export type BoardFormWithoutDescription = Omit<BoardFormSchema, "description">;

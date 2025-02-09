@@ -12,21 +12,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import AlertConfirmation from "../../../../components/ui/alert-confirmation";
-import BoardModal from "./board-modal";
 import { deleteBoardAction } from "@/actions/board";
 import { SidebarMenuAction, useSidebar } from "@/components/ui/sidebar";
+import BoardModal from "./board-modal";
 
 type BoardActionsProps = {
-  id: string;
-  title: string;
-  description: string | null;
+  boardId: string;
+  boardTitle: string;
+  boardDescription: string | null;
   isSidebarTrigger?: boolean;
 };
 
 export default function BoardActions({
-  id,
-  title,
-  description,
+  boardId,
+  boardTitle,
+  boardDescription,
   isSidebarTrigger,
 }: BoardActionsProps) {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -36,7 +36,7 @@ export default function BoardActions({
     success: false,
     message: "",
     error: "",
-    fields: { boardId: id },
+    fields: { boardId },
   });
 
   return (
@@ -64,17 +64,17 @@ export default function BoardActions({
         <DropdownMenuLabel>Board Actions:</DropdownMenuLabel>
         <BoardModal
           mode="edit"
+          variant="ghost"
           trigger={
             <DropdownMenuLabel className="w-full cursor-default justify-start rounded p-2">
               <SquarePen size={16} /> Edit
             </DropdownMenuLabel>
           }
           board={{
-            id,
-            title,
-            description,
+            id: boardId,
+            title: boardTitle,
+            description: boardDescription,
           }}
-          variant="ghost"
         />
         <DropdownMenuItem
           className="h-[30px] p-2 !py-1 text-destructive focus:text-destructive"
@@ -90,7 +90,7 @@ export default function BoardActions({
         description="This action will permanently remove the board and all its data."
         formAction={formAction}
         isPending={isPending}
-        boardId={id}
+        boardId={boardId}
       />
     </DropdownMenu>
   );

@@ -37,10 +37,10 @@ export default function BoardsList({ boards }: BoardsListProps) {
               </Link>
             </SidebarMenuButton>
             <BoardActions
+              boardId={board.id}
+              boardTitle={board.title}
+              boardDescription={board.description}
               isSidebarTrigger
-              id={board.id}
-              title={board.title}
-              description={board.description}
             />
           </SidebarMenuItem>
         );

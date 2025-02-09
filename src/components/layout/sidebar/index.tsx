@@ -17,7 +17,7 @@ import BoardsList from "./boards-list";
 import { NavUser } from "@/components/layout/sidebar/nav-user";
 import { getAllUserBoardsAction } from "@/actions/user";
 
-export async function WorkspaceSidebar() {
+export async function DashboardSidebar() {
   const { userId } = await auth();
 
   if (!userId) {

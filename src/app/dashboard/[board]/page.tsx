@@ -24,9 +24,10 @@ export default async function Board({ params }: { params: Params }) {
   return (
     <div className="container relative right-3 flex h-full flex-col overflow-hidden p-0 pb-8 md:right-0 md:px-4">
       <BoardHeader
-        id={currentBoard.id}
-        title={currentBoard.title}
-        description={currentBoard.description}
+        boardId={currentBoard.id}
+        boardTitle={currentBoard.title}
+        boardDescription={currentBoard.description}
+        boardSlug={currentBoard.slug}
       />
       <ColumnsWrapper
         columns={currentBoard.columns}

@@ -22,44 +22,41 @@ type ModalProps = {
   title: ReactNode;
   description?: ReactNode;
   children: ReactNode;
-  className?: string;
   modalType: "board" | "task" | "column";
   modalId: string;
+  className?: string;
 };
 
 const Modal = ({
   title,
   description,
   children,
-  className,
   modalType,
   modalId,
+  className = "",
 }: ModalProps) => {
   const { modals, openModal, closeModal } = useModalStore();
-
   const modalKey = `${modalType}-${modalId}`;
-  const isOpen = modals.has(modalKey);
+  const shouldDisplayModal = modals.has(modalKey);
 
-  const handleOpen = () => {
-    openModal(modalType, modalId);
-  };
-
-  const handleClose = () => {
-    closeModal(modalType, modalId);
-  };
+  const handleOpen = () => openModal(modalType, modalId);
+  const handleClose = () => closeModal(modalType, modalId);
 
   useEffect(() => {
-    if (!isOpen) return;
-    return () => closeModal(modalType, modalId);
-  }, [isOpen, closeModal, modalType, modalId]);
+    return () => {
+      if (shouldDisplayModal) {
+        closeModal(modalType, modalId);
+      }
+    };
+  }, [modalType, modalId, closeModal, shouldDisplayModal]);
 
   return (
     <Dialog
-      open={isOpen}
-      onOpenChange={(open) => (open ? handleOpen() : handleClose())}
+      open={shouldDisplayModal}
+      onOpenChange={(isOpen) => (isOpen ? handleOpen() : handleClose())}
     >
-      {isOpen && (
-        <DialogContent className={`rounded-lg ${className ?? ""}`}>
+      {shouldDisplayModal && (
+        <DialogContent className={`rounded-lg ${className}`}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {title}

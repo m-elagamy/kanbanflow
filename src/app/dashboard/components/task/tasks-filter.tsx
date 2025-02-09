@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useKanbanStore, type Priority } from "@/stores/kanban";
 
-export function TaskPriorityFilter({ title }: { title: string }) {
+export function TaskPriorityFilter({ boardSlug }: { boardSlug: string }) {
   const { priorityFilter, setPriorityFilter, resetBoardFilter } =
     useKanbanStore(
       useShallow((state) => ({
@@ -28,15 +28,15 @@ export function TaskPriorityFilter({ title }: { title: string }) {
 
   const handleOnValueChange = (value: Priority | "") => {
     if (value === "") {
-      setPriorityFilter(title, "all");
+      setPriorityFilter(boardSlug, "all");
     } else {
-      setPriorityFilter(title, value);
+      setPriorityFilter(boardSlug, value);
     }
   };
 
   useEffect(() => {
-    resetBoardFilter(title);
-  }, [title, resetBoardFilter]);
+    resetBoardFilter(boardSlug);
+  }, [boardSlug, resetBoardFilter]);
 
   return (
     <Select value={selectValue} onValueChange={handleOnValueChange}>

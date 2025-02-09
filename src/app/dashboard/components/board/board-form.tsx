@@ -1,3 +1,5 @@
+"use client";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import RequiredFieldSymbol from "@/components/ui/required-field-symbol";
@@ -19,13 +21,11 @@ import columnsTemplates from "../../data/columns-templates";
 type BoardFormProps = Readonly<{
   formOperationMode: formOperationMode;
   initialState: BoardActionState;
-  modalId: string;
 }>;
 
 export default function BoardForm({
   formOperationMode,
   initialState,
-  modalId,
 }: BoardFormProps) {
   const isEditMode = formOperationMode === "edit";
 
@@ -38,7 +38,7 @@ export default function BoardForm({
     clearError,
     isFormInvalid,
     inputRef,
-  } = useBoardAction({ initialState, isEditMode, modalId });
+  } = useBoardAction({ initialState, isEditMode });
 
   return (
     <form action={handleAction} className="space-y-4 *:space-y-2">

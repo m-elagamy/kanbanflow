@@ -70,12 +70,6 @@ export const createBoardAction = async (
   }
 
   redirect(`/dashboard/${boardSlug}`);
-
-  // return {
-  //   success: true,
-  //   message: "Board was created successfully",
-  //   boardSlug,
-  // };
 };
 
 export const updateBoardAction = async (
@@ -132,13 +126,6 @@ export const updateBoardAction = async (
   }
 
   redirect(`/dashboard/${boardSlug}`, RedirectType.replace);
-
-  // return {
-  //   success: true,
-  //   message: "Board was updated successfully",
-  //   boardSlug,
-  //   isUpdating: true,
-  // };
 };
 
 export async function deleteBoardAction(

@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, RefObject } from "react";
 
 export default function useAutoFocusOnError(
