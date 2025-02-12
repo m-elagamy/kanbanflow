@@ -43,6 +43,7 @@ const BoardModal = ({ mode, board, trigger, variant }: BoardModalProps) => {
       >
         <BoardForm
           formOperationMode={mode}
+          modalId={modalId}
           initialState={{
             boardId: board?.id,
             fields: {

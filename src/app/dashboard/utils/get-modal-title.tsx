@@ -1,4 +1,5 @@
-import type { formOperationMode, ModalType } from "@/lib/types";
+import type { formOperationMode } from "@/lib/types";
+import type { ModalType } from "@/lib/types/modal";
 import { CirclePlus, Edit, type LucideIcon } from "lucide-react";
 
 const modalTitles: Record<
@@ -12,6 +13,10 @@ const modalTitles: Record<
   board: {
     create: { icon: CirclePlus, text: "New Board" },
     edit: { icon: Edit, text: "Edit Board" },
+  },
+  column: {
+    create: { icon: CirclePlus, text: "New Column" },
+    edit: { icon: Edit, text: "Edit Column" },
   },
 };
 

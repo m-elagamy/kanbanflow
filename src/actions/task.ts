@@ -1,16 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { Task } from "@prisma/client";
-import { taskSchema } from "@/schemas/task";
+import { taskSchema, type TaskSchema } from "@/schemas/task";
 import db from "@/lib/db";
-import { ActionResult } from "@/lib/types";
+import { ServerActionResult } from "@/lib/types";
 import { createTask, updateTask, deleteTask } from "../lib/dal/task";
 
 export const createTaskAction = async (
   _prevState: unknown,
   formData: FormData,
-): Promise<ActionResult<Pick<Task, "title" | "description" | "priority">>> => {
+): Promise<ServerActionResult<TaskSchema>> => {
   const data = Object.fromEntries(formData.entries());
   const validatedData = taskSchema.safeParse(data);
 
@@ -18,7 +17,7 @@ export const createTaskAction = async (
     return {
       success: false,
       message: "Invalid input",
-      data: validatedData.data,
+      fields: validatedData.data,
     };
   }
 
@@ -40,13 +39,13 @@ export const createTaskAction = async (
     return {
       success: false,
       message: `A task with the name "${title}" already exists.`,
-      data: { title, description: description ?? null, priority },
+      fields: { title, description: description ?? "", priority },
     };
   }
 
   const result = await createTask(columnId, title, description, priority);
 
-  if (!result) {
+  if (!result.success) {
     return {
       success: false,
       message: "Failed to create a task.",
@@ -58,14 +57,14 @@ export const createTaskAction = async (
   return {
     success: true,
     message: `Task was added successfully.`,
-    data: { title, description: description ?? null, priority },
+    fields: { title, description: description ?? "", priority },
   };
 };
 
 export async function updateTaskAction(
   _prevState: unknown,
   formData: FormData,
-): Promise<ActionResult<Pick<Task, "title" | "description" | "priority">>> {
+): Promise<ServerActionResult<TaskSchema>> {
   const data = Object.fromEntries(formData.entries());
   const validatedData = taskSchema.safeParse(data);
 
@@ -73,63 +72,82 @@ export async function updateTaskAction(
     return {
       success: false,
       message: "Invalid input",
-      data: validatedData.data,
+      fields: validatedData.data,
     };
   }
 
   const { title, description, priority } = validatedData.data;
-
   const boardSlug = formData.get("boardSlug") as string;
   const columnId = formData.get("columnId") as string;
   const taskId = formData.get("taskId") as string;
 
-  const existingTask = await db.task.findFirst({
-    where: {
-      columnId,
-      title,
-      NOT: { id: taskId },
-    },
-    select: { title: true },
+  const existingTask = await db.task.findUnique({
+    where: { id: taskId },
+    select: { title: true, description: true, priority: true },
   });
 
-  if (existingTask) {
+  if (!existingTask) {
+    return { success: false, message: "Task not found." };
+  }
+
+  const titleChanged = existingTask.title !== title;
+  const descriptionChanged = existingTask.description !== description;
+  const priorityChanged = existingTask.priority !== priority;
+
+  if (!titleChanged && !descriptionChanged && !priorityChanged) {
     return {
       success: false,
-      message: `A task with the name "${title}" already exists.`,
-      data: { title, description: description ?? null, priority },
+      message:
+        "No changes detected. Please update something before submitting.",
+      fields: validatedData.data,
     };
   }
 
-  const result = await updateTask(taskId, {
-    columnId,
-    title,
-    description,
-    priority,
+  if (titleChanged) {
+    const duplicateTask = await db.task.findFirst({
+      where: {
+        columnId,
+        title,
+        NOT: { id: taskId },
+      },
+      select: { title: true },
+    });
+
+    if (duplicateTask) {
+      return {
+        success: false,
+        message: `A task with the name "${title}" already exists.`,
+        fields: { title, description: description ?? "", priority },
+      };
+    }
+  }
+
+  const updatedTask = await updateTask(taskId, {
+    ...(titleChanged && { title }),
+    ...(descriptionChanged && { description }),
+    ...(priorityChanged && { priority }),
   });
 
-  if (!result) {
-    return {
-      success: false,
-      message: "Failed to update the task.",
-    };
+  if (!updatedTask.success) {
+    return { success: false, message: "Failed to update the task." };
   }
 
   revalidatePath(`/dashboard/${boardSlug}`, "page");
 
   return {
     success: true,
-    message: `Task was updated successfully.`,
-    data: { title, description: description ?? null, priority },
+    message: "Task updated successfully.",
+    fields: { title, description: description ?? "", priority },
   };
 }
 
 export async function deleteTaskAction(
   taskId: string,
   boardSlug: string,
-): Promise<ActionResult<Task>> {
+): Promise<ServerActionResult<TaskSchema>> {
   const result = await deleteTask(taskId);
 
-  if (!result) {
+  if (!result.success) {
     return {
       success: false,
       message: "Failed to delete the task.",

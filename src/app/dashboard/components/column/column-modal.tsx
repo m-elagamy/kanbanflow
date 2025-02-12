@@ -1,10 +1,11 @@
 "use client";
 
-import { CirclePlus } from "lucide-react";
 import AddColumnCard from "./add-column-card";
 import ColumnForm from "./column-form";
 import Modal from "@/components/ui/modal";
 import { useModalStore } from "@/stores/modal";
+import { getModalDescription } from "../../utils/get-modal-description";
+import { getModalTitle } from "../../utils/get-modal-title";
 
 type ColumnModalProps = {
   boardId: string;
@@ -22,12 +23,8 @@ const ColumnModal = ({ boardId, boardSlug }: ColumnModalProps) => {
     <>
       <AddColumnCard onClick={handleOnClick} />
       <Modal
-        title={
-          <>
-            <CirclePlus size={16} /> New Column
-          </>
-        }
-        description="Pick a status for your new column like 'To Do' or 'In Progress' to keep your tasks organized."
+        title={getModalTitle("column", "create")}
+        description={getModalDescription("column", "create")}
         modalType="column"
         modalId={modalId}
       >

@@ -24,7 +24,7 @@ export default function TaskActions({
   task,
   columnId,
   boardSlug,
-}: TaskActionsProps) {
+}: Readonly<TaskActionsProps>) {
   const handleDelete = async () => {
     await deleteTaskAction(task.id, boardSlug ?? "");
     toast.success("Task was deleted successfully!");

@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { unauthorized } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 
+import { NavUser } from "@/components/layout/sidebar/nav-user";
+import { getAllUserBoardsAction } from "@/actions/user";
 import {
   Sidebar,
   SidebarContent,
@@ -10,12 +12,11 @@ import {
   SidebarGroupContent,
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
+
 import SidebarTitle from "./sidebar-title";
 import SidebarActions from "./sidebar-actions";
 import SidebarLabel from "./sidebar-label";
 import BoardsList from "./boards-list";
-import { NavUser } from "@/components/layout/sidebar/nav-user";
-import { getAllUserBoardsAction } from "@/actions/user";
 
 export async function DashboardSidebar() {
   const { userId } = await auth();
@@ -24,7 +25,7 @@ export async function DashboardSidebar() {
     unauthorized();
   }
 
-  const userBoards = (await getAllUserBoardsAction(userId)).data;
+  const userBoards = (await getAllUserBoardsAction(userId)).fields;
 
   return (
     <Sidebar collapsible="icon">

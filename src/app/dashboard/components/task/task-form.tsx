@@ -38,9 +38,9 @@ const TaskForm = ({
     isPending,
     taskFormData,
     errors,
-    clearError,
     isFormInvalid,
-    inputRef,
+    formRef,
+    handleFieldChange,
   } = useTaskAction({
     initialState,
     isEditMode,
@@ -48,10 +48,16 @@ const TaskForm = ({
   });
 
   return (
-    <form action={handleAction} className="space-y-4">
+    <form ref={formRef} action={handleAction} className="space-y-4">
+      {errors.serverErrors.generic && (
+        <ErrorMessage id="server-error" className="justify-center">
+          {errors.serverErrors.generic}
+        </ErrorMessage>
+      )}
+
       <section className="space-y-2">
         <Label
-          className={`${errors.clientErrors.title || errors.serverError ? "text-destructive" : ""}`}
+          className={`${errors.clientErrors.title || errors.serverErrors.specific ? "text-destructive" : ""}`}
         >
           What&apos;s the task? <RequiredFieldSymbol />
         </Label>
@@ -71,18 +77,19 @@ const TaskForm = ({
         )}
 
         <Input
-          ref={inputRef}
           name="title"
           placeholder="e.g., Create a stunning new landing page"
-          defaultValue={taskFormData.title || state.data?.title}
-          onChange={() => clearError("title")}
-          aria-invalid={!!errors}
+          defaultValue={taskFormData.title || state.fields?.title}
+          onChange={(e) => handleFieldChange("title", e.target.value)}
+          aria-invalid={
+            !!errors.clientErrors.title || !!errors.serverErrors.specific
+          }
           aria-describedby="title-error"
           aria-required
         />
-        {(errors.clientErrors.title || errors.serverError) && (
+        {(errors.clientErrors.title || errors.serverErrors.specific) && (
           <ErrorMessage id="title-error">
-            {errors.clientErrors.title || errors.serverError}
+            {errors.clientErrors.title || errors.serverErrors.specific}
           </ErrorMessage>
         )}
       </section>
@@ -94,8 +101,9 @@ const TaskForm = ({
           placeholder="e.g., Design a modern, mobile-friendly layout for the homepage"
           className="resize-none"
           defaultValue={
-            (taskFormData.description || state.data?.description) ?? ""
+            (taskFormData.description || state.fields?.description) ?? ""
           }
+          onChange={(e) => handleFieldChange("description", e.target.value)}
         />
       </section>
 
@@ -103,7 +111,8 @@ const TaskForm = ({
         <Label>How urgent is this?</Label>
         <Select
           name="priority"
-          defaultValue={taskFormData.priority || state.data?.priority}
+          defaultValue={taskFormData.priority || state.fields?.priority}
+          onValueChange={(value) => handleFieldChange("priority", value)}
         >
           <SelectTrigger className="*:max-w-[120px]">
             <SelectValue placeholder="Select a Priority" />

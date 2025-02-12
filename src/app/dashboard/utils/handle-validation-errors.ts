@@ -1,21 +1,20 @@
+import type { FormErrors } from "@/lib/types";
+
 const handleValidationErrors = <T extends Record<string, string[] | undefined>>(
   validationErrors: T,
-  onError: (errors: {
-    clientErrors: Record<string, string>;
-    serverError: string;
-  }) => void,
+  onError: (errors: FormErrors<T>) => void,
 ) => {
   const clientErrors = Object.keys(validationErrors).reduce(
     (acc, field) => ({
       ...acc,
       [field]: validationErrors[field]?.at(0) ?? "",
     }),
-    {} as Record<string, string>,
+    {} as Partial<Record<keyof T, string>>,
   );
 
   onError({
     clientErrors,
-    serverError: "",
+    serverErrors: { specific: "", generic: "" },
   });
 };
 

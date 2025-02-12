@@ -11,9 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import AlertConfirmation from "../../../../components/ui/alert-confirmation";
 import { deleteBoardAction } from "@/actions/board";
 import { SidebarMenuAction, useSidebar } from "@/components/ui/sidebar";
+import AlertConfirmation from "../../../../components/ui/alert-confirmation";
 import BoardModal from "./board-modal";
 
 type BoardActionsProps = {
@@ -28,14 +28,13 @@ export default function BoardActions({
   boardTitle,
   boardDescription,
   isSidebarTrigger,
-}: BoardActionsProps) {
+}: Readonly<BoardActionsProps>) {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const { isMobile } = useSidebar();
 
   const [, formAction, isPending] = useActionState(deleteBoardAction, {
     success: false,
     message: "",
-    error: "",
     fields: { boardId },
   });
 

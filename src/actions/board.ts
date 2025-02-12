@@ -1,13 +1,16 @@
 "use server";
 
 import { redirect, RedirectType } from "next/navigation";
+import { revalidatePath } from "next/cache";
+
 import { currentUser } from "@clerk/nextjs/server";
+import type { Board } from "@prisma/client";
+import db from "@/lib/db";
 
 import columnsTemplates from "@/app/dashboard/data/columns-templates";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slugify";
-import db from "@/lib/db";
-import { BoardActionState } from "@/lib/types";
+import { BoardActionState, type ServerActionResult } from "@/lib/types";
 import {
   createBoard,
   deleteBoard,
@@ -35,9 +38,11 @@ export const createBoardAction = async (
 
   const { title, description, template: templateId } = validatedData.data;
 
+  const boardSlug = slugify(title);
+
   const existingBoard = await db.board.findUnique({
     where: {
-      userId_slug: { userId: user.id, slug: slugify(title) },
+      userId_slug: { userId: user.id, slug: boardSlug },
     },
     select: { slug: true },
   });
@@ -46,13 +51,11 @@ export const createBoardAction = async (
     return {
       success: false,
       message: `A board with the name "${title}" already exists.`,
-      fields: data as BoardFormSchema,
+      fields: validatedData.data,
     };
   }
 
   const template = columnsTemplates.find((t) => t.id === templateId);
-
-  const boardSlug = slugify(title);
 
   const result = await createBoard(
     user.id,
@@ -62,7 +65,7 @@ export const createBoardAction = async (
     template?.columns,
   );
 
-  if (!result) {
+  if (!result.success) {
     return {
       success: false,
       message: "Failed to create board",
@@ -93,50 +96,67 @@ export const updateBoardAction = async (
   const { title, description } = validatedData.data;
   const boardId = formData.get("boardId") as string;
 
-  const boardSlug = slugify(title);
+  const existingBoard = await db.board.findUnique({
+    where: { id: boardId, userId: user.id },
+    select: { title: true, description: true },
+  });
 
-  const existingBoard = await db.board.findFirst({
+  if (!existingBoard) {
+    return { success: false, message: "Board not found." };
+  }
+
+  const titleChanged = existingBoard.title !== title;
+  const descriptionChanged = existingBoard.description !== description;
+
+  if (!titleChanged && !descriptionChanged) {
+    return {
+      success: false,
+      message:
+        "No changes detected. Please update something before submitting.",
+      fields: validatedData.data,
+    };
+  }
+
+  const newSlug = slugify(title);
+
+  const updateData: Partial<Pick<Board, "title" | "description" | "slug">> = {
+    ...(titleChanged && { title, slug: newSlug }),
+    ...(descriptionChanged && { description }),
+  };
+
+  const duplicateBoard = await db.board.findFirst({
     where: {
       userId: user.id,
-      slug: boardSlug,
+      slug: newSlug,
       NOT: { id: boardId },
     },
     select: { title: true },
   });
 
-  if (existingBoard) {
+  if (duplicateBoard) {
     return {
       success: false,
       message: `A board with the name "${title}" already exists.`,
-      fields: data as BoardFormSchema,
+      fields: validatedData.data,
     };
   }
 
-  const result = await updateBoard(boardId, {
-    title,
-    description,
-    slug: boardSlug,
-  });
+  const result = await updateBoard(boardId, updateData);
 
-  if (!result) {
-    return {
-      success: false,
-      message: "Failed to update board",
-    };
+  if (!result.success) {
+    return { success: false, message: "Failed to update board" };
   }
 
-  redirect(`/dashboard/${boardSlug}`, RedirectType.replace);
+  if (titleChanged) redirect(`/dashboard/${newSlug}`, RedirectType.replace);
+
+  revalidatePath(`/dashboard/${newSlug}`, "page");
+  return { success: true, message: "Board updated successfully" };
 };
 
 export async function deleteBoardAction(
   _prevState: unknown,
   formData: FormData,
-): Promise<{
-  success: boolean;
-  message?: string;
-  error?: string;
-  fields?: { boardId: string };
-}> {
+): Promise<ServerActionResult<{ boardId: string }>> {
   try {
     const boardId = formData.get("boardId") as string;
     await deleteBoard(boardId);
@@ -147,7 +167,7 @@ export async function deleteBoardAction(
     };
   } catch (error) {
     console.error("Error deleting board:", error);
-    return { success: false, error: "Failed to delete board" };
+    return { success: false, message: "Failed to delete board" };
   } finally {
     redirect("/dashboard");
   }
@@ -156,7 +176,7 @@ export async function deleteBoardAction(
 export async function getBoardBySlugAction(userId: string, slug: string) {
   const result = await getBoardBySlug(userId, slug);
 
-  if (!result) {
+  if (!result.success) {
     return {
       success: false,
       message: "Board not found",

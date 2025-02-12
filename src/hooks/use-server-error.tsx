@@ -1,8 +1,8 @@
 import { useEffect, type Dispatch, type SetStateAction } from "react";
-import type { FormErrors } from "@/lib/types";
+import type { ActionStateResponse, FormErrors } from "@/lib/types";
 
-export function useServerError<T extends FormErrors<T>>(
-  state: { success: boolean; message: string },
+export function useServerError<T>(
+  state: ActionStateResponse,
   setErrors: Dispatch<SetStateAction<FormErrors<T>>>,
   requestId: number,
 ): void {
@@ -10,7 +10,10 @@ export function useServerError<T extends FormErrors<T>>(
     if (!state.success && state.message) {
       setErrors((prev) => ({
         ...prev,
-        serverError: state.message ?? "",
+        serverErrors: {
+          specific: state.message ?? "",
+          generic: "",
+        },
       }));
     }
   }, [state.success, state.message, setErrors, requestId]);

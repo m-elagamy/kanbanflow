@@ -49,11 +49,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider publishableKey={publishableKey}>
-      <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${inter.variable} flex min-h-dvh flex-col font-sans antialiased`}
-        >
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${inter.variable} flex min-h-dvh flex-col font-sans antialiased`}
+      >
+        <ClerkProvider publishableKey={publishableKey}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -63,8 +63,8 @@ export default function RootLayout({
             <Toaster />
             <SpeedInsights />
           </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

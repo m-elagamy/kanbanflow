@@ -1,16 +1,11 @@
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
-import { createTaskAction, updateTaskAction } from "@/actions/task";
-import validateFormData from "@/app/dashboard/utils/validate-form-data";
-import checkFormErrors from "@/app/dashboard/utils/check-form-errors";
-import type { TaskActionState } from "@/lib/types";
-import processFormData from "@/app/dashboard/utils/process-form-data";
-import handleValidationErrors from "@/app/dashboard/utils/handle-validation-errors";
-import { taskSchema, type TaskSchema } from "@/schemas/task";
-
-import useAutoFocusOnError from "./use-auto-focus-on-error";
-import useClearError from "./use-clear-error";
+import type { ActionStateResponse, TaskActionState } from "@/lib/types";
 import { useModalStore } from "@/stores/modal";
+import { type TaskSchema } from "@/schemas/task";
+
+import useModalClose from "./use-modal-close";
+import useForm from "./use-form";
 
 type UseTaskActionProps = {
   initialState: TaskActionState;
@@ -18,87 +13,80 @@ type UseTaskActionProps = {
   modalId: string;
 };
 
-type TaskTitle = Pick<TaskSchema, "title">;
-
 export default function useTaskAction({
   initialState,
   isEditMode,
   modalId,
 }: UseTaskActionProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [requestId, setRequestId] = useState(0);
+  const [state, setState] = useState<ActionStateResponse>({
+    success: false,
+    message: "",
+  });
 
-  const { errors, setErrors, clearError } = useClearError<TaskTitle>();
+  const {
+    actions,
+    formData: taskFormData,
+    handleAction,
+    clearError,
+    errors,
+    formRef,
+    handleFieldChange,
+    isInvalid: isFormInvalid,
+    schemas,
+  } = useForm<TaskSchema>({
+    initialState: {
+      title: initialState.fields?.title ?? "",
+      description: initialState.fields?.description ?? "",
+      priority: initialState.fields?.priority ?? "medium",
+    },
+    isEditMode,
+    state,
+  });
+
   const closeModal = useModalStore((state) => state.closeModal);
+  const closeModalOnSuccess = () => closeModal("task", modalId);
 
-  useAutoFocusOnError(errors, inputRef);
-
-  const isFormInvalid = checkFormErrors(errors);
-
-  const [state, formAction, isPending] = useActionState(
-    isEditMode ? updateTaskAction : createTaskAction,
+  const [actionState, formAction, isPending] = useActionState(
+    actions.taskAction,
     {
       success: false,
       message: "",
     },
   );
 
-  const [taskFormData, setTaskFormData] = useState<TaskSchema>({
-    title: initialState.fields?.title ?? "",
-    description: initialState.fields?.description ?? "",
-    priority: initialState.fields?.priority ?? "medium",
-  });
+  useModalClose(
+    { success: state.success },
+    closeModalOnSuccess,
+    "task",
+    modalId,
+  );
 
-  const handleAction = (formData: FormData) => {
-    const processedData = processFormData(formData);
+  const resetValues: TaskSchema = {
+    title: "",
+    description: "",
+    priority: "medium",
+  };
 
-    const schema = taskSchema.pick({ title: true });
-
-    const validationResult = validateFormData(formData, schema);
-
-    if (!validationResult.success) {
-      handleValidationErrors(
-        validationResult.error.flatten().fieldErrors,
-        setErrors,
-      );
-      setTaskFormData(processedData as TaskSchema);
-      return;
-    }
-
-    setRequestId((prev) => prev + 1);
-
-    formAction(formData);
-
-    setTaskFormData({
-      title: "",
-      description: "",
-      priority: "medium",
-    });
+  const handleTaskAction = (formData: FormData) => {
+    handleAction(formData, schemas.taskSchema, formAction, resetValues);
   };
 
   useEffect(() => {
-    if (!state.success && state.message) {
-      setErrors((prev) => ({
-        ...prev,
-        serverError: state.message ?? "",
-      }));
-    }
-  }, [state.success, state.message, setErrors, requestId]);
-
-  useEffect(() => {
-    if (state.success) {
-      closeModal("task", modalId);
-    }
-  }, [state.success, modalId, closeModal]);
+    setState({
+      success: actionState.success,
+      message: actionState.message,
+    });
+  }, [actionState.success, actionState.message]);
 
   return {
-    handleAction,
-    state,
+    handleAction: handleTaskAction,
+    state: actionState,
     isPending,
     isFormInvalid,
-    inputRef,
+    formRef,
     taskFormData,
     errors,
     clearError,
+    handleFieldChange,
   };
 }

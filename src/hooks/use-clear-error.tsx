@@ -1,24 +1,30 @@
 import { useState } from "react";
-import { debounce } from "@/utils/debounce";
 import type { FormErrors } from "@/lib/types";
 
 export default function useClearError<T>() {
   const [errors, setErrors] = useState<FormErrors<T>>({
     clientErrors: {} as Partial<Record<keyof T, string>>,
-    serverError: "",
+    serverErrors: { specific: "", generic: "" },
   });
 
-  const clearError = debounce((name: keyof T) => {
+  const clearError = (field: keyof T) => {
     setErrors((prev) => {
-      if (!prev.clientErrors[name] && !prev.serverError) return prev;
+      const { clientErrors, serverErrors } = prev;
+
+      if (
+        !clientErrors[field] &&
+        !serverErrors.generic &&
+        !serverErrors.specific
+      )
+        return prev;
 
       return {
         ...prev,
-        clientErrors: { ...prev.clientErrors, [name]: "" },
-        serverError: "",
+        clientErrors: { ...clientErrors, [field]: "" },
+        serverErrors: { specific: "", generic: "" },
       };
     });
-  }, 300);
+  };
 
   return { errors, setErrors, clearError };
 }

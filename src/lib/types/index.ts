@@ -7,7 +7,6 @@ export type BoardActionState = Partial<{
   success: boolean;
   message: string;
   fields?: Partial<BoardFormSchema>;
-  isUpdating: boolean;
 }>;
 
 export type TaskActionState = {
@@ -17,14 +16,15 @@ export type TaskActionState = {
   columnId: string;
   fields?: Partial<TaskSchema>;
   boardSlug?: string;
-  isUpdating?: boolean;
 };
 
 export type formOperationMode = "create" | "edit";
 
-export type ModalType = "task" | "board";
-
-export type ActionResult<T> = { success: boolean; message: string; data?: T };
+export type ServerActionResult<T> = {
+  success: boolean;
+  message: string;
+  fields?: T;
+};
 
 export type ButtonVariants =
   | "default"
@@ -36,7 +36,17 @@ export type ButtonVariants =
   | null
   | undefined;
 
+export type ServerErrors = {
+  specific: string | null;
+  generic: string | null;
+};
+
 export type FormErrors<T> = {
   clientErrors: Partial<Record<keyof T, string>>;
-  serverError: string;
+  serverErrors: ServerErrors;
+};
+
+export type ActionStateResponse = {
+  success?: boolean;
+  message?: string;
 };

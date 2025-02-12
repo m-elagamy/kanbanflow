@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 export default function useModalClose(
-  state: { success: boolean },
+  state: { success?: boolean },
   closeModal: (modalType: string, modalId: string) => void,
   modalType: string,
   modalId: string,

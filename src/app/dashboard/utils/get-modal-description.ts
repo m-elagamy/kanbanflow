@@ -1,4 +1,5 @@
-import type { formOperationMode, ModalType } from "@/lib/types";
+import type { formOperationMode } from "@/lib/types";
+import type { ModalType } from "@/lib/types/modal";
 
 export const getModalDescription = (
   type: ModalType,
@@ -13,6 +14,11 @@ export const getModalDescription = (
       create:
         "Create a task to outline your work and track progress effortlessly.",
       edit: "Refine your task details to better align with your goals.",
+    },
+    column: {
+      create:
+        "Pick a status for your new column to manage tasks and prioritize your work efficiently.",
+      edit: "Refine the column details to better align with your workflow.",
     },
   };
   return descriptions[type]?.[mode] || "";

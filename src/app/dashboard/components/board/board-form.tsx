@@ -21,11 +21,13 @@ import columnsTemplates from "../../data/columns-templates";
 type BoardFormProps = Readonly<{
   formOperationMode: formOperationMode;
   initialState: BoardActionState;
+  modalId: string;
 }>;
 
 export default function BoardForm({
   formOperationMode,
   initialState,
+  modalId,
 }: BoardFormProps) {
   const isEditMode = formOperationMode === "edit";
 
@@ -37,15 +39,22 @@ export default function BoardForm({
     errors,
     clearError,
     isFormInvalid,
-    inputRef,
-  } = useBoardAction({ initialState, isEditMode });
+    handleFieldChange,
+    formRef,
+  } = useBoardAction({ initialState, isEditMode, modalId });
 
   return (
-    <form action={handleAction} className="space-y-4 *:space-y-2">
+    <form ref={formRef} action={handleAction} className="space-y-4 *:space-y-2">
+      {errors.serverErrors.generic && (
+        <ErrorMessage id="server-error" className="justify-center">
+          {errors.serverErrors.generic}
+        </ErrorMessage>
+      )}
+
       <div>
         <Label
           htmlFor="title"
-          className={`${errors.clientErrors.title || errors.serverError ? "text-destructive" : ""}`}
+          className={`${errors.clientErrors.title || errors.serverErrors.specific ? "text-destructive" : ""}`}
         >
           Name <RequiredFieldSymbol />
         </Label>
@@ -58,13 +67,14 @@ export default function BoardForm({
         )}
         <Input
           id="title"
-          ref={inputRef}
           type="text"
           name="title"
           defaultValue={boardFormData.title || state.fields?.title}
           placeholder="e.g., Personal Tasks"
-          onChange={() => clearError("title")}
-          aria-invalid={!!errors}
+          onChange={(e) => handleFieldChange("title", e.target.value)}
+          aria-invalid={
+            !!errors.clientErrors.title || !!errors.serverErrors.specific
+          }
           aria-describedby="title-error"
           aria-required
           autoFocus
@@ -72,9 +82,9 @@ export default function BoardForm({
         <p className="text-[0.8rem] text-muted-foreground">
           Choose a clear and descriptive name for your board.
         </p>
-        {(errors.clientErrors.title || errors.serverError) && (
+        {(errors.clientErrors.title || errors.serverErrors.specific) && (
           <ErrorMessage id="title-error">
-            {errors.clientErrors.title || errors.serverError}
+            {errors.clientErrors.title || errors.serverErrors.specific}
           </ErrorMessage>
         )}
       </div>
@@ -88,8 +98,11 @@ export default function BoardForm({
             Template <RequiredFieldSymbol />
           </Label>
           <Select name="template" onValueChange={() => clearError("template")}>
-            <SelectTrigger id="template">
-              <SelectValue placeholder="Select a template" />
+            <SelectTrigger
+              aria-invalid={!!errors.clientErrors.template}
+              id="template"
+            >
+              <SelectValue autoFocus placeholder="Select a template" />
             </SelectTrigger>
             <SelectContent>
               {columnsTemplates.map((template) => {
@@ -125,6 +138,7 @@ export default function BoardForm({
           defaultValue={
             (boardFormData.description || state.fields?.description) ?? ""
           }
+          onChange={(e) => handleFieldChange("description", e.target.value)}
           placeholder="Organize my daily and work tasks"
           className="resize-none"
         />
