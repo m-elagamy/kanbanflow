@@ -28,6 +28,20 @@ type KanbanState = {
     targetTaskId?: string,
   ) => void;
   getFilteredTasks: (boardSlug: string, columnId: string) => Task[];
+
+  // Column operations
+  addColumn: (column: Column) => void;
+  updateColumn: (columnId: string, updates: Partial<Column>) => void;
+  deleteColumn: (columnId: string) => void;
+
+  // Task operations
+  addTask: (columnId: string, task: Task) => void;
+  updateTask: (
+    columnId: string,
+    taskId: string,
+    updates: Partial<Task>,
+  ) => void;
+  deleteTask: (columnId: string, taskId: string) => void;
 };
 
 export const useKanbanStore = create<KanbanState>((set, get) => ({
@@ -67,6 +81,59 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
 
   setActiveTask: (activeTask) => set(() => ({ activeTask })),
   setColumns: (columns) => set(() => ({ columns })),
+
+  addColumn: (column) => {
+    set((state) => ({
+      columns: [...state.columns, { ...column, tasks: [] }],
+    }));
+  },
+
+  updateColumn: (columnId, updates) => {
+    set((state) => ({
+      columns: state.columns.map((col) =>
+        col.id === columnId ? { ...col, ...updates } : col,
+      ),
+    }));
+  },
+
+  deleteColumn: (columnId) => {
+    set((state) => ({
+      columns: state.columns.filter((col) => col.id !== columnId),
+    }));
+  },
+
+  addTask: (columnId, task) => {
+    set((state) => ({
+      columns: state.columns.map((col) =>
+        col.id === columnId ? { ...col, tasks: [...col.tasks, task] } : col,
+      ),
+    }));
+  },
+
+  updateTask: (columnId, taskId, updates) => {
+    set((state) => ({
+      columns: state.columns.map((col) =>
+        col.id === columnId
+          ? {
+              ...col,
+              tasks: col.tasks.map((task) =>
+                task.id === taskId ? { ...task, ...updates } : task,
+              ),
+            }
+          : col,
+      ),
+    }));
+  },
+
+  deleteTask: (columnId, taskId) => {
+    set((state) => ({
+      columns: state.columns.map((col) =>
+        col.id === columnId
+          ? { ...col, tasks: col.tasks.filter((task) => task.id !== taskId) }
+          : col,
+      ),
+    }));
+  },
 
   reorderTaskWithinColumn: (columnId, activeTaskId, overId) =>
     set(

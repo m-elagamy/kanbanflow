@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 
 import {
   Select,
@@ -9,12 +9,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import stateOptions from "../../data/column-state-options";
 import { Label } from "@/components/ui/label";
 import { createColumnAction } from "@/actions/column";
 import { Input } from "@/components/ui/input";
 import FormActions from "@/components/ui/form-actions";
-import { useModalStore } from "@/stores/modal";
+import useModalClose from "@/hooks/use-modal-close";
+import columnStatusOptions from "../../data/column-status-options";
+import { useKanbanStore } from "@/stores/kanban";
+import { useShallow } from "zustand/react/shallow";
 
 type ColumnFormProps = {
   boardId: string;
@@ -27,18 +29,27 @@ export default function ColumnForm({
   modalId,
   boardSlug,
 }: ColumnFormProps) {
+  const columns = useKanbanStore((state) => state.columns);
   const [serverState, formAction, isPending] = useActionState(
     createColumnAction,
     { success: false, message: "" },
   );
+  useModalClose({ success: serverState.success }, "column", modalId);
 
-  const closeModal = useModalStore((state) => state.closeModal);
+  const existingStatuses = columns?.map((column) => column.status) ?? [];
+  const availableStatusOptions = Object.entries(columnStatusOptions).filter(
+    ([status]) => !existingStatuses.includes(status),
+  );
 
-  useEffect(() => {
-    if (serverState.success) {
-      closeModal("column", modalId);
-    }
-  }, [serverState.success, closeModal, modalId]);
+  const isThereAvailableStatuses = availableStatusOptions.length > 0;
+
+  const triggerTitle = !isThereAvailableStatuses
+    ? "All statuses are in use or unavailable."
+    : "Choose a status";
+
+  const placeholder = !isThereAvailableStatuses
+    ? "No available statuses"
+    : "Choose a status";
 
   return (
     <form action={formAction} className="space-y-4">
@@ -46,25 +57,30 @@ export default function ColumnForm({
         <Input type="hidden" name="boardId" value={boardId ?? ""} />
         <Input type="hidden" name="boardSlug" value={boardSlug ?? ""} />
         <Label>Select Column Status</Label>
-        <Select name="status" defaultValue="To Do">
-          <SelectTrigger>
-            <SelectValue placeholder="Choose a status" />
+        <Select name="status" defaultValue={availableStatusOptions[0]?.[0]}>
+          <SelectTrigger
+            disabled={!isThereAvailableStatuses}
+            title={triggerTitle}
+          >
+            <SelectValue placeholder={placeholder} />
           </SelectTrigger>
           <SelectContent className="max-h-80">
-            {Object.entries(stateOptions).map(
-              ([status, { icon: Icon, color }]) => (
-                <SelectItem key={status} value={status}>
-                  <div className="flex items-center space-x-2">
-                    <Icon size={16} color={color} />
-                    <span>{status}</span>
-                  </div>
-                </SelectItem>
-              ),
-            )}
+            {availableStatusOptions.map(([status, { icon: Icon, color }]) => (
+              <SelectItem key={status} value={status}>
+                <div className="flex items-center space-x-2">
+                  <Icon size={16} color={color} />
+                  <span>{status}</span>
+                </div>
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </section>
-      <FormActions isPending={isPending} formOperationMode="create" />
+      <FormActions
+        isPending={isPending}
+        isFormInvalid={!isThereAvailableStatuses}
+        formOperationMode="create"
+      />
     </form>
   );
 }

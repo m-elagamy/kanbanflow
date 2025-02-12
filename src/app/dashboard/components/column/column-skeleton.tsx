@@ -26,7 +26,7 @@ export default function ColumnSkeleton({
           {/* Column Header */}
           <div className="flex min-h-[55px] items-center justify-between border-b p-3">
             <div className="flex items-center gap-2">
-              <Skeleton className="h-4 w-24" /> {/* Column title */}
+              <Skeleton className="h-4 w-24" /> {/* Column status */}
               <Skeleton className="h-5 w-5 rounded-full" />
               {/* Task count badge */}
             </div>

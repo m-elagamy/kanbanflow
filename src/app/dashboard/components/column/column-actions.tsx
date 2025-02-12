@@ -21,13 +21,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
-import stateOptions from "../../data/column-state-options";
+import columnStatusOptions from "../../data/column-status-options";
 import { updateColumnAction } from "@/actions/column";
 import type { Column } from "@prisma/client";
 
 type ColumnActionsProps = {
   columnId: string;
-  columnTitle: string;
+  columnStatus: string;
   tasksCount: number;
   setShowAlertConfirmation: (value: boolean) => void;
   boardSlug: string;
@@ -35,7 +35,7 @@ type ColumnActionsProps = {
 
 const ColumnActions = ({
   columnId,
-  columnTitle,
+  columnStatus,
   tasksCount,
   boardSlug,
   setShowAlertConfirmation,
@@ -44,10 +44,10 @@ const ColumnActions = ({
   const [isOpen, setIsOpen] = useState(false);
   const [updating, setUpdating] = useState("");
 
-  const handleUpdateColumn = async (updates: Pick<Column, "title">) => {
-    setUpdating(updates.title);
+  const handleUpdateColumn = async (updates: Pick<Column, "status">) => {
+    setUpdating(updates.status);
     await updateColumnAction(columnId, boardSlug, {
-      title: updates.title,
+      status: updates.status,
     });
     setIsOpen(false);
     setUpdating("");
@@ -91,30 +91,31 @@ const ColumnActions = ({
                 <CommandList>
                   <CommandEmpty>No matching statuses found.</CommandEmpty>
                   <CommandGroup>
-                    {Object.keys(stateOptions)
-                      .filter((state) => state !== columnTitle)
-                      .map((state) => {
+                    {Object.keys(columnStatusOptions)
+                      .filter((status) => status !== columnStatus)
+                      .map((status) => {
                         const { icon: Icon, color } =
-                          stateOptions[state as keyof typeof stateOptions];
+                          columnStatusOptions[
+                            status as keyof typeof columnStatusOptions
+                          ];
 
                         return (
                           <CommandItem
-                            key={state}
-                            value={state}
-                            defaultValue={columnTitle}
+                            key={status}
+                            value={status}
                             onSelect={(value) => {
-                              handleUpdateColumn({ title: value });
+                              handleUpdateColumn({ status: value });
                             }}
-                            disabled={updating !== "" && updating !== state}
+                            disabled={updating !== "" && updating !== status}
                             className="flex items-center justify-between gap-2"
                           >
                             <span className="flex items-center gap-2">
                               <Icon size={16} color={color} />
                               <span className="max-w-32 overflow-hidden text-ellipsis whitespace-nowrap">
-                                {state}
+                                {status}
                               </span>
                             </span>
-                            {updating === state && (
+                            {updating === status && (
                               <Loader className="animate-spin" />
                             )}
                           </CommandItem>

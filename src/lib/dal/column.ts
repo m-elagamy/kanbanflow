@@ -3,7 +3,7 @@ import db from "../db";
 import { Column } from "@prisma/client";
 
 export const createColumn = withAuth(
-  async (boardId: string, title: string): Promise<Column> => {
+  async (boardId: string, status: string): Promise<Column> => {
     return db.$transaction(async (prisma) => {
       const highestOrderColumn = await prisma.column.findFirst({
         where: { boardId },
@@ -15,7 +15,7 @@ export const createColumn = withAuth(
 
       return prisma.column.create({
         data: {
-          title,
+          status,
           boardId,
           order: newOrder,
         },
@@ -25,7 +25,7 @@ export const createColumn = withAuth(
 );
 
 export const updateColumn = withAuth(
-  async (columnId: string, data: Partial<Pick<Column, "title">>) => {
+  async (columnId: string, data: Partial<Pick<Column, "status">>) => {
     return db.column.update({
       where: { id: columnId },
       data,

@@ -1,7 +1,6 @@
 import { useActionState, useEffect, useState } from "react";
 
 import type { ActionStateResponse, TaskActionState } from "@/lib/types";
-import { useModalStore } from "@/stores/modal";
 import { type TaskSchema } from "@/schemas/task";
 
 import useModalClose from "./use-modal-close";
@@ -43,9 +42,6 @@ export default function useTaskAction({
     state,
   });
 
-  const closeModal = useModalStore((state) => state.closeModal);
-  const closeModalOnSuccess = () => closeModal("task", modalId);
-
   const [actionState, formAction, isPending] = useActionState(
     actions.taskAction,
     {
@@ -54,12 +50,7 @@ export default function useTaskAction({
     },
   );
 
-  useModalClose(
-    { success: state.success },
-    closeModalOnSuccess,
-    "task",
-    modalId,
-  );
+  useModalClose({ success: state.success }, "task", modalId);
 
   const resetValues: TaskSchema = {
     title: "",
@@ -73,8 +64,8 @@ export default function useTaskAction({
 
   useEffect(() => {
     setState({
-      success: actionState.success,
-      message: actionState.message,
+      success: actionState.success ?? false,
+      message: actionState.message ?? "",
     });
   }, [actionState.success, actionState.message]);
 

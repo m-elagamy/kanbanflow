@@ -30,7 +30,7 @@ model Board {
 
 model Column {
   id      String @id @default(cuid())
-  title   String
+  status  String
   order   Int
   boardId String
   board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)

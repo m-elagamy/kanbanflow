@@ -5,7 +5,6 @@ import { useActionState, useEffect, useState } from "react";
 import { ActionStateResponse, type BoardActionState } from "@/lib/types";
 import { type BoardFormSchema } from "@/schemas/board";
 
-import { useModalStore } from "@/stores/modal";
 import useModalClose from "./use-modal-close";
 import useForm from "./use-form";
 
@@ -55,15 +54,7 @@ export default function useBoardAction({
     },
   );
 
-  const closeModal = useModalStore((state) => state.closeModal);
-  const closeModalOnSuccess = () => closeModal("board", modalId);
-
-  useModalClose(
-    { success: actionResponse.success },
-    closeModalOnSuccess,
-    "board",
-    modalId,
-  );
+  useModalClose({ success: actionResponse.success }, "board", modalId);
 
   const resetValues = {
     title: "",
@@ -77,8 +68,8 @@ export default function useBoardAction({
 
   useEffect(() => {
     setActionResponse({
-      success: actionState.success,
-      message: actionState.message,
+      success: actionState.success ?? false,
+      message: actionState.message ?? "",
     });
   }, [actionState.success, actionState.message]);
 

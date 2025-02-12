@@ -22,7 +22,7 @@ const createBoard = withAuth(
       const columnData =
         columns
           ?.filter(Boolean)
-          .map((column, index) => ({ title: column, order: index })) || [];
+          .map((column, index) => ({ status: column, order: index })) || [];
 
       return prisma.board.create({
         data: {
@@ -76,7 +76,7 @@ const getBoardBySlug = withAuth(async (userId: string, slug: string) => {
         orderBy: { order: "asc" },
         select: {
           id: true,
-          title: true,
+          status: true,
           order: true,
           boardId: true,
           tasks: {

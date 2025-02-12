@@ -11,8 +11,8 @@ export async function createColumnAction(
 ): Promise<ServerActionResult<Column>> {
   const boardId = formData.get("boardId") as string;
   const boardSlug = formData.get("boardSlug") as string;
-  const columnTitle = formData.get("status") as string;
-  const result = await createColumn(boardId, columnTitle);
+  const columnStatus = formData.get("status") as string;
+  const result = await createColumn(boardId, columnStatus);
 
   if (!result.success) {
     return {
@@ -32,7 +32,7 @@ export async function createColumnAction(
 export async function updateColumnAction(
   columnId: string,
   boardSlug: string,
-  data: Partial<Pick<Column, "title">>,
+  data: Partial<Pick<Column, "status">>,
 ): Promise<ServerActionResult<Column>> {
   const updatedColumn = await updateColumn(columnId, data);
 

@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import AlertConfirmation from "../../../../components/ui/alert-confirmation";
-import stateOptions from "../../data/column-state-options";
+import columnStatusOptions from "../../data/column-status-options";
 import { Column } from "@prisma/client";
 import { deleteColumnAction } from "@/actions/column";
 import ColumnActions from "./column-actions";
@@ -28,10 +28,10 @@ export default function ColumnHeader({
     message: "",
   });
 
-  const { id: columnId, title: columnTitle } = column;
+  const { id: columnId, status: columnStatus } = column;
 
   const { icon: Icon, color } =
-    stateOptions[columnTitle as keyof typeof stateOptions];
+    columnStatusOptions[columnStatus as keyof typeof columnStatusOptions];
 
   return (
     <>
@@ -40,11 +40,11 @@ export default function ColumnHeader({
           {<Icon size={16} color={color} />}
           <span
             className={clsx(
-              columnTitle.length > 15 && "necessary-ellipsis max-w-[115px]",
+              columnStatus.length > 15 && "necessary-ellipsis max-w-[115px]",
             )}
-            title={columnTitle.length > 15 ? columnTitle : ""}
+            title={columnStatus.length > 15 ? columnStatus : ""}
           >
-            {columnTitle}
+            {columnStatus}
           </span>
           {tasksCount > 0 && (
             <Badge variant="outline" className="h-5 px-[7px] text-[0.690rem]">
@@ -54,7 +54,7 @@ export default function ColumnHeader({
         </CardTitle>
         <ColumnActions
           columnId={columnId}
-          columnTitle={columnTitle}
+          columnStatus={columnStatus}
           tasksCount={tasksCount}
           setShowAlertConfirmation={setShowAlertConfirmation}
           boardSlug={boardSlug}
