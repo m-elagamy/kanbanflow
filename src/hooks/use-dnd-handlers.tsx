@@ -1,5 +1,4 @@
 import { useShallow } from "zustand/react/shallow";
-import { useKanbanStore } from "@/stores/kanban";
 import { updateTaskPositionAction } from "@/actions/task";
 import type {
   DragStartEvent,
@@ -7,17 +6,19 @@ import type {
   DragEndEvent,
 } from "@dnd-kit/core";
 import { debounce } from "@/utils/debounce";
+import { useTaskStore } from "@/stores/task";
+import useTaskStateComparison from "./use-task-state-comparison";
 
 export const useDndHandlers = ({ boardSlug }: { boardSlug?: string }) => {
   const {
-    columns,
+    tasksByColumnId,
     moveTaskBetweenColumns,
     reorderTaskWithinColumn,
     activeTask,
     setActiveTask,
-  } = useKanbanStore(
+  } = useTaskStore(
     useShallow((state) => ({
-      columns: state.columns,
+      tasksByColumnId: state.tasks,
       moveTaskBetweenColumns: state.moveTaskBetweenColumns,
       reorderTaskWithinColumn: state.reorderTaskWithinColumn,
       activeTask: state.activeTask,
@@ -25,14 +26,19 @@ export const useDndHandlers = ({ boardSlug }: { boardSlug?: string }) => {
     })),
   );
 
+  const { captureInitialState, hasStateChanged } = useTaskStateComparison();
+
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     if (!active?.id) return;
 
-    const task = columns
-      .flatMap((column) => column.tasks)
+    const task = Object.values(tasksByColumnId)
+      .flat()
       .find((task) => task.id === active.id);
+
     setActiveTask(task || null);
+
+    captureInitialState(tasksByColumnId);
   };
 
   const handleDragOver = debounce((event: DragOverEvent) => {
@@ -42,26 +48,27 @@ export const useDndHandlers = ({ boardSlug }: { boardSlug?: string }) => {
     const activeTaskId = String(active.id);
     const overId = String(over.id);
 
-    const fromColumn = columns.find((col) =>
-      col.tasks.some((task) => task.id === activeTaskId),
+    const fromColumnId = Object.keys(tasksByColumnId).find((columnId) =>
+      tasksByColumnId[columnId].some((task) => task.id === activeTaskId),
     );
-    const toColumn = columns.find(
-      (col) =>
-        col.tasks.some((task) => task.id === overId) || col.id === overId,
-    );
-
-    if (!fromColumn || !toColumn) return;
-
-    const isOverTask = columns.some((col) =>
-      col.tasks.some((task) => task.id === overId),
+    const toColumnId = Object.keys(tasksByColumnId).find(
+      (columnId) =>
+        tasksByColumnId[columnId].some((task) => task.id === overId) ||
+        columnId === overId,
     );
 
-    if (fromColumn.id === toColumn.id) {
+    if (!fromColumnId || !toColumnId) return;
+
+    const isOverTask = Object.values(tasksByColumnId).some((tasks) =>
+      tasks.some((task) => task.id === overId),
+    );
+
+    if (fromColumnId === toColumnId) {
       if (isOverTask) {
-        reorderTaskWithinColumn(fromColumn.id, activeTaskId, overId);
+        reorderTaskWithinColumn(fromColumnId, activeTaskId, overId);
       }
     } else {
-      moveTaskBetweenColumns(activeTaskId, fromColumn.id, toColumn.id, overId);
+      moveTaskBetweenColumns(activeTaskId, fromColumnId, toColumnId, overId);
     }
   }, 150);
 
@@ -72,38 +79,42 @@ export const useDndHandlers = ({ boardSlug }: { boardSlug?: string }) => {
     const activeTaskId = String(active.id);
     const overId = String(over.id);
 
-    const fromColumn = columns.find((col) =>
-      col.tasks.some((task) => task.id === activeTaskId),
+    const fromColumnId = Object.keys(tasksByColumnId).find((columnId) =>
+      tasksByColumnId[columnId].some((task) => task.id === activeTaskId),
     );
-    const toColumn = columns.find(
-      (col) =>
-        col.id === overId || col.tasks.some((task) => task.id === overId),
+    const toColumnId = Object.keys(tasksByColumnId).find(
+      (columnId) =>
+        columnId === overId ||
+        tasksByColumnId[columnId].some((task) => task.id === overId),
     );
 
-    if (!fromColumn || !toColumn) {
-      return;
-    }
+    if (!fromColumnId || !toColumnId) return;
 
-    const taskToMove = fromColumn.tasks.find(
+    const taskToMove = tasksByColumnId[fromColumnId].find(
       (task) => task.id === activeTaskId,
     );
-    if (!taskToMove) {
-      return;
-    }
 
-    const updatedTaskOrder = toColumn.tasks.map((task) => task.id);
+    if (!taskToMove) return;
 
-    if (!fromColumn.id || !toColumn.id || !updatedTaskOrder.length) {
-      return;
-    }
+    const updatedTaskOrder = tasksByColumnId[toColumnId].map((task) => task.id);
 
-    await updateTaskPositionAction(
-      activeTaskId,
-      fromColumn.id,
-      toColumn.id,
-      updatedTaskOrder,
-      boardSlug,
+    if (!updatedTaskOrder.length) return;
+
+    const hasChanges = hasStateChanged(
+      tasksByColumnId,
+      fromColumnId,
+      toColumnId,
     );
+
+    if (hasChanges) {
+      await updateTaskPositionAction(
+        activeTaskId,
+        fromColumnId,
+        toColumnId,
+        updatedTaskOrder,
+        boardSlug,
+      );
+    }
 
     setActiveTask(null);
   };
@@ -111,7 +122,6 @@ export const useDndHandlers = ({ boardSlug }: { boardSlug?: string }) => {
   const handleDragCancel = () => setActiveTask(null);
 
   return {
-    columns,
     activeTask,
     handleDragStart,
     handleDragOver,
