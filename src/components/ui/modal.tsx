@@ -13,7 +13,6 @@ import { useModalStore } from "@/stores/modal";
 const DialogContent = dynamic(
   () => import("@/components/ui/dialog").then((mod) => mod.DialogContent),
   {
-    ssr: false,
     loading: () => null,
   },
 );

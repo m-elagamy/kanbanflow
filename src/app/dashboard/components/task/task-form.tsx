@@ -108,13 +108,13 @@ const TaskForm = ({
       </section>
 
       <section className="space-y-2">
-        <Label>How urgent is this?</Label>
+        <Label htmlFor="priority">How urgent is this?</Label>
         <Select
           name="priority"
           defaultValue={taskFormData.priority || state.fields?.priority}
           onValueChange={(value) => handleFieldChange("priority", value)}
         >
-          <SelectTrigger className="*:max-w-[120px]">
+          <SelectTrigger id="priority" className="*:max-w-[120px]">
             <SelectValue placeholder="Select a Priority" />
           </SelectTrigger>
           <SelectContent>

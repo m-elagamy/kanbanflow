@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const columnFormSchema = z.object({
+const columnStatusSchema = z.object({
   state: z.enum([
     "To Do",
     "In Progress",
@@ -12,7 +12,9 @@ const columnFormSchema = z.object({
     "Cancelled",
     "Backlog",
     "Ready for Development",
+    "Deployed",
+    "Ready for Review",
   ]),
 });
 
-export default columnFormSchema;
+export default columnStatusSchema;
