@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import RequiredFieldSymbol from "@/components/ui/required-field-symbol";
@@ -8,6 +10,7 @@ import FormActions from "@/components/ui/form-actions";
 import ErrorMessage from "@/components/ui/error-message";
 import useBoardAction from "@/hooks/use-board-action";
 import type { BoardActionState, formOperationMode } from "@/lib/types";
+import { slugify } from "@/utils/slugify";
 import {
   Select,
   SelectContent,
@@ -31,6 +34,7 @@ export default function BoardForm({
 }: BoardFormProps) {
   const isEditMode = formOperationMode === "edit";
 
+  const router = useRouter();
   const {
     handleAction,
     state,
@@ -42,6 +46,10 @@ export default function BoardForm({
     handleFieldChange,
     formRef,
   } = useBoardAction({ initialState, isEditMode, modalId });
+
+  const handleOnBlur = (value: string) => {
+    router.prefetch(`/dashboard/${slugify(value)}`);
+  };
 
   return (
     <form ref={formRef} action={handleAction} className="space-y-4 *:space-y-2">
@@ -72,6 +80,7 @@ export default function BoardForm({
           defaultValue={boardFormData.title || state.fields?.title}
           placeholder="e.g., Personal Tasks"
           onChange={(e) => handleFieldChange("title", e.target.value)}
+          onBlur={(e) => handleOnBlur(e.target.value)}
           aria-invalid={
             !!errors.clientErrors.title || !!errors.serverErrors.specific
           }
