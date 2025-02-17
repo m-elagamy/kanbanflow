@@ -17,4 +17,6 @@ const columnStatusSchema = z.object({
   ]),
 });
 
+export type ColumnStatus = z.infer<typeof columnStatusSchema>;
+
 export default columnStatusSchema;

@@ -8,9 +8,10 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import columnStatusOptions from "../../data/column-status-options";
+import type { ColumnStatus } from "@/schemas/column";
 
 type ColumnStatusSelectProps = {
-  columnStatus: string;
+  columnStatus: ColumnStatus;
   handleUpdateColumn: (updates: Pick<Column, "status">) => Promise<void>;
 };
 
@@ -25,7 +26,7 @@ export default function ColumnStatusSelect({
         <CommandEmpty>No matching statuses found.</CommandEmpty>
         <CommandGroup>
           {Object.keys(columnStatusOptions)
-            .filter((status) => status !== columnStatus)
+            .filter((status) => status !== columnStatus.status)
             .map((status) => {
               const { icon: Icon, color } =
                 columnStatusOptions[status as keyof typeof columnStatusOptions];
@@ -35,7 +36,9 @@ export default function ColumnStatusSelect({
                   key={status}
                   value={status}
                   onSelect={(value) => {
-                    handleUpdateColumn({ status: value });
+                    if (Object.keys(columnStatusOptions).includes(value)) {
+                      handleUpdateColumn({ status: value });
+                    }
                   }}
                   className="flex items-center justify-between gap-2"
                 >
