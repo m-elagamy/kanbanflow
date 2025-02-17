@@ -1,17 +1,17 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import clsx from "clsx";
+import { toast } from "sonner";
+import { Column } from "@prisma/client";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import AlertConfirmation from "../../../../components/ui/alert-confirmation";
-import columnStatusOptions from "../../data/column-status-options";
-import { Column } from "@prisma/client";
 import { deleteColumnAction } from "@/actions/column";
 import ColumnActions from "./column-actions";
 import { useColumnStore } from "@/stores/column";
 import delay from "@/utils/delay";
-import { toast } from "sonner";
+import AlertConfirmation from "../../../../components/ui/alert-confirmation";
+import columnStatusOptions from "../../data/column-status-options";
 
 type ColumnHeaderProps = {
   tasksCount: number;
@@ -38,7 +38,7 @@ export default function ColumnHeader({
   const setIsLoading = useColumnStore((state) => state.setIsLoading);
   const revertToPrevious = useColumnStore((state) => state.revertToPrevious);
 
-  const handleFormAction = async (formData: FormData) => {
+  const handleFormAction = async () => {
     if (columnId) {
       setIsLoading(true);
       await delay(300);

@@ -12,7 +12,7 @@ import { getModalTitle } from "../../utils/get-modal-title";
 const ColumnForm = dynamic(() => import("./column-form"), {
   loading: () => (
     <div className="flex h-[120px] items-center justify-center">
-      <Loader className="animate-spin" />
+      <Loader size={18} className="animate-spin" />
     </div>
   ),
 });
