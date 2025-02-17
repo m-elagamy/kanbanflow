@@ -11,9 +11,9 @@ const columnStatusSchema = z.object({
     "Under_Review",
     "Cancelled",
     "Backlog",
-    "Ready_for_Development",
+    "Ready_For_Development",
     "Deployed",
-    "Ready_for_Review",
+    "Ready_For_Review",
   ]),
 });
 
