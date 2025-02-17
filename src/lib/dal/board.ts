@@ -1,6 +1,7 @@
 import db from "../db";
 import { Board } from "@prisma/client";
 import withAuth from "@/utils/with-DAL-auth";
+import type { ColumnStatus } from "@/schemas/column";
 
 const createBoard = withAuth(
   async (
@@ -8,7 +9,7 @@ const createBoard = withAuth(
     title: string,
     slug: string,
     description?: string | null,
-    columns?: string[],
+    columnsStatus?: ColumnStatus[],
   ): Promise<Board> => {
     return db.$transaction(async (prisma) => {
       const lastBoard = await prisma.board.findFirst({
@@ -20,9 +21,9 @@ const createBoard = withAuth(
       const newOrder = lastBoard ? lastBoard.order + 1 : 0;
 
       const columnData =
-        columns
+        columnsStatus
           ?.filter(Boolean)
-          .map((column, index) => ({ status: column, order: index })) || [];
+          .map((status, index) => ({ status: status, order: index })) || [];
 
       return prisma.board.create({
         data: {

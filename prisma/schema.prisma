@@ -29,29 +29,14 @@ model Board {
 }
 
 model Column {
-  id      String       @id @default(cuid())
-  status  ColumnStatus
+  id      String @id @default(cuid())
+  status  String
   order   Int
   boardId String
-  board   Board        @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   tasks   Task[]
 
   @@index([boardId, order])
-}
-
-enum ColumnStatus {
-  To_Do
-  In_Progress
-  Done
-  Blocked
-  On_Hold
-  Testing
-  Under_Review
-  Cancelled
-  Backlog
-  Ready_For_Development
-  Deployed
-  Ready_For_Review
 }
 
 model Task {

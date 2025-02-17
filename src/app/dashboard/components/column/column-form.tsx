@@ -12,7 +12,7 @@ import { useModalStore } from "@/stores/modal";
 import delay from "@/utils/delay";
 import generateUUID from "@/utils/generate-UUID";
 import ErrorMessage from "@/components/ui/error-message";
-import columnStatusSchema from "@/schemas/column";
+import columnStatusSchema, { type ColumnStatus } from "@/schemas/column";
 import useAutoFocusOnError from "@/hooks/use-auto-focus-on-error";
 import getAvailableStatusOptions from "@/utils/column-helpers";
 
@@ -67,7 +67,9 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
     : "No available statuses";
 
   const handleFormAction = async (formData: FormData) => {
-    const validationResult = validateFormData(formData, columnStatusSchema);
+    const validationResult = validateFormData<{
+      status: ColumnStatus;
+    }>(formData, columnStatusSchema);
 
     if (!validationResult.success) {
       setErrorMessage("Please pick a status.");

@@ -7,11 +7,11 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import columnStatusOptions from "../../data/column-status-options";
 import type { ColumnStatus } from "@/schemas/column";
+import columnStatusOptions from "../../data/column-status-options";
 
 type ColumnStatusSelectProps = {
-  columnStatus: ColumnStatus;
+  columnStatus: string;
   handleUpdateColumn: (updates: Pick<Column, "status">) => Promise<void>;
 };
 
@@ -26,7 +26,7 @@ export default function ColumnStatusSelect({
         <CommandEmpty>No matching statuses found.</CommandEmpty>
         <CommandGroup>
           {Object.keys(columnStatusOptions)
-            .filter((status) => status !== columnStatus.status)
+            .filter((status) => status !== columnStatus)
             .map((status) => {
               const { icon: Icon, color } =
                 columnStatusOptions[status as keyof typeof columnStatusOptions];
@@ -37,7 +37,7 @@ export default function ColumnStatusSelect({
                   value={status}
                   onSelect={(value) => {
                     if (Object.keys(columnStatusOptions).includes(value)) {
-                      handleUpdateColumn({ status: value });
+                      handleUpdateColumn({ status: value as ColumnStatus });
                     }
                   }}
                   className="flex items-center justify-between gap-2"

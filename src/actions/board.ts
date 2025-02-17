@@ -17,6 +17,7 @@ import {
   getBoardBySlug,
   updateBoard,
 } from "@/lib/dal/board";
+import type { ColumnStatus } from "@/schemas/column";
 
 export const createBoardAction = async (
   _prevState: BoardActionState,
@@ -62,7 +63,7 @@ export const createBoardAction = async (
     title,
     boardSlug,
     description,
-    template?.columns,
+    template?.status as ColumnStatus[],
   );
 
   if (!result.success) {

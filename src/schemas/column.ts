@@ -2,21 +2,21 @@ import { z } from "zod";
 
 const columnStatusSchema = z.object({
   status: z.enum([
-    "To_Do",
-    "In_Progress",
+    "To Do",
+    "In Progress",
     "Done",
     "Blocked",
-    "On_Hold",
+    "On Hold",
     "Testing",
-    "Under_Review",
+    "Under Review",
     "Cancelled",
     "Backlog",
-    "Ready_For_Development",
+    "Ready for Development",
     "Deployed",
-    "Ready_For_Review",
+    "Ready for Review",
   ]),
 });
 
-export type ColumnStatus = z.infer<typeof columnStatusSchema>;
+export type ColumnStatus = z.infer<typeof columnStatusSchema.shape.status>;
 
 export default columnStatusSchema;

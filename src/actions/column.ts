@@ -3,10 +3,11 @@
 import { Column } from "@prisma/client";
 import { createColumn, updateColumn, deleteColumn } from "../lib/dal/column";
 import type { ServerActionResult } from "@/lib/types";
+import type { ColumnStatus } from "@/schemas/column";
 
 export async function createColumnAction(
   boardId: string,
-  columnStatus: string,
+  columnStatus: ColumnStatus,
 ): Promise<ServerActionResult<Column>> {
   const createdColumn = await createColumn(boardId, columnStatus);
 

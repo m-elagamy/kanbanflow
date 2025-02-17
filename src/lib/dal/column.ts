@@ -1,9 +1,10 @@
 import withAuth from "@/utils/with-DAL-auth";
 import db from "../db";
 import { Column } from "@prisma/client";
+import type { ColumnStatus } from "@/schemas/column";
 
 export const createColumn = withAuth(
-  async (boardId: string, status: string): Promise<Column> => {
+  async (boardId: string, status: ColumnStatus): Promise<Column> => {
     return db.$transaction(async (prisma) => {
       const highestOrderColumn = await prisma.column.findFirst({
         where: { boardId },
