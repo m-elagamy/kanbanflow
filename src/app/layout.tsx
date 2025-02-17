@@ -41,6 +41,8 @@ export const metadata: Metadata = {
   },
 };
 
+const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -51,7 +53,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} flex min-h-dvh flex-col font-sans antialiased`}
       >
-        <ClerkProvider>
+        <ClerkProvider publishableKey={publishableKey}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
