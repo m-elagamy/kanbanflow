@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "@clerk/nextjs";
 import { AlertCircle, ArrowLeft, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,8 +15,6 @@ import {
 
 export default function NotFound() {
   const router = useRouter();
-
-  const { isSignedIn: isAuthenticated } = useAuth();
 
   const handleGoBack = () => router.back();
 
@@ -53,9 +50,9 @@ export default function NotFound() {
             <ArrowLeft /> Go Back
           </Button>
           <Button asChild variant="outline">
-            <Link href={isAuthenticated ? "/dashboard" : "/"}>
+            <Link href="/">
               <Home />
-              {isAuthenticated ? "Return to Dashboard" : "Go to Home"}
+              Return Home
             </Link>
           </Button>
         </CardFooter>
