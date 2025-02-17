@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const columnStatusSchema = z.object({
-  state: z.enum([
+  status: z.enum([
     "To Do",
     "In Progress",
     "Done",

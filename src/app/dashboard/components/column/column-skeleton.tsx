@@ -31,7 +31,10 @@ export default function ColumnSkeleton({
               {/* Task count badge */}
             </div>
             <div className="flex items-center gap-4">
-              <Skeleton className="size-6 rounded-full" /> {/* Plus icon */}
+              {tasksPerColumn[columnIndex] >= 1 && (
+                <Skeleton className="size-6 rounded-full" />
+              )}
+              {/* Plus icon */}
               <Skeleton className="size-6 rounded-full" /> {/* Ellipsis icon */}
             </div>
           </div>

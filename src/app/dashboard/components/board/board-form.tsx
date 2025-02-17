@@ -48,7 +48,10 @@ export default function BoardForm({
   } = useBoardAction({ initialState, isEditMode, modalId });
 
   const handleOnBlur = (value: string) => {
-    router.prefetch(`/dashboard/${slugify(value)}`);
+    const slug = slugify(value);
+    if (slug.length >= 3) {
+      router.prefetch(`/dashboard/${slug}`);
+    }
   };
 
   return (
@@ -86,7 +89,6 @@ export default function BoardForm({
           }
           aria-describedby="title-error"
           aria-required
-          autoFocus
         />
         <p className="text-[0.8rem] text-muted-foreground">
           Choose a clear and descriptive name for your board.
@@ -111,7 +113,7 @@ export default function BoardForm({
               aria-invalid={!!errors.clientErrors.template}
               id="template"
             >
-              <SelectValue autoFocus placeholder="Select a template" />
+              <SelectValue placeholder="Select a template" />
             </SelectTrigger>
             <SelectContent>
               {columnsTemplates.map((template) => {

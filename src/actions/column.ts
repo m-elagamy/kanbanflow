@@ -1,37 +1,31 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { Column } from "@prisma/client";
 import { createColumn, updateColumn, deleteColumn } from "../lib/dal/column";
 import type { ServerActionResult } from "@/lib/types";
 
 export async function createColumnAction(
-  _prevState: unknown,
-  formData: FormData,
+  boardId: string,
+  columnStatus: string,
 ): Promise<ServerActionResult<Column>> {
-  const boardId = formData.get("boardId") as string;
-  const boardSlug = formData.get("boardSlug") as string;
-  const columnStatus = formData.get("status") as string;
-  const result = await createColumn(boardId, columnStatus);
+  const createdColumn = await createColumn(boardId, columnStatus);
 
-  if (!result.success) {
+  if (!createdColumn.success) {
     return {
       success: false,
       message: "Failed to create a column.",
     };
   }
 
-  revalidatePath(`/dashboard/${boardSlug}`, "page");
-
   return {
     success: true,
     message: `Column was added successfully.`,
+    fields: createdColumn.data,
   };
 }
 
 export async function updateColumnAction(
   columnId: string,
-  boardSlug: string,
   data: Partial<Pick<Column, "status">>,
 ): Promise<ServerActionResult<Column>> {
   const updatedColumn = await updateColumn(columnId, data);
@@ -43,8 +37,6 @@ export async function updateColumnAction(
     };
   }
 
-  revalidatePath(`/dashboard/${boardSlug}`, "page");
-
   return {
     success: true,
     message: "Column updated successfully.",
@@ -53,11 +45,8 @@ export async function updateColumnAction(
 }
 
 export async function deleteColumnAction(
-  _prevState: unknown,
-  formData: FormData,
+  columnId: string,
 ): Promise<ServerActionResult<Column>> {
-  const columnId = formData.get("columnId") as string;
-  const boardSlug = formData.get("boardSlug") as string;
   const result = await deleteColumn(columnId);
 
   if (!result.success) {
@@ -66,8 +55,6 @@ export async function deleteColumnAction(
       message: "Failed to delete column",
     };
   }
-
-  revalidatePath(`/dashboard/${boardSlug}`, "page");
 
   return {
     success: true,

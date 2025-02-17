@@ -1,24 +1,21 @@
-import { Suspense } from "react";
 import { unauthorized } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 
-import { NavUser } from "@/components/layout/sidebar/nav-user";
-import { getAllUserBoardsAction } from "@/actions/user";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
-
+import { getAllUserBoardsAction } from "@/actions/user";
 import SidebarTitle from "./sidebar-title";
 import SidebarActions from "./sidebar-actions";
+import { UserProfile } from "./user-profile";
 import SidebarLabel from "./sidebar-label";
-import BoardsList from "./boards-list";
+import { BoardsList } from "./boards-list";
 
-export async function DashboardSidebar() {
+export default async function DashboardSidebar() {
   const { userId } = await auth();
 
   if (!userId) {
@@ -34,15 +31,13 @@ export async function DashboardSidebar() {
         <SidebarGroup>
           <SidebarLabel boardsCount={userBoards?.length} />
           <SidebarGroupContent>
-            <Suspense fallback={<SidebarMenuSkeleton showIcon />}>
-              {userBoards && <BoardsList boards={userBoards} />}
-            </Suspense>
+            {userBoards && <BoardsList boards={userBoards} />}
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarActions />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        <UserProfile />
       </SidebarFooter>
     </Sidebar>
   );

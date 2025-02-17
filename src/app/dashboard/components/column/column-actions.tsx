@@ -1,29 +1,35 @@
 import { useState } from "react";
-import { Ellipsis, Loader, PlusIcon, Settings2, TrashIcon } from "lucide-react";
+import dynamic from "next/dynamic";
+import { Ellipsis, PlusIcon, Settings2, TrashIcon } from "lucide-react";
+import { toast } from "sonner";
+import type { Column } from "@prisma/client";
 import { Button } from "@/components/ui/button";
-import TaskModal from "../task/task-modal";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSub,
-  DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
-import columnStatusOptions from "../../data/column-status-options";
 import { updateColumnAction } from "@/actions/column";
-import type { Column } from "@prisma/client";
+import { useColumnStore } from "@/stores/column";
+import TaskModal from "../task/task-modal";
+
+const DropdownMenuSubContent = dynamic(
+  () =>
+    import("@/components/ui/dropdown-menu").then(
+      (mod) => mod.DropdownMenuSubContent,
+    ),
+  {
+    loading: () => null,
+  },
+);
+const ColumnStatusSelect = dynamic(() => import("./column-status-select"), {
+  loading: () => null,
+});
 
 type ColumnActionsProps = {
   columnId: string;
@@ -41,16 +47,30 @@ const ColumnActions = ({
   setShowAlertConfirmation,
 }: ColumnActionsProps) => {
   const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = useState(false);
-  const [updating, setUpdating] = useState("");
+  const [isMainDropdownOpen, setIsMainDropdownOpen] = useState(false);
+  const [isSubDropdownOpen, setIsSubDropdownOpen] = useState(false);
+
+  const updateColumnOptimistically = useColumnStore(
+    (state) => state.updateColumn,
+  );
+  const revertToPrevious = useColumnStore((state) => state.revertToPrevious);
 
   const handleUpdateColumn = async (updates: Pick<Column, "status">) => {
-    setUpdating(updates.status);
-    await updateColumnAction(columnId, boardSlug, {
-      status: updates.status,
-    });
-    setIsOpen(false);
-    setUpdating("");
+    updateColumnOptimistically(columnId, updates);
+    setIsMainDropdownOpen(false);
+
+    try {
+      await updateColumnAction(columnId, updates);
+    } catch (error) {
+      console.error("Error updating column:", error);
+      revertToPrevious();
+      toast.error("Failed to update column", {
+        description:
+          "An error occurred while updating the column. Please try again.",
+        duration: 5000,
+        icon: "🚨",
+      });
+    }
   };
 
   return (
@@ -68,7 +88,10 @@ const ColumnActions = ({
           }
         />
       )}
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenu
+        open={isMainDropdownOpen}
+        onOpenChange={setIsMainDropdownOpen}
+      >
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="size-8">
             <Ellipsis />
@@ -77,54 +100,24 @@ const ColumnActions = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent align={isMobile ? "start" : "center"}>
           <DropdownMenuLabel>Column Actions:</DropdownMenuLabel>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
+          <DropdownMenuSub
+            open={isSubDropdownOpen}
+            onOpenChange={setIsSubDropdownOpen}
+          >
+            <DropdownMenuSubTrigger
+              onMouseEnter={() => setIsSubDropdownOpen(true)}
+            >
               <Settings2 />
               Change Status
             </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="p-0">
-              <Command>
-                <CommandInput
-                  placeholder="Search for a status"
-                  className="h-9"
+            {isSubDropdownOpen && (
+              <DropdownMenuSubContent className="p-0">
+                <ColumnStatusSelect
+                  columnStatus={columnStatus}
+                  handleUpdateColumn={handleUpdateColumn}
                 />
-                <CommandList>
-                  <CommandEmpty>No matching statuses found.</CommandEmpty>
-                  <CommandGroup>
-                    {Object.keys(columnStatusOptions)
-                      .filter((status) => status !== columnStatus)
-                      .map((status) => {
-                        const { icon: Icon, color } =
-                          columnStatusOptions[
-                            status as keyof typeof columnStatusOptions
-                          ];
-
-                        return (
-                          <CommandItem
-                            key={status}
-                            value={status}
-                            onSelect={(value) => {
-                              handleUpdateColumn({ status: value });
-                            }}
-                            disabled={updating !== "" && updating !== status}
-                            className="flex items-center justify-between gap-2"
-                          >
-                            <span className="flex items-center gap-2">
-                              <Icon size={16} color={color} />
-                              <span className="max-w-32 overflow-hidden text-ellipsis whitespace-nowrap">
-                                {status}
-                              </span>
-                            </span>
-                            {updating === status && (
-                              <Loader className="animate-spin" />
-                            )}
-                          </CommandItem>
-                        );
-                      })}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </DropdownMenuSubContent>
+              </DropdownMenuSubContent>
+            )}
           </DropdownMenuSub>
           <DropdownMenuItem
             onClick={() => setShowAlertConfirmation(true)}

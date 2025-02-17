@@ -1,27 +1,52 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Clipboard } from "lucide-react";
-
+import { useShallow } from "zustand/react/shallow";
 import type { Board } from "@prisma/client";
-import BoardActions from "@/app/dashboard/components/board/board-actions";
+
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import BoardActions from "@/app/dashboard/components/board/board-actions";
+import useBoardStore from "@/stores/board";
+import BoardsSkeleton from "./boards-skeleton";
 
 type BoardsListProps = {
   boards: Omit<Board, "userId">[];
 };
 
-export default function BoardsList({ boards }: BoardsListProps) {
+export function BoardsList({ boards: initialBoards }: BoardsListProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
+
+  const { boards, setBoards } = useBoardStore(
+    useShallow((state) => {
+      return {
+        boards: state.boards,
+        setBoards: state.setBoards,
+      };
+    }),
+  );
+
+  useEffect(() => {
+    if (!initialBoards) return;
+
+    setBoards(initialBoards);
+    setIsLoading(false);
+  }, [initialBoards, setBoards]);
+
+  if (isLoading) {
+    return <BoardsSkeleton skeletonsLength={initialBoards.length} />;
+  }
 
   return (
     <SidebarMenu>
-      {boards?.map((board) => {
+      {boards.map((board) => {
         const isActive = pathname === `/dashboard/${board.slug}`;
         const href = `/dashboard/${board.slug}`;
         return (

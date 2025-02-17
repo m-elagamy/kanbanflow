@@ -1,5 +1,5 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { DashboardSidebar } from "@/components/layout/sidebar";
+import DashboardSidebar from "@/components/layout/sidebar";
 
 export default function DashboardTemplate({
   children,

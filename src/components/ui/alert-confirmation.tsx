@@ -17,12 +17,10 @@ type AlertConfirmationProps = {
   description: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  formAction: (payload: FormData) => void;
-  isPending: boolean;
+  formAction?: (payload: FormData) => void;
+  isPending?: boolean;
   columnId?: string;
   boardId?: string;
-  boardSlug?: string;
-  columnConfirmation?: boolean;
 };
 
 const AlertConfirmation = ({
@@ -36,8 +34,6 @@ const AlertConfirmation = ({
   isPending,
   columnId,
   boardId,
-  boardSlug,
-  columnConfirmation,
 }: AlertConfirmationProps) => {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -49,13 +45,8 @@ const AlertConfirmation = ({
         <AlertDialogFooter className="justify-center">
           <AlertDialogCancel className="px-2">{cancelLabel}</AlertDialogCancel>
           <form action={formAction}>
-            <input
-              type="hidden"
-              name={columnConfirmation ? "columnId" : "boardId"}
-              value={columnId ?? boardId}
-            />
-            {columnConfirmation && (
-              <input type="hidden" name="boardSlug" value={boardSlug} />
+            {!columnId && (
+              <input type="hidden" name={"boardId"} value={boardId} />
             )}
             <Button
               className="w-full gap-1 bg-destructive px-2 text-destructive-foreground hover:bg-destructive/90"

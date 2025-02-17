@@ -13,14 +13,12 @@ type BoardHeaderProps = {
   boardId: string;
   boardTitle: string;
   boardDescription: string | null;
-  boardSlug: string;
 };
 
 const BoardHeader = ({
   boardId,
   boardTitle,
   boardDescription,
-  boardSlug,
 }: BoardHeaderProps) => {
   return (
     <section className="mb-4 pb-6 pt-8">
@@ -44,7 +42,7 @@ const BoardHeader = ({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <TaskPriorityFilter boardSlug={boardSlug} />
+          <TaskPriorityFilter />
           <BoardActions
             boardId={boardId}
             boardTitle={boardTitle}

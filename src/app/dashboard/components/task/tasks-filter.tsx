@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
 import { Filter } from "lucide-react";
-import { useShallow } from "zustand/react/shallow";
 import {
   Select,
   SelectContent,
@@ -12,34 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useKanbanStore, type Priority } from "@/stores/kanban";
 
-export function TaskPriorityFilter({ boardSlug }: { boardSlug: string }) {
-  const { priorityFilter, setPriorityFilter, resetBoardFilter } =
-    useKanbanStore(
-      useShallow((state) => ({
-        priorityFilter: state.priorityFilter,
-        setPriorityFilter: state.setPriorityFilter,
-        resetBoardFilter: state.resetBoardFilter,
-      })),
-    );
-
-  const selectValue = priorityFilter === "all" ? "" : priorityFilter;
-
-  const handleOnValueChange = (value: Priority | "") => {
-    if (value === "") {
-      setPriorityFilter(boardSlug, "all");
-    } else {
-      setPriorityFilter(boardSlug, value);
-    }
-  };
-
-  useEffect(() => {
-    resetBoardFilter(boardSlug);
-  }, [boardSlug, resetBoardFilter]);
-
+export function TaskPriorityFilter() {
   return (
-    <Select value={selectValue} onValueChange={handleOnValueChange}>
+    <Select>
       <SelectTrigger className="hover:bg-muted-foreground/5">
         <Filter size={14} className="text-muted-foreground" />
         <SelectValue placeholder="Filter" />

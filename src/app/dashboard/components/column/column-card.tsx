@@ -1,4 +1,3 @@
-import { useShallow } from "zustand/react/shallow";
 import { useDroppable } from "@dnd-kit/core";
 import { Column } from "@prisma/client";
 import {
@@ -7,7 +6,7 @@ import {
 } from "@dnd-kit/sortable";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { useKanbanStore } from "@/stores/kanban";
+import { useTaskStore } from "@/stores/task";
 
 import ColumnHeader from "./column-header";
 import NoTasksMessage from "../task/no-tasks-message";
@@ -19,15 +18,13 @@ type ColumnCardProps = {
 };
 
 const ColumnCard = ({ column, boardSlug }: ColumnCardProps) => {
-  const tasks = useKanbanStore(
-    useShallow((state) => state.getFilteredTasks(boardSlug, column.id)),
-  );
+  const tasks = useTaskStore((state) => state.tasks[column.id]) ?? [];
 
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   });
 
-  const taskIds = tasks.map((task) => task.id);
+  const taskIds = tasks?.map((task) => task.id);
 
   return (
     <Card

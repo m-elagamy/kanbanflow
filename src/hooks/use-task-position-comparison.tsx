@@ -8,11 +8,11 @@ type TaskState = Record<string, Task[]>;
 export default function useTaskStateComparison() {
   const initialStateRef = useRef<TaskState>(null);
 
-  const captureInitialState = (currentState: TaskState) => {
+  const captureInitialPosition = (currentState: TaskState) => {
     initialStateRef.current = JSON.parse(JSON.stringify(currentState));
   };
 
-  const hasStateChanged = (
+  const hasTaskPositionChanged = (
     currentState: TaskState,
     fromColumnId: string,
     toColumnId: string,
@@ -33,5 +33,5 @@ export default function useTaskStateComparison() {
     );
   };
 
-  return { captureInitialState, hasStateChanged };
+  return { captureInitialPosition, hasTaskPositionChanged };
 }

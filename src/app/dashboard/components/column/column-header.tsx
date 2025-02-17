@@ -9,6 +9,9 @@ import columnStatusOptions from "../../data/column-status-options";
 import { Column } from "@prisma/client";
 import { deleteColumnAction } from "@/actions/column";
 import ColumnActions from "./column-actions";
+import { useColumnStore } from "@/stores/column";
+import delay from "@/utils/delay";
+import { toast } from "sonner";
 
 type ColumnHeaderProps = {
   tasksCount: number;
@@ -23,15 +26,39 @@ export default function ColumnHeader({
 }: ColumnHeaderProps) {
   const [showAlertConfirmation, setShowAlertConfirmation] = useState(false);
 
-  const [, formAction, isPending] = useActionState(deleteColumnAction, {
-    success: false,
-    message: "",
-  });
-
   const { id: columnId, status: columnStatus } = column;
 
   const { icon: Icon, color } =
     columnStatusOptions[columnStatus as keyof typeof columnStatusOptions];
+
+  const deleteColumnOptimistically = useColumnStore(
+    (state) => state.deleteColumn,
+  );
+  const isLoading = useColumnStore((state) => state.isLoading);
+  const setIsLoading = useColumnStore((state) => state.setIsLoading);
+  const revertToPrevious = useColumnStore((state) => state.revertToPrevious);
+
+  const handleFormAction = async (formData: FormData) => {
+    if (columnId) {
+      setIsLoading(true);
+      await delay(300);
+      deleteColumnOptimistically(columnId);
+      setIsLoading(false);
+
+      try {
+        await deleteColumnAction(columnId);
+      } catch (error) {
+        console.error("Error deleting column:", error);
+        revertToPrevious();
+        toast.error("Failed to delete column", {
+          description:
+            "An error occurred while deleting the column. Please try again.",
+          duration: 5000,
+          icon: "🚨",
+        });
+      }
+    }
+  };
 
   return (
     <>
@@ -66,11 +93,9 @@ export default function ColumnHeader({
         setOpen={setShowAlertConfirmation}
         title="Delete Column"
         description="Are you sure you want to delete this column? This action cannot be undone."
-        formAction={formAction}
-        isPending={isPending}
         columnId={columnId}
-        boardSlug={boardSlug}
-        columnConfirmation
+        isPending={isLoading}
+        formAction={handleFormAction}
       />
     </>
   );
