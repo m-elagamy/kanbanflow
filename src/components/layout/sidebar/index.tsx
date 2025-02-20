@@ -7,6 +7,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarRail,
 } from "@/components/ui/sidebar";
 import { getAllUserBoardsAction } from "@/actions/user";
 import SidebarTitle from "./sidebar-title";
@@ -39,6 +40,7 @@ export default async function DashboardSidebar() {
       <SidebarFooter>
         <UserProfile />
       </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   );
 }
