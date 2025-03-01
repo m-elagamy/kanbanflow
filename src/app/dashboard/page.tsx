@@ -33,9 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const Dashboard = async () => {
   const user = await currentUser();
 
-  if (!user) {
-    unauthorized();
-  }
+  if (!user) unauthorized();
 
   // Insert user data into the database when the user logs in for the first time.
   insertUserData(user.id, user.fullName, user.emailAddresses[0].emailAddress);

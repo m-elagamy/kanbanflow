@@ -1,8 +1,10 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { Ellipsis, SquarePen, TrashIcon } from "lucide-react";
 
+import type { Board } from "@prisma/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,30 +15,56 @@ import {
 import { Button } from "@/components/ui/button";
 import { deleteBoardAction } from "@/actions/board";
 import { SidebarMenuAction, useSidebar } from "@/components/ui/sidebar";
-import AlertConfirmation from "../../../../components/ui/alert-confirmation";
+import useBoardStore from "@/stores/board";
+import delay from "@/utils/delay";
 import BoardModal from "./board-modal";
+import dynamic from "next/dynamic";
+
+const AlertConfirmation = dynamic(
+  () => import("@/components/ui/alert-confirmation"),
+  {
+    loading: () => null,
+  },
+);
 
 type BoardActionsProps = {
-  boardId: string;
-  boardTitle: string;
-  boardDescription: string | null;
+  board: Pick<Board, "id" | "title" | "description" | "slug">;
   isSidebarTrigger?: boolean;
 };
 
 export default function BoardActions({
-  boardId,
-  boardTitle,
-  boardDescription,
+  board,
   isSidebarTrigger,
 }: Readonly<BoardActionsProps>) {
+  const router = useRouter();
+  const param = useParams();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const { isMobile } = useSidebar();
 
-  const [, formAction, isPending] = useActionState(deleteBoardAction, {
-    success: false,
-    message: "",
-    fields: { boardId },
-  });
+  const { isMobile } = useSidebar();
+  const deleteBoardOptimistically = useBoardStore((state) => state.deleteBoard);
+  const isDeleting = useBoardStore((state) => state.isDeleting);
+  const setIsDeleting = useBoardStore((state) => state.setIsDeleting);
+
+  const handleOnClick = async () => {
+    if (!board.id) return;
+
+    setIsDeleting(true);
+    try {
+      if (param.board) {
+        await delay(300);
+        router.replace("/dashboard");
+      }
+
+      await delay(150);
+      deleteBoardOptimistically(board.id);
+
+      await deleteBoardAction(board.id);
+    } catch (error) {
+      console.error("Error deleting board:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <DropdownMenu>
@@ -69,11 +97,7 @@ export default function BoardActions({
               <SquarePen size={16} /> Edit
             </DropdownMenuLabel>
           }
-          board={{
-            id: boardId,
-            title: boardTitle,
-            description: boardDescription,
-          }}
+          board={board}
         />
         <DropdownMenuItem
           className="h-[30px] p-2 !py-1 text-destructive focus:text-destructive"
@@ -82,15 +106,16 @@ export default function BoardActions({
           <TrashIcon /> Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
-      <AlertConfirmation
-        open={isAlertOpen}
-        setOpen={setIsAlertOpen}
-        title={`Delete Board`}
-        description="This action will permanently remove the board and all its data."
-        formAction={formAction}
-        isPending={isPending}
-        boardId={boardId}
-      />
+      {isAlertOpen && (
+        <AlertConfirmation
+          open={isAlertOpen}
+          setOpen={setIsAlertOpen}
+          title={`Delete Board`}
+          description="This action will permanently remove the board and all its data."
+          onClick={handleOnClick}
+          isPending={isDeleting}
+        />
+      )}
     </DropdownMenu>
   );
 }

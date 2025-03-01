@@ -13,7 +13,7 @@ import { getModalDescription } from "../../utils/get-modal-description";
 
 type BoardModalProps = {
   mode: "create" | "edit";
-  board?: Pick<Board, "id" | "title" | "description">;
+  board?: Pick<Board, "id" | "title" | "description" | "slug">;
   trigger: React.ReactNode;
   variant?: ButtonVariants;
 };
@@ -41,17 +41,7 @@ const BoardModal = ({ mode, board, trigger, variant }: BoardModalProps) => {
         modalType="board"
         modalId={modalId}
       >
-        <BoardForm
-          formOperationMode={mode}
-          modalId={modalId}
-          initialState={{
-            boardId: board?.id,
-            fields: {
-              title: board?.title ?? "",
-              description: board?.description ?? "",
-            },
-          }}
-        />
+        <BoardForm formMode={mode} modalId={modalId} board={board} />
       </Modal>
     </>
   );

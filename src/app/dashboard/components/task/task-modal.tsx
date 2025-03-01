@@ -3,32 +3,30 @@ import type { Task } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/modal";
 import { useModalStore } from "@/stores/modal";
-import type { formOperationMode, ButtonVariants } from "@/lib/types";
+import type { FormMode, ButtonVariants } from "@/lib/types";
 
 import TaskForm from "./task-form";
 import { getModalTitle } from "../../utils/get-modal-title";
 import { getModalDescription } from "../../utils/get-modal-description";
 
 type TaskModalProps = {
-  boardSlug?: string;
   columnId: string;
   trigger?: React.ReactNode;
-  taskToEdit?: Task | null;
-  mode: formOperationMode;
+  task?: Task;
+  mode: FormMode;
   variant?: ButtonVariants;
 };
 
 const TaskModal = ({
-  boardSlug,
   columnId,
   trigger,
-  taskToEdit,
+  task,
   mode,
   variant = "ghost",
 }: TaskModalProps) => {
   const openModal = useModalStore((state) => state.openModal);
 
-  const modalId = taskToEdit ? `task-${taskToEdit.id}` : `new-task-${columnId}`;
+  const modalId = task ? `task-${task.id}` : `new-task-${columnId}`;
 
   const handleOnClick = () => openModal("task", modalId);
 
@@ -49,20 +47,10 @@ const TaskModal = ({
         modalId={modalId}
       >
         <TaskForm
-          boardSlug={boardSlug}
-          formOperationMode={mode}
+          columnId={columnId}
           modalId={modalId}
-          initialState={{
-            success: false,
-            message: "",
-            columnId,
-            taskId: taskToEdit?.id ?? "",
-            fields: {
-              title: taskToEdit?.title ?? "",
-              description: taskToEdit?.description ?? "",
-              priority: taskToEdit?.priority ?? "medium",
-            },
-          }}
+          task={task}
+          formMode={mode}
         />
       </Modal>
     </>

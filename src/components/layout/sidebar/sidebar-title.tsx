@@ -9,7 +9,7 @@ import {
 const SidebarTitle = () => {
   return (
     <SidebarHeader className="border-b">
-      <SidebarMenu className="pointer-events-none">
+      <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton>
             <FolderKanban />

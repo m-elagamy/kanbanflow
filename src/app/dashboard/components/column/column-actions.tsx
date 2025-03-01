@@ -14,9 +14,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { updateColumnAction } from "@/actions/column";
+import { deleteColumnAction, updateColumnAction } from "@/actions/column";
 import { useColumnStore } from "@/stores/column";
 import TaskModal from "../task/task-modal";
+// import AlertConfirmation from "@/components/ui/alert-confirmation";
+import delay from "@/utils/delay";
+
+const AlertConfirmation = dynamic(
+  () => import("@/components/ui/alert-confirmation"),
+  {
+    loading: () => null,
+  },
+);
 
 const DropdownMenuSubContent = dynamic(
   () =>
@@ -35,20 +44,17 @@ type ColumnActionsProps = {
   columnId: string;
   columnStatus: string;
   tasksCount: number;
-  setShowAlertConfirmation: (value: boolean) => void;
-  boardSlug: string;
 };
 
 const ColumnActions = ({
   columnId,
   columnStatus,
   tasksCount,
-  boardSlug,
-  setShowAlertConfirmation,
 }: ColumnActionsProps) => {
   const isMobile = useIsMobile();
   const [isMainDropdownOpen, setIsMainDropdownOpen] = useState(false);
   const [isSubDropdownOpen, setIsSubDropdownOpen] = useState(false);
+  const [showAlertConfirmation, setShowAlertConfirmation] = useState(false);
 
   const updateColumnOptimistically = useColumnStore(
     (state) => state.updateColumn,
@@ -73,12 +79,39 @@ const ColumnActions = ({
     }
   };
 
+  const deleteColumnOptimistically = useColumnStore(
+    (state) => state.deleteColumn,
+  );
+  const isLoading = useColumnStore((state) => state.isLoading);
+  const setIsLoading = useColumnStore((state) => state.setIsLoading);
+
+  const handleOnClick = async () => {
+    if (columnId) {
+      setIsLoading(true);
+      await delay(300);
+      deleteColumnOptimistically(columnId);
+      setIsLoading(false);
+
+      try {
+        await deleteColumnAction(columnId);
+      } catch (error) {
+        console.error("Error deleting column:", error);
+        revertToPrevious();
+        toast.error("Failed to delete column", {
+          description:
+            "An error occurred while deleting the column. Please try again.",
+          duration: 5000,
+          icon: "🚨",
+        });
+      }
+    }
+  };
+
   return (
     <div className="flex items-center gap-1">
       {tasksCount >= 1 && (
         <TaskModal
           mode="create"
-          boardSlug={boardSlug}
           columnId={columnId}
           trigger={
             <Button variant="ghost" size="icon" className="size-8">
@@ -127,6 +160,17 @@ const ColumnActions = ({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      {showAlertConfirmation && (
+        <AlertConfirmation
+          open={showAlertConfirmation}
+          setOpen={setShowAlertConfirmation}
+          title="Delete Column"
+          description="Are you sure you want to delete this column? This action cannot be undone."
+          isPending={isLoading}
+          onClick={handleOnClick}
+          triggerSource="column"
+        />
+      )}
     </div>
   );
 };

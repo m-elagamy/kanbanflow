@@ -1,15 +1,18 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { taskSchema, type TaskSchema } from "@/schemas/task";
+import type { Task } from "@prisma/client";
 import db from "@/lib/db";
+import { taskSchema, type TaskSchema } from "@/schemas/task";
 import { ServerActionResult } from "@/lib/types";
 import { createTask, updateTask, deleteTask } from "../lib/dal/task";
 
 export const createTaskAction = async (
-  _prevState: unknown,
   formData: FormData,
-): Promise<ServerActionResult<TaskSchema>> => {
+): Promise<
+  ServerActionResult<
+    Partial<Pick<Task, "id" | "title" | "description" | "priority">>
+  >
+> => {
   const data = Object.fromEntries(formData.entries());
   const validatedData = taskSchema.safeParse(data);
 
@@ -21,9 +24,8 @@ export const createTaskAction = async (
     };
   }
 
-  const { title, description, priority } = validatedData.data;
+  const { title, description, priority = "medium" } = validatedData.data;
 
-  const boardSlug = formData.get("boardSlug") as string;
   const columnId = formData.get("columnId") as string;
 
   const existingTask = await db.task.findUnique({
@@ -52,17 +54,19 @@ export const createTaskAction = async (
     };
   }
 
-  revalidatePath(`/dashboard/${boardSlug}`, "page");
-
   return {
     success: true,
     message: `Task was added successfully.`,
-    fields: { title, description: description ?? "", priority },
+    fields: {
+      id: result.data?.id,
+      title,
+      description: description ?? "",
+      priority,
+    },
   };
 };
 
 export async function updateTaskAction(
-  _prevState: unknown,
   formData: FormData,
 ): Promise<ServerActionResult<TaskSchema>> {
   const data = Object.fromEntries(formData.entries());
@@ -77,7 +81,6 @@ export async function updateTaskAction(
   }
 
   const { title, description, priority } = validatedData.data;
-  const boardSlug = formData.get("boardSlug") as string;
   const columnId = formData.get("columnId") as string;
   const taskId = formData.get("taskId") as string;
 
@@ -132,8 +135,6 @@ export async function updateTaskAction(
     return { success: false, message: "Failed to update the task." };
   }
 
-  revalidatePath(`/dashboard/${boardSlug}`, "page");
-
   return {
     success: true,
     message: "Task updated successfully.",
@@ -143,7 +144,6 @@ export async function updateTaskAction(
 
 export async function deleteTaskAction(
   taskId: string,
-  boardSlug: string,
 ): Promise<ServerActionResult<TaskSchema>> {
   const result = await deleteTask(taskId);
 
@@ -153,8 +153,6 @@ export async function deleteTaskAction(
       message: "Failed to delete the task.",
     };
   }
-
-  revalidatePath(`/dashboard/${boardSlug}`, "page");
 
   return {
     success: true,
@@ -167,7 +165,6 @@ export async function updateTaskPositionAction(
   oldColumnId: string,
   newColumnId: string,
   newTaskOrder: string[],
-  boardSlug?: string,
 ): Promise<void> {
   if (!taskId || !oldColumnId || !newColumnId || !Array.isArray(newTaskOrder)) {
     throw new Error("updateTaskPositionAction: Invalid parameters provided");
@@ -222,7 +219,6 @@ export async function updateTaskPositionAction(
     });
   } catch (error) {
     console.error("Error moving task between columns:", error);
-    revalidatePath(`/dashboard/${boardSlug}`, "page");
     throw new Error(
       `Failed to move task: ${error instanceof Error ? error.message : error}`,
     );

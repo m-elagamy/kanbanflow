@@ -49,7 +49,6 @@ export const getAllUserBoards = withAuth(async (userId: string) => {
       title: true,
       slug: true,
       description: true,
-      order: true,
     },
   });
 });

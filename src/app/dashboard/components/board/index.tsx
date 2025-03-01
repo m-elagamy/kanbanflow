@@ -1,33 +1,37 @@
-import { notFound } from "next/navigation";
-import { getBoardBySlugAction } from "@/actions/board";
+"use client";
+
+import type { Board, Column, Task } from "@prisma/client";
+import { useInitializeBoardData } from "@/hooks/use-initialize-board";
 import BoardHeader from "./board-header";
 import ColumnsWrapper from "../column";
+import BoardSkeleton from "./board-skeleton";
+import BoardContainer from "./board-container";
 
-type BoardContentProps = {
-  userId: string;
-  boardSlug: string;
+type BoardLayoutProps = {
+  initialBoard: Board & {
+    columns: (Column & { tasks: Task[] })[];
+  };
 };
 
-export default async function BoardContent({
-  userId,
-  boardSlug,
-}: BoardContentProps) {
-  const { board: currentBoard } = await getBoardBySlugAction(userId, boardSlug);
+export default function BoardLayout({ initialBoard }: BoardLayoutProps) {
+  const { activeBoard, isDeleting } = useInitializeBoardData(initialBoard);
 
-  if (!currentBoard) notFound();
+  if (!activeBoard) {
+    if (isDeleting) return;
+    return (
+      <BoardSkeleton
+        columnsNumber={initialBoard.columns.length + 1}
+        tasksPerColumn={initialBoard.columns.map(
+          (column) => column.tasks.length,
+        )}
+      />
+    );
+  }
 
   return (
-    <div className="container relative right-3 flex h-full flex-col overflow-hidden p-0 pb-8 md:right-0 md:px-4">
-      <BoardHeader
-        boardId={currentBoard.id}
-        boardTitle={currentBoard.title}
-        boardDescription={currentBoard.description}
-      />
-      <ColumnsWrapper
-        columns={currentBoard.columns}
-        boardId={currentBoard.id}
-        boardSlug={currentBoard.slug}
-      />
-    </div>
+    <BoardContainer>
+      <BoardHeader board={activeBoard} />
+      <ColumnsWrapper boardId={activeBoard.id} />
+    </BoardContainer>
   );
 }

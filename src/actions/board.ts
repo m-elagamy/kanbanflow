@@ -1,16 +1,15 @@
 "use server";
 
-import { redirect, RedirectType } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { currentUser } from "@clerk/nextjs/server";
-import type { Board } from "@prisma/client";
+import type { Board, Column } from "@prisma/client";
 import db from "@/lib/db";
 
 import columnsTemplates from "@/app/dashboard/data/columns-templates";
-import { boardSchema, type BoardFormSchema } from "@/schemas/board";
+import { boardSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slugify";
-import { BoardActionState, type ServerActionResult } from "@/lib/types";
+import { type ServerActionResult } from "@/lib/types";
 import {
   createBoard,
   deleteBoard,
@@ -20,9 +19,8 @@ import {
 import type { ColumnStatus } from "@/schemas/column";
 
 export const createBoardAction = async (
-  _prevState: BoardActionState,
   formData: FormData,
-): Promise<BoardActionState> => {
+): Promise<ServerActionResult<Board & { columns: Column[] }>> => {
   const user = await currentUser();
   if (!user) return { success: false, message: "Authentication required!" };
 
@@ -33,7 +31,6 @@ export const createBoardAction = async (
     return {
       success: false,
       message: "Validation Errors",
-      fields: data as BoardFormSchema,
     };
   }
 
@@ -52,11 +49,12 @@ export const createBoardAction = async (
     return {
       success: false,
       message: `A board with the name "${title}" already exists.`,
-      fields: validatedData.data,
     };
   }
 
-  const template = columnsTemplates.find((t) => t.id === templateId);
+  const template = columnsTemplates.find((t) => t.id === templateId) || {
+    status: [],
+  };
 
   const result = await createBoard(
     user.id,
@@ -73,13 +71,18 @@ export const createBoardAction = async (
     };
   }
 
-  redirect(`/dashboard/${boardSlug}`);
+  return {
+    success: true,
+    message: "Board created successfully.",
+    fields: result.data,
+  };
 };
 
 export const updateBoardAction = async (
-  _prevState: BoardActionState,
   formData: FormData,
-): Promise<BoardActionState> => {
+): Promise<
+  ServerActionResult<Pick<Board, "title" | "description" | "slug">>
+> => {
   const user = await currentUser();
   if (!user) return { success: false, message: "Authentication required!" };
 
@@ -90,7 +93,6 @@ export const updateBoardAction = async (
     return {
       success: false,
       message: "Validation Errors",
-      fields: data as BoardFormSchema,
     };
   }
 
@@ -114,13 +116,12 @@ export const updateBoardAction = async (
       success: false,
       message:
         "No changes detected. Please update something before submitting.",
-      fields: validatedData.data,
     };
   }
 
   const newSlug = slugify(title);
 
-  const updateData: Partial<Pick<Board, "title" | "description" | "slug">> = {
+  const updatedData: Partial<Pick<Board, "title" | "description" | "slug">> = {
     ...(titleChanged && { title, slug: newSlug }),
     ...(descriptionChanged && { description }),
   };
@@ -138,39 +139,45 @@ export const updateBoardAction = async (
     return {
       success: false,
       message: `A board with the name "${title}" already exists.`,
-      fields: validatedData.data,
     };
   }
 
-  const result = await updateBoard(boardId, updateData);
+  const result = await updateBoard(boardId, updatedData);
 
   if (!result.success) {
     return { success: false, message: "Failed to update board" };
   }
 
-  if (titleChanged) redirect(`/dashboard/${newSlug}`, RedirectType.replace);
-
-  revalidatePath(`/dashboard/${newSlug}`, "page");
-  return { success: true, message: "Board updated successfully" };
+  return {
+    success: true,
+    message: "Board updated successfully",
+    fields: result.data,
+  };
 };
 
 export async function deleteBoardAction(
-  _prevState: unknown,
-  formData: FormData,
+  boardId: string,
 ): Promise<ServerActionResult<{ boardId: string }>> {
   try {
-    const boardId = formData.get("boardId") as string;
     await deleteBoard(boardId);
     return {
       success: true,
       message: "Board deleted successfully",
-      fields: { boardId },
     };
   } catch (error) {
     console.error("Error deleting board:", error);
     return { success: false, message: "Failed to delete board" };
-  } finally {
-    redirect("/dashboard");
+  }
+}
+
+export async function deleteAllBoardsAction() {
+  try {
+    await db.board.deleteMany();
+    revalidatePath("/dashboard", "page");
+    return { success: true, message: "All boards deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting all boards:", error);
+    return { success: false, message: "Failed to delete all boards" };
   }
 }
 

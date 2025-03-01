@@ -30,7 +30,7 @@ export default async function DashboardSidebar() {
       <SidebarTitle />
       <SidebarContent>
         <SidebarGroup>
-          <SidebarLabel boardsCount={userBoards?.length} />
+          <SidebarLabel />
           <SidebarGroupContent>
             {userBoards && <BoardsList boards={userBoards} />}
           </SidebarGroupContent>

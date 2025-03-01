@@ -2,10 +2,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ErrorMessage from "@/components/ui/error-message";
-import FormActions from "@/components/ui/form-actions";
 import RequiredFieldSymbol from "@/components/ui/required-field-symbol";
-import useTaskAction from "@/hooks/use-task-action";
-import type { formOperationMode, TaskActionState } from "@/lib/types";
+import type { FormMode } from "@/lib/types";
 import {
   Select,
   SelectContent,
@@ -16,81 +14,130 @@ import {
 
 import getBadgeStyle from "../../utils/get-badge-style";
 import taskPriorities from "../../data/task-priorities";
+import { taskSchema, type TaskSchema } from "@/schemas/task";
+import type { Task } from "@prisma/client";
+import { createTaskAction, updateTaskAction } from "@/actions/task";
+import { useTaskStore } from "@/stores/task";
+import generateUUID from "@/utils/generate-UUID";
+import { useModalStore } from "@/stores/modal";
+import useForm from "@/hooks/use-form";
+import { pick } from "@/utils/object";
+import GenericForm from "@/components/ui/generic-form";
+import handleOnError from "@/utils/handle-on-error";
 
 type TaskFormProps = {
-  formOperationMode: formOperationMode;
-  initialState: TaskActionState;
+  formMode: FormMode;
+  task?: Pick<Task, "id" | "title" | "description" | "priority">;
+  columnId: string;
   modalId: string;
-  boardSlug?: string;
 };
 
-const TaskForm = ({
-  formOperationMode,
-  initialState,
-  modalId,
-  boardSlug,
-}: TaskFormProps) => {
-  const isEditMode = formOperationMode === "edit";
+type TaskFormValues = TaskSchema & { id: string };
+
+const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
+  const isEditMode = formMode === "edit";
+
+  const tasks = useTaskStore((state) => state.tasks);
+  const addTask = useTaskStore((state) => state.addTask);
+  const updateTask = useTaskStore((state) => state.updateTask);
+  const deleteTask = useTaskStore((state) => state.deleteTask);
+  const updateTaskId = useTaskStore((state) => state.updateTaskId);
+  const closeModal = useModalStore((state) => state.closeModal);
 
   const {
-    handleAction,
-    state,
-    isPending,
-    taskFormData,
-    errors,
-    isFormInvalid,
+    formValues: taskFormData,
+    handleOnChange,
     formRef,
-    handleFieldChange,
-  } = useTaskAction({
-    initialState,
-    isEditMode,
-    modalId,
-  });
+    errors,
+    validateBeforeSubmit,
+  } = useForm<TaskFormValues>(
+    {
+      id: task?.id ?? "",
+      title: task?.title ?? "",
+      description: task?.description ?? "",
+      priority: task?.priority ?? "medium",
+    },
+    taskSchema,
+  );
+
+  const existingTasks = Object.values(tasks).flatMap((tasksArray) =>
+    tasksArray.map(({ id, title }) => ({ id, title })),
+  );
+
+  const handleFormAction = async (formData: FormData) => {
+    const { success, data: validatedData } = validateBeforeSubmit(
+      formData,
+      isEditMode,
+      existingTasks,
+      ["title", "description", "priority"],
+      "task",
+    );
+
+    if (!success || !validatedData) return;
+
+    const { title, description, priority } = validatedData;
+
+    const optimisticTask = {
+      id: generateUUID(),
+      columnId,
+      title,
+      description,
+      priority,
+      order: 0,
+    };
+
+    try {
+      if (isEditMode && task) {
+        updateTask(
+          columnId,
+          task?.id,
+          pick(optimisticTask, ["title", "description", "priority"]),
+        );
+        closeModal("task", modalId);
+
+        await updateTaskAction(formData);
+      } else {
+        addTask(columnId, optimisticTask);
+        closeModal("task", modalId);
+
+        const response = await createTaskAction(formData);
+
+        updateTaskId(columnId, optimisticTask.id, response.fields?.id ?? "");
+      }
+    } catch (error) {
+      console.error("Error creating task:", error);
+      if (isEditMode && task) updateTask(columnId, task.id, task);
+      deleteTask(columnId, optimisticTask.id);
+      handleOnError(error, "Failed to process your request.");
+    }
+  };
 
   return (
-    <form ref={formRef} action={handleAction} className="space-y-4">
-      {errors.serverErrors.generic && (
-        <ErrorMessage id="server-error" className="justify-center">
-          {errors.serverErrors.generic}
-        </ErrorMessage>
-      )}
-
+    <GenericForm
+      formRef={formRef}
+      onAction={handleFormAction}
+      errors={errors?.generic ?? ""}
+      formMode={formMode}
+    >
       <section className="space-y-2">
-        <Label
-          className={`${errors.clientErrors.title || errors.serverErrors.specific ? "text-destructive" : ""}`}
-        >
+        <Label className={`${errors?.title ? "text-destructive" : ""}`}>
           What&apos;s the task? <RequiredFieldSymbol />
         </Label>
-        <Input
-          type="hidden"
-          name="columnId"
-          value={initialState.columnId ?? ""}
-        />
-        <Input type="hidden" name="boardSlug" value={boardSlug ?? ""} />
+        <Input type="hidden" name="columnId" value={columnId ?? ""} />
 
-        {isEditMode && (
-          <Input
-            type="hidden"
-            name="taskId"
-            value={initialState.taskId ?? ""}
-          />
-        )}
+        {isEditMode && <Input type="hidden" name="taskId" value={task?.id} />}
 
         <Input
           name="title"
           placeholder="e.g., Create a stunning new landing page"
-          defaultValue={taskFormData.title || state.fields?.title}
-          onChange={(e) => handleFieldChange("title", e.target.value)}
-          aria-invalid={
-            !!errors.clientErrors.title || !!errors.serverErrors.specific
-          }
+          defaultValue={taskFormData.title}
+          onChange={(e) => handleOnChange("title", e.target.value)}
+          aria-invalid={!!errors?.title}
           aria-describedby="title-error"
           aria-required
         />
-        {(errors.clientErrors.title || errors.serverErrors.specific) && (
-          <ErrorMessage id="title-error">
-            {errors.clientErrors.title || errors.serverErrors.specific}
-          </ErrorMessage>
+        {errors?.title && (
+          <ErrorMessage id="title-error">{errors?.title}</ErrorMessage>
         )}
       </section>
 
@@ -100,19 +147,17 @@ const TaskForm = ({
           name="description"
           placeholder="e.g., Design a modern, mobile-friendly layout for the homepage"
           className="resize-none"
-          defaultValue={
-            (taskFormData.description || state.fields?.description) ?? ""
-          }
-          onChange={(e) => handleFieldChange("description", e.target.value)}
+          defaultValue={taskFormData.description}
+          onChange={(e) => handleOnChange("description", e.target.value)}
         />
       </section>
 
       <section className="space-y-2">
         <Label htmlFor="priority">How urgent is this?</Label>
         <Select
+          defaultValue="medium"
           name="priority"
-          defaultValue={taskFormData.priority || state.fields?.priority}
-          onValueChange={(value) => handleFieldChange("priority", value)}
+          onValueChange={(value) => handleOnChange("priority", value)}
         >
           <SelectTrigger id="priority" className="*:max-w-[120px]">
             <SelectValue placeholder="Select a Priority" />
@@ -135,13 +180,7 @@ const TaskForm = ({
           </SelectContent>
         </Select>
       </section>
-
-      <FormActions
-        isFormInvalid={isFormInvalid}
-        isPending={isPending}
-        formOperationMode={formOperationMode}
-      />
-    </form>
+    </GenericForm>
   );
 };
 

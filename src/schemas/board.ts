@@ -6,8 +6,16 @@ export const boardSchema = z.object({
     .trim()
     .min(3, { message: "Board name must be at least 3 characters." })
     .max(100, { message: "Board name must be less than 100 characters." }),
-  template: z.string().min(1, { message: "Please select a template." }),
-  description: z.string().trim().optional().nullish(),
+  template: z
+    .enum(["personal", "agile", "bug-tracking", "custom"])
+    .default("personal")
+    .optional(),
+  description: z
+    .string()
+    .max(500, { message: "Description too long." })
+    .trim()
+    .nullish()
+    .optional(),
 });
 
 export type BoardFormSchema = z.infer<typeof boardSchema>;

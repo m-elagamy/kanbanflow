@@ -6,25 +6,27 @@ import {
 } from "@dnd-kit/sortable";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { useTaskStore } from "@/stores/task";
 
 import ColumnHeader from "./column-header";
 import NoTasksMessage from "../task/no-tasks-message";
 import TaskCard from "../task/task-card";
+import { useTaskStore } from "@/stores/task";
+import { useShallow } from "zustand/react/shallow";
 
 type ColumnCardProps = {
-  column: Column;
-  boardSlug: string;
+  column: Omit<Column, "order">;
 };
 
-const ColumnCard = ({ column, boardSlug }: ColumnCardProps) => {
-  const tasks = useTaskStore((state) => state.tasks[column.id]) ?? [];
-
+const ColumnCard = ({ column }: ColumnCardProps) => {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   });
 
-  const taskIds = tasks?.map((task) => task.id);
+  const tasks = useTaskStore(
+    useShallow((state) => state.tasks[column.id] || []),
+  );
+
+  const taskIds = tasks.map((task) => task.id);
 
   return (
     <Card
@@ -35,11 +37,7 @@ const ColumnCard = ({ column, boardSlug }: ColumnCardProps) => {
       }`}
       ref={setNodeRef}
     >
-      <ColumnHeader
-        column={column}
-        tasksCount={tasks.length}
-        boardSlug={boardSlug}
-      />
+      <ColumnHeader column={column} tasksCount={tasks.length} />
       <CardContent className="flex-grow space-y-2 overflow-y-auto p-3">
         {tasks?.length === 0 ? (
           <NoTasksMessage columnId={column.id} />
@@ -49,12 +47,7 @@ const ColumnCard = ({ column, boardSlug }: ColumnCardProps) => {
             strategy={verticalListSortingStrategy}
           >
             {tasks?.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                columnId={column.id}
-                boardSlug={boardSlug}
-              />
+              <TaskCard key={task.title} task={task} columnId={column.id} />
             ))}
           </SortableContext>
         )}

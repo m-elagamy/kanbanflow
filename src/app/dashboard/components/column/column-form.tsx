@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import FormActions from "@/components/ui/form-actions";
+import SubmitButton from "@/components/ui/submit-button";
 import { createColumnAction } from "@/actions/column";
 import { useColumnStore } from "@/stores/column";
 import { useModalStore } from "@/stores/modal";
@@ -13,7 +13,7 @@ import delay from "@/utils/delay";
 import generateUUID from "@/utils/generate-UUID";
 import ErrorMessage from "@/components/ui/error-message";
 import columnStatusSchema, { type ColumnStatus } from "@/schemas/column";
-import useAutoFocusOnError from "@/hooks/use-auto-focus-on-error";
+// import useAutoFocusOnError from "@/hooks/use-auto-focus-on-error";
 import getAvailableStatusOptions from "@/utils/column-helpers";
 
 import columnStatusOptions from "../../data/column-status-options";
@@ -83,7 +83,6 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
       id: tempId,
       status: validationResult.data.status,
       boardId,
-      order: 0,
     });
 
     closeModal("column", modalId);
@@ -111,14 +110,6 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
     if (isOpen) setIsContentLoaded(true);
   };
   const handleValueChange = () => setErrorMessage(null);
-
-  useAutoFocusOnError(
-    {
-      clientErrors: { errorMessage: errorMessage?.toString() },
-      serverErrors: { specific: null, generic: null },
-    },
-    formRef,
-  );
 
   useEffect(() => {
     return () => {
@@ -170,10 +161,10 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
         </Select>
       </section>
 
-      <FormActions
+      <SubmitButton
         isPending={isLoading}
         isFormInvalid={!hasAvailableStatuses || !!errorMessage}
-        formOperationMode="create"
+        formMode="create"
       />
     </form>
   );

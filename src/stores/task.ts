@@ -18,6 +18,11 @@ type TaskState = {
     updates: Partial<Task>,
   ) => void;
   deleteTask: (columnId: string, taskId: string) => void;
+  updateTaskId: (
+    columnId: string,
+    oldTaskId: string,
+    newTaskId: string,
+  ) => void;
   reorderTaskWithinColumn: (
     columnId: string,
     activeTaskId: string,
@@ -69,6 +74,17 @@ export const useTaskStore = create<TaskState>()(
           const tasks = state.tasks[columnId];
           if (!tasks) return;
           state.tasks[columnId] = tasks.filter((t) => t.id !== taskId);
+        });
+      },
+
+      updateTaskId: (columnId, oldTaskId, newTaskId) => {
+        if (oldTaskId === newTaskId) return;
+
+        set((state) => {
+          const tasks = state.tasks[columnId];
+          if (!tasks) return;
+          const task = tasks.find((t) => t.id === oldTaskId);
+          if (task) task.id = newTaskId;
         });
       },
 

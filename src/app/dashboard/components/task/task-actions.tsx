@@ -1,6 +1,7 @@
 "use client";
 
 import { Ellipsis, Settings2, TrashIcon } from "lucide-react";
+import { Task } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,24 +11,23 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import TaskModal from "./task-modal";
-import { toast } from "sonner";
-import { Task } from "@prisma/client";
 import { deleteTaskAction } from "@/actions/task";
+import { useTaskStore } from "@/stores/task";
 
 type TaskActionsProps = {
   task: Task;
   columnId: string;
-  boardSlug?: string;
 };
 
 export default function TaskActions({
   task,
   columnId,
-  boardSlug,
 }: Readonly<TaskActionsProps>) {
+  const deleteTask = useTaskStore((state) => state.deleteTask);
+
   const handleDelete = async () => {
-    await deleteTaskAction(task.id, boardSlug ?? "");
-    toast.success("Task was deleted successfully!");
+    deleteTask(columnId, task.id);
+    await deleteTaskAction(task.id);
   };
 
   return (
@@ -47,7 +47,7 @@ export default function TaskActions({
           <TaskModal
             mode="edit"
             columnId={columnId}
-            taskToEdit={task}
+            task={task}
             trigger={
               <DropdownMenuLabel className="w-full cursor-default justify-start rounded p-2">
                 <Settings2 size={16} /> Edit

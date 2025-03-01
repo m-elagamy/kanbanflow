@@ -105,12 +105,18 @@ export default {
             transform: "translateY(-5px)",
           },
         },
+        shimmer: {
+          "100%": {
+            transform: "translateX(100%)",
+          },
+        },
       },
       animation: {
         "caret-blink": "caret-blink 1.25s ease-out infinite",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "drop-bounce": "drop-bounce 0.3s ease-out",
+        shimmer: "shimmer 1.5s ease-in-out infinite",
       },
     },
   },

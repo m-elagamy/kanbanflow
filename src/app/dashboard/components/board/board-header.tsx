@@ -1,5 +1,6 @@
 import { InfoIcon, PanelsTopLeft } from "lucide-react";
 
+import type { Board } from "@prisma/client";
 import {
   Tooltip,
   TooltipContent,
@@ -10,32 +11,26 @@ import BoardActions from "./board-actions";
 import { TaskPriorityFilter } from "../task/tasks-filter";
 
 type BoardHeaderProps = {
-  boardId: string;
-  boardTitle: string;
-  boardDescription: string | null;
+  board: Pick<Board, "id" | "title" | "description" | "slug">;
 };
 
-const BoardHeader = ({
-  boardId,
-  boardTitle,
-  boardDescription,
-}: BoardHeaderProps) => {
+const BoardHeader = ({ board }: BoardHeaderProps) => {
   return (
     <section className="mb-4 pb-6 pt-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <PanelsTopLeft size={24} />
           <h1 className="text-base font-semibold capitalize md:text-lg">
-            {boardTitle?.replace(/-/g, " ")}
+            {board.title?.replace(/-/g, " ")}
           </h1>
-          {boardDescription && (
+          {board.description && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <InfoIcon className="size-4 text-muted-foreground hover:cursor-help hover:text-foreground" />
                 </TooltipTrigger>
                 <TooltipContent className="max-w-96">
-                  {boardDescription}
+                  {board.description}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -43,11 +38,7 @@ const BoardHeader = ({
         </div>
         <div className="flex items-center gap-2">
           <TaskPriorityFilter />
-          <BoardActions
-            boardId={boardId}
-            boardTitle={boardTitle}
-            boardDescription={boardDescription}
-          />
+          <BoardActions board={board} />
         </div>
       </div>
     </section>

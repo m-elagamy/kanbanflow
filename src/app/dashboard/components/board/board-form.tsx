@@ -1,16 +1,14 @@
 "use client";
 
+import { useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import type { Board } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import RequiredFieldSymbol from "@/components/ui/required-field-symbol";
 import { Textarea } from "@/components/ui/textarea";
-import FormActions from "@/components/ui/form-actions";
-import ErrorMessage from "@/components/ui/error-message";
-import useBoardAction from "@/hooks/use-board-action";
-import type { BoardActionState, formOperationMode } from "@/lib/types";
-import { slugify } from "@/utils/slugify";
+import type { FormMode, Templates } from "@/lib/types";
 import {
   Select,
   SelectContent,
@@ -18,101 +16,189 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import {
+  constructColumns,
+  createOptimisticBoard,
+  handleOnBlur,
+} from "@/utils/board-helpers";
+import { slugify } from "@/utils/slugify";
+import { createBoardAction, updateBoardAction } from "@/actions/board";
+import { boardSchema, type BoardFormSchema } from "@/schemas/board";
+import ErrorMessage from "@/components/ui/error-message";
+import { omit } from "@/utils/object";
+import { useBoardFormStore } from "@/hooks/use-board-form-store";
+import useForm from "@/hooks/use-form";
+import handleOnError from "@/utils/handle-on-error";
+import GenericForm from "@/components/ui/generic-form";
 import columnsTemplates from "../../data/columns-templates";
+import { useUpdatePredefinedColumnsId } from "@/hooks/use-update-predefined-columns-id";
 
 type BoardFormProps = Readonly<{
-  formOperationMode: formOperationMode;
-  initialState: BoardActionState;
+  formMode: FormMode;
+  board?: Pick<Board, "id" | "title" | "description" | "slug">;
   modalId: string;
 }>;
 
+type BoardFormValues = BoardFormSchema & { id: string };
+
 export default function BoardForm({
-  formOperationMode,
-  initialState,
+  formMode,
+  board,
   modalId,
 }: BoardFormProps) {
-  const isEditMode = formOperationMode === "edit";
+  const isEditMode = formMode === "edit";
 
   const router = useRouter();
-  const {
-    handleAction,
-    state,
-    isPending,
-    boardFormData,
-    errors,
-    clearError,
-    isFormInvalid,
-    handleFieldChange,
-    formRef,
-  } = useBoardAction({ initialState, isEditMode, modalId });
+  const [isPending, startTransition] = useTransition();
 
-  const handleOnBlur = (value: string) => {
-    const slug = slugify(value);
-    if (slug.length >= 3) {
-      router.prefetch(`/dashboard/${slug}`);
+  const {
+    boards,
+    createBoard,
+    updateBoard,
+    updateBoardId,
+    deleteBoard,
+    activeBoardId,
+    setColumns,
+    closeModal,
+  } = useBoardFormStore();
+
+  const updateColumnIds = useUpdatePredefinedColumnsId();
+
+  const {
+    formValues: boardFormData,
+    handleOnChange,
+    formRef,
+    errors,
+    validateBeforeSubmit,
+  } = useForm<BoardFormValues>(
+    {
+      id: board?.id ?? "",
+      title: board?.title ?? "",
+      description: board?.description ?? "",
+      template: "personal",
+    },
+    boardSchema,
+  );
+
+  const existingBoards = Object.values(boards).map(({ id, title }) => ({
+    id,
+    title,
+  }));
+
+  const handleFormAction = async (formData: FormData) => {
+    const { success, data: validatedData } = validateBeforeSubmit(
+      formData,
+      isEditMode,
+      existingBoards,
+      ["title", "description"],
+    );
+
+    if (!success || !validatedData) return;
+
+    const { title, description } = validatedData;
+
+    const slug = slugify(title);
+
+    const optimisticBoard = createOptimisticBoard(title, description ?? "");
+
+    if (isEditMode && board) {
+      updateBoard(board?.id, omit(optimisticBoard, ["id"]));
+      closeModal("board", modalId);
+
+      try {
+        const response = await updateBoardAction(formData);
+        const isSlugChanged = response.fields?.slug !== board?.slug;
+        const isActiveBoard = activeBoardId === board.id;
+
+        if (isSlugChanged && isActiveBoard) {
+          router.replace(`/dashboard/${response.fields?.slug}`);
+        }
+      } catch (error) {
+        handleOnError(error, "Failed to update board.");
+        updateBoard(board.id, board);
+      }
+
+      return;
     }
+
+    startTransition(async () => {
+      createBoard(optimisticBoard);
+
+      Promise.resolve().then(() => router.push(`/dashboard/${slug}`));
+
+      createBoardAction(formData).then(
+        (res) => {
+          if (!res.fields) return;
+
+          updateBoardId(optimisticBoard.id, res.fields.id);
+
+          updateColumnIds(res.fields.id, res.fields.columns);
+        },
+        (err) => {
+          handleOnError(err, "Failed to create board.");
+          router.replace("/dashboard");
+          closeModal("board", modalId);
+          deleteBoard(optimisticBoard.id);
+        },
+      );
+    });
   };
 
-  return (
-    <form ref={formRef} action={handleAction} className="space-y-4 *:space-y-2">
-      {errors.serverErrors.generic && (
-        <ErrorMessage id="server-error" className="justify-center">
-          {errors.serverErrors.generic}
-        </ErrorMessage>
-      )}
+  useEffect(() => {
+    if (isEditMode) return;
+    setColumns(constructColumns("personal"));
+  }, [isEditMode, setColumns]);
 
+  return (
+    <GenericForm
+      formRef={formRef}
+      onAction={handleFormAction}
+      formMode={formMode}
+      errors={errors}
+      isLoading={isPending}
+    >
       <div>
+        {isEditMode && <Input type="hidden" name="boardId" value={board?.id} />}
         <Label
           htmlFor="title"
-          className={`${errors.clientErrors.title || errors.serverErrors.specific ? "text-destructive" : ""}`}
+          className={`${errors?.title ? "text-destructive" : ""}`}
         >
           Name <RequiredFieldSymbol />
         </Label>
-        {isEditMode && (
-          <Input
-            type="hidden"
-            name="boardId"
-            value={initialState.boardId ?? ""}
-          />
-        )}
         <Input
           id="title"
           type="text"
           name="title"
-          defaultValue={boardFormData.title || state.fields?.title}
           placeholder="e.g., Personal Tasks"
-          onChange={(e) => handleFieldChange("title", e.target.value)}
-          onBlur={(e) => handleOnBlur(e.target.value)}
-          aria-invalid={
-            !!errors.clientErrors.title || !!errors.serverErrors.specific
-          }
+          defaultValue={boardFormData.title}
+          onBlur={(e) => {
+            handleOnBlur(router, e.target.value);
+          }}
+          onChange={(e) => handleOnChange("title", e.target.value)}
+          aria-invalid={!!errors?.title}
           aria-describedby="title-error"
           aria-required
         />
+
         <p className="text-[0.8rem] text-muted-foreground">
           Choose a clear and descriptive name for your board.
         </p>
-        {(errors.clientErrors.title || errors.serverErrors.specific) && (
-          <ErrorMessage id="title-error">
-            {errors.clientErrors.title || errors.serverErrors.specific}
-          </ErrorMessage>
+        {errors?.title && (
+          <ErrorMessage id="title-error">{errors?.title}</ErrorMessage>
         )}
       </div>
 
       {!isEditMode && (
         <div>
-          <Label
-            htmlFor="template"
-            className={`${errors.clientErrors.template ? "text-destructive" : ""}`}
+          <Label htmlFor="template">Template</Label>
+          <Select
+            defaultValue="personal"
+            name="template"
+            onValueChange={(value) =>
+              setColumns(constructColumns(value as Templates))
+            }
           >
-            Template <RequiredFieldSymbol />
-          </Label>
-          <Select name="template" onValueChange={() => clearError("template")}>
-            <SelectTrigger
-              aria-invalid={!!errors.clientErrors.template}
-              id="template"
-            >
+            <SelectTrigger id="template">
               <SelectValue placeholder="Select a template" />
             </SelectTrigger>
             <SelectContent>
@@ -132,37 +218,34 @@ export default function BoardForm({
           <p className="text-[0.8rem] text-muted-foreground">
             Start with a ready-made template or customize it later.
           </p>
-
-          {errors.clientErrors.template && (
-            <ErrorMessage id="template-error">
-              {errors.clientErrors.template}
-            </ErrorMessage>
-          )}
         </div>
       )}
 
-      <div>
-        <Label htmlFor="description"> Description</Label>
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
           name="description"
-          defaultValue={
-            (boardFormData.description || state.fields?.description) ?? ""
-          }
-          onChange={(e) => handleFieldChange("description", e.target.value)}
+          defaultValue={boardFormData?.description ?? ""}
+          onChange={(e) => handleOnChange("description", e.target.value)}
           placeholder="Organize my daily and work tasks"
-          className="resize-none"
+          className="!mb-1 resize-none"
+          aria-invalid={!!errors?.description}
+          aria-describedby="description-error"
         />
-        <p className="text-[0.8rem] text-muted-foreground">
-          Add a context to help you remember the board&apos;s purpose.
-        </p>
-      </div>
 
-      <FormActions
-        isFormInvalid={isFormInvalid}
-        isPending={isPending}
-        formOperationMode={formOperationMode}
-      />
-    </form>
+        <div className="flex items-center justify-between text-sm">
+          <p className="text-muted-foreground">
+            Add a context to help you remember the board&#39;s purpose.
+          </p>
+        </div>
+
+        {errors?.description && (
+          <ErrorMessage id="description-error">
+            {errors?.description}
+          </ErrorMessage>
+        )}
+      </div>
+    </GenericForm>
   );
 }

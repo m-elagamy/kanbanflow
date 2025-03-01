@@ -4,7 +4,7 @@ import type { LucideProps } from "lucide-react";
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
 
 const getAvailableStatusOptions = (
-  columns: Column[],
+  columns: Omit<Column, "order">[],
   statusOptions: Record<
     ColumnStatus,
     {

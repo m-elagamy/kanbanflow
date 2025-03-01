@@ -1,13 +1,13 @@
-import type { BoardFormSchema } from "@/schemas/board";
 import type { TaskSchema } from "@/schemas/task";
+import type { Board, Column, Task } from "@prisma/client";
 
-export type BoardActionState = Partial<{
-  boardId: string;
-  boardSlug: string;
+export type BoardActionState = {
   success: boolean;
   message: string;
-  fields?: Partial<BoardFormSchema>;
-}>;
+  board?: Board & {
+    columns: (Column & { tasks: Task[] })[];
+  };
+};
 
 export type TaskActionState = {
   success: boolean;
@@ -18,7 +18,7 @@ export type TaskActionState = {
   boardSlug?: string;
 };
 
-export type formOperationMode = "create" | "edit";
+export type FormMode = "create" | "edit";
 
 export type ServerActionResult<T> = {
   success: boolean;
@@ -41,12 +41,13 @@ export type ServerErrors = {
   generic: string | null;
 };
 
-export type FormErrors<T> = {
-  clientErrors: Partial<Record<keyof T, string>>;
-  serverErrors: ServerErrors;
-};
-
 export type ActionStateResponse = {
   success?: boolean;
   message?: string;
+};
+
+export type Templates = "personal" | "agile" | "bug-tracking" | "custom";
+
+export type FormErrors<T> = Partial<Record<keyof T, string>> & {
+  generic?: string;
 };

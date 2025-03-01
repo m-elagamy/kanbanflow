@@ -1,4 +1,4 @@
-const isFocusable = (element: HTMLElement | null) =>
+const isElementFocusable = (element: HTMLElement | null) =>
   element && typeof element.focus === "function";
 
-export default isFocusable;
+export default isElementFocusable;

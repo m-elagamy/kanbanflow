@@ -25,7 +25,7 @@ export async function insertUserAction(
 
 export async function getAllUserBoardsAction(
   userId: string,
-): Promise<ServerActionResult<Omit<Board, "userId">[]>> {
+): Promise<ServerActionResult<Omit<Board, "userId" | "order">[]>> {
   const result = await getAllUserBoards(userId);
 
   if (!result.success) {

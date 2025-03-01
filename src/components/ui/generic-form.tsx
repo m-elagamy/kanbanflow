@@ -1,0 +1,43 @@
+import Form from "next/form";
+import type { FormErrors, FormMode } from "@/lib/types";
+import hasErrors from "@/app/dashboard/utils/check-form-errors";
+import ErrorMessage from "./error-message";
+import SubmitButton from "./submit-button";
+
+type GenericFormProps = {
+  children: React.ReactNode;
+  formRef: {
+    current: HTMLFormElement | null;
+  };
+  onAction: (formData: FormData) => Promise<void>;
+  errors: FormErrors<unknown> | null;
+  formMode: FormMode;
+  isLoading?: boolean;
+};
+
+const GenericForm = ({ children, ...props }: GenericFormProps) => {
+  return (
+    <Form
+      ref={props.formRef}
+      action={props.onAction}
+      aria-invalid={!!props.errors?.generic}
+      aria-describedby="generic-error"
+      disabled={props.isLoading}
+      className="space-y-4 *:space-y-2"
+    >
+      {props.errors?.generic && (
+        <ErrorMessage id="generic-error" className="justify-center">
+          {props.errors?.generic}
+        </ErrorMessage>
+      )}
+      {children}
+      <SubmitButton
+        isPending={props.isLoading}
+        isFormInvalid={hasErrors(props.errors)}
+        formMode={props.formMode}
+      />
+    </Form>
+  );
+};
+
+export default GenericForm;

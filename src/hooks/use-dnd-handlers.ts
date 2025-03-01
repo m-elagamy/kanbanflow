@@ -10,7 +10,7 @@ import { useTaskStore } from "@/stores/task";
 import { findColumnIdByTask } from "@/utils/task-helpers";
 import useTaskStateComparison from "./use-task-position-comparison";
 
-export const useDndHandlers = ({ boardSlug }: { boardSlug?: string }) => {
+export const useDndHandlers = () => {
   const {
     tasksByColumnId,
     moveTaskBetweenColumns,
@@ -102,7 +102,6 @@ export const useDndHandlers = ({ boardSlug }: { boardSlug?: string }) => {
         fromColumnId,
         toColumnId,
         updatedTaskOrder,
-        boardSlug,
       );
     }
 

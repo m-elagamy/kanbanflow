@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import isEqual from "fast-deep-equal";
 import { Column } from "@prisma/client";
 
-interface ColumnWithTempId extends Omit<Column, "id"> {
+interface ColumnWithTempId extends Omit<Column, "id" | "order"> {
   id: string;
   tempId?: string;
 }
@@ -13,7 +14,7 @@ type ColumnState = {
   isLoading: boolean;
   error: string | null;
   previousState: Record<string, ColumnWithTempId> | null;
-  setColumns: (columns: Column[]) => void;
+  setColumns: (columns: ColumnWithTempId[]) => void;
   addColumn: (column: ColumnWithTempId) => void;
   updateColumn: (columnId: string, updates: Pick<Column, "status">) => void;
   deleteColumn: (columnId: string) => void;
@@ -22,6 +23,9 @@ type ColumnState = {
   revertToPrevious: () => void;
   backupState: () => void;
   updateColumnId: (tempId: string, realId: string | undefined) => void;
+  updateColumnIds: (
+    columnUpdates: { boardId: string; tempId: string; realId: string }[],
+  ) => void;
 };
 
 export const useColumnStore = create<ColumnState>()(
@@ -34,13 +38,17 @@ export const useColumnStore = create<ColumnState>()(
 
     setColumns: (columns) => {
       set((state) => {
-        state.columns = columns.reduce<Record<string, ColumnWithTempId>>(
+        const newColumns = columns.reduce<Record<string, ColumnWithTempId>>(
           (acc, col) => {
             acc[col.id] = col;
             return acc;
           },
           {},
         );
+
+        if (isEqual(state.columns, newColumns)) return state;
+
+        return { columns: newColumns };
       });
     },
 
@@ -72,6 +80,25 @@ export const useColumnStore = create<ColumnState>()(
         }
       });
     },
+
+    /** ✅ Update column ID after creation */
+    updateColumnIds: (columnUpdates) =>
+      set((state) => {
+        const updatedColumns = { ...state.columns };
+
+        columnUpdates.forEach(({ boardId, tempId, realId }) => {
+          if (updatedColumns[tempId]) {
+            updatedColumns[realId] = {
+              ...updatedColumns[tempId],
+              boardId,
+              id: realId,
+            };
+            delete updatedColumns[tempId]; // Remove temporary ID
+          }
+        });
+
+        return { columns: updatedColumns };
+      }),
 
     updateColumn: (columnId, updates) => {
       set((state) => {
@@ -114,7 +141,7 @@ export const useColumnStore = create<ColumnState>()(
     revertToPrevious: () => {
       set((state) => {
         if (state.previousState) {
-          state.columns = state.previousState;
+          state.columns = { ...state.previousState };
           state.previousState = null;
         }
       });

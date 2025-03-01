@@ -17,17 +17,16 @@ import { useDndHandlers } from "@/hooks/use-dnd-handlers";
 
 type DndProviderProps = {
   children: ReactNode;
-  boardSlug?: string;
 };
 
-const DndProvider = ({ children, boardSlug }: DndProviderProps) => {
+const DndProvider = ({ children }: DndProviderProps) => {
   const {
     activeTask,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
     handleDragCancel,
-  } = useDndHandlers({ boardSlug });
+  } = useDndHandlers();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
