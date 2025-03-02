@@ -8,8 +8,8 @@ import BoardSkeleton from "./board-skeleton";
 import BoardContainer from "./board-container";
 
 type BoardLayoutProps = {
-  initialBoard: Board & {
-    columns: (Column & { tasks: Task[] })[];
+  initialBoard: Omit<Board, "userId" | "order"> & {
+    columns: (Omit<Column, "order"> & { tasks: Task[] })[];
   };
 };
 

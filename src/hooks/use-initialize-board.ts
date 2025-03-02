@@ -5,8 +5,8 @@ import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
 import { useTaskStore } from "@/stores/task";
 
-type BoardWithColumnsAndTasks = Board & {
-  columns: (Column & { tasks: Task[] })[];
+type BoardWithColumnsAndTasks = Omit<Board, "userId" | "order"> & {
+  columns: (Omit<Column, "order"> & { tasks: Task[] })[];
 };
 
 export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
