@@ -1,38 +1,15 @@
+import { User } from "@prisma/client";
 import withAuth from "@/utils/with-DAL-auth";
 import db from "../db";
-import { User } from "@prisma/client";
 
 export const insertUser = withAuth(async (data: User) => {
-  const existingUser = await db.user.findUnique({
+  return db.user.upsert({
     where: { id: data.id },
-  });
-
-  if (existingUser) {
-    return db.user.update({
-      where: { id: data.id },
-      data: {
-        name: data.name,
-        email: data.email,
-      },
-    });
-  }
-
-  const userByEmail = await db.user.findUnique({
-    where: { email: data.email },
-  });
-
-  if (userByEmail) {
-    return db.user.update({
-      where: { email: data.email },
-      data: {
-        id: data.id,
-        name: data.name,
-      },
-    });
-  }
-
-  return db.user.create({
-    data: {
+    update: {
+      ...(data.name ? { name: data.name } : {}),
+      ...(data.email ? { email: data.email } : {}),
+    },
+    create: {
       id: data.id,
       name: data.name,
       email: data.email,

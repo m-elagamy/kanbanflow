@@ -1,12 +1,12 @@
 "use server";
 
-import { insertUser, getAllUserBoards } from "../lib/dal/user";
 import { User, Board } from "@prisma/client";
 import type { ServerActionResult } from "@/lib/types";
+import { insertUser, getAllUserBoards } from "../lib/dal/user";
 
 export async function insertUserAction(
   data: User,
-): Promise<ServerActionResult<User>> {
+): Promise<ServerActionResult<Partial<User>>> {
   const result = await insertUser(data);
 
   if (!result.success) {
@@ -19,7 +19,7 @@ export async function insertUserAction(
   return {
     success: true,
     message: "User inserted successfully.",
-    fields: result?.data,
+    fields: result.data,
   };
 }
 
