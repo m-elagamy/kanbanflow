@@ -12,6 +12,6 @@ const BaseInput = forwardRef<
 
 BaseInput.displayName = "BaseInput";
 
-const MotionInput = motion(BaseInput);
+const MotionInput = motion.create(BaseInput);
 
 export { MotionInput };
