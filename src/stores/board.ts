@@ -8,8 +8,18 @@ type BoardStore = Omit<Board, "userId" | "order">;
 type BoardState = {
   boards: Record<string, BoardStore>;
   activeBoardId: string | null;
-  isDeleting: boolean;
-  isLoading: boolean;
+
+  loadingStates: {
+    fetchingBoards: boolean;
+    creatingBoard: boolean;
+    updatingBoard: Record<string, boolean>;
+    deletingBoard: Record<string, boolean>;
+  };
+
+  setFetchingBoards: (fetchingBoards: boolean) => void;
+  setCreatingBoard: (creatingBoard: boolean) => void;
+  setUpdatingBoard: (boardId: string, updatingBoard: boolean) => void;
+  setDeletingBoard: (boardId: string, deletingBoard: boolean) => void;
 
   setBoards: (
     boards:
@@ -17,8 +27,6 @@ type BoardState = {
       | ((prev: Record<string, BoardStore>) => Record<string, BoardStore>),
   ) => void;
   setActiveBoardId: (boardId: string | null) => void;
-  setIsDeleting: (isDeleting: boolean) => void;
-  setIsLoading: (isLoading: boolean) => void;
 
   createBoard: (board: BoardStore) => void;
   updateBoard: (boardId: string, updates: Partial<Board>) => void;
@@ -29,8 +37,13 @@ type BoardState = {
 const useBoardStore = create<BoardState>((set) => ({
   boards: {},
   activeBoardId: null,
-  isDeleting: false,
-  isLoading: true,
+
+  loadingStates: {
+    fetchingBoards: true,
+    creatingBoard: false,
+    updatingBoard: {},
+    deletingBoard: {},
+  },
 
   /** ✅ Set all boards at once */
   setBoards: (boards) => {
@@ -49,11 +62,33 @@ const useBoardStore = create<BoardState>((set) => ({
   /** ✅ Set active board */
   setActiveBoardId: (boardId) => set({ activeBoardId: boardId }),
 
-  /** ✅ Set isDeleting */
-  setIsDeleting: (isDeleting) => set({ isDeleting }),
+  /** ✅ Set fetching state */
+  setFetchingBoards: (isLoading) =>
+    set((state) => ({
+      loadingStates: { ...state.loadingStates, fetchingBoards: isLoading },
+    })),
 
-  /** ✅ Set isLoading */
-  setIsLoading: (isLoading) => set({ isLoading }),
+  /** ✅ Set creating state */
+  setCreatingBoard: (isLoading) =>
+    set((state) => ({
+      loadingStates: { ...state.loadingStates, creatingBoard: isLoading },
+    })),
+
+  /** ✅ Set updating state for a specific board */
+  setUpdatingBoard: (boardId, isLoading) =>
+    set(
+      produce((state) => {
+        state.loadingStates.updatingBoard[boardId] = isLoading;
+      }),
+    ),
+
+  /** ✅ Set deleting state for a specific board */
+  setDeletingBoard: (boardId, isLoading) =>
+    set(
+      produce((state) => {
+        state.loadingStates.deletingBoard[boardId] = isLoading;
+      }),
+    ),
 
   /** ✅ Create a new board */
   createBoard: (board) => {

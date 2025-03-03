@@ -7,10 +7,9 @@ import ColumnsWrapper from "../column";
 import BoardContainer from "./board-container";
 
 export default function OptimisticBoardLayout() {
-  const { activeBoard, isDeleting } = useActiveBoard();
+  const { activeBoard } = useActiveBoard();
 
   if (!activeBoard) {
-    if (isDeleting) return;
     notFound();
   }
 

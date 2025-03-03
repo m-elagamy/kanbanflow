@@ -10,12 +10,11 @@ type BoardWithColumnsAndTasks = Omit<Board, "userId" | "order"> & {
 };
 
 export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
-  const { boards, setBoards, setActiveBoardId, isDeleting } = useBoardStore(
+  const { boards, setBoards, setActiveBoardId } = useBoardStore(
     useShallow((state) => ({
       boards: state.boards,
       setBoards: state.setBoards,
       setActiveBoardId: state.setActiveBoardId,
-      isDeleting: state.isDeleting,
     })),
   );
   const setBoardColumns = useColumnStore((state) => state.setColumns);
@@ -44,5 +43,5 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
 
   const activeBoard = boards[initialBoard.id ?? ""];
 
-  return { activeBoard, isDeleting };
+  return { activeBoard };
 }

@@ -19,8 +19,8 @@ export function useBoardsList(
       setBoards: state.setBoards,
       activeBoardId: state.activeBoardId,
       setActiveBoardId: state.setActiveBoardId,
-      isLoading: state.isLoading,
-      setIsLoading: state.setIsLoading,
+      isLoading: state.loadingStates.fetchingBoards,
+      setIsLoading: state.setFetchingBoards,
     })),
   );
 

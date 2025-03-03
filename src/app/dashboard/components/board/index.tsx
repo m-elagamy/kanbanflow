@@ -14,10 +14,9 @@ type BoardLayoutProps = {
 };
 
 export default function BoardLayout({ initialBoard }: BoardLayoutProps) {
-  const { activeBoard, isDeleting } = useInitializeBoardData(initialBoard);
+  const { activeBoard } = useInitializeBoardData(initialBoard);
 
   if (!activeBoard) {
-    if (isDeleting) return;
     return (
       <BoardSkeleton
         columnsNumber={initialBoard.columns.length + 1}

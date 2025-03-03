@@ -8,7 +8,7 @@ const useActiveBoard = () => {
       activeBoardId: state.activeBoardId,
       setActiveBoardId: state.setActiveBoardId,
       boards: state.boards,
-      isDeleting: state.isDeleting,
+      isDeleting: state.loadingStates.deletingBoard,
     })),
   );
 

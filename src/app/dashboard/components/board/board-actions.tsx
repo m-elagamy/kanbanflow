@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { Ellipsis, SquarePen, TrashIcon } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
 
 import type { Board } from "@prisma/client";
 import {
@@ -18,7 +20,6 @@ import { SidebarMenuAction, useSidebar } from "@/components/ui/sidebar";
 import useBoardStore from "@/stores/board";
 import delay from "@/utils/delay";
 import BoardModal from "./board-modal";
-import dynamic from "next/dynamic";
 
 const AlertConfirmation = dynamic(
   () => import("@/components/ui/alert-confirmation"),
@@ -41,14 +42,19 @@ export default function BoardActions({
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   const { isMobile } = useSidebar();
-  const deleteBoardOptimistically = useBoardStore((state) => state.deleteBoard);
-  const isDeleting = useBoardStore((state) => state.isDeleting);
-  const setIsDeleting = useBoardStore((state) => state.setIsDeleting);
+  const { deleteBoardOptimistically, isDeleting, setIsDeleting } =
+    useBoardStore(
+      useShallow((state) => ({
+        deleteBoardOptimistically: state.deleteBoard,
+        isDeleting: state.loadingStates.deletingBoard[board.id],
+        setIsDeleting: state.setDeletingBoard,
+      })),
+    );
 
   const handleOnClick = async () => {
     if (!board.id) return;
 
-    setIsDeleting(true);
+    setIsDeleting(board.id, true);
     try {
       if (param.board) {
         await delay(300);
@@ -62,7 +68,7 @@ export default function BoardActions({
     } catch (error) {
       console.error("Error deleting board:", error);
     } finally {
-      setIsDeleting(false);
+      setIsDeleting(board.id, false);
     }
   };
 

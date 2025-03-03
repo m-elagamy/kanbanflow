@@ -38,14 +38,11 @@ const AlertConfirmation = ({
   const router = useRouter();
   const params = useParams();
 
-  console.log("Confirmation rendered");
-
   useEffect(() => {
     if (open && triggerSource === "board" && params?.board) {
       router.prefetch("/dashboard");
-      console.log("Dashboard prefetched");
     }
-  }, [open, params?.board, triggerSource, router]);
+  }, [open, params.board, triggerSource, router]);
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
