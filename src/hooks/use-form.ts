@@ -19,7 +19,9 @@ const useForm = <T extends Record<string, unknown>>(
     clearGenericError,
   } = useErrorManagement<T>();
 
-  const formRef = useAutoFocusOnError<T>(errors);
+  const formRef = useAutoFocusOnError<T>(errors, {
+    delay: 300,
+  });
 
   const { formValues, handleOnChange } = useFormValues<T>({
     initialState,

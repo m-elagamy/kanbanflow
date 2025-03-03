@@ -41,11 +41,7 @@ export default function NoTasksMessage({ columnId }: { columnId: string }) {
           mode="create"
           columnId={columnId}
           trigger={
-            <Button
-              className="gap-1 px-2 dark:hover:bg-accent/5"
-              variant="outline"
-              size="sm"
-            >
+            <Button className="h-8 dark:hover:bg-accent/5" variant="outline">
               <CirclePlus className="!size-[14px]" />
               New Task
             </Button>

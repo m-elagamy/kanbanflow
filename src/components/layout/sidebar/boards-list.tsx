@@ -1,13 +1,13 @@
 "use client";
 
-import type { Board } from "@prisma/client";
 import { SidebarMenu } from "@/components/ui/sidebar";
 import { useBoardsList } from "@/hooks/use-boards-list";
+import type { BoardStore } from "@/lib/types/stores/board";
 import BoardsSkeleton from "./boards-skeleton";
 import BoardItem from "./board-item";
 
 type BoardsListProps = {
-  boards: Omit<Board, "userId" | "order">[];
+  boards: BoardStore[];
 };
 
 export function BoardsList({ boards: initialBoards }: BoardsListProps) {

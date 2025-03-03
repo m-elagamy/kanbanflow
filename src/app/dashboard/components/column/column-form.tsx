@@ -1,11 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
-
 import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import SubmitButton from "@/components/ui/submit-button";
 import { createColumnAction } from "@/actions/column";
 import { useColumnStore } from "@/stores/column";
 import { useModalStore } from "@/stores/modal";
@@ -13,9 +11,11 @@ import delay from "@/utils/delay";
 import generateUUID from "@/utils/generate-UUID";
 import ErrorMessage from "@/components/ui/error-message";
 import columnStatusSchema, { type ColumnStatus } from "@/schemas/column";
-// import useAutoFocusOnError from "@/hooks/use-auto-focus-on-error";
 import getAvailableStatusOptions from "@/utils/column-helpers";
-
+import HelperText from "@/components/ui/helper-text";
+import GenericForm from "@/components/ui/generic-form";
+import useAutoFocusOnError from "@/hooks/use-auto-focus-on-error";
+import useErrorManagement from "@/hooks/use-error-management";
 import columnStatusOptions from "../../data/column-status-options";
 import StatusOptionsSkeleton from "./status-options-skeleton";
 import validateFormData from "../../utils/validate-form-data";
@@ -39,7 +39,6 @@ type ColumnFormProps = {
 const tempId = generateUUID();
 
 export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
-  const formRef = useRef<HTMLFormElement>(null);
   const [isContentLoaded, setIsContentLoaded] = useState(false);
 
   const columns = useColumnStore((state) => state.columns);
@@ -48,8 +47,6 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
   const isLoading = useColumnStore((state) => state.isLoading);
   const setIsLoading = useColumnStore((state) => state.setIsLoading);
   const revertToPrevious = useColumnStore((state) => state.revertToPrevious);
-  const errorMessage = useColumnStore((state) => state.error);
-  const setErrorMessage = useColumnStore((state) => state.setError);
   const closeModal = useModalStore((state) => state.closeModal);
 
   const availableStatusOptions = getAvailableStatusOptions(
@@ -63,7 +60,7 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
     : "All statuses are in use or unavailable.";
 
   const placeholder = hasAvailableStatuses
-    ? "e.g. To Do, In Progress, or Done"
+    ? "e.g., To Do, In Progress"
     : "No available statuses";
 
   const handleFormAction = async (formData: FormData) => {
@@ -72,7 +69,7 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
     }>(formData, columnStatusSchema);
 
     if (!validationResult.success) {
-      setErrorMessage("Please pick a status.");
+      setSpecificError("status", "Please select a status for this column.");
       return;
     }
 
@@ -109,21 +106,29 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) setIsContentLoaded(true);
   };
-  const handleValueChange = () => setErrorMessage(null);
+  const handleValueChange = () => clearFieldError("status");
 
-  useEffect(() => {
-    return () => {
-      setErrorMessage(null);
-    };
-  }, [setErrorMessage]);
+  const { errors, setSpecificError, clearFieldError } = useErrorManagement<{
+    status: string;
+  }>();
+
+  const formRef = useAutoFocusOnError(errors, {
+    delay: 300,
+  });
 
   return (
-    <form ref={formRef} action={handleFormAction} className="space-y-4">
+    <GenericForm
+      formRef={formRef}
+      onAction={handleFormAction}
+      isLoading={isLoading}
+      errors={errors}
+      hasAvailableStatuses={hasAvailableStatuses}
+    >
       <section className="space-y-2">
         <Input type="hidden" name="boardId" value={boardId ?? ""} />
         <Label
           htmlFor="status"
-          className={`${errorMessage ? "text-destructive" : ""}`}
+          className={`${errors?.status ? "text-destructive" : ""} transition-colors`}
         >
           Status
         </Label>
@@ -137,15 +142,12 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
             title={triggerTitle}
             disabled={!hasAvailableStatuses}
             aria-disabled={!hasAvailableStatuses}
-            aria-describedby={errorMessage ? "column-error" : undefined}
-            aria-invalid={!!errorMessage}
+            aria-describedby={errors?.status ? "column-error" : undefined}
+            aria-invalid={!!errors?.status}
             className="w-full focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
-          {errorMessage && (
-            <ErrorMessage id="column-error">{errorMessage}</ErrorMessage>
-          )}
           {isContentLoaded && hasAvailableStatuses && (
             <SelectContent className="max-h-80">
               {availableStatusOptions.map(([status, { icon: Icon, color }]) => (
@@ -159,13 +161,13 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
             </SelectContent>
           )}
         </Select>
+        <HelperText error={!!errors?.status}>
+          Only active statuses allow tasks to be assigned.
+        </HelperText>
+        {errors?.status && (
+          <ErrorMessage id="column-error">{errors?.status}</ErrorMessage>
+        )}
       </section>
-
-      <SubmitButton
-        isPending={isLoading}
-        isFormInvalid={!hasAvailableStatuses || !!errorMessage}
-        formMode="create"
-      />
-    </form>
+    </GenericForm>
   );
 }

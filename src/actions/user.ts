@@ -1,8 +1,9 @@
 "use server";
 
-import { User, Board } from "@prisma/client";
+import { User } from "@prisma/client";
 import type { ServerActionResult } from "@/lib/types";
 import { insertUser, getAllUserBoards } from "../lib/dal/user";
+import type { BoardStore } from "@/lib/types/stores/board";
 
 export async function insertUserAction(
   data: User,
@@ -25,7 +26,7 @@ export async function insertUserAction(
 
 export async function getAllUserBoardsAction(
   userId: string,
-): Promise<ServerActionResult<Omit<Board, "userId" | "order">[]>> {
+): Promise<ServerActionResult<BoardStore[]>> {
   const result = await getAllUserBoards(userId);
 
   if (!result.success) {

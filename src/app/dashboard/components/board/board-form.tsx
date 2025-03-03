@@ -2,6 +2,7 @@
 
 import { useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence } from "framer-motion";
 
 import type { Board } from "@prisma/client";
 import { Input } from "@/components/ui/input";
@@ -30,8 +31,10 @@ import { useBoardFormStore } from "@/hooks/use-board-form-store";
 import useForm from "@/hooks/use-form";
 import handleOnError from "@/utils/handle-on-error";
 import GenericForm from "@/components/ui/generic-form";
-import columnsTemplates from "../../data/columns-templates";
+import HelperText from "@/components/ui/helper-text";
+import { MotionInput } from "@/components/ui/motion-input";
 import { useUpdatePredefinedColumnsId } from "@/hooks/use-update-predefined-columns-id";
+import columnsTemplates from "../../data/columns-templates";
 
 type BoardFormProps = Readonly<{
   formMode: FormMode;
@@ -161,11 +164,11 @@ export default function BoardForm({
         {isEditMode && <Input type="hidden" name="boardId" value={board?.id} />}
         <Label
           htmlFor="title"
-          className={`${errors?.title ? "text-destructive" : ""}`}
+          className={`${errors?.title ? "text-destructive" : ""} transition-colors`}
         >
           Name <RequiredFieldSymbol />
         </Label>
-        <Input
+        <MotionInput
           id="title"
           type="text"
           name="title"
@@ -178,14 +181,17 @@ export default function BoardForm({
           aria-invalid={!!errors?.title}
           aria-describedby="title-error"
           aria-required
+          animate={errors?.title ? { x: [-2, 2, -2, 2, 0] } : undefined}
+          transition={{ duration: 0.2 }}
         />
-
-        <p className="text-[0.8rem] text-muted-foreground">
+        <HelperText error={!!errors?.title}>
           Choose a clear and descriptive name for your board.
-        </p>
-        {errors?.title && (
-          <ErrorMessage id="title-error">{errors?.title}</ErrorMessage>
-        )}
+        </HelperText>
+        <AnimatePresence>
+          {errors?.title && (
+            <ErrorMessage id="title-error">{errors.title}</ErrorMessage>
+          )}
+        </AnimatePresence>
       </div>
 
       {!isEditMode && (
@@ -215,9 +221,9 @@ export default function BoardForm({
               })}
             </SelectContent>
           </Select>
-          <p className="text-[0.8rem] text-muted-foreground">
+          <HelperText>
             Start with a ready-made template or customize it later.
-          </p>
+          </HelperText>
         </div>
       )}
 
@@ -234,17 +240,17 @@ export default function BoardForm({
           aria-describedby="description-error"
         />
 
-        <div className="flex items-center justify-between text-sm">
-          <p className="text-muted-foreground">
-            Add a context to help you remember the board&#39;s purpose.
-          </p>
-        </div>
+        <HelperText>
+          Add a context to help you remember the board&#39;s purpose.
+        </HelperText>
 
-        {errors?.description && (
-          <ErrorMessage id="description-error">
-            {errors?.description}
-          </ErrorMessage>
-        )}
+        <AnimatePresence>
+          {errors?.description && (
+            <ErrorMessage id="description-error">
+              {errors?.description}
+            </ErrorMessage>
+          )}
+        </AnimatePresence>
       </div>
     </GenericForm>
   );

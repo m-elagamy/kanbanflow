@@ -24,6 +24,7 @@ import useForm from "@/hooks/use-form";
 import { pick } from "@/utils/object";
 import GenericForm from "@/components/ui/generic-form";
 import handleOnError from "@/utils/handle-on-error";
+import HelperText from "@/components/ui/helper-text";
 
 type TaskFormProps = {
   formMode: FormMode;
@@ -116,7 +117,7 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
     <GenericForm
       formRef={formRef}
       onAction={handleFormAction}
-      errors={errors?.generic ?? ""}
+      errors={errors}
       formMode={formMode}
     >
       <section className="space-y-2">
@@ -179,6 +180,7 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
             ))}
           </SelectContent>
         </Select>
+        <HelperText>Select a priority level to manage urgency.</HelperText>
       </section>
     </GenericForm>
   );

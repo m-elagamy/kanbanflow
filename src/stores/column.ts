@@ -12,14 +12,12 @@ type ColumnState = {
   columns: Record<string, ColumnWithTempId>;
   tempToRealIdMap: Record<string, string>;
   isLoading: boolean;
-  error: string | null;
   previousState: Record<string, ColumnWithTempId> | null;
   setColumns: (columns: ColumnWithTempId[]) => void;
   addColumn: (column: ColumnWithTempId) => void;
   updateColumn: (columnId: string, updates: Pick<Column, "status">) => void;
   deleteColumn: (columnId: string) => void;
   setIsLoading: (isLoading: boolean) => void;
-  setError: (error: string | null) => void;
   revertToPrevious: () => void;
   backupState: () => void;
   updateColumnId: (tempId: string, realId: string | undefined) => void;
@@ -34,7 +32,6 @@ export const useColumnStore = create<ColumnState>()(
     tempToRealIdMap: {},
     isLoading: false,
     previousState: null,
-    error: null,
 
     setColumns: (columns) => {
       set((state) => {
@@ -121,11 +118,6 @@ export const useColumnStore = create<ColumnState>()(
       });
     },
 
-    setError: (error) => {
-      set((state) => {
-        state.error = error;
-      });
-    },
     setIsLoading: (loading) => {
       set((state) => {
         state.isLoading = loading;

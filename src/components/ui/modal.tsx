@@ -55,7 +55,7 @@ const Modal = ({
       onOpenChange={(isOpen) => (isOpen ? handleOpen() : handleClose())}
     >
       {shouldDisplayModal && (
-        <DialogContent className={`rounded-lg ${className}`}>
+        <DialogContent className={`${className}`}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {title}

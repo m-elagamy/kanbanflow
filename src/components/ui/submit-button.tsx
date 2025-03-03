@@ -1,12 +1,12 @@
 import { Loader } from "lucide-react";
 import type { FormMode } from "@/lib/types";
-import { Button } from "./button";
 import { DialogClose } from "./dialog";
+import AnimatedButton from "./animated-button";
 
 type SubmitButtonProps = {
   isFormInvalid?: boolean;
   isPending?: boolean;
-  formMode: FormMode;
+  formMode?: FormMode;
 };
 
 export default function SubmitButton({
@@ -14,21 +14,32 @@ export default function SubmitButton({
   isPending,
   formMode,
 }: Readonly<SubmitButtonProps>) {
+  const isDisabled = isFormInvalid || isPending;
+  const isEditMode = formMode === "edit";
+
   return (
-    <div className="flex items-center justify-end gap-2">
+    <div className="flex items-center justify-end gap-2 pt-2">
       <DialogClose asChild>
-        <Button type="button" className="px-2" variant="outline">
+        <AnimatedButton
+          type="button"
+          size="sm"
+          variant="outline"
+          className="dark:hover:bg-accent/15"
+          title="Close"
+        >
           Close
-        </Button>
+        </AnimatedButton>
       </DialogClose>
-      <Button
+
+      <AnimatedButton
+        size="sm"
         type="submit"
-        className="!mt-0 px-2"
-        disabled={isFormInvalid || isPending}
+        title={!isEditMode ? "Create" : "Save"}
+        disabled={isDisabled}
       >
         {isPending && <Loader className="animate-spin" aria-hidden />}
-        {formMode === "create" ? "Create" : "Save"}
-      </Button>
+        {!isEditMode ? "Create" : "Save"}
+      </AnimatedButton>
     </div>
   );
 }

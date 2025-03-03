@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const skeletonVariants = cva(
-  "relative overflow-hidden rounded-md  bg-gray-200 dark:bg-muted/30",
+  "relative overflow-hidden rounded-lg  bg-gray-200 dark:bg-muted/30",
   {
     variants: {
       variant: {

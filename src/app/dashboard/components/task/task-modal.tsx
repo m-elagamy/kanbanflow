@@ -32,12 +32,7 @@ const TaskModal = ({
 
   return (
     <>
-      <Button
-        className="!h-8"
-        variant={variant}
-        onClick={handleOnClick}
-        asChild
-      >
+      <Button className="" variant={variant} onClick={handleOnClick} asChild>
         {trigger}
       </Button>
       <Modal

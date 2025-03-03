@@ -29,8 +29,9 @@ const BoardModal = ({ mode, board, trigger, variant }: BoardModalProps) => {
     <>
       <Button
         variant={variant}
-        className="group !h-8"
+        className="group"
         onClick={handleOnClick}
+        size="sm"
         asChild
       >
         {trigger}

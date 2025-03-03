@@ -9,9 +9,7 @@ import BoardContainer from "./board-container";
 export default function OptimisticBoardLayout() {
   const { activeBoard } = useActiveBoard();
 
-  if (!activeBoard) {
-    notFound();
-  }
+  if (!activeBoard) notFound();
 
   return (
     <BoardContainer>

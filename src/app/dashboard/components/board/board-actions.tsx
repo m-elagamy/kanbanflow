@@ -99,7 +99,7 @@ export default function BoardActions({
           mode="edit"
           variant="ghost"
           trigger={
-            <DropdownMenuLabel className="w-full cursor-default justify-start rounded p-2">
+            <DropdownMenuLabel className="w-full cursor-default justify-start rounded-lg p-2">
               <SquarePen size={16} /> Edit
             </DropdownMenuLabel>
           }

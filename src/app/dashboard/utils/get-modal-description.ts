@@ -14,7 +14,7 @@ export const getModalDescription = (type: ModalType, mode: FormMode) => {
     },
     column: {
       create:
-        "Pick a status for your new column to manage tasks and prioritize your work efficiently.",
+        "Assign a status to define how tasks progress through your workflow.",
       edit: "Refine the column details to better align with your workflow.",
     },
   };
