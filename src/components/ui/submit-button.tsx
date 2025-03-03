@@ -2,23 +2,31 @@ import { Loader } from "lucide-react";
 import type { FormMode } from "@/lib/types";
 import { DialogClose } from "./dialog";
 import AnimatedButton from "./animated-button";
+import { cn } from "@/lib/utils"; // Assuming you have a cn utility
 
 type SubmitButtonProps = {
   isFormInvalid?: boolean;
   isPending?: boolean;
   formMode?: FormMode;
+  className?: string;
+  loadingText?: string;
 };
 
 export default function SubmitButton({
   isFormInvalid,
   isPending,
-  formMode,
+  formMode = "create",
+  className,
+  loadingText,
 }: Readonly<SubmitButtonProps>) {
   const isDisabled = isFormInvalid || isPending;
   const isEditMode = formMode === "edit";
 
+  const actionText = !isEditMode ? "Create" : "Save";
+  const buttonText = isPending ? loadingText || actionText : actionText;
+
   return (
-    <div className="flex items-center justify-end gap-2 pt-2">
+    <div className={cn("flex items-center justify-end gap-2 pt-2", className)}>
       <DialogClose asChild>
         <AnimatedButton
           type="button"
@@ -26,6 +34,7 @@ export default function SubmitButton({
           variant="outline"
           className="dark:hover:bg-accent/15"
           title="Close"
+          disabled={isPending}
         >
           Close
         </AnimatedButton>
@@ -34,11 +43,12 @@ export default function SubmitButton({
       <AnimatedButton
         size="sm"
         type="submit"
-        title={!isEditMode ? "Create" : "Save"}
+        title={isPending ? `${actionText}ing...` : actionText}
         disabled={isDisabled}
+        aria-busy={isPending}
       >
-        {isPending && <Loader className="animate-spin" aria-hidden />}
-        {!isEditMode ? "Create" : "Save"}
+        {isPending && <Loader className="animate-spin" aria-hidden="true" />}
+        {buttonText}
       </AnimatedButton>
     </div>
   );
