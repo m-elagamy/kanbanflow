@@ -11,7 +11,7 @@ export default async function BoardPage({ params }: { params: Params }) {
 
   if (!userId) unauthorized();
 
-  const { board: boardSlug } = await params;
+  const boardSlug = decodeURIComponent((await params).board);
 
   const { board: currentBoard } = await getBoardBySlugAction(userId, boardSlug);
 
