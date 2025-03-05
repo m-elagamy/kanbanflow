@@ -3,7 +3,7 @@ import { Globe } from "lucide-react";
 
 const links = [
   {
-    href: "https://github.com/Mahmoud-Elagamy/",
+    href: "https://github.com/m-elagamy",
     icon: Icons.gitHub,
     label: "GitHub",
   },
