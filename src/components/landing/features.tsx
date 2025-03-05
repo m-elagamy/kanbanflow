@@ -1,9 +1,14 @@
+import { Sparkles } from "lucide-react";
+import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
 import { features } from "./data";
 
 export function Features() {
   return (
-    <>
+    <div>
+      <div className="mb-4 flex items-center justify-center">
+        <Badge icon={<Sparkles className="h-3.5 w-3.5" />}>Features</Badge>
+      </div>
       <div className="flex flex-wrap items-center justify-center gap-4 pb-12 text-center">
         <h2 className="text-gradient text-2xl font-bold tracking-tighter md:text-3xl">
           What&apos;s in KanbanFlow?
@@ -39,6 +44,6 @@ export function Features() {
           );
         })}
       </div>
-    </>
+    </div>
   );
 }
