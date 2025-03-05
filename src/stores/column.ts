@@ -11,13 +11,11 @@ interface ColumnWithTempId extends Omit<Column, "id" | "order"> {
 type ColumnState = {
   columns: Record<string, ColumnWithTempId>;
   tempToRealIdMap: Record<string, string>;
-  isLoading: boolean;
   previousState: Record<string, ColumnWithTempId> | null;
   setColumns: (columns: ColumnWithTempId[]) => void;
   addColumn: (column: ColumnWithTempId) => void;
   updateColumn: (columnId: string, updates: Pick<Column, "status">) => void;
   deleteColumn: (columnId: string) => void;
-  setIsLoading: (isLoading: boolean) => void;
   revertToPrevious: () => void;
   backupState: () => void;
   updateColumnId: (tempId: string, realId: string | undefined) => void;
@@ -30,7 +28,6 @@ export const useColumnStore = create<ColumnState>()(
   immer((set) => ({
     columns: {},
     tempToRealIdMap: {},
-    isLoading: false,
     previousState: null,
 
     setColumns: (columns) => {
@@ -115,12 +112,6 @@ export const useColumnStore = create<ColumnState>()(
         state.previousState = { ...state.columns };
         const realId = state.tempToRealIdMap[columnId] || columnId;
         delete state.columns[realId];
-      });
-    },
-
-    setIsLoading: (loading) => {
-      set((state) => {
-        state.isLoading = loading;
       });
     },
 

@@ -1,7 +1,8 @@
+import { useShallow } from "zustand/react/shallow";
 import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
+import useLoadingStore from "@/stores/loading";
 import { useModalStore } from "@/stores/modal";
-import { useShallow } from "zustand/react/shallow";
 
 export const useBoardFormStore = () => {
   const {
@@ -19,13 +20,18 @@ export const useBoardFormStore = () => {
       updateBoard: state.updateBoard,
       deleteBoard: state.deleteBoard,
       activeBoardId: state.activeBoardId,
-      setActiveBoardId: state.setActiveBoardId,
     })),
   );
 
-  const { columns, setColumns } = useColumnStore(
+  const { isLoading, setIsLoading } = useLoadingStore(
     useShallow((state) => ({
-      columns: state.columns,
+      isLoading: state.isLoading("board", "creating"),
+      setIsLoading: state.setIsLoading,
+    })),
+  );
+
+  const { setColumns } = useColumnStore(
+    useShallow((state) => ({
       setColumns: state.setColumns,
     })),
   );
@@ -39,8 +45,9 @@ export const useBoardFormStore = () => {
     updateBoard,
     deleteBoard,
     activeBoardId,
-    columns,
     setColumns,
     closeModal,
+    isLoading,
+    setIsLoading,
   };
 };

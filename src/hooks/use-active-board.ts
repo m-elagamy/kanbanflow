@@ -3,12 +3,11 @@ import { useShallow } from "zustand/react/shallow";
 import useBoardStore from "@/stores/board";
 
 const useActiveBoard = () => {
-  const { activeBoardId, setActiveBoardId, boards, isDeleting } = useBoardStore(
+  const { activeBoardId, setActiveBoardId, boards } = useBoardStore(
     useShallow((state) => ({
       activeBoardId: state.activeBoardId,
       setActiveBoardId: state.setActiveBoardId,
       boards: state.boards,
-      isDeleting: state.loadingStates.deletingBoard,
     })),
   );
 
@@ -18,7 +17,7 @@ const useActiveBoard = () => {
     return () => setActiveBoardId(null);
   }, [setActiveBoardId]);
 
-  return { activeBoard, isDeleting };
+  return { activeBoard };
 };
 
 export default useActiveBoard;

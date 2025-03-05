@@ -1,7 +1,8 @@
 import { create } from "zustand";
-import type { ModalStore, ModalType } from "@/lib/types/modal";
+import type { ModalStore } from "@/lib/types/modal";
+import type { EntityType } from "@/lib/types";
 
-const generateModalKey = (type: ModalType, id: string) => `${type}-${id}`;
+const generateModalKey = (type: EntityType, id: string) => `${type}-${id}`;
 
 export const useModalStore = create<ModalStore>()((set, get) => ({
   modals: new Map(),

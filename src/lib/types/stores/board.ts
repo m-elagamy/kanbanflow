@@ -2,17 +2,9 @@ import type { Board } from "@prisma/client";
 
 type BoardStore = Omit<Board, "userId" | "order">;
 
-type LoadingStates = {
-  fetchingBoards: boolean;
-  creatingBoard: boolean;
-  updatingBoard: Record<string, boolean>;
-  deletingBoard: Record<string, boolean>;
-};
-
 type BoardState = {
   boards: Record<string, BoardStore>;
   activeBoardId: string | null;
-  loadingStates: LoadingStates;
 };
 
 type BoardActions = {
@@ -22,10 +14,6 @@ type BoardActions = {
       | ((prev: Record<string, BoardStore>) => Record<string, BoardStore>),
   ) => void;
   setActiveBoardId: (boardId: string | null) => void;
-  setFetchingBoards: (fetchingBoards: boolean) => void;
-  setCreatingBoard: (creatingBoard: boolean) => void;
-  setUpdatingBoard: (boardId: string, updatingBoard: boolean) => void;
-  setDeletingBoard: (boardId: string, deletingBoard: boolean) => void;
   createBoard: (board: BoardStore) => void;
   updateBoard: (boardId: string, updates: Partial<Board>) => void;
   deleteBoard: (boardId: string) => void;
@@ -34,10 +22,4 @@ type BoardActions = {
 
 type BoardStoreState = BoardState & BoardActions;
 
-export type {
-  BoardStoreState,
-  BoardState,
-  BoardActions,
-  LoadingStates,
-  BoardStore,
-};
+export type { BoardStoreState, BoardState, BoardActions, BoardStore };

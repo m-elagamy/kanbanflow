@@ -1,8 +1,8 @@
-export type ModalType = "board" | "task" | "column";
+import type { EntityType } from ".";
 
 export interface ModalData {
   id: string;
-  type: ModalType;
+  type: EntityType;
   isOpen: boolean;
 }
 
@@ -12,8 +12,8 @@ export interface ModalState {
 }
 
 export type ModalActions = {
-  openModal: (type: ModalType, id: string) => void;
-  closeModal: (type: ModalType, id: string) => void;
+  openModal: (type: EntityType, id: string) => void;
+  closeModal: (type: EntityType, id: string) => void;
   closeAll: () => void;
 };
 

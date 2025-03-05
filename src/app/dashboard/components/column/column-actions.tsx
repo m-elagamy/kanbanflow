@@ -1,5 +1,6 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { useShallow } from "zustand/react/shallow";
 import { Ellipsis, PlusIcon, Settings2, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
 import type { Column } from "@prisma/client";
@@ -17,8 +18,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { deleteColumnAction, updateColumnAction } from "@/actions/column";
 import { useColumnStore } from "@/stores/column";
 import TaskModal from "../task/task-modal";
-// import AlertConfirmation from "@/components/ui/alert-confirmation";
 import delay from "@/utils/delay";
+import useLoadingStore from "@/stores/loading";
 
 const AlertConfirmation = dynamic(
   () => import("@/components/ui/alert-confirmation"),
@@ -56,13 +57,23 @@ const ColumnActions = ({
   const [isSubDropdownOpen, setIsSubDropdownOpen] = useState(false);
   const [showAlertConfirmation, setShowAlertConfirmation] = useState(false);
 
-  const updateColumnOptimistically = useColumnStore(
-    (state) => state.updateColumn,
+  const { deleteColumn, updateColumn, revertToPrevious } = useColumnStore(
+    useShallow((state) => ({
+      updateColumn: state.updateColumn,
+      revertToPrevious: state.revertToPrevious,
+      deleteColumn: state.deleteColumn,
+    })),
   );
-  const revertToPrevious = useColumnStore((state) => state.revertToPrevious);
+
+  const { isLoading, setIsLoading } = useLoadingStore(
+    useShallow((state) => ({
+      isLoading: state.isLoading("column", "deleting"),
+      setIsLoading: state.setIsLoading,
+    })),
+  );
 
   const handleUpdateColumn = async (updates: Pick<Column, "status">) => {
-    updateColumnOptimistically(columnId, updates);
+    updateColumn(columnId, updates);
     setIsMainDropdownOpen(false);
 
     try {
@@ -79,18 +90,12 @@ const ColumnActions = ({
     }
   };
 
-  const deleteColumnOptimistically = useColumnStore(
-    (state) => state.deleteColumn,
-  );
-  const isLoading = useColumnStore((state) => state.isLoading);
-  const setIsLoading = useColumnStore((state) => state.setIsLoading);
-
   const handleOnClick = async () => {
     if (columnId) {
-      setIsLoading(true);
+      setIsLoading("column", "deleting", true, columnId);
       await delay(300);
-      deleteColumnOptimistically(columnId);
-      setIsLoading(false);
+      deleteColumn(columnId);
+      setIsLoading("column", "deleting", false, columnId);
 
       try {
         await deleteColumnAction(columnId);

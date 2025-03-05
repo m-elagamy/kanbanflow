@@ -20,6 +20,7 @@ import { SidebarMenuAction, useSidebar } from "@/components/ui/sidebar";
 import useBoardStore from "@/stores/board";
 import delay from "@/utils/delay";
 import BoardModal from "./board-modal";
+import useLoadingStore from "@/stores/loading";
 
 const AlertConfirmation = dynamic(
   () => import("@/components/ui/alert-confirmation"),
@@ -42,19 +43,18 @@ export default function BoardActions({
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   const { isMobile } = useSidebar();
-  const { deleteBoardOptimistically, isDeleting, setIsDeleting } =
-    useBoardStore(
-      useShallow((state) => ({
-        deleteBoardOptimistically: state.deleteBoard,
-        isDeleting: state.loadingStates.deletingBoard[board.id],
-        setIsDeleting: state.setDeletingBoard,
-      })),
-    );
+  const deleteBoard = useBoardStore((state) => state.deleteBoard);
+  const { isDeleting, setIsDeleting } = useLoadingStore(
+    useShallow((state) => ({
+      isDeleting: state.isLoading("board", "deleting"),
+      setIsDeleting: state.setIsLoading,
+    })),
+  );
 
   const handleOnClick = async () => {
     if (!board.id) return;
 
-    setIsDeleting(board.id, true);
+    setIsDeleting("board", "deleting", true, board.id);
     try {
       if (param.board) {
         await delay(300);
@@ -62,13 +62,13 @@ export default function BoardActions({
       }
 
       await delay(150);
-      deleteBoardOptimistically(board.id);
+      deleteBoard(board.id);
 
       await deleteBoardAction(board.id);
     } catch (error) {
       console.error("Error deleting board:", error);
     } finally {
-      setIsDeleting(board.id, false);
+      setIsDeleting("board", "deleting", false, board.id);
     }
   };
 

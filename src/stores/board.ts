@@ -6,12 +6,6 @@ import { BoardState, BoardStoreState } from "@/lib/types/stores/board";
 const initialState: BoardState = {
   boards: {},
   activeBoardId: null,
-  loadingStates: {
-    fetchingBoards: true,
-    creatingBoard: false,
-    updatingBoard: {},
-    deletingBoard: {},
-  },
 };
 const useBoardStore = create<BoardStoreState>((set) => ({
   ...initialState,
@@ -30,30 +24,6 @@ const useBoardStore = create<BoardStoreState>((set) => ({
   },
 
   setActiveBoardId: (boardId) => set({ activeBoardId: boardId }),
-
-  setFetchingBoards: (isLoading) =>
-    set((state) => ({
-      loadingStates: { ...state.loadingStates, fetchingBoards: isLoading },
-    })),
-
-  setCreatingBoard: (isLoading) =>
-    set((state) => ({
-      loadingStates: { ...state.loadingStates, creatingBoard: isLoading },
-    })),
-
-  setUpdatingBoard: (boardId, isLoading) =>
-    set(
-      produce((state) => {
-        state.loadingStates.updatingBoard[boardId] = isLoading;
-      }),
-    ),
-
-  setDeletingBoard: (boardId, isLoading) =>
-    set(
-      produce((state) => {
-        state.loadingStates.deletingBoard[boardId] = isLoading;
-      }),
-    ),
 
   createBoard: (board) => {
     set(

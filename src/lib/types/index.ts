@@ -51,3 +51,7 @@ export type Templates = "personal" | "agile" | "bug-tracking" | "custom";
 export type FormErrors<T> = Partial<Record<keyof T, string>> & {
   generic?: string;
 };
+
+export type EntityType = "board" | "task" | "column";
+
+export type Operation = "fetching" | "creating" | "updating" | "deleting";

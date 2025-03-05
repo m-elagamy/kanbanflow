@@ -19,6 +19,8 @@ import useErrorManagement from "@/hooks/use-error-management";
 import columnStatusOptions from "../../data/column-status-options";
 import StatusOptionsSkeleton from "./status-options-skeleton";
 import validateFormData from "../../utils/validate-form-data";
+import useLoadingStore from "@/stores/loading";
+import { useShallow } from "zustand/react/shallow";
 
 const SelectContent = dynamic(
   () => import("@/components/ui/select").then((mod) => mod.SelectContent),
@@ -41,13 +43,24 @@ const tempId = generateUUID();
 export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
   const [isContentLoaded, setIsContentLoaded] = useState(false);
 
-  const columns = useColumnStore((state) => state.columns);
-  const addColumnOptimistically = useColumnStore((state) => state.addColumn);
-  const updateColumnId = useColumnStore((state) => state.updateColumnId);
-  const isLoading = useColumnStore((state) => state.isLoading);
-  const setIsLoading = useColumnStore((state) => state.setIsLoading);
-  const revertToPrevious = useColumnStore((state) => state.revertToPrevious);
   const closeModal = useModalStore((state) => state.closeModal);
+
+  const { columns, addColumnOptimistically, updateColumnId, revertToPrevious } =
+    useColumnStore(
+      useShallow((state) => ({
+        columns: state.columns,
+        addColumnOptimistically: state.addColumn,
+        updateColumnId: state.updateColumnId,
+        revertToPrevious: state.revertToPrevious,
+      })),
+    );
+
+  const { isLoading, setIsLoading } = useLoadingStore(
+    useShallow((state) => ({
+      isLoading: state.isLoading("column", "creating"),
+      setIsLoading: state.setIsLoading,
+    })),
+  );
 
   const availableStatusOptions = getAvailableStatusOptions(
     Object.values(columns),
@@ -73,7 +86,7 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
       return;
     }
 
-    setIsLoading(true);
+    setIsLoading("column", "creating", true, tempId);
     await delay(300);
 
     addColumnOptimistically({
@@ -83,7 +96,7 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
     });
 
     closeModal("column", modalId);
-    setIsLoading(false);
+    setIsLoading("column", "creating", false, tempId);
 
     try {
       const createdColumn = await createColumnAction(
