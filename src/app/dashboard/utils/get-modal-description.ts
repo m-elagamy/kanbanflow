@@ -1,8 +1,7 @@
-import type { FormMode } from "@/lib/types";
-import type { ModalType } from "@/lib/types/modal";
+import type { EntityType, FormMode } from "@/lib/types";
 
-export const getModalDescription = (type: ModalType, mode: FormMode) => {
-  const descriptions: Record<ModalType, Record<FormMode, string>> = {
+export const getModalDescription = (type: EntityType, mode: FormMode) => {
+  const descriptions: Record<EntityType, Record<FormMode, string>> = {
     board: {
       create: "Organize tasks and streamline your workflow with a new board.",
       edit: "Update your board details to keep everything organized and relevant.",

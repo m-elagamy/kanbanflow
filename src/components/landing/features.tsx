@@ -7,13 +7,15 @@ export function Features() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-center">
-        <Badge icon={<Sparkles className="h-3.5 w-3.5" />}>Features</Badge>
+        <Badge variant="secondary" icon={<Sparkles className="h-3.5 w-3.5" />}>
+          Features
+        </Badge>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-4 pb-12 text-center">
         <h2 className="text-gradient text-2xl font-bold tracking-tighter md:text-3xl">
           What&apos;s in KanbanFlow?
         </h2>
-        <p className="text-sm text-muted-foreground md:text-base">
+        <p className="text-muted-foreground md:text-xl">
           Discover the powerful features that make project management intuitive,
           and effortlessly efficient.
         </p>
