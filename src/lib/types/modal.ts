@@ -1,4 +1,4 @@
-import type { EntityType } from ".";
+import { EntityType } from ".";
 
 export interface ModalData {
   id: string;
