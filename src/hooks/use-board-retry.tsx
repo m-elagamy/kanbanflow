@@ -26,38 +26,16 @@ export function useBoardRetry() {
     );
   const updateColumnIds = useUpdatePredefinedColumnsId();
 
-  const handleDismiss = async () => {
-    if (!failedBoard) return;
+  const navigateAndDeleteBoard = useCallback(
+    async (success?: boolean) => {
+      if (success || !failedBoard) return;
 
-    await delay(500);
-    InfoToast({
-      message:
-        "Your board creation failed. Would you like to retry or discard it?",
-      duration: 10000,
-      action: {
-        label: "Retry",
-        onClick: retryBoardCreation,
-      },
-    });
-
-    setTimeout(async () => {
-      await navigateAndDeleteBoard();
-
-      await delay(300);
-      InfoToast({
-        message:
-          "The failed board has been discarded. You're back on the dashboard.",
-      });
-    }, 10000);
-  };
-
-  const navigateAndDeleteBoard = async (success?: boolean) => {
-    if (success || !failedBoard) return;
-
-    router.push("/dashboard");
-    await delay(500);
-    deleteBoard(failedBoard.id);
-  };
+      router.push("/dashboard");
+      await delay(500);
+      deleteBoard(failedBoard.id);
+    },
+    [router, failedBoard, deleteBoard],
+  );
 
   const retryBoardCreation = useCallback(async () => {
     if (!failedBoard) return;
@@ -100,6 +78,31 @@ export function useBoardRetry() {
     resetError,
     navigateAndDeleteBoard,
   ]);
+
+  const handleDismiss = useCallback(async () => {
+    if (!failedBoard) return;
+
+    await delay(500);
+    InfoToast({
+      message:
+        "Your board creation failed. Would you like to retry or discard it?",
+      duration: 10000,
+      action: {
+        label: "Retry",
+        onClick: retryBoardCreation,
+      },
+    });
+
+    setTimeout(async () => {
+      await navigateAndDeleteBoard();
+
+      await delay(300);
+      InfoToast({
+        message:
+          "The failed board has been discarded. You're back on the dashboard.",
+      });
+    }, 10000);
+  }, [failedBoard, retryBoardCreation, navigateAndDeleteBoard]);
 
   useEffect(() => {
     if (!hasError) return;
