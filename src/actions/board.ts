@@ -1,13 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
 import { currentUser } from "@clerk/nextjs/server";
 import type { Board, Column } from "@prisma/client";
 import db from "@/lib/db";
 
 import columnsTemplates from "@/app/dashboard/data/columns-templates";
-import { boardSchema } from "@/schemas/board";
+import { boardSchema, type BoardFormSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slugify";
 import { type ServerActionResult } from "@/lib/types";
 import {
@@ -19,13 +18,12 @@ import {
 import type { ColumnStatus } from "@/schemas/column";
 
 export const createBoardAction = async (
-  formData: FormData,
+  boardData: BoardFormSchema,
 ): Promise<ServerActionResult<Board & { columns: Column[] }>> => {
   const user = await currentUser();
   if (!user) return { success: false, message: "Authentication required!" };
 
-  const data = Object.fromEntries(formData.entries());
-  const validatedData = boardSchema.safeParse(data);
+  const validatedData = boardSchema.safeParse(boardData);
 
   if (!validatedData.success) {
     return {
@@ -170,10 +168,12 @@ export async function deleteBoardAction(
   }
 }
 
-export async function deleteAllBoardsAction() {
+export async function deleteAllBoardsAction(userId: string) {
   try {
-    await db.board.deleteMany();
-    revalidatePath("/dashboard", "page");
+    await db.board.deleteMany({
+      where: { userId },
+    });
+    revalidatePath("/dashboard", "layout");
     return { success: true, message: "All boards deleted successfully" };
   } catch (error) {
     console.error("Error deleting all boards:", error);
