@@ -157,7 +157,6 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
             aria-disabled={!hasAvailableStatuses}
             aria-describedby={errors?.status ? "column-error" : undefined}
             aria-invalid={!!errors?.status}
-            className="w-full focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>

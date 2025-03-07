@@ -1,18 +1,4 @@
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import ErrorMessage from "@/components/ui/error-message";
-import RequiredFieldSymbol from "@/components/ui/required-field-symbol";
 import type { FormMode } from "@/lib/types";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-import getBadgeStyle from "../../utils/get-badge-style";
 import taskPriorities from "../../data/task-priorities";
 import { taskSchema, type TaskSchema } from "@/schemas/task";
 import type { Task } from "@prisma/client";
@@ -24,7 +10,7 @@ import useForm from "@/hooks/use-form";
 import { pick } from "@/utils/object";
 import GenericForm from "@/components/ui/generic-form";
 import handleOnError from "@/utils/handle-on-error";
-import HelperText from "@/components/ui/helper-text";
+import FormField from "@/components/ui/form-field";
 
 type TaskFormProps = {
   formMode: FormMode;
@@ -120,68 +106,38 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
       errors={errors}
       formMode={formMode}
     >
-      <section className="space-y-2">
-        <Label className={`${errors?.title ? "text-destructive" : ""}`}>
-          What&apos;s the task? <RequiredFieldSymbol />
-        </Label>
-        <Input type="hidden" name="columnId" value={columnId ?? ""} />
+      <FormField
+        type="text"
+        name="title"
+        label="What's the task?"
+        defaultValue={taskFormData.title}
+        onChange={(value) => handleOnChange("title", value)}
+        error={errors?.title}
+        required
+        placeholder="e.g., Create a stunning new landing page"
+      />
 
-        {isEditMode && <Input type="hidden" name="taskId" value={task?.id} />}
+      <FormField type="hidden" name="columnId" defaultValue={columnId} />
 
-        <Input
-          name="title"
-          placeholder="e.g., Create a stunning new landing page"
-          defaultValue={taskFormData.title}
-          onChange={(e) => handleOnChange("title", e.target.value)}
-          aria-invalid={!!errors?.title}
-          aria-describedby="title-error"
-          aria-required
-        />
-        {errors?.title && (
-          <ErrorMessage id="title-error">{errors?.title}</ErrorMessage>
-        )}
-      </section>
+      <FormField
+        type="textarea"
+        name="description"
+        label="What needs to be done?"
+        defaultValue={taskFormData.description}
+        onChange={(value) => handleOnChange("description", value)}
+        placeholder="e.g., Design a modern, mobile-friendly layout for the homepage"
+      />
 
-      <section className="space-y-2">
-        <Label>What needs to be done?</Label>
-        <Textarea
-          name="description"
-          placeholder="e.g., Design a modern, mobile-friendly layout for the homepage"
-          className="resize-none"
-          defaultValue={taskFormData.description}
-          onChange={(e) => handleOnChange("description", e.target.value)}
-        />
-      </section>
-
-      <section className="space-y-2">
-        <Label htmlFor="priority">How urgent is this?</Label>
-        <Select
-          defaultValue="medium"
-          name="priority"
-          onValueChange={(value) => handleOnChange("priority", value)}
-        >
-          <SelectTrigger id="priority" className="*:max-w-[120px]">
-            <SelectValue placeholder="Select a Priority" />
-          </SelectTrigger>
-          <SelectContent>
-            {taskPriorities.map((priority) => (
-              <SelectItem key={priority} value={priority}>
-                <div className="flex items-center">
-                  <span
-                    className={`mr-2 h-2 w-2 rounded-full ${getBadgeStyle(
-                      priority,
-                    )}`}
-                  ></span>
-                  <h2 className="text-xs font-semibold capitalize md:text-sm">
-                    {priority}
-                  </h2>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <HelperText>Select a priority level to manage urgency.</HelperText>
-      </section>
+      <FormField
+        type="select"
+        name="priority"
+        label="How urgent is this?"
+        defaultValue={taskFormData.priority}
+        onChange={(value) => handleOnChange("priority", value)}
+        options={taskPriorities}
+        helperText="Select a priority level to manage urgency."
+        placeholder="Select a Priority"
+      />
     </GenericForm>
   );
 };

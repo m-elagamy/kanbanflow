@@ -10,16 +10,16 @@ export const useBoardFormStore = () => {
     createBoard,
     updateBoardId,
     updateBoard,
-    deleteBoard,
     activeBoardId,
+    setError,
   } = useBoardStore(
     useShallow((state) => ({
       boards: state.boards,
       createBoard: state.createBoard,
       updateBoardId: state.updateBoardId,
       updateBoard: state.updateBoard,
-      deleteBoard: state.deleteBoard,
       activeBoardId: state.activeBoardId,
+      setError: state.setError,
     })),
   );
 
@@ -43,11 +43,11 @@ export const useBoardFormStore = () => {
     createBoard,
     updateBoardId,
     updateBoard,
-    deleteBoard,
     activeBoardId,
     setColumns,
     closeModal,
     isLoading,
     setIsLoading,
+    setError,
   };
 };

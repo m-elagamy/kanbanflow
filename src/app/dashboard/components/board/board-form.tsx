@@ -1,21 +1,7 @@
-"use client";
-
 import { useRouter } from "next/navigation";
-import { AnimatePresence } from "framer-motion";
-
 import type { Board } from "@prisma/client";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import RequiredFieldSymbol from "@/components/ui/required-field-symbol";
-import { Textarea } from "@/components/ui/textarea";
 import type { FormMode, Templates } from "@/lib/types";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   constructColumns,
   createOptimisticBoard,
@@ -24,18 +10,15 @@ import {
 import { slugify } from "@/utils/slugify";
 import { createBoardAction, updateBoardAction } from "@/actions/board";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
-import ErrorMessage from "@/components/ui/error-message";
 import { omit } from "@/utils/object";
 import { useBoardFormStore } from "@/hooks/use-board-form-store";
 import useForm from "@/hooks/use-form";
 import handleOnError from "@/utils/handle-on-error";
 import GenericForm from "@/components/ui/generic-form";
-import HelperText from "@/components/ui/helper-text";
-import { MotionInput } from "@/components/ui/motion-input";
+import FormField from "@/components/ui/form-field";
 import { useUpdatePredefinedColumnsId } from "@/hooks/use-update-predefined-columns-id";
 import delay from "@/utils/delay";
 import columnsTemplates from "../../data/columns-templates";
-import useBoardStore from "@/stores/board";
 
 type BoardFormProps = Readonly<{
   formMode: FormMode;
@@ -62,10 +45,10 @@ export default function BoardForm({
     closeModal,
     isLoading,
     setIsLoading,
+    setError,
   } = useBoardFormStore();
 
   const updateColumnIds = useUpdatePredefinedColumnsId();
-  const setError = useBoardStore((state) => state.setError);
 
   const {
     formValues: boardFormData,
@@ -160,92 +143,45 @@ export default function BoardForm({
       errors={errors}
       isLoading={isLoading}
     >
-      <div>
-        {isEditMode && <Input type="hidden" name="boardId" value={board?.id} />}
-        <Label
-          htmlFor="title"
-          className={`${errors?.title ? "text-destructive" : ""} transition-colors`}
-        >
-          Name <RequiredFieldSymbol />
-        </Label>
-        <MotionInput
-          id="title"
-          type="text"
-          name="title"
-          placeholder="e.g., Personal Tasks"
-          defaultValue={boardFormData.title}
-          onBlur={(e) => {
-            handleOnBlur(router, e.target.value);
-          }}
-          onChange={(e) => handleOnChange("title", e.target.value)}
-          aria-invalid={!!errors?.title}
-          aria-describedby="title-error"
-          aria-required
-          animate={errors?.title ? { x: [-2, 2, -2, 2, 0] } : undefined}
-          transition={{ duration: 0.2 }}
-        />
-        <HelperText error={!!errors?.title}>
-          Choose a clear and descriptive name for your board.
-        </HelperText>
-        <AnimatePresence>
-          {errors?.title && (
-            <ErrorMessage id="title-error">{errors.title}</ErrorMessage>
-          )}
-        </AnimatePresence>
-      </div>
+      <FormField
+        name="title"
+        type="text"
+        label="Name"
+        defaultValue={board?.title}
+        placeholder="e.g., Personal Tasks"
+        required
+        onChange={(value) => handleOnChange("title", value)}
+        onBlur={(value) => handleOnBlur(router, value)}
+        error={errors?.title}
+        helperText="Choose a clear and descriptive name for your board."
+      />
 
       {!isEditMode && (
-        <div>
-          <Label htmlFor="template">Template</Label>
-          <Select defaultValue="personal" name="template">
-            <SelectTrigger id="template">
-              <SelectValue placeholder="Select a template" />
-            </SelectTrigger>
-            <SelectContent>
-              {columnsTemplates.map((template) => {
-                const Icon = template.icon;
-                return (
-                  <SelectItem key={template.id} value={template.id}>
-                    <div className="flex items-center gap-2">
-                      <Icon className="size-4" />
-                      <h2>{template.title}</h2>
-                    </div>
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-          <HelperText>
-            Start with a ready-made template or customize it later.
-          </HelperText>
-        </div>
+        <FormField
+          name="template"
+          type="select"
+          label="Template"
+          defaultValue="personal"
+          options={columnsTemplates}
+          error={errors?.template}
+          helperText="Start with a ready-made template or customize it later."
+        />
       )}
 
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          name="description"
-          defaultValue={boardFormData?.description ?? ""}
-          onChange={(e) => handleOnChange("description", e.target.value)}
-          placeholder="Organize my daily and work tasks"
-          className="!mb-1 resize-none"
-          aria-invalid={!!errors?.description}
-          aria-describedby="description-error"
-        />
+      <FormField
+        name="description"
+        type="textarea"
+        label="Description"
+        placeholder="Organize my daily and work tasks"
+        defaultValue={boardFormData?.description ?? ""}
+        error={errors?.description}
+        helperText="Add a context to help you remember the board's purpose."
+        onChange={(value) => handleOnChange("description", value)}
+      />
 
-        <HelperText>
-          Add a context to help you remember the board&#39;s purpose.
-        </HelperText>
-
-        <AnimatePresence>
-          {errors?.description && (
-            <ErrorMessage id="description-error">
-              {errors?.description}
-            </ErrorMessage>
-          )}
-        </AnimatePresence>
-      </div>
+      {isEditMode && (
+        <FormField type="hidden" name="id" defaultValue={board?.id} />
+      )}
     </GenericForm>
   );
 }

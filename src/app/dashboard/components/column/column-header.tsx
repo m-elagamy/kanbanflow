@@ -34,7 +34,10 @@ export default function ColumnHeader({
           {columnStatus}
         </span>
         {tasksCount > 0 && (
-          <Badge variant="outline" className="h-5 px-[7px] text-[0.690rem]">
+          <Badge
+            variant="outline"
+            className="h-5 rounded-md px-[7px] text-[0.690rem]"
+          >
             {tasksCount}
           </Badge>
         )}
