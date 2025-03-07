@@ -78,6 +78,8 @@
 @layer base {
   * {
     @apply border-border;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted) / 0.5) hsl(var(--background));
   }
 
   body {
@@ -87,56 +89,39 @@
   :is(input, textarea)::placeholder {
     @apply text-sm;
   }
-}
 
-/* Scroll bar customization */
-@layer base {
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted) / 0.5) hsl(var(--background));
-  }
-
+  /* Scroll bar customization */
   *::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+    @apply size-3;
   }
 
   *::-webkit-scrollbar-track {
-    background: hsl(var(--background));
-    border-radius: 0.5rem;
-    border: 1px solid hsl(var(--border));
+    @apply rounded-lg border border-border bg-background;
   }
 
   *::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted-foreground) / 0.3);
-    border-radius: 0.5rem;
-    border: 3px solid hsl(var(--background));
-    transition: background-color 0.3s ease;
+    @apply rounded-md border-[3px] border-border bg-muted-foreground/5;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--muted-foreground) / 0.5);
+    @apply bg-muted-foreground/5;
   }
 
-  *::-webkit-scrollbar-thumb:active {
-    background-color: hsl(var(--secondary));
+  *::-webkit-scrollbar-thumb:active,
+  .dark *::-webkit-scrollbar-thumb:active {
+    @apply bg-secondary;
   }
 
   .dark *::-webkit-scrollbar-track {
-    background: hsl(var(--background));
-    border-color: hsl(var(--border) / 0.5);
+    @apply border-border/5 bg-background;
   }
 
   .dark *::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted-foreground) / 0.2);
+    @apply bg-muted-foreground/5;
   }
 
   .dark *::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--muted-foreground) / 0.4);
-  }
-
-  .dark *::-webkit-scrollbar-thumb:active {
-    background-color: hsl(var(--secondary));
+    @apply bg-muted-foreground/5;
   }
 
   .scrollbar-hide {
@@ -155,16 +140,5 @@
 
   .necessary-ellipsis {
     @apply overflow-x-hidden text-ellipsis whitespace-nowrap;
-  }
-}
-
-
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
   }
 }
