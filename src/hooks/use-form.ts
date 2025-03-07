@@ -1,11 +1,10 @@
-import type { FormErrors } from "@/lib/types";
+import { ZodSchema } from "zod";
+import validateFormData from "@/app/dashboard/utils/validate-form-data";
+import hasChanges from "@/app/dashboard/utils/check-for-changes";
+import hasDuplicateTitle from "@/app/dashboard/utils/check-for-duplicates";
 import useAutoFocusOnError from "./use-auto-focus-on-error";
 import useErrorManagement from "./use-error-management";
 import useFormValues from "./use-form-values";
-import validateFormData from "@/app/dashboard/utils/validate-form-data";
-import { ZodSchema } from "zod";
-import hasChanges from "@/app/dashboard/utils/check-for-changes";
-import hasDuplicateTitle from "@/app/dashboard/utils/check-for-duplicates";
 
 const useForm = <T extends Record<string, unknown>>(
   initialState: T,
@@ -19,26 +18,13 @@ const useForm = <T extends Record<string, unknown>>(
     clearGenericError,
   } = useErrorManagement<T>();
 
-  const formRef = useAutoFocusOnError<T>(errors, {
-    delay: 300,
-  });
-
   const { formValues, handleOnChange } = useFormValues<T>({
     initialState,
     onFieldChange: (field) => {
-      if (shouldClearErrors(errors, field)) {
-        clearFieldError(field);
-        clearGenericError();
-      }
+      if (errors?.[field]) clearFieldError(field);
+      if (errors?.generic) clearGenericError();
     },
   });
-
-  const shouldClearErrors = (
-    errors: FormErrors<T> | null,
-    field: keyof T,
-  ): boolean => {
-    return !!errors?.[field] || !!errors?.generic;
-  };
 
   const validateBeforeSubmit = (
     formData: FormData,
@@ -51,7 +37,7 @@ const useForm = <T extends Record<string, unknown>>(
       success,
       data: validatedData,
       error,
-    } = validateFormData(formData, schema);
+    } = validateFormData<T>(formData, schema);
     if (!success) {
       setSpecificError("title", error.issues[0]?.message);
       return { success: false };
@@ -86,6 +72,10 @@ const useForm = <T extends Record<string, unknown>>(
 
     return { success: true, data: validatedData };
   };
+
+  const formRef = useAutoFocusOnError<T>(errors, {
+    delay: 300,
+  });
 
   return {
     formValues,

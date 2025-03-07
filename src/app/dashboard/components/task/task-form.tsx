@@ -76,7 +76,7 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
 
     if (!success || !validatedData) return;
 
-    const { title, description, priority } = validatedData;
+    const { title, description = "", priority = "medium" } = validatedData;
 
     const optimisticTask = {
       id: generateUUID(),
@@ -101,9 +101,9 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
         addTask(columnId, optimisticTask);
         closeModal("task", modalId);
 
-        const response = await createTaskAction(formData);
+        const res = await createTaskAction(formData);
 
-        updateTaskId(columnId, optimisticTask.id, response.fields?.id ?? "");
+        updateTaskId(columnId, optimisticTask.id, res.fields?.id ?? "");
       }
     } catch (error) {
       console.error("Error creating task:", error);

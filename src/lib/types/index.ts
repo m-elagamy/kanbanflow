@@ -1,3 +1,4 @@
+import type { BoardFormSchema } from "@/schemas/board";
 import type { TaskSchema } from "@/schemas/task";
 import type { Board, Column, Task } from "@prisma/client";
 
@@ -55,3 +56,5 @@ export type FormErrors<T> = Partial<Record<keyof T, string>> & {
 export type EntityType = "board" | "task" | "column";
 
 export type Operation = "fetching" | "creating" | "updating" | "deleting";
+
+export type BoardFormValues = { id: string } & BoardFormSchema;

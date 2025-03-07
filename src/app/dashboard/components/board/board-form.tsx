@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 
@@ -34,15 +33,15 @@ import GenericForm from "@/components/ui/generic-form";
 import HelperText from "@/components/ui/helper-text";
 import { MotionInput } from "@/components/ui/motion-input";
 import { useUpdatePredefinedColumnsId } from "@/hooks/use-update-predefined-columns-id";
+import delay from "@/utils/delay";
 import columnsTemplates from "../../data/columns-templates";
+import useBoardStore from "@/stores/board";
 
 type BoardFormProps = Readonly<{
   formMode: FormMode;
   board?: Pick<Board, "id" | "title" | "description" | "slug">;
   modalId: string;
 }>;
-
-type BoardFormValues = BoardFormSchema & { id: string };
 
 export default function BoardForm({
   formMode,
@@ -52,20 +51,21 @@ export default function BoardForm({
   const isEditMode = formMode === "edit";
 
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
 
   const {
     boards,
     createBoard,
     updateBoard,
     updateBoardId,
-    deleteBoard,
     activeBoardId,
     setColumns,
     closeModal,
+    isLoading,
+    setIsLoading,
   } = useBoardFormStore();
 
   const updateColumnIds = useUpdatePredefinedColumnsId();
+  const setError = useBoardStore((state) => state.setError);
 
   const {
     formValues: boardFormData,
@@ -73,9 +73,8 @@ export default function BoardForm({
     formRef,
     errors,
     validateBeforeSubmit,
-  } = useForm<BoardFormValues>(
+  } = useForm<BoardFormSchema>(
     {
-      id: board?.id ?? "",
       title: board?.title ?? "",
       description: board?.description ?? "",
       template: "personal",
@@ -98,7 +97,7 @@ export default function BoardForm({
 
     if (!success || !validatedData) return;
 
-    const { title, description } = validatedData;
+    const { title, description = "", template } = validatedData;
 
     const slug = slugify(title);
 
@@ -109,12 +108,12 @@ export default function BoardForm({
       closeModal("board", modalId);
 
       try {
-        const response = await updateBoardAction(formData);
-        const isSlugChanged = response.fields?.slug !== board?.slug;
+        const res = await updateBoardAction(formData);
+        const isSlugChanged = res.fields?.slug !== board?.slug;
         const isActiveBoard = activeBoardId === board.id;
 
         if (isSlugChanged && isActiveBoard) {
-          router.replace(`/dashboard/${response.fields?.slug}`);
+          router.replace(`/dashboard/${res.fields?.slug}`);
         }
       } catch (error) {
         handleOnError(error, "Failed to update board.");
@@ -124,33 +123,34 @@ export default function BoardForm({
       return;
     }
 
-    startTransition(async () => {
-      createBoard(optimisticBoard);
+    setIsLoading("board", "creating", true, optimisticBoard.id);
 
-      Promise.resolve().then(() => router.push(`/dashboard/${slug}`));
+    createBoard(optimisticBoard);
+    setColumns(constructColumns(template as Templates));
 
-      createBoardAction(formData).then(
-        (res) => {
-          if (!res.fields) return;
+    await delay(300);
+    router.push(`/dashboard/${slug}`);
 
+    setTimeout(async () => {
+      try {
+        const res = await createBoardAction(validatedData);
+        if (res.fields) {
           updateBoardId(optimisticBoard.id, res.fields.id);
-
           updateColumnIds(res.fields.id, res.fields.columns);
-        },
-        (err) => {
-          handleOnError(err, "Failed to create board.");
-          router.replace("/dashboard");
-          closeModal("board", modalId);
-          deleteBoard(optimisticBoard.id);
-        },
-      );
-    });
+        }
+      } catch (err) {
+        console.error(err instanceof Error ? err.message : err);
+        setError(true, {
+          id: optimisticBoard.id,
+          title: optimisticBoard.title,
+          description: optimisticBoard.description,
+          template: validatedData.template,
+        });
+      } finally {
+        setIsLoading("board", "creating", false, optimisticBoard.id);
+      }
+    }, 50);
   };
-
-  useEffect(() => {
-    if (isEditMode) return;
-    setColumns(constructColumns("personal"));
-  }, [isEditMode, setColumns]);
 
   return (
     <GenericForm
@@ -158,7 +158,7 @@ export default function BoardForm({
       onAction={handleFormAction}
       formMode={formMode}
       errors={errors}
-      isLoading={isPending}
+      isLoading={isLoading}
     >
       <div>
         {isEditMode && <Input type="hidden" name="boardId" value={board?.id} />}
@@ -197,13 +197,7 @@ export default function BoardForm({
       {!isEditMode && (
         <div>
           <Label htmlFor="template">Template</Label>
-          <Select
-            defaultValue="personal"
-            name="template"
-            onValueChange={(value) =>
-              setColumns(constructColumns(value as Templates))
-            }
-          >
+          <Select defaultValue="personal" name="template">
             <SelectTrigger id="template">
               <SelectValue placeholder="Select a template" />
             </SelectTrigger>

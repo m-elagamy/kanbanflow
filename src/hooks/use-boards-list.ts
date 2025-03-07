@@ -33,5 +33,10 @@ export function useBoardsList(
 
     setIsLoading(false);
   }, [initialBoards, setBoards]);
-  return { boards, activeBoardId, setActiveBoardId, isLoading };
+  return {
+    boards,
+    activeBoardId,
+    setActiveBoardId,
+    isLoading,
+  };
 }

@@ -64,7 +64,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
             {task.title}
           </h3>
           <Badge
-            className={`${getBadgeStyle(task.priority)} h-5 rounded-full p-1 text-[0.525rem] uppercase`}
+            className={`${getBadgeStyle(task.priority)} h-5 p-2 text-[0.525rem] uppercase`}
           >
             {task.priority}
           </Badge>
