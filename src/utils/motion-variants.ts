@@ -18,12 +18,18 @@ const stagger: Variants = {
 };
 
 const particleVariants = {
+  initial: {
+    opacity: 0,
+    scale: 0.8,
+  },
   float1: {
-    y: [0, -15, 0],
-    x: [0, 7, 0],
-    scale: [1, 1.15, 0.9, 1],
-    rotate: [0, 5, -5, 0],
+    opacity: 1,
+    y: [0, -15, -5, -18, 0],
+    x: [0, 7, 3, 10, 0],
+    scale: [1, 1.15, 0.9, 1.05, 1],
+    rotate: [0, 5, -5, 3, 0],
     transition: {
+      opacity: { duration: 0.5 },
       y: {
         repeat: Number.POSITIVE_INFINITY,
         duration: 6,
@@ -47,11 +53,13 @@ const particleVariants = {
     },
   },
   float2: {
-    y: [0, 15, 0],
-    x: [0, -7, 0],
-    scale: [1, 0.9, 1.1, 1],
-    rotate: [0, -7, 3, 0],
+    opacity: 1,
+    y: [0, 15, 5, 12, 0],
+    x: [0, -7, -3, -5, 0],
+    scale: [1, 0.9, 1.1, 0.95, 1],
+    rotate: [0, -7, 3, -5, 0],
     transition: {
+      opacity: { duration: 0.5 },
       y: {
         repeat: Number.POSITIVE_INFINITY,
         duration: 7,
