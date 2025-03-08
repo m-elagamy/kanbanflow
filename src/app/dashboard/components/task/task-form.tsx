@@ -125,6 +125,7 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
       />
 
       <FormField type="hidden" name="columnId" defaultValue={columnId} />
+      <FormField type="hidden" name="taskId" defaultValue={task?.id} />
 
       <FormField
         type="textarea"
