@@ -19,15 +19,13 @@ import { BoardsList } from "./boards-list";
 export default async function DashboardSidebar() {
   const { userId } = await auth();
 
-  if (!userId) {
-    unauthorized();
-  }
+  if (!userId) unauthorized();
 
   const userBoards = (await getAllUserBoardsAction(userId)).fields;
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarTitle />
+      <SidebarTitle userId={userId} />
       <SidebarContent>
         <SidebarGroup>
           <SidebarLabel />

@@ -1,10 +1,8 @@
-import type { Task } from "@prisma/client";
-
-export const findColumnIdByTask = (
-  tasksByColumnId: Record<string, Task[]>,
+export const findColumnIdByTaskId = (
+  columnTaskIds: Record<string, string[]>,
   taskId: string,
 ) => {
-  return Object.keys(tasksByColumnId).find((columnId) =>
-    tasksByColumnId[columnId].some((task) => task.id === taskId),
+  return Object.keys(columnTaskIds).find((columnId) =>
+    columnTaskIds[columnId].includes(taskId),
   );
 };

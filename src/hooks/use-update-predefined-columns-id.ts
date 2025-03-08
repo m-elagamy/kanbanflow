@@ -3,14 +3,13 @@ import { Column } from "@prisma/client";
 
 export const useUpdatePredefinedColumnsId = () => {
   const updatePredefinedColumnsId = useColumnStore(
-    (state) => state.updateColumnIds,
+    (state) => state.updatePredefinedColumnsId,
   );
 
-  const updateColumnId = (boardId: string, columns: Column[]) => {
+  const updateColumnId = (columns: Column[]) => {
     const columnUpdates = columns.map((column, index) => ({
-      boardId,
-      tempId: `temp-${index}`,
-      realId: column.id,
+      oldId: `temp-${index}`,
+      newId: column.id,
     }));
 
     updatePredefinedColumnsId(columnUpdates);

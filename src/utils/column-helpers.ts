@@ -1,10 +1,10 @@
-import type { ColumnStatus } from "@/schemas/column";
-import type { Column } from "@prisma/client";
-import type { LucideProps } from "lucide-react";
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
+import type { LucideProps } from "lucide-react";
+import type { ColumnView } from "@/lib/types/stores/column";
+import type { ColumnStatus } from "@/schemas/column";
 
 const getAvailableStatusOptions = (
-  columns: Omit<Column, "order">[],
+  columns: ColumnView[],
   statusOptions: Record<
     ColumnStatus,
     {

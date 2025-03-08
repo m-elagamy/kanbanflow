@@ -31,7 +31,7 @@ export function UserProfile() {
 
   const user = {
     name: "Mahmoud Elagamy",
-    avatar: "https://github.com/Mahmoud-Elagamy.png",
+    avatar: "https://github.com/shadcn.png",
     email: "mahmoudelagamy474@gmail.com",
   };
 

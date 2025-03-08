@@ -117,10 +117,10 @@ export default function BoardForm({
     setTimeout(async () => {
       try {
         const res = await createBoardAction(validatedData);
-        if (res.fields) {
-          updateBoardId(optimisticBoard.id, res.fields.id);
-          updateColumnIds(res.fields.id, res.fields.columns);
-        }
+        if (!res.fields) return;
+
+        updateBoardId(optimisticBoard.id, res.fields.id);
+        updateColumnIds(res.fields.columns);
       } catch (err) {
         console.error(err instanceof Error ? err.message : err);
         setError(true, {

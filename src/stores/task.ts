@@ -1,103 +1,129 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { Task } from "@prisma/client";
-import { arrayMove } from "@dnd-kit/sortable";
 import { subscribeWithSelector } from "zustand/middleware";
+import type { TaskState, TaskStore } from "@/lib/types/stores/task";
 
-type TaskState = {
-  tasks: Record<string, Task[]>;
-  activeTask: Task | null;
-
-  setTasks: (columnId: string, tasks: Task[]) => void;
-  setActiveTask: (task: Task | null) => void;
-
-  addTask: (columnId: string, task: Task) => void;
-  updateTask: (
-    columnId: string,
-    taskId: string,
-    updates: Partial<Task>,
-  ) => void;
-  deleteTask: (columnId: string, taskId: string) => void;
-  updateTaskId: (
-    columnId: string,
-    oldTaskId: string,
-    newTaskId: string,
-  ) => void;
-  reorderTaskWithinColumn: (
-    columnId: string,
-    activeTaskId: string,
-    overId: string,
-  ) => void;
-  moveTaskBetweenColumns: (
-    taskId: string,
-    fromColumnId: string,
-    toColumnId: string,
-    targetTaskId?: string,
-  ) => void;
+const initialState: TaskState = {
+  tasks: {},
+  columnTaskIds: {},
+  activeTaskId: null,
 };
 
-export const useTaskStore = create<TaskState>()(
+export const useTaskStore = create<TaskStore>()(
   subscribeWithSelector(
-    immer((set) => ({
-      tasks: {},
-      activeTask: null,
+    immer((set, get) => ({
+      ...initialState,
+
+      getTask: (taskId: string) => {
+        return get().tasks[taskId];
+      },
+
+      getColumnTasks: (columnId: string) => {
+        const state = get();
+        const taskIds = state.columnTaskIds[columnId] || [];
+        return taskIds.map((id) => state.tasks[id]).filter(Boolean);
+      },
 
       setTasks: (columnId, tasks) => {
         set((state) => {
-          state.tasks[columnId] = tasks;
+          tasks.forEach((task) => {
+            state.tasks[task.id] = task;
+          });
+
+          state.columnTaskIds[columnId] = tasks.map((task) => task.id);
         });
       },
 
       setActiveTask: (task) => {
         set((state) => {
-          state.activeTask = task;
+          state.activeTaskId = task?.id || null;
+
+          if (task) {
+            state.tasks[task.id] = task;
+          }
         });
       },
 
       addTask: (columnId, task) => {
         set((state) => {
-          state.tasks[columnId] = [...(state.tasks[columnId] || []), task];
+          state.tasks[task.id] = task;
+
+          if (!state.columnTaskIds[columnId]) {
+            state.columnTaskIds[columnId] = [];
+          }
+
+          state.columnTaskIds[columnId].push(task.id);
         });
       },
 
-      updateTask: (columnId, taskId, updates) => {
+      updateTask: (taskId, updates) => {
         set((state) => {
-          const tasks = state.tasks[columnId];
-          if (!tasks) return;
-          const task = tasks.find((t) => t.id === taskId);
-          if (task) Object.assign(task, updates);
+          if (!state.tasks[taskId]) return;
+
+          state.tasks[taskId] = {
+            ...state.tasks[taskId],
+            ...updates,
+          };
         });
       },
 
       deleteTask: (columnId, taskId) => {
         set((state) => {
-          const tasks = state.tasks[columnId];
-          if (!tasks) return;
-          state.tasks[columnId] = tasks.filter((t) => t.id !== taskId);
+          delete state.tasks[taskId];
+
+          if (state.columnTaskIds[columnId]) {
+            state.columnTaskIds[columnId] = state.columnTaskIds[
+              columnId
+            ].filter((id) => id !== taskId);
+          }
+
+          if (state.activeTaskId === taskId) {
+            state.activeTaskId = null;
+          }
         });
       },
 
-      updateTaskId: (columnId, oldTaskId, newTaskId) => {
+      updateTaskId: (oldTaskId, newTaskId) => {
         if (oldTaskId === newTaskId) return;
 
         set((state) => {
-          const tasks = state.tasks[columnId];
-          if (!tasks) return;
-          const task = tasks.find((t) => t.id === oldTaskId);
-          if (task) task.id = newTaskId;
+          const task = state.tasks[oldTaskId];
+          if (!task) return;
+
+          state.tasks[newTaskId] = {
+            ...task,
+            id: newTaskId,
+          };
+
+          delete state.tasks[oldTaskId];
+
+          Object.keys(state.columnTaskIds).forEach((columnId) => {
+            const column = state.columnTaskIds[columnId];
+            const index = column.indexOf(oldTaskId);
+
+            if (index !== -1) {
+              column[index] = newTaskId;
+            }
+          });
+
+          if (state.activeTaskId === oldTaskId) {
+            state.activeTaskId = newTaskId;
+          }
         });
       },
 
       reorderTaskWithinColumn: (columnId, activeTaskId, overId) => {
         set((state) => {
-          const tasks = state.tasks[columnId];
-          if (!tasks) return;
-          const oldIndex = tasks.findIndex((t) => t.id === activeTaskId);
-          const newIndex = tasks.findIndex((t) => t.id === overId);
+          const column = state.columnTaskIds[columnId];
+          if (!column) return;
 
-          if (oldIndex !== -1 && newIndex !== -1) {
-            state.tasks[columnId] = arrayMove(tasks, oldIndex, newIndex);
-          }
+          const oldIndex = column.indexOf(activeTaskId);
+          const newIndex = column.indexOf(overId);
+
+          if (oldIndex === -1 || newIndex === -1) return;
+
+          column.splice(oldIndex, 1);
+          column.splice(newIndex, 0, activeTaskId);
         });
       },
 
@@ -108,20 +134,27 @@ export const useTaskStore = create<TaskState>()(
         targetTaskId,
       ) => {
         set((state) => {
-          const fromTasks = state.tasks[fromColumnId];
-          const toTasks = state.tasks[toColumnId] || [];
+          const fromColumn = state.columnTaskIds[fromColumnId];
+          if (!fromColumn) return;
 
-          const taskIndex = fromTasks.findIndex((t) => t.id === taskId);
-          if (taskIndex === -1) return;
+          if (!state.columnTaskIds[toColumnId]) {
+            state.columnTaskIds[toColumnId] = [];
+          }
 
-          const [task] = fromTasks.splice(taskIndex, 1);
+          const toColumn = state.columnTaskIds[toColumnId];
+          const fromIndex = fromColumn.indexOf(taskId);
 
-          let targetIndex = toTasks.findIndex((t) => t.id === targetTaskId);
-          if (targetIndex === -1) targetIndex = toTasks.length;
+          if (fromIndex === -1) return;
 
-          toTasks.splice(targetIndex, 0, task);
+          fromColumn.splice(fromIndex, 1);
 
-          state.tasks[toColumnId] = toTasks;
+          let toIndex = targetTaskId
+            ? toColumn.indexOf(targetTaskId)
+            : toColumn.length;
+
+          if (toIndex === -1) toIndex = toColumn.length;
+
+          toColumn.splice(toIndex, 0, taskId);
         });
       },
     })),

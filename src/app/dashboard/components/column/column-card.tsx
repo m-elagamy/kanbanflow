@@ -1,20 +1,18 @@
 import { useDroppable } from "@dnd-kit/core";
-import { Column } from "@prisma/client";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-
+import { useShallow } from "zustand/react/shallow";
 import { Card, CardContent } from "@/components/ui/card";
-
+import type { ColumnView } from "@/lib/types/stores/column";
+import { useTaskStore } from "@/stores/task";
 import ColumnHeader from "./column-header";
 import NoTasksMessage from "../task/no-tasks-message";
 import TaskCard from "../task/task-card";
-import { useTaskStore } from "@/stores/task";
-import { useShallow } from "zustand/react/shallow";
 
 type ColumnCardProps = {
-  column: Omit<Column, "order">;
+  column: ColumnView;
 };
 
 const ColumnCard = ({ column }: ColumnCardProps) => {
@@ -23,7 +21,7 @@ const ColumnCard = ({ column }: ColumnCardProps) => {
   });
 
   const tasks = useTaskStore(
-    useShallow((state) => state.tasks[column.id] || []),
+    useShallow((state) => state.getColumnTasks(column.id)),
   );
 
   const taskIds = tasks.map((task) => task.id);

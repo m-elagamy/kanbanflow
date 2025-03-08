@@ -1,38 +1,16 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import isEqual from "fast-deep-equal";
-import { Column } from "@prisma/client";
+import type { ColumnStore, ColumnView } from "@/lib/types/stores/column";
 
-interface ColumnWithTempId extends Omit<Column, "id" | "order"> {
-  id: string;
-  tempId?: string;
-}
-
-type ColumnState = {
-  columns: Record<string, ColumnWithTempId>;
-  tempToRealIdMap: Record<string, string>;
-  previousState: Record<string, ColumnWithTempId> | null;
-  setColumns: (columns: ColumnWithTempId[]) => void;
-  addColumn: (column: ColumnWithTempId) => void;
-  updateColumn: (columnId: string, updates: Pick<Column, "status">) => void;
-  deleteColumn: (columnId: string) => void;
-  revertToPrevious: () => void;
-  backupState: () => void;
-  updateColumnId: (tempId: string, realId: string | undefined) => void;
-  updateColumnIds: (
-    columnUpdates: { boardId: string; tempId: string; realId: string }[],
-  ) => void;
-};
-
-export const useColumnStore = create<ColumnState>()(
+export const useColumnStore = create<ColumnStore>()(
   immer((set) => ({
     columns: {},
-    tempToRealIdMap: {},
     previousState: null,
 
     setColumns: (columns) => {
       set((state) => {
-        const newColumns = columns.reduce<Record<string, ColumnWithTempId>>(
+        const newColumns = columns.reduce<Record<string, ColumnView>>(
           (acc, col) => {
             acc[col.id] = col;
             return acc;
@@ -49,69 +27,46 @@ export const useColumnStore = create<ColumnState>()(
     addColumn: (column) => {
       set((state) => {
         state.previousState = { ...state.columns };
-        if (column.tempId) {
-          state.columns[column.tempId] = column;
-        } else {
-          state.columns[column.id] = column;
-        }
+        state.columns[column.id] = column;
       });
     },
-
-    updateColumnId: (tempId, realId) => {
-      set((state) => {
-        const column = state.columns[tempId];
-        if (column && realId) {
-          // Create new column with real ID
-          state.columns[realId] = {
-            ...column,
-            id: realId,
-            tempId: undefined,
-          };
-          // Delete the temporary entry
-          delete state.columns[tempId];
-          // Update the mapping
-          state.tempToRealIdMap[tempId] = realId;
-        }
-      });
-    },
-
-    /** ✅ Update column ID after creation */
-    updateColumnIds: (columnUpdates) =>
-      set((state) => {
-        const updatedColumns = { ...state.columns };
-
-        columnUpdates.forEach(({ boardId, tempId, realId }) => {
-          if (updatedColumns[tempId]) {
-            updatedColumns[realId] = {
-              ...updatedColumns[tempId],
-              boardId,
-              id: realId,
-            };
-            delete updatedColumns[tempId]; // Remove temporary ID
-          }
-        });
-
-        return { columns: updatedColumns };
-      }),
 
     updateColumn: (columnId, updates) => {
       set((state) => {
         state.previousState = { ...state.columns };
-        const realId = state.tempToRealIdMap[columnId] || columnId;
-        if (state.columns[realId]) {
-          state.columns[realId] = {
-            ...state.columns[realId],
-            ...updates,
-          };
-        }
+        state.columns[columnId] = { ...state.columns[columnId], ...updates };
+      });
+    },
+
+    updateColumnId: (oldColumnId, newColumnId) => {
+      set((state) => {
+        state.columns[newColumnId] = state.columns[oldColumnId];
+        delete state.columns[oldColumnId];
+      });
+    },
+
+    updatePredefinedColumnsId: (columns) => {
+      set((state) => {
+        const updatedColumns = { ...state.columns };
+
+        columns.forEach(({ oldId, newId }) => {
+          if (updatedColumns[oldId]) {
+            updatedColumns[newId] = {
+              ...updatedColumns[oldId],
+              id: newId,
+            };
+            delete updatedColumns[oldId];
+          }
+        });
+
+        return { columns: updatedColumns };
       });
     },
 
     deleteColumn: (columnId) => {
       set((state) => {
         state.previousState = { ...state.columns };
-        const realId = state.tempToRealIdMap[columnId] || columnId;
-        delete state.columns[realId];
+        delete state.columns[columnId];
       });
     },
 

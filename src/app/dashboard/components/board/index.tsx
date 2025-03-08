@@ -1,16 +1,17 @@
 "use client";
 
-import type { Column, Task } from "@prisma/client";
+import type { Task } from "@prisma/client";
 import { useInitializeBoardData } from "@/hooks/use-initialize-board";
-import type { BoardStore } from "@/lib/types/stores/board";
+import type { BoardView } from "@/lib/types/stores/board";
+import type { ColumnView } from "@/lib/types/stores/column";
 import BoardHeader from "./board-header";
 import ColumnsWrapper from "../column";
 import BoardSkeleton from "./board-skeleton";
 import BoardContainer from "./board-container";
 
 type BoardLayoutProps = {
-  initialBoard: BoardStore & {
-    columns: (Omit<Column, "order"> & { tasks: Task[] })[];
+  initialBoard: BoardView & {
+    columns: (ColumnView & { tasks: Task[] })[];
   };
 };
 

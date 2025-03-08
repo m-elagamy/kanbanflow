@@ -5,116 +5,114 @@ import type {
   DragOverEvent,
   DragEndEvent,
 } from "@dnd-kit/core";
+import type { Task } from "@prisma/client";
 import { debounce } from "@/utils/debounce";
 import { useTaskStore } from "@/stores/task";
-import { findColumnIdByTask } from "@/utils/task-helpers";
+import { findColumnIdByTaskId } from "@/utils/task-helpers";
 import useTaskStateComparison from "./use-task-position-comparison";
 
-export const useDndHandlers = () => {
+const useDndHandlers = () => {
   const {
-    tasksByColumnId,
+    columnTaskIds,
+    getTask,
     moveTaskBetweenColumns,
     reorderTaskWithinColumn,
-    activeTask,
+    activeTaskId,
     setActiveTask,
+    getColumnTasks,
   } = useTaskStore(
     useShallow((state) => ({
-      tasksByColumnId: state.tasks,
+      columnTaskIds: state.columnTaskIds,
+      getTask: state.getTask,
       moveTaskBetweenColumns: state.moveTaskBetweenColumns,
       reorderTaskWithinColumn: state.reorderTaskWithinColumn,
-      activeTask: state.activeTask,
+      activeTaskId: state.activeTaskId,
       setActiveTask: state.setActiveTask,
+      getColumnTasks: state.getColumnTasks,
     })),
   );
 
+  const activeTask = activeTaskId ? getTask(activeTaskId) : null;
   const { captureInitialPosition, hasTaskPositionChanged } =
     useTaskStateComparison();
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
+  const getTasksByColumnId = () =>
+    Object.keys(columnTaskIds).reduce(
+      (acc, columnId) => {
+        acc[columnId] = getColumnTasks(columnId);
+        return acc;
+      },
+      {} as Record<string, Task[]>,
+    );
+
+  const handleDragStart = ({ active }: DragStartEvent) => {
     if (!active?.id) return;
+    const task = getTask(String(active.id));
 
-    const task = Object.values(tasksByColumnId)
-      .flat()
-      .find((task) => task.id === active.id);
+    if (!task) return;
 
-    setActiveTask(task || null);
-
-    captureInitialPosition(tasksByColumnId);
+    setActiveTask(task);
+    captureInitialPosition(getTasksByColumnId());
   };
 
-  const handleDragOver = debounce((event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over?.id) return;
-
-    const activeTaskId = String(active.id);
-    const overId = String(over.id);
-
-    const fromColumnId = findColumnIdByTask(tasksByColumnId, activeTaskId);
-    const toColumnId = findColumnIdByTask(tasksByColumnId, overId) ?? overId;
-
+  const processDragEvent = (
+    activeId: string,
+    overId: string,
+    isEnd = false,
+  ) => {
+    const fromColumnId = findColumnIdByTaskId(columnTaskIds, activeId);
+    const isOverTask = !!getTask(overId);
+    const toColumnId = isOverTask
+      ? findColumnIdByTaskId(columnTaskIds, overId)
+      : overId;
     if (!fromColumnId || !toColumnId) return;
 
-    const isOverTask = Object.values(tasksByColumnId).some((tasks) =>
-      tasks.some((task) => task.id === overId),
-    );
-
-    if (fromColumnId === toColumnId) {
-      if (isOverTask) {
-        reorderTaskWithinColumn(fromColumnId, activeTaskId, overId);
-      }
+    if (fromColumnId === toColumnId && isOverTask) {
+      reorderTaskWithinColumn(fromColumnId, activeId, overId);
     } else {
-      moveTaskBetweenColumns(activeTaskId, fromColumnId, toColumnId, overId);
-    }
-  }, 100);
-
-  const handleDragEnd = debounce(async (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over?.id) return;
-
-    const activeTaskId = String(active.id);
-    const overId = String(over.id);
-
-    const fromColumnId = findColumnIdByTask(tasksByColumnId, activeTaskId);
-    const toColumnId = findColumnIdByTask(tasksByColumnId, overId) ?? overId;
-
-    if (!fromColumnId || !toColumnId) return;
-
-    const taskToMove = tasksByColumnId[fromColumnId].find(
-      (task) => task.id === activeTaskId,
-    );
-
-    if (!taskToMove) return;
-
-    const updatedTaskOrder = tasksByColumnId[toColumnId].map((task) => task.id);
-
-    if (!updatedTaskOrder.length) return;
-
-    const hasChanges = hasTaskPositionChanged(
-      tasksByColumnId,
-      fromColumnId,
-      toColumnId,
-    );
-
-    if (hasChanges) {
-      await updateTaskPositionAction(
-        activeTaskId,
+      moveTaskBetweenColumns(
+        activeId,
         fromColumnId,
         toColumnId,
-        updatedTaskOrder,
+        isOverTask ? overId : undefined,
       );
     }
 
-    setActiveTask(null);
-  }, 300);
+    if (isEnd) {
+      const updatedTaskOrder = columnTaskIds[toColumnId] || [];
+      if (
+        hasTaskPositionChanged(getTasksByColumnId(), fromColumnId, toColumnId)
+      ) {
+        updateTaskPositionAction(
+          activeId,
+          fromColumnId,
+          toColumnId,
+          updatedTaskOrder,
+        );
+      }
+      setActiveTask(null);
+    }
+  };
 
-  const handleDragCancel = () => setActiveTask(null);
+  const handleDragOver = debounce(({ active, over }: DragOverEvent) => {
+    if (!active?.id || !over?.id) return;
+
+    processDragEvent(String(active.id), String(over.id));
+  }, 100);
+
+  const handleDragEnd = debounce(({ active, over }: DragEndEvent) => {
+    if (!active?.id || !over?.id) return;
+
+    processDragEvent(String(active.id), String(over.id), true);
+  }, 300);
 
   return {
     activeTask,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
-    handleDragCancel,
+    handleDragCancel: () => setActiveTask(null),
   };
 };
+
+export default useDndHandlers;

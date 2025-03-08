@@ -1,3 +1,4 @@
+import { useShallow } from "zustand/react/shallow";
 import type { FormMode } from "@/lib/types";
 import taskPriorities from "../../data/task-priorities";
 import { taskSchema, type TaskSchema } from "@/schemas/task";
@@ -19,16 +20,19 @@ type TaskFormProps = {
   modalId: string;
 };
 
-type TaskFormValues = TaskSchema & { id: string };
-
 const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
   const isEditMode = formMode === "edit";
 
-  const tasks = useTaskStore((state) => state.tasks);
-  const addTask = useTaskStore((state) => state.addTask);
-  const updateTask = useTaskStore((state) => state.updateTask);
-  const deleteTask = useTaskStore((state) => state.deleteTask);
-  const updateTaskId = useTaskStore((state) => state.updateTaskId);
+  const { addTask, updateTask, deleteTask, updateTaskId, getColumnTasks } =
+    useTaskStore(
+      useShallow((state) => ({
+        addTask: state.addTask,
+        updateTask: state.updateTask,
+        deleteTask: state.deleteTask,
+        updateTaskId: state.updateTaskId,
+        getColumnTasks: state.getColumnTasks,
+      })),
+    );
   const closeModal = useModalStore((state) => state.closeModal);
 
   const {
@@ -37,9 +41,8 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
     formRef,
     errors,
     validateBeforeSubmit,
-  } = useForm<TaskFormValues>(
+  } = useForm<TaskSchema>(
     {
-      id: task?.id ?? "",
       title: task?.title ?? "",
       description: task?.description ?? "",
       priority: task?.priority ?? "medium",
@@ -47,9 +50,14 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
     taskSchema,
   );
 
-  const existingTasks = Object.values(tasks).flatMap((tasksArray) =>
-    tasksArray.map(({ id, title }) => ({ id, title })),
-  );
+  const columnTasks = getColumnTasks(columnId);
+
+  const existingTasks = columnTasks.map((task) => {
+    return {
+      id: task.id,
+      title: task.title,
+    };
+  });
 
   const handleFormAction = async (formData: FormData) => {
     const { success, data: validatedData } = validateBeforeSubmit(
@@ -76,7 +84,6 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
     try {
       if (isEditMode && task) {
         updateTask(
-          columnId,
           task?.id,
           pick(optimisticTask, ["title", "description", "priority"]),
         );
@@ -89,11 +96,11 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
 
         const res = await createTaskAction(formData);
 
-        updateTaskId(columnId, optimisticTask.id, res.fields?.id ?? "");
+        updateTaskId(optimisticTask.id, res.fields?.id ?? "");
       }
     } catch (error) {
       console.error("Error creating task:", error);
-      if (isEditMode && task) updateTask(columnId, task.id, task);
+      if (isEditMode && task) updateTask(task.id, task);
       deleteTask(columnId, optimisticTask.id);
       handleOnError(error, "Failed to process your request.");
     }

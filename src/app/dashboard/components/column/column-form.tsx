@@ -92,7 +92,6 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
     addColumnOptimistically({
       id: tempId,
       status: validationResult.data.status,
-      boardId,
     });
 
     closeModal("column", modalId);
@@ -103,6 +102,9 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
         boardId,
         validationResult.data.status,
       );
+
+      if (!createdColumn.fields) return;
+
       updateColumnId(tempId, createdColumn.fields?.id);
     } catch (error) {
       console.error("Error creating column:", error);

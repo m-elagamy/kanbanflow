@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { produce } from "immer";
 import isEqual from "fast-deep-equal";
-import { BoardState, BoardStoreState } from "@/lib/types/stores/board";
+import { BoardState, BoardStore } from "@/lib/types/stores/board";
 
 const initialState: BoardState = {
   boards: {},
@@ -10,7 +10,7 @@ const initialState: BoardState = {
   failedBoard: null,
 };
 
-const useBoardStore = create<BoardStoreState>((set) => ({
+const useBoardStore = create<BoardStore>((set) => ({
   ...initialState,
 
   setBoards: (boards) => {

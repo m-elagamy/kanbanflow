@@ -1,15 +1,15 @@
 "use client";
 
 import clsx from "clsx";
-import { Column } from "@prisma/client";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import type { ColumnView } from "@/lib/types/stores/column";
 import ColumnActions from "./column-actions";
 import columnStatusOptions from "../../data/column-status-options";
 
 type ColumnHeaderProps = {
   tasksCount: number;
-  column: Omit<Column, "order">;
+  column: ColumnView;
 };
 
 export default function ColumnHeader({

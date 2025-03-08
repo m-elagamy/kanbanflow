@@ -13,7 +13,7 @@ import {
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import TaskCard from "@/app/dashboard/components/task/task-card";
-import { useDndHandlers } from "@/hooks/use-dnd-handlers";
+import useDndHandlers from "@/hooks/use-dnd-handlers";
 
 type DndProviderProps = {
   children: ReactNode;
