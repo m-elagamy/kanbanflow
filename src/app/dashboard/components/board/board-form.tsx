@@ -180,7 +180,7 @@ export default function BoardForm({
       />
 
       {isEditMode && (
-        <FormField type="hidden" name="id" defaultValue={board?.id} />
+        <FormField type="hidden" name="boardId" defaultValue={board?.id} />
       )}
     </GenericForm>
   );
