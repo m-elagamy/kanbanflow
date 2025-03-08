@@ -40,8 +40,18 @@ export const useColumnStore = create<ColumnStore>()(
 
     updateColumnId: (oldColumnId, newColumnId) => {
       set((state) => {
-        state.columns[newColumnId] = state.columns[oldColumnId];
-        delete state.columns[oldColumnId];
+        if (!state.columns[oldColumnId]) return state;
+
+        const updatedColumns = { ...state.columns };
+
+        updatedColumns[newColumnId] = {
+          ...updatedColumns[oldColumnId],
+          id: newColumnId,
+        };
+
+        delete updatedColumns[oldColumnId];
+
+        return { columns: updatedColumns };
       });
     },
 
