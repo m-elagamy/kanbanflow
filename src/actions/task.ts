@@ -1,18 +1,13 @@
 "use server";
 
-import type { Task } from "@prisma/client";
 import db from "@/lib/db";
 import { taskSchema, type TaskSchema } from "@/schemas/task";
-import { ServerActionResult } from "@/lib/types";
+import { ServerActionResult, type TaskSummary } from "@/lib/types";
 import { createTask, updateTask, deleteTask } from "../lib/dal/task";
 
 export const createTaskAction = async (
   formData: FormData,
-): Promise<
-  ServerActionResult<
-    Partial<Pick<Task, "id" | "title" | "description" | "priority">>
-  >
-> => {
+): Promise<ServerActionResult<Partial<TaskSummary>>> => {
   const data = Object.fromEntries(formData.entries());
   const validatedData = taskSchema.safeParse(data);
 

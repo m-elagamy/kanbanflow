@@ -1,28 +1,16 @@
-import { useRouter } from "next/navigation";
-import type { Board } from "@prisma/client";
-import type { FormMode, Templates } from "@/lib/types";
-
-import {
-  constructColumns,
-  createOptimisticBoard,
-  handleOnBlur,
-} from "@/utils/board-helpers";
-import { slugify } from "@/utils/slugify";
-import { createBoardAction, updateBoardAction } from "@/actions/board";
-import { boardSchema, type BoardFormSchema } from "@/schemas/board";
-import { omit } from "@/utils/object";
-import { useBoardFormStore } from "@/hooks/use-board-form-store";
+import type { BoardFormValues, BoardSummary, FormMode } from "@/lib/types";
+import { handleOnBlur } from "@/utils/board-helpers";
+import { boardSchema } from "@/schemas/board";
 import useForm from "@/hooks/use-form";
-import handleOnError from "@/utils/handle-on-error";
 import GenericForm from "@/components/ui/generic-form";
 import FormField from "@/components/ui/form-field";
-import { useUpdatePredefinedColumnsId } from "@/hooks/use-update-predefined-columns-id";
-import delay from "@/utils/delay";
+import { useBoardFormAction } from "@/hooks/use-board-form-action";
+import useBoardStore from "@/stores/board";
 import columnsTemplates from "../../data/columns-templates";
 
 type BoardFormProps = Readonly<{
   formMode: FormMode;
-  board?: Pick<Board, "id" | "title" | "description" | "slug">;
+  board?: BoardSummary;
   modalId: string;
 }>;
 
@@ -31,24 +19,12 @@ export default function BoardForm({
   board,
   modalId,
 }: BoardFormProps) {
-  const isEditMode = formMode === "edit";
+  const boards = useBoardStore((state) => state.boards);
 
-  const router = useRouter();
-
-  const {
-    boards,
-    createBoard,
-    updateBoard,
-    updateBoardId,
-    activeBoardId,
-    setColumns,
-    closeModal,
-    isLoading,
-    setIsLoading,
-    setError,
-  } = useBoardFormStore();
-
-  const updateColumnIds = useUpdatePredefinedColumnsId();
+  const existingBoards = Object.values(boards).map(({ id, title }) => ({
+    id,
+    title,
+  }));
 
   const {
     formValues: boardFormData,
@@ -56,8 +32,9 @@ export default function BoardForm({
     formRef,
     errors,
     validateBeforeSubmit,
-  } = useForm<BoardFormSchema>(
+  } = useForm<BoardFormValues>(
     {
+      id: board?.id ?? "",
       title: board?.title ?? "",
       description: board?.description ?? "",
       template: "personal",
@@ -65,75 +42,14 @@ export default function BoardForm({
     boardSchema,
   );
 
-  const existingBoards = Object.values(boards).map(({ id, title }) => ({
-    id,
-    title,
-  }));
-
-  const handleFormAction = async (formData: FormData) => {
-    const { success, data: validatedData } = validateBeforeSubmit(
-      formData,
-      isEditMode,
+  const { handleFormAction, isEditMode, isLoading, router } =
+    useBoardFormAction({
+      board,
       existingBoards,
-      ["title", "description"],
-    );
-
-    if (!success || !validatedData) return;
-
-    const { title, description = "", template } = validatedData;
-
-    const slug = slugify(title);
-
-    const optimisticBoard = createOptimisticBoard(title, description ?? "");
-
-    if (isEditMode && board) {
-      updateBoard(board?.id, omit(optimisticBoard, ["id"]));
-      closeModal("board", modalId);
-
-      try {
-        const res = await updateBoardAction(formData);
-        const isSlugChanged = res.fields?.slug !== board?.slug;
-        const isActiveBoard = activeBoardId === board.id;
-
-        if (isSlugChanged && isActiveBoard) {
-          router.replace(`/dashboard/${res.fields?.slug}`);
-        }
-      } catch (error) {
-        handleOnError(error, "Failed to update board.");
-        updateBoard(board.id, board);
-      }
-
-      return;
-    }
-
-    setIsLoading("board", "creating", true, optimisticBoard.id);
-
-    createBoard(optimisticBoard);
-    setColumns(constructColumns(template as Templates));
-
-    await delay(300);
-    router.push(`/dashboard/${slug}`);
-
-    setTimeout(async () => {
-      try {
-        const res = await createBoardAction(validatedData);
-        if (!res.fields) return;
-
-        updateBoardId(optimisticBoard.id, res.fields.id);
-        updateColumnIds(res.fields.columns);
-      } catch (err) {
-        console.error(err instanceof Error ? err.message : err);
-        setError(true, {
-          id: optimisticBoard.id,
-          title: optimisticBoard.title,
-          description: optimisticBoard.description,
-          template: validatedData.template,
-        });
-      } finally {
-        setIsLoading("board", "creating", false, optimisticBoard.id);
-      }
-    }, 50);
-  };
+      formMode,
+      modalId,
+      validateBeforeSubmit,
+    });
 
   return (
     <GenericForm

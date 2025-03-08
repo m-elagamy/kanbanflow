@@ -6,7 +6,6 @@ import dynamic from "next/dynamic";
 import { Ellipsis, SquarePen, TrashIcon } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
-import type { Board } from "@prisma/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +20,7 @@ import useBoardStore from "@/stores/board";
 import delay from "@/utils/delay";
 import BoardModal from "./board-modal";
 import useLoadingStore from "@/stores/loading";
+import type { BoardSummary } from "@/lib/types";
 
 const AlertConfirmation = dynamic(
   () => import("@/components/ui/alert-confirmation"),
@@ -30,7 +30,7 @@ const AlertConfirmation = dynamic(
 );
 
 type BoardActionsProps = {
-  board: Pick<Board, "id" | "title" | "description" | "slug">;
+  board: BoardSummary;
   isSidebarTrigger?: boolean;
 };
 

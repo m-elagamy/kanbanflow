@@ -1,19 +1,16 @@
 "use client";
 
-import type { Board } from "@prisma/client";
-
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/modal";
 import { useModalStore } from "@/stores/modal";
-import type { ButtonVariants } from "@/lib/types";
-
+import type { BoardSummary, ButtonVariants, FormMode } from "@/lib/types";
 import BoardForm from "./board-form";
 import { getModalTitle } from "../../utils/get-modal-title";
 import { getModalDescription } from "../../utils/get-modal-description";
 
 type BoardModalProps = {
-  mode: "create" | "edit";
-  board?: Pick<Board, "id" | "title" | "description" | "slug">;
+  mode: FormMode;
+  board?: BoardSummary;
   trigger: React.ReactNode;
   variant?: ButtonVariants;
 };

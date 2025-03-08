@@ -1,17 +1,16 @@
 import { InfoIcon, PanelsTopLeft } from "lucide-react";
-
-import type { Board } from "@prisma/client";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import type { BoardSummary } from "@/lib/types";
 import BoardActions from "./board-actions";
 import { TaskPriorityFilter } from "../task/tasks-filter";
 
 type BoardHeaderProps = {
-  board: Pick<Board, "id" | "title" | "description" | "slug">;
+  board: BoardSummary;
 };
 
 const BoardHeader = ({ board }: BoardHeaderProps) => {

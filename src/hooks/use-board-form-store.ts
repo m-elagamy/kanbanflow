@@ -5,23 +5,16 @@ import useLoadingStore from "@/stores/loading";
 import { useModalStore } from "@/stores/modal";
 
 export const useBoardFormStore = () => {
-  const {
-    boards,
-    createBoard,
-    updateBoardId,
-    updateBoard,
-    activeBoardId,
-    setError,
-  } = useBoardStore(
-    useShallow((state) => ({
-      boards: state.boards,
-      createBoard: state.createBoard,
-      updateBoardId: state.updateBoardId,
-      updateBoard: state.updateBoard,
-      activeBoardId: state.activeBoardId,
-      setError: state.setError,
-    })),
-  );
+  const { createBoard, updateBoardId, updateBoard, activeBoardId, setError } =
+    useBoardStore(
+      useShallow((state) => ({
+        createBoard: state.createBoard,
+        updateBoardId: state.updateBoardId,
+        updateBoard: state.updateBoard,
+        activeBoardId: state.activeBoardId,
+        setError: state.setError,
+      })),
+    );
 
   const { isLoading, setIsLoading } = useLoadingStore(
     useShallow((state) => ({
@@ -39,7 +32,6 @@ export const useBoardFormStore = () => {
   const closeModal = useModalStore((state) => state.closeModal);
 
   return {
-    boards,
     createBoard,
     updateBoardId,
     updateBoard,

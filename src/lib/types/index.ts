@@ -58,3 +58,10 @@ export type EntityType = "board" | "task" | "column";
 export type Operation = "fetching" | "creating" | "updating" | "deleting";
 
 export type BoardFormValues = { id: string } & BoardFormSchema;
+
+export type BoardSummary = Pick<Board, "id" | "title" | "description" | "slug">;
+
+export type TaskSummary = Pick<
+  Task,
+  "id" | "title" | "description" | "priority"
+>;
