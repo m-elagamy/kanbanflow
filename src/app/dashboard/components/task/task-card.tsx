@@ -2,16 +2,15 @@ import { useEffect, useState } from "react";
 import { Calendar } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-
 import { Badge } from "@/components/ui/badge";
+import type { SimplifiedTask } from "@/lib/types/stores/task";
+import formatDate from "@/utils/format-date";
 import getBadgeStyle from "../../utils/get-badge-style";
 import TaskActions from "./task-actions";
-import formatDate from "@/utils/format-date";
-import { Task } from "@prisma/client";
 import accentStyles from "../../utils/accent-styles";
 
 type TaskCardProps = {
-  task: Task;
+  task: SimplifiedTask;
   columnId?: string | null;
   isDragging?: boolean;
 };

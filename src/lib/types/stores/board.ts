@@ -1,10 +1,10 @@
 import type { Board } from "@prisma/client";
 import type { BoardFormValues } from "..";
 
-export type BoardView = Omit<Board, "userId" | "order">;
+export type SimplifiedBoard = Omit<Board, "userId" | "order">;
 
 export type BoardState = {
-  boards: Record<string, BoardView>;
+  boards: Record<string, SimplifiedBoard>;
   activeBoardId: string | null;
   hasError: boolean;
   failedBoard: BoardFormValues | null;
@@ -13,14 +13,16 @@ export type BoardState = {
 type BoardActions = {
   setBoards: (
     boards:
-      | Record<string, BoardView>
-      | ((prev: Record<string, BoardView>) => Record<string, BoardView>),
+      | Record<string, SimplifiedBoard>
+      | ((
+          prev: Record<string, SimplifiedBoard>,
+        ) => Record<string, SimplifiedBoard>),
   ) => void;
   setActiveBoardId: (boardId: string | null) => void;
   setError: (hasError: boolean, failedBoard?: BoardFormValues) => void;
 
-  createBoard: (board: BoardView) => void;
-  updateBoard: (boardId: string, updates: Partial<BoardView>) => void;
+  createBoard: (board: SimplifiedBoard) => void;
+  updateBoard: (boardId: string, updates: Partial<SimplifiedBoard>) => void;
   deleteBoard: (boardId: string) => void;
   updateBoardId: (tempId: string, realId: string) => void;
 

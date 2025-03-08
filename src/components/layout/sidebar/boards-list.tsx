@@ -2,12 +2,12 @@
 
 import { SidebarMenu } from "@/components/ui/sidebar";
 import { useBoardsList } from "@/hooks/use-boards-list";
-import type { BoardView } from "@/lib/types/stores/board";
+import type { SimplifiedBoard } from "@/lib/types/stores/board";
 import BoardsSkeleton from "./boards-skeleton";
 import BoardItem from "./board-item";
 
 type BoardsListProps = {
-  boards: BoardView[];
+  boards: SimplifiedBoard[];
 };
 
 export function BoardsList({ boards: initialBoards }: BoardsListProps) {

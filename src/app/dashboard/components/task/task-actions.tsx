@@ -1,7 +1,6 @@
 "use client";
 
 import { Ellipsis, Settings2, TrashIcon } from "lucide-react";
-import { Task } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,9 +12,10 @@ import {
 import TaskModal from "./task-modal";
 import { deleteTaskAction } from "@/actions/task";
 import { useTaskStore } from "@/stores/task";
+import type { SimplifiedTask } from "@/lib/types/stores/task";
 
 type TaskActionsProps = {
-  task: Task;
+  task: SimplifiedTask;
   columnId: string;
 };
 

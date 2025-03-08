@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import type { Task } from "@prisma/client";
+import type { SimplifiedTask } from "@/lib/types/stores/task";
 
-type TaskState = Record<string, Task[]>;
+type TaskState = Record<string, SimplifiedTask[]>;
 
 export default function useTaskStateComparison() {
   const initialStateRef = useRef<TaskState>(null);

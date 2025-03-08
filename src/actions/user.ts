@@ -3,7 +3,7 @@
 import { User } from "@prisma/client";
 import type { ServerActionResult } from "@/lib/types";
 import { insertUser, getAllUserBoards } from "../lib/dal/user";
-import type { BoardView } from "@/lib/types/stores/board";
+import type { SimplifiedBoard } from "@/lib/types/stores/board";
 
 export async function insertUserAction(
   data: User,
@@ -26,7 +26,7 @@ export async function insertUserAction(
 
 export async function getAllUserBoardsAction(
   userId: string,
-): Promise<ServerActionResult<BoardView[]>> {
+): Promise<ServerActionResult<SimplifiedBoard[]>> {
   const result = await getAllUserBoards(userId);
 
   if (!result.success) {

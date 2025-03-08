@@ -3,13 +3,13 @@
 import clsx from "clsx";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { ColumnView } from "@/lib/types/stores/column";
+import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import ColumnActions from "./column-actions";
 import columnStatusOptions from "../../data/column-status-options";
 
 type ColumnHeaderProps = {
   tasksCount: number;
-  column: ColumnView;
+  column: SimplifiedColumn;
 };
 
 export default function ColumnHeader({

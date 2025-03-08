@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import isEqual from "fast-deep-equal";
-import type { ColumnStore, ColumnView } from "@/lib/types/stores/column";
+import type { ColumnStore, SimplifiedColumn } from "@/lib/types/stores/column";
 
 export const useColumnStore = create<ColumnStore>()(
   immer((set) => ({
@@ -10,7 +10,7 @@ export const useColumnStore = create<ColumnStore>()(
 
     setColumns: (columns) => {
       set((state) => {
-        const newColumns = columns.reduce<Record<string, ColumnView>>(
+        const newColumns = columns.reduce<Record<string, SimplifiedColumn>>(
           (acc, col) => {
             acc[col.id] = col;
             return acc;

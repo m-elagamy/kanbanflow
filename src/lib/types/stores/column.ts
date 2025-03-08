@@ -1,15 +1,15 @@
 import type { Column } from "@prisma/client";
 
-export type ColumnView = Omit<Column, "order" | "boardId">;
+export type SimplifiedColumn = Omit<Column, "order" | "boardId">;
 
 type ColumnState = {
-  columns: Record<string, ColumnView>;
-  previousState: Record<string, ColumnView> | null;
+  columns: Record<string, SimplifiedColumn>;
+  previousState: Record<string, SimplifiedColumn> | null;
 };
 
 type ColumnActions = {
-  setColumns: (columns: ColumnView[]) => void;
-  addColumn: (column: ColumnView) => void;
+  setColumns: (columns: SimplifiedColumn[]) => void;
+  addColumn: (column: SimplifiedColumn) => void;
 
   updateColumn: (columnId: string, updates: Pick<Column, "status">) => void;
   updateColumnId: (oldColumnId: string, newColumnId: string) => void;

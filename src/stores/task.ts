@@ -14,16 +14,6 @@ export const useTaskStore = create<TaskStore>()(
     immer((set, get) => ({
       ...initialState,
 
-      getTask: (taskId: string) => {
-        return get().tasks[taskId];
-      },
-
-      getColumnTasks: (columnId: string) => {
-        const state = get();
-        const taskIds = state.columnTaskIds[columnId] || [];
-        return taskIds.map((id) => state.tasks[id]).filter(Boolean);
-      },
-
       setTasks: (columnId, tasks) => {
         set((state) => {
           tasks.forEach((task) => {
@@ -156,6 +146,16 @@ export const useTaskStore = create<TaskStore>()(
 
           toColumn.splice(toIndex, 0, taskId);
         });
+      },
+
+      getTask: (taskId: string) => {
+        return get().tasks[taskId];
+      },
+
+      getColumnTasks: (columnId: string) => {
+        const state = get();
+        const taskIds = state.columnTaskIds[columnId] || [];
+        return taskIds.map((id) => state.tasks[id]).filter(Boolean);
       },
     })),
   ),

@@ -5,10 +5,10 @@ import type {
   DragOverEvent,
   DragEndEvent,
 } from "@dnd-kit/core";
-import type { Task } from "@prisma/client";
 import { debounce } from "@/utils/debounce";
 import { useTaskStore } from "@/stores/task";
 import { findColumnIdByTaskId } from "@/utils/task-helpers";
+import type { SimplifiedTask } from "@/lib/types/stores/task";
 import useTaskStateComparison from "./use-task-position-comparison";
 
 const useDndHandlers = () => {
@@ -42,7 +42,7 @@ const useDndHandlers = () => {
         acc[columnId] = getColumnTasks(columnId);
         return acc;
       },
-      {} as Record<string, Task[]>,
+      {} as Record<string, SimplifiedTask[]>,
     );
 
   const handleDragStart = ({ active }: DragStartEvent) => {

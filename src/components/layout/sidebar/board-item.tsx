@@ -2,10 +2,10 @@ import Link from "next/link";
 import { Clipboard } from "lucide-react";
 import BoardActions from "@/app/dashboard/components/board/board-actions";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import type { BoardView } from "@/lib/types/stores/board";
+import type { SimplifiedBoard } from "@/lib/types/stores/board";
 
 type BoardItemProps = {
-  board: BoardView;
+  board: SimplifiedBoard;
   isActive: boolean;
   href: string;
   setActiveBoardId: (boardId: string | null) => void;

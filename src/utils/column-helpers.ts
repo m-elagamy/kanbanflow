@@ -1,10 +1,10 @@
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
 import type { LucideProps } from "lucide-react";
-import type { ColumnView } from "@/lib/types/stores/column";
+import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import type { ColumnStatus } from "@/schemas/column";
 
 const getAvailableStatusOptions = (
-  columns: ColumnView[],
+  columns: SimplifiedColumn[],
   statusOptions: Record<
     ColumnStatus,
     {

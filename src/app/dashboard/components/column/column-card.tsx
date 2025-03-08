@@ -5,14 +5,14 @@ import {
 } from "@dnd-kit/sortable";
 import { useShallow } from "zustand/react/shallow";
 import { Card, CardContent } from "@/components/ui/card";
-import type { ColumnView } from "@/lib/types/stores/column";
+import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import { useTaskStore } from "@/stores/task";
 import ColumnHeader from "./column-header";
 import NoTasksMessage from "../task/no-tasks-message";
 import TaskCard from "../task/task-card";
 
 type ColumnCardProps = {
-  column: ColumnView;
+  column: SimplifiedColumn;
 };
 
 const ColumnCard = ({ column }: ColumnCardProps) => {

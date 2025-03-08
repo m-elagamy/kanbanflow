@@ -1,14 +1,14 @@
 import { useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
-import type { Task } from "@prisma/client";
 import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
 import { useTaskStore } from "@/stores/task";
-import type { ColumnView } from "@/lib/types/stores/column";
-import type { BoardView } from "@/lib/types/stores/board";
+import type { SimplifiedColumn } from "@/lib/types/stores/column";
+import type { SimplifiedBoard } from "@/lib/types/stores/board";
+import type { SimplifiedTask } from "@/lib/types/stores/task";
 
-type BoardWithColumnsAndTasks = BoardView & {
-  columns: (ColumnView & { tasks: Task[] })[];
+type BoardWithColumnsAndTasks = SimplifiedBoard & {
+  columns: (SimplifiedColumn & { tasks: SimplifiedTask[] })[];
 };
 
 export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
