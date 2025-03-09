@@ -1,4 +1,5 @@
 import { unauthorized } from "next/navigation";
+import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { getBoardBySlugAction } from "@/actions/board";
 import BoardLayout from "../components/board";
@@ -19,3 +20,8 @@ export default async function BoardPage({ params }: { params: Params }) {
 
   return <BoardLayout initialBoard={currentBoard} />;
 }
+
+export const metadata: Metadata = {
+  title: "Board",
+  description: "Manage your tasks with a modern Kanban board.",
+};

@@ -1,7 +1,7 @@
 import { after } from "next/server";
 import { unauthorized } from "next/navigation";
 import type { Metadata } from "next";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { Layout, PlusCircle } from "lucide-react";
 import {
   Card,
@@ -12,23 +12,6 @@ import {
 } from "@/components/ui/card";
 import { insertUserAction } from "@/actions/user";
 import BoardModal from "./components/board/board-modal";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const { userId } = await auth();
-
-  if (!userId) {
-    return {
-      title: "Access Denied",
-      description:
-        "You do not have permission to view this page. Please log in or return to the homepage.",
-    };
-  }
-
-  return {
-    title: "Dashboard",
-    description: "Manage your tasks and projects with ease using KanbanFlow.",
-  };
-}
 
 const Dashboard = async () => {
   const user = await currentUser();
@@ -70,4 +53,11 @@ const Dashboard = async () => {
     </section>
   );
 };
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description:
+    "Track tasks, manage projects, and stay organized with KanbanFlow’s dashboard.",
+};
+
 export default Dashboard;
