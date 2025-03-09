@@ -18,7 +18,9 @@ export const useBoardFormStore = () => {
 
   const { isLoading, setIsLoading } = useLoadingStore(
     useShallow((state) => ({
-      isLoading: state.isLoading("board", "creating"),
+      isLoading:
+        state.isLoading("board", "creating") ||
+        state.isLoading("board", "updating"),
       setIsLoading: state.setIsLoading,
     })),
   );

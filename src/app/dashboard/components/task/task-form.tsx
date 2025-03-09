@@ -44,7 +44,7 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
     taskSchema,
   );
 
-  const { handleFormAction, isEditMode } = useTaskFormAction({
+  const { handleFormAction, isEditMode, isLoading } = useTaskFormAction({
     formMode,
     task,
     columnId,
@@ -59,6 +59,7 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
       onAction={handleFormAction}
       errors={errors}
       formMode={formMode}
+      isLoading={isLoading}
     >
       <FormField
         type="text"

@@ -57,7 +57,7 @@ export default function BoardActions({
     setIsDeleting("board", "deleting", true, board.id);
     try {
       if (param.board) {
-        await delay(300);
+        await delay(700);
         router.replace("/dashboard");
       }
 

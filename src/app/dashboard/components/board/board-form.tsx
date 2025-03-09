@@ -42,7 +42,7 @@ export default function BoardForm({
     boardSchema,
   );
 
-  const { handleFormAction, isEditMode, isLoading, router } =
+  const { handleFormAction, isEditMode, router, isLoading } =
     useBoardFormAction({
       board,
       existingBoards,

@@ -5,6 +5,8 @@ import type { TaskSchema } from "@/schemas/task";
 import { useModalStore } from "@/stores/modal";
 import { useTaskStore } from "@/stores/task";
 import generateUUID from "@/utils/generate-UUID";
+import useLoadingStore from "@/stores/loading";
+import delay from "@/utils/delay";
 
 type UseTaskFormAction = {
   formMode: FormMode;
@@ -40,6 +42,14 @@ export function useTaskFormAction({
     })),
   );
   const closeModal = useModalStore((state) => state.closeModal);
+  const { isLoading, setIsLoading } = useLoadingStore(
+    useShallow((state) => ({
+      isLoading:
+        state.isLoading("task", "creating") ||
+        state.isLoading("task", "updating"),
+      setIsLoading: state.setIsLoading,
+    })),
+  );
 
   const handleFormAction = async (formData: FormData) => {
     const { success, data: validatedData } = validateBeforeSubmit(
@@ -64,10 +74,16 @@ export function useTaskFormAction({
 
     try {
       if (isEditMode && task) {
+        setIsLoading("task", "updating", true, task.id);
+
+        await delay(250);
         updateTask(task.id, { title, description, priority });
         closeModal("task", modalId);
         await updateTaskAction(formData);
       } else {
+        setIsLoading("task", "creating", true, optimisticTask.id);
+
+        await delay(300);
         addTask(columnId, optimisticTask);
         closeModal("task", modalId);
         const res = await createTaskAction(formData);
@@ -80,8 +96,14 @@ export function useTaskFormAction({
       } else {
         deleteTask(columnId, optimisticTask.id);
       }
+    } finally {
+      if (isEditMode && task) {
+        setIsLoading("task", "updating", false, task.id);
+      } else {
+        setIsLoading("task", "creating", false, optimisticTask.id);
+      }
     }
   };
 
-  return { handleFormAction, isEditMode };
+  return { handleFormAction, isEditMode, isLoading };
 }

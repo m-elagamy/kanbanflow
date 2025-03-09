@@ -73,6 +73,9 @@ const ColumnActions = ({
   );
 
   const handleUpdateColumn = async (updates: Pick<Column, "status">) => {
+    setIsLoading("column", "updating", true, columnId);
+
+    await delay(300);
     updateColumn(columnId, updates);
     setIsMainDropdownOpen(false);
 
@@ -87,13 +90,15 @@ const ColumnActions = ({
         duration: 5000,
         icon: "🚨",
       });
+    } finally {
+      setIsLoading("column", "updating", false, columnId);
     }
   };
 
   const handleOnClick = async () => {
     if (columnId) {
       setIsLoading("column", "deleting", true, columnId);
-      await delay(300);
+      await delay(500);
       deleteColumn(columnId);
       setIsLoading("column", "deleting", false, columnId);
 
@@ -159,7 +164,7 @@ const ColumnActions = ({
           </DropdownMenuSub>
           <DropdownMenuItem
             onClick={() => setShowAlertConfirmation(true)}
-            className="text-destructive focus:text-destructive"
+            className="h-7 text-destructive focus:text-destructive"
           >
             <TrashIcon /> Delete
           </DropdownMenuItem>

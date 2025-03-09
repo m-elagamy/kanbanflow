@@ -61,6 +61,9 @@ export function useBoardFormAction({
     const optimisticBoard = createOptimisticBoard(title, description ?? "");
 
     if (isEditMode && board) {
+      setIsLoading("board", "updating", true, board.id);
+
+      await delay(500);
       updateBoard(board.id, omit(optimisticBoard, ["id"]));
       closeModal("board", modalId);
 
@@ -73,6 +76,8 @@ export function useBoardFormAction({
         console.error(error);
         handleOnError(error, "Failed to update board");
         updateBoard(board.id, board);
+      } finally {
+        setIsLoading("board", "updating", false, board.id);
       }
 
       return;
@@ -82,7 +87,7 @@ export function useBoardFormAction({
     createBoard(optimisticBoard);
     setColumns(constructColumns(template as Templates));
 
-    await delay(300);
+    await delay(600);
     router.push(`/dashboard/${optimisticBoard.slug}`);
 
     setTimeout(async () => {
@@ -106,5 +111,5 @@ export function useBoardFormAction({
     }, 50);
   };
 
-  return { handleFormAction, isEditMode, isLoading, router };
+  return { handleFormAction, isEditMode, router, isLoading };
 }

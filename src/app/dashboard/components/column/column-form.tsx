@@ -87,7 +87,7 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
     }
 
     setIsLoading("column", "creating", true, tempId);
-    await delay(300);
+    await delay(400);
 
     addColumnOptimistically({
       id: tempId,
