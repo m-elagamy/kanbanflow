@@ -2,7 +2,7 @@ import { User } from "@prisma/client";
 import withAuth from "@/utils/with-DAL-auth";
 import db from "../db";
 
-export const insertUser = withAuth(async (data: User) => {
+export const insertUser = async (data: User) => {
   return db.user.upsert({
     where: { id: data.id },
     update: {
@@ -15,7 +15,7 @@ export const insertUser = withAuth(async (data: User) => {
       email: data.email,
     },
   });
-});
+};
 
 export const getAllUserBoards = withAuth(async (userId: string) => {
   return db.board.findMany({

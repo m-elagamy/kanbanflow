@@ -8,9 +8,16 @@ import type { SimplifiedBoard } from "@/lib/types/stores/board";
 export async function insertUserAction(
   data: User,
 ): Promise<ServerActionResult<Partial<User>>> {
+  if (!data.id) {
+    return {
+      success: false,
+      message: "Authentication required.",
+    };
+  }
+
   const result = await insertUser(data);
 
-  if (!result.success) {
+  if (!result) {
     return {
       success: false,
       message: "Failed to insert user.",
@@ -20,7 +27,7 @@ export async function insertUserAction(
   return {
     success: true,
     message: "User inserted successfully.",
-    fields: result.data,
+    fields: result,
   };
 }
 

@@ -1,8 +1,8 @@
+import { after } from "next/server";
 import { unauthorized } from "next/navigation";
 import type { Metadata } from "next";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { Layout, PlusCircle } from "lucide-react";
-
 import {
   Card,
   CardContent,
@@ -10,13 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { insertUserAction } from "@/actions/user";
 import BoardModal from "./components/board/board-modal";
-import insertUserData from "./utils/insert-user-data";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const user = await currentUser();
+  const { userId } = await auth();
 
-  if (!user) {
+  if (!userId) {
     return {
       title: "Access Denied",
       description:
@@ -35,8 +35,13 @@ const Dashboard = async () => {
 
   if (!user) unauthorized();
 
-  // Insert user data into the database when the user logs in for the first time.
-  insertUserData(user.id, user.fullName, user.emailAddresses[0].emailAddress);
+  after(() => {
+    insertUserAction({
+      id: user.id,
+      name: user.fullName,
+      email: user.emailAddresses[0].emailAddress,
+    }).catch((error) => console.error("Failed to insert user:", error));
+  });
 
   return (
     <section className="relative right-3 grid flex-grow place-content-center">
