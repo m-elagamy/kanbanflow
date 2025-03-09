@@ -8,13 +8,17 @@ import OptimisticBoardLayout from "../components/board/optimistic-board";
 type Params = Promise<{ board: string }>;
 
 export default async function BoardPage({ params }: { params: Params }) {
-  const { userId } = await auth();
+  const [authResult, boardSlug] = await Promise.all([
+    auth(),
+    decodeURIComponent((await params).board),
+  ]);
 
-  if (!userId) unauthorized();
+  if (!authResult.userId) unauthorized();
 
-  const boardSlug = decodeURIComponent((await params).board);
-
-  const { board: currentBoard } = await getBoardBySlugAction(userId, boardSlug);
+  const { board: currentBoard } = await getBoardBySlugAction(
+    authResult.userId,
+    boardSlug,
+  );
 
   if (!currentBoard) return <OptimisticBoardLayout />;
 
