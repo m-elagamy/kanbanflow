@@ -39,6 +39,7 @@ export default function NotFound() {
         <AlertCircle className="size-6 animate-pulse text-muted-foreground" />
       }
       actions={actions}
+      helperText="Please check the URL or return to the homepage."
     />
   );
 }

@@ -32,9 +32,10 @@ export default function Unauthorized() {
   return (
     <ErrorCard
       title="Access Denied"
-      description="You don't have permission to access this page. Please log in or return to the homepage."
+      description="You don't have permission to access this page."
       icon={<Lock className="size-6 text-muted-foreground" aria-hidden />}
       actions={actions}
+      helperText="Your session may have expired. Please log in again."
     />
   );
 }
