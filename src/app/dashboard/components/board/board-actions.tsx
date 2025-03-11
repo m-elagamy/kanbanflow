@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Ellipsis, SquarePen, TrashIcon } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +20,7 @@ import delay from "@/utils/delay";
 import BoardModal from "./board-modal";
 import useLoadingStore from "@/stores/loading";
 import type { BoardSummary } from "@/lib/types";
+import handleOnError from "@/utils/handle-on-error";
 
 const AlertConfirmation = dynamic(
   () => import("@/components/ui/alert-confirmation"),
@@ -39,15 +39,19 @@ export default function BoardActions({
   isSidebarTrigger,
 }: Readonly<BoardActionsProps>) {
   const router = useRouter();
-  const param = useParams();
+  const { isMobile } = useSidebar();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
-  const { isMobile } = useSidebar();
-  const deleteBoard = useBoardStore((state) => state.deleteBoard);
   const { isDeleting, setIsDeleting } = useLoadingStore(
     useShallow((state) => ({
       isDeleting: state.isLoading("board", "deleting"),
       setIsDeleting: state.setIsLoading,
+    })),
+  );
+  const { activeBoardId, deleteBoard } = useBoardStore(
+    useShallow((state) => ({
+      deleteBoard: state.deleteBoard,
+      activeBoardId: state.activeBoardId,
     })),
   );
 
@@ -55,20 +59,26 @@ export default function BoardActions({
     if (!board.id) return;
 
     setIsDeleting("board", "deleting", true, board.id);
+
     try {
-      if (param.board) {
-        await delay(700);
-        router.replace("/dashboard");
-      }
+      const { success } = await deleteBoardAction(board.id);
+      if (!success) return;
 
-      await delay(150);
+      redirectIfActiveBoard(board.id);
+
+      await delay(600);
       deleteBoard(board.id);
-
-      await deleteBoardAction(board.id);
     } catch (error) {
-      console.error("Error deleting board:", error);
+      handleOnError(error, "Failed to delete board");
+      setIsAlertOpen(false);
     } finally {
       setIsDeleting("board", "deleting", false, board.id);
+    }
+  };
+
+  const redirectIfActiveBoard = (boardId: string) => {
+    if (activeBoardId === boardId) {
+      router.replace("/dashboard");
     }
   };
 
