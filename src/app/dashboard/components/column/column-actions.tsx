@@ -178,7 +178,6 @@ const ColumnActions = ({
           description="Are you sure you want to delete this column? This action cannot be undone."
           isPending={isLoading}
           onClick={handleOnClick}
-          triggerSource="column"
         />
       )}
     </div>

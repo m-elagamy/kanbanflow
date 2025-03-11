@@ -1,6 +1,4 @@
-import { useParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { Loader } from "lucide-react";
+import { Loader, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -21,7 +19,6 @@ type AlertConfirmationProps = {
   cancelLabel?: string;
   onClick: () => void;
   isPending?: boolean;
-  triggerSource?: "board" | "column";
 };
 
 const AlertConfirmation = ({
@@ -33,23 +30,18 @@ const AlertConfirmation = ({
   cancelLabel = "Cancel",
   onClick,
   isPending,
-  triggerSource = "board",
 }: AlertConfirmationProps) => {
-  const router = useRouter();
-  const params = useParams();
-
-  useEffect(() => {
-    if (open && triggerSource === "board" && params?.board) {
-      router.prefetch("/dashboard");
-    }
-  }, [open, params.board, triggerSource, router]);
-
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogContent className="p-4">
+      <AlertDialogContent className="max-w-md p-4">
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}?</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogTitle className="flex flex-col items-center gap-1">
+            <Trash2 size={20} />
+            {title}?
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-center">
+            {description}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="justify-center">
           <AlertDialogCancel className="px-2">{cancelLabel}</AlertDialogCancel>
