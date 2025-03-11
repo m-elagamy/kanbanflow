@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import type { Board, Column } from "@prisma/client";
 import db from "@/lib/db";
 
@@ -20,8 +20,8 @@ import type { ColumnStatus } from "@/schemas/column";
 export const createBoardAction = async (
   boardData: BoardFormSchema,
 ): Promise<ServerActionResult<Board & { columns: Column[] }>> => {
-  const user = await currentUser();
-  if (!user) return { success: false, message: "Authentication required!" };
+  const { userId } = await auth();
+  if (!userId) return { success: false, message: "Authentication required!" };
 
   const validatedData = boardSchema.safeParse(boardData);
 
@@ -38,7 +38,7 @@ export const createBoardAction = async (
 
   const existingBoard = await db.board.findUnique({
     where: {
-      userId_slug: { userId: user.id, slug: boardSlug },
+      userId_slug: { userId: userId, slug: boardSlug },
     },
     select: { slug: true },
   });
@@ -55,7 +55,7 @@ export const createBoardAction = async (
   };
 
   const result = await createBoard(
-    user.id,
+    userId,
     title,
     boardSlug,
     description,
@@ -81,8 +81,8 @@ export const updateBoardAction = async (
 ): Promise<
   ServerActionResult<Pick<Board, "title" | "description" | "slug">>
 > => {
-  const user = await currentUser();
-  if (!user) return { success: false, message: "Authentication required!" };
+  const { userId } = await auth();
+  if (!userId) return { success: false, message: "Authentication required!" };
 
   const data = Object.fromEntries(formData.entries());
   const validatedData = boardSchema.omit({ template: true }).safeParse(data);
@@ -98,7 +98,7 @@ export const updateBoardAction = async (
   const boardId = formData.get("boardId") as string;
 
   const existingBoard = await db.board.findUnique({
-    where: { id: boardId, userId: user.id },
+    where: { id: boardId, userId },
     select: { title: true, description: true },
   });
 
@@ -126,7 +126,7 @@ export const updateBoardAction = async (
 
   const duplicateBoard = await db.board.findFirst({
     where: {
-      userId: user.id,
+      userId: userId,
       slug: newSlug,
       NOT: { id: boardId },
     },
@@ -156,16 +156,11 @@ export const updateBoardAction = async (
 export async function deleteBoardAction(
   boardId: string,
 ): Promise<ServerActionResult<{ boardId: string }>> {
-  try {
-    await deleteBoard(boardId);
-    return {
-      success: true,
-      message: "Board deleted successfully",
-    };
-  } catch (error) {
-    console.error("Error deleting board:", error);
-    return { success: false, message: "Failed to delete board" };
-  }
+  await deleteBoard(boardId);
+  return {
+    success: true,
+    message: "Board deleted successfully",
+  };
 }
 
 export async function deleteAllBoardsAction(userId: string) {
