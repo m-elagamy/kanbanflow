@@ -25,7 +25,7 @@ export function useBoardsList(
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!initialBoards || initialBoards.length === 0) return;
+    if (!initialBoards) return;
 
     setBoards(
       Object.fromEntries(initialBoards.map((board) => [board.id, board])),
