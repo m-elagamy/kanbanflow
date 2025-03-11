@@ -13,7 +13,7 @@ export default function ColumnSkeleton({
   const visibleColumns = Math.min(columnsNumber, 4);
 
   const taskCounts = tasksPerColumn
-    ? tasksPerColumn.map((count) => (count === 0 ? 1 : Math.min(count, 3)))
+    ? tasksPerColumn.map((count) => (count === 0 ? 0 : Math.min(count, 3)))
     : Array(visibleColumns).fill(1);
 
   return (
