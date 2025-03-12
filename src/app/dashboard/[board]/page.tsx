@@ -2,6 +2,7 @@ import { unauthorized } from "next/navigation";
 import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { getBoardBySlugAction } from "@/actions/board";
+import deslugify from "@/utils/deslugify";
 import BoardLayout from "../components/board";
 import OptimisticBoardLayout from "../components/board/optimistic-board";
 
@@ -25,7 +26,16 @@ export default async function BoardPage({ params }: { params: Params }) {
   return <BoardLayout initialBoard={currentBoard} />;
 }
 
-export const metadata: Metadata = {
-  title: "Board",
-  description: "Manage your tasks with a modern Kanban board.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<Metadata> {
+  const boardSlug = decodeURIComponent((await params).board);
+
+  const boardTitle = deslugify(boardSlug);
+
+  return {
+    title: boardTitle,
+  };
+}
