@@ -1,3 +1,4 @@
+import { unauthorized } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 
 type DALFunction<T extends unknown[], R> = (...args: T) => Promise<R>;
@@ -9,12 +10,7 @@ export default function withAuth<T extends unknown[], R>(
   return async (...args: T): Promise<DALResult<R>> => {
     const { userId } = await auth();
 
-    if (!userId) {
-      return {
-        success: false,
-        message: "Authentication is required",
-      };
-    }
+    if (!userId) unauthorized();
 
     return {
       success: true,

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { unauthorized } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import type { Board, Column } from "@prisma/client";
 import db from "@/lib/db";
@@ -21,7 +22,7 @@ export const createBoardAction = async (
   boardData: BoardFormSchema,
 ): Promise<ServerActionResult<Board & { columns: Column[] }>> => {
   const { userId } = await auth();
-  if (!userId) return { success: false, message: "Authentication required!" };
+  if (!userId) unauthorized();
 
   const validatedData = boardSchema.safeParse(boardData);
 
@@ -82,7 +83,7 @@ export const updateBoardAction = async (
   ServerActionResult<Pick<Board, "title" | "description" | "slug">>
 > => {
   const { userId } = await auth();
-  if (!userId) return { success: false, message: "Authentication required!" };
+  if (!userId) unauthorized();
 
   const data = Object.fromEntries(formData.entries());
   const validatedData = boardSchema.omit({ template: true }).safeParse(data);
