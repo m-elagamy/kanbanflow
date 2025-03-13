@@ -1,15 +1,15 @@
+import { useShallow } from "zustand/react/shallow";
 import DndProvider from "@/providers/dnd-provider";
 import { useColumnStore } from "@/stores/column";
 import ColumnCard from "./column-card";
 import ColumnModal from "./column-modal";
-
 type ColumnsWrapperProps = {
   boardId: string;
 };
 
 const ColumnsWrapper = ({ boardId }: ColumnsWrapperProps) => {
   const columns = useColumnStore(
-    (state) => state.columnsByBoard[boardId] || {},
+    useShallow((state) => state.columnsByBoard[boardId] || {}),
   );
 
   return (

@@ -4,6 +4,10 @@ const nextConfig: NextConfig = {
   experimental: {
     reactCompiler: true,
     authInterrupts: true,
+    staleTimes: {
+      dynamic: 10,
+      static: 60,
+    },
   },
 };
 

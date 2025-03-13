@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { subscribeWithSelector } from "zustand/middleware";
+import isEqual from "fast-deep-equal";
 import type { TaskState, TaskStore } from "@/lib/types/stores/task";
 
 const initialState: TaskState = {
@@ -16,11 +17,27 @@ export const useTaskStore = create<TaskStore>()(
 
       setTasks: (columnId, tasks) => {
         set((state) => {
+          const newTasks = { ...state.tasks };
           tasks.forEach((task) => {
-            state.tasks[task.id] = task;
+            newTasks[task.id] = task;
           });
 
-          state.columnTaskIds[columnId] = tasks.map((task) => task.id);
+          const newTaskIds = tasks.map((task) => task.id);
+
+          if (
+            isEqual(state.tasks, newTasks) &&
+            isEqual(state.columnTaskIds[columnId], newTaskIds)
+          ) {
+            return state;
+          }
+
+          return {
+            tasks: newTasks,
+            columnTaskIds: {
+              ...state.columnTaskIds,
+              [columnId]: newTaskIds,
+            },
+          };
         });
       },
 
