@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Ellipsis, SquarePen, TrashIcon } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
@@ -39,6 +39,7 @@ export default function BoardActions({
   isSidebarTrigger,
 }: Readonly<BoardActionsProps>) {
   const router = useRouter();
+  const params = useParams();
   const { isMobile } = useSidebar();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
@@ -48,12 +49,8 @@ export default function BoardActions({
       setIsDeleting: state.setIsLoading,
     })),
   );
-  const { activeBoardId, deleteBoard } = useBoardStore(
-    useShallow((state) => ({
-      deleteBoard: state.deleteBoard,
-      activeBoardId: state.activeBoardId,
-    })),
-  );
+
+  const deleteBoard = useBoardStore((state) => state.deleteBoard);
 
   const handleOnClick = async () => {
     if (!board.id) return;
@@ -64,7 +61,9 @@ export default function BoardActions({
       const { success } = await deleteBoardAction(board.id);
       if (!success) return;
 
-      redirectIfActiveBoard(board.id);
+      setTimeout(() => {
+        redirectIfActiveBoard(board.slug);
+      }, 0);
 
       await delay(600);
       deleteBoard(board.id);
@@ -76,8 +75,8 @@ export default function BoardActions({
     }
   };
 
-  const redirectIfActiveBoard = (boardId: string) => {
-    if (activeBoardId === boardId) {
+  const redirectIfActiveBoard = (boardSlug: string) => {
+    if (params.board === boardSlug) {
       router.replace("/dashboard");
     }
   };

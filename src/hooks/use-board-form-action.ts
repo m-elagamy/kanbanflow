@@ -69,9 +69,13 @@ export function useBoardFormAction({
 
       try {
         await updateBoardAction(formData);
-        if (board.slug !== optimisticBoard.slug && activeBoardId === board.id) {
-          router.replace(`/dashboard/${optimisticBoard.slug}`);
-        }
+
+        redirectIfSlugChanged(
+          board.slug,
+          optimisticBoard.slug,
+          board.id,
+          activeBoardId,
+        );
       } catch (error) {
         console.error(error);
         handleOnError(error, "Failed to update board");
@@ -109,6 +113,19 @@ export function useBoardFormAction({
         setIsLoading("board", "creating", false, optimisticBoard.id);
       }
     }, 50);
+  };
+
+  const redirectIfSlugChanged = (
+    boardSlug: string,
+    newSlug: string,
+    boardId: string,
+    currentBoardId: string | null,
+  ) => {
+    if (boardSlug !== newSlug && currentBoardId === boardId) {
+      setTimeout(() => {
+        router.replace(`/dashboard/${newSlug}`);
+      }, 0);
+    }
   };
 
   return { handleFormAction, isEditMode, router, isLoading };
