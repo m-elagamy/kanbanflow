@@ -20,6 +20,7 @@ import { useColumnStore } from "@/stores/column";
 import TaskModal from "../task/task-modal";
 import delay from "@/utils/delay";
 import useLoadingStore from "@/stores/loading";
+import useBoardStore from "@/stores/board";
 
 const AlertConfirmation = dynamic(
   () => import("@/components/ui/alert-confirmation"),
@@ -57,6 +58,8 @@ const ColumnActions = ({
   const [isSubDropdownOpen, setIsSubDropdownOpen] = useState(false);
   const [showAlertConfirmation, setShowAlertConfirmation] = useState(false);
 
+  const activeBoardId = useBoardStore((state) => state.activeBoardId);
+
   const { deleteColumn, updateColumn, revertToPrevious } = useColumnStore(
     useShallow((state) => ({
       updateColumn: state.updateColumn,
@@ -73,10 +76,12 @@ const ColumnActions = ({
   );
 
   const handleUpdateColumn = async (updates: Pick<Column, "status">) => {
+    if (!activeBoardId || !columnId) return;
+
     setIsLoading("column", "updating", true, columnId);
 
     await delay(300);
-    updateColumn(columnId, updates);
+    updateColumn(activeBoardId, columnId, updates);
     setIsMainDropdownOpen(false);
 
     try {
@@ -96,10 +101,10 @@ const ColumnActions = ({
   };
 
   const handleOnClick = async () => {
-    if (columnId) {
+    if (activeBoardId && columnId) {
       setIsLoading("column", "deleting", true, columnId);
       await delay(500);
-      deleteColumn(columnId);
+      deleteColumn(activeBoardId, columnId);
       setIsLoading("column", "deleting", false, columnId);
 
       try {

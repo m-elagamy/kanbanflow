@@ -11,7 +11,7 @@ export default function OptimisticBoardLayout() {
   const { activeBoard } = useActiveBoard();
   const { hasError } = useBoardRetry();
 
-  if (!activeBoard) notFound();
+  if (!activeBoard?.id) notFound();
 
   return (
     <BoardContainer>

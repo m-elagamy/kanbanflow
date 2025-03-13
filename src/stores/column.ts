@@ -5,10 +5,11 @@ import type { ColumnStore, SimplifiedColumn } from "@/lib/types/stores/column";
 
 export const useColumnStore = create<ColumnStore>()(
   immer((set) => ({
-    columns: {},
+    columnsByBoard: {},
     previousState: null,
 
-    setColumns: (columns) => {
+    setColumns: (boardId, columns) => {
+      console.log("setColumns", boardId, columns);
       set((state) => {
         const newColumns = columns.reduce<Record<string, SimplifiedColumn>>(
           (acc, col) => {
@@ -18,31 +19,40 @@ export const useColumnStore = create<ColumnStore>()(
           {},
         );
 
-        if (isEqual(state.columns, newColumns)) return state;
+        if (isEqual(state.columnsByBoard[boardId], newColumns)) return state;
 
-        return { columns: newColumns };
+        return {
+          columnsByBoard: { ...state.columnsByBoard, [boardId]: newColumns },
+        };
       });
     },
 
-    addColumn: (column) => {
+    addColumn: (boardId, column) => {
       set((state) => {
-        state.previousState = { ...state.columns };
-        state.columns[column.id] = column;
+        state.previousState = { ...state.columnsByBoard };
+        if (!state.columnsByBoard[boardId]) {
+          state.columnsByBoard[boardId] = {};
+        }
+        state.columnsByBoard[boardId][column.id] = column;
       });
     },
 
-    updateColumn: (columnId, updates) => {
+    updateColumn: (boardId, columnId, updates) => {
       set((state) => {
-        state.previousState = { ...state.columns };
-        state.columns[columnId] = { ...state.columns[columnId], ...updates };
+        if (!state.columnsByBoard[boardId]?.[columnId]) return state;
+        state.previousState = { ...state.columnsByBoard };
+        state.columnsByBoard[boardId][columnId] = {
+          ...state.columnsByBoard[boardId][columnId],
+          ...updates,
+        };
       });
     },
 
-    updateColumnId: (oldColumnId, newColumnId) => {
+    updateColumnId: (boardId, oldColumnId, newColumnId) => {
       set((state) => {
-        if (!state.columns[oldColumnId]) return state;
+        if (!state.columnsByBoard[boardId]?.[oldColumnId]) return state;
 
-        const updatedColumns = { ...state.columns };
+        const updatedColumns = { ...state.columnsByBoard[boardId] };
 
         updatedColumns[newColumnId] = {
           ...updatedColumns[oldColumnId],
@@ -51,13 +61,20 @@ export const useColumnStore = create<ColumnStore>()(
 
         delete updatedColumns[oldColumnId];
 
-        return { columns: updatedColumns };
+        return {
+          columnsByBoard: {
+            ...state.columnsByBoard,
+            [boardId]: updatedColumns,
+          },
+        };
       });
     },
 
-    updatePredefinedColumnsId: (columns) => {
+    updatePredefinedColumnsId: (boardId, columns) => {
       set((state) => {
-        const updatedColumns = { ...state.columns };
+        if (!state.columnsByBoard[boardId]) return state;
+
+        const updatedColumns = { ...state.columnsByBoard[boardId] };
 
         columns.forEach(({ oldId, newId }) => {
           if (updatedColumns[oldId]) {
@@ -69,27 +86,50 @@ export const useColumnStore = create<ColumnStore>()(
           }
         });
 
-        return { columns: updatedColumns };
+        return {
+          columnsByBoard: {
+            ...state.columnsByBoard,
+            [boardId]: updatedColumns,
+          },
+        };
       });
     },
 
-    deleteColumn: (columnId) => {
+    updateColumnsBoardId: (oldBoardId, newBoardId) => {
       set((state) => {
-        state.previousState = { ...state.columns };
-        delete state.columns[columnId];
+        if (!state.columnsByBoard[oldBoardId]) return state;
+
+        return {
+          columnsByBoard: {
+            ...state.columnsByBoard,
+            [newBoardId]: state.columnsByBoard[oldBoardId],
+          },
+        };
+      });
+
+      set((state) => {
+        delete state.columnsByBoard[oldBoardId];
+      });
+    },
+
+    deleteColumn: (boardId, columnId) => {
+      set((state) => {
+        if (!state.columnsByBoard[boardId]) return state;
+        state.previousState = { ...state.columnsByBoard };
+        delete state.columnsByBoard[boardId][columnId];
       });
     },
 
     backupState: () => {
       set((state) => {
-        state.previousState = { ...state.columns };
+        state.previousState = { ...state.columnsByBoard };
       });
     },
 
     revertToPrevious: () => {
       set((state) => {
         if (state.previousState) {
-          state.columns = { ...state.previousState };
+          state.columnsByBoard = { ...state.previousState };
           state.previousState = null;
         }
       });

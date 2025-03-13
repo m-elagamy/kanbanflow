@@ -45,7 +45,7 @@ export function useBoardRetry() {
         if (!result.fields) return;
 
         updateBoardId(failedBoard.id, result.fields.id);
-        updateColumnIds(result.fields.columns);
+        updateColumnIds(failedBoard.id, result.fields.columns);
 
         resetError();
         await delay(500);

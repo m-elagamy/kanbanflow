@@ -6,13 +6,13 @@ export const useUpdatePredefinedColumnsId = () => {
     (state) => state.updatePredefinedColumnsId,
   );
 
-  const updateColumnId = (columns: Column[]) => {
+  const updateColumnId = (boardId: string, columns: Column[]) => {
     const columnUpdates = columns.map((column, index) => ({
       oldId: `temp-${index}`,
       newId: column.id,
     }));
 
-    updatePredefinedColumnsId(columnUpdates);
+    updatePredefinedColumnsId(boardId, columnUpdates);
   };
 
   return updateColumnId;

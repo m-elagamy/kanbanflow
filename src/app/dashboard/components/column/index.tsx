@@ -8,7 +8,9 @@ type ColumnsWrapperProps = {
 };
 
 const ColumnsWrapper = ({ boardId }: ColumnsWrapperProps) => {
-  const columns = useColumnStore((state) => state.columns);
+  const columns = useColumnStore(
+    (state) => state.columnsByBoard[boardId] || {},
+  );
 
   return (
     <div className="scrollbar-hide flex h-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth md:justify-start">

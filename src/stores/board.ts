@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { produce } from "immer";
 import isEqual from "fast-deep-equal";
 import { BoardState, BoardStore } from "@/lib/types/stores/board";
+import { useColumnStore } from "./column";
 
 const initialState: BoardState = {
   boards: {},
@@ -77,6 +78,8 @@ const useBoardStore = create<BoardStore>((set) => ({
         }
       }),
     );
+
+    useColumnStore.getState().updateColumnsBoardId(tempId, realId);
   },
 
   resetError: () => set({ hasError: false, failedBoard: null }),

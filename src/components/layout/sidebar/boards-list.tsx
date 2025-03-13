@@ -11,7 +11,7 @@ type BoardsListProps = {
 };
 
 export function BoardsList({ boards: initialBoards }: BoardsListProps) {
-  const { boards, activeBoardId, setActiveBoardId, isLoading } =
+  const { boards, setActiveBoardId, isLoading, isActiveBoard } =
     useBoardsList(initialBoards);
 
   if (isLoading) {
@@ -21,7 +21,7 @@ export function BoardsList({ boards: initialBoards }: BoardsListProps) {
   return (
     <SidebarMenu>
       {Object.values(boards).map((board) => {
-        const isActive = activeBoardId === board.id;
+        const isActive = isActiveBoard(board.slug);
         const href = `/dashboard/${board.slug}`;
 
         return (

@@ -3,20 +3,29 @@ import type { Column } from "@prisma/client";
 export type SimplifiedColumn = Omit<Column, "order" | "boardId">;
 
 type ColumnState = {
-  columns: Record<string, SimplifiedColumn>;
-  previousState: Record<string, SimplifiedColumn> | null;
+  columnsByBoard: Record<string, Record<string, SimplifiedColumn>>;
+  previousState: Record<string, Record<string, SimplifiedColumn>> | null;
 };
 
 type ColumnActions = {
-  setColumns: (columns: SimplifiedColumn[]) => void;
-  addColumn: (column: SimplifiedColumn) => void;
-
-  updateColumn: (columnId: string, updates: Pick<Column, "status">) => void;
-  updateColumnId: (oldColumnId: string, newColumnId: string) => void;
+  setColumns: (boardId: string, columns: SimplifiedColumn[]) => void;
+  addColumn: (boardId: string, column: SimplifiedColumn) => void;
+  updateColumn: (
+    boardId: string,
+    columnId: string,
+    updates: Pick<Column, "status">,
+  ) => void;
+  updateColumnId: (
+    boardId: string,
+    oldColumnId: string,
+    newColumnId: string,
+  ) => void;
   updatePredefinedColumnsId: (
+    boardId: string,
     columns: { oldId: string; newId: string }[],
   ) => void;
-  deleteColumn: (columnId: string) => void;
+  updateColumnsBoardId: (oldBoardId: string, newBoardId: string) => void;
+  deleteColumn: (boardId: string, columnId: string) => void;
 };
 
 type ColumnHelpers = {

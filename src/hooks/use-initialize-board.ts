@@ -23,27 +23,35 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
   const setColumnTasks = useTaskStore((state) => state.setTasks);
 
   useEffect(() => {
-    if (!initialBoard) return;
+    if (!initialBoard?.id) return;
+
+    const { columns, ...boardData } = initialBoard;
 
     setActiveBoardId(initialBoard.id);
-    setBoards({ [initialBoard.id]: initialBoard });
-    setBoardColumns(initialBoard.columns);
-    initialBoard.columns.forEach((column) => {
-      if (column.tasks?.length) {
+
+    setBoards({ [initialBoard.id]: boardData });
+
+    const columnsWithoutTasks = columns.map(({ id, status }) => ({
+      id,
+      status,
+    }));
+
+    setBoardColumns(initialBoard.id, columnsWithoutTasks);
+
+    columns.forEach((column) => {
+      if (column.tasks.length > 0) {
         setColumnTasks(column.id, column.tasks);
       }
     });
-
-    return () => setActiveBoardId(null);
   }, [
     initialBoard,
-    setActiveBoardId,
     setBoards,
     setBoardColumns,
     setColumnTasks,
+    setActiveBoardId,
   ]);
 
-  const activeBoard = boards[initialBoard.id ?? ""];
+  const activeBoard = boards[initialBoard?.id] ?? null;
 
   return { activeBoard };
 }

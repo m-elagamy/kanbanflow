@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import type { Board } from "@prisma/client";
 import useBoardStore from "@/stores/board";
-
 export function useBoardsList(
   initialBoards: Omit<Board, "userId" | "order">[],
 ) {
+  /* 
+   NOTE: Why do we need to set the initial value to true instead of false?
+   If we set it to false, we can't have the loading indicator.
+   If we set it to true, we can have the loading indicator.
+   I think it's because we want to show the loading indicator when we first mount the component.
+   If we set the initial value to false, the loading indicator will not show up.
+  */
+  const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
+
   const { boards, setBoards, activeBoardId, setActiveBoardId } = useBoardStore(
     useShallow((state) => ({
       boards: state.boards,
@@ -15,14 +25,9 @@ export function useBoardsList(
     })),
   );
 
-  /* 
-   NOTE: Why do we need to set the initial value to true instead of false?
-   If we set it to false, we can't have the loading indicator.
-   If we set it to true, we can have the loading indicator.
-   I think it's because we want to show the loading indicator when we first mount the component.
-   If we set the initial value to false, the loading indicator will not show up.
-  */
-  const [isLoading, setIsLoading] = useState(true);
+  const isActiveBoard = (boardSlug: string) => {
+    return pathname === `/dashboard/${boardSlug}`;
+  };
 
   useEffect(() => {
     if (!initialBoards) return;
@@ -38,5 +43,6 @@ export function useBoardsList(
     activeBoardId,
     setActiveBoardId,
     isLoading,
+    isActiveBoard,
   };
 }

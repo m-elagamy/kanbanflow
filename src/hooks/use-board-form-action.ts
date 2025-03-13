@@ -85,7 +85,7 @@ export function useBoardFormAction({
 
     setIsLoading("board", "creating", true, optimisticBoard.id);
     createBoard(optimisticBoard);
-    setColumns(constructColumns(template as Templates));
+    setColumns(optimisticBoard.id, constructColumns(template as Templates));
 
     await delay(600);
     router.push(`/dashboard/${optimisticBoard.slug}`);
@@ -95,7 +95,7 @@ export function useBoardFormAction({
         const res = await createBoardAction(validatedData);
         if (res.fields) {
           updateBoardId(optimisticBoard.id, res.fields.id);
-          updateColumnIds(res.fields.columns);
+          updateColumnIds(res.fields.id, res.fields.columns);
         }
       } catch (err) {
         console.error(err);

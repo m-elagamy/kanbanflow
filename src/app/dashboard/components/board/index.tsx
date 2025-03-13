@@ -18,7 +18,7 @@ type BoardLayoutProps = {
 export default function BoardLayout({ initialBoard }: BoardLayoutProps) {
   const { activeBoard } = useInitializeBoardData(initialBoard);
 
-  if (!activeBoard) {
+  if (!activeBoard?.id) {
     return (
       <BoardSkeleton
         columnsNumber={initialBoard.columns.length + 1}

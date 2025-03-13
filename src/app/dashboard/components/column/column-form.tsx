@@ -48,7 +48,7 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
   const { columns, addColumnOptimistically, updateColumnId, revertToPrevious } =
     useColumnStore(
       useShallow((state) => ({
-        columns: state.columns,
+        columns: state.columnsByBoard[boardId],
         addColumnOptimistically: state.addColumn,
         updateColumnId: state.updateColumnId,
         revertToPrevious: state.revertToPrevious,
@@ -89,7 +89,7 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
     setIsLoading("column", "creating", true, tempId);
     await delay(400);
 
-    addColumnOptimistically({
+    addColumnOptimistically(boardId, {
       id: tempId,
       status: validationResult.data.status,
     });
@@ -105,7 +105,7 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
 
       if (!createdColumn.fields) return;
 
-      updateColumnId(tempId, createdColumn.fields?.id);
+      updateColumnId(boardId, tempId, createdColumn.fields?.id);
     } catch (error) {
       console.error("Error creating column:", error);
       revertToPrevious();
