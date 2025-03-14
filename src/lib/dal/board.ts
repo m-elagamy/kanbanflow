@@ -77,6 +77,7 @@ const getBoardBySlug = withAuth(async (userId: string, slug: string) => {
         select: {
           id: true,
           status: true,
+          order: true,
           tasks: {
             orderBy: { order: "asc" },
             select: {

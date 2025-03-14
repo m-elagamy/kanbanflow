@@ -1,6 +1,6 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { toast } from "sonner";
+import { useShallow } from "zustand/react/shallow";
 import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import columnStatusOptions from "../../data/column-status-options";
 import StatusOptionsSkeleton from "./status-options-skeleton";
 import validateFormData from "../../utils/validate-form-data";
 import useLoadingStore from "@/stores/loading";
-import { useShallow } from "zustand/react/shallow";
+import handleOnError from "@/utils/handle-on-error";
 
 const SelectContent = dynamic(
   () => import("@/components/ui/select").then((mod) => mod.SelectContent),
@@ -45,15 +45,14 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
 
   const closeModal = useModalStore((state) => state.closeModal);
 
-  const { columns, addColumnOptimistically, updateColumnId, revertToPrevious } =
-    useColumnStore(
-      useShallow((state) => ({
-        columns: state.columnsByBoard[boardId],
-        addColumnOptimistically: state.addColumn,
-        updateColumnId: state.updateColumnId,
-        revertToPrevious: state.revertToPrevious,
-      })),
-    );
+  const { columns, addColumn, updateColumnId, rollback } = useColumnStore(
+    useShallow((state) => ({
+      columns: state.columnsByBoard[boardId],
+      addColumn: state.addColumn,
+      updateColumnId: state.updateColumnId,
+      rollback: state.rollback,
+    })),
+  );
 
   const { isLoading, setIsLoading } = useLoadingStore(
     useShallow((state) => ({
@@ -89,9 +88,10 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
     setIsLoading("column", "creating", true, tempId);
     await delay(400);
 
-    addColumnOptimistically(boardId, {
+    addColumn(boardId, {
       id: tempId,
       status: validationResult.data.status,
+      order: 0,
     });
 
     closeModal("column", modalId);
@@ -108,13 +108,8 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
       updateColumnId(boardId, tempId, createdColumn.fields?.id);
     } catch (error) {
       console.error("Error creating column:", error);
-      revertToPrevious();
-      toast.error("Failed to create column", {
-        description:
-          "An error occurred while creating the column. Please try again.",
-        icon: "🚨",
-        duration: 5000,
-      });
+      handleOnError(error, "Failed to create column");
+      rollback();
     }
   };
 

@@ -32,6 +32,7 @@ export const constructColumns = (templateId: Templates) => {
       status,
       boardId: "temp-board-id",
       tasks: [],
+      order: index,
     })) || []
   );
 };

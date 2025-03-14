@@ -12,10 +12,14 @@ const ColumnsWrapper = ({ boardId }: ColumnsWrapperProps) => {
     useShallow((state) => state.columnsByBoard[boardId] || {}),
   );
 
+  const sortedColumns = Object.values(columns).sort(
+    (a, b) => a.order - b.order,
+  );
+
   return (
     <div className="scrollbar-hide flex h-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth md:justify-start">
       <DndProvider>
-        {Object.values(columns)?.map((column) => (
+        {sortedColumns?.map((column) => (
           <ColumnCard key={column.id} column={column} />
         ))}
       </DndProvider>

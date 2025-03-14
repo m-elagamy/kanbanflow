@@ -79,7 +79,7 @@ const useBoardStore = create<BoardStore>((set) => ({
       }),
     );
 
-    useColumnStore.getState().updateColumnsBoardId(tempId, realId);
+    useColumnStore.getState().transferColumnsToBoard(tempId, realId);
   },
 
   resetError: () => set({ hasError: false, failedBoard: null }),

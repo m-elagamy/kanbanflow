@@ -2,7 +2,6 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useShallow } from "zustand/react/shallow";
 import { Ellipsis, PlusIcon, Settings2, TrashIcon } from "lucide-react";
-import { toast } from "sonner";
 import type { Column } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +20,7 @@ import TaskModal from "../task/task-modal";
 import delay from "@/utils/delay";
 import useLoadingStore from "@/stores/loading";
 import useBoardStore from "@/stores/board";
+import handleOnError from "@/utils/handle-on-error";
 
 const AlertConfirmation = dynamic(
   () => import("@/components/ui/alert-confirmation"),
@@ -60,10 +60,10 @@ const ColumnActions = ({
 
   const activeBoardId = useBoardStore((state) => state.activeBoardId);
 
-  const { deleteColumn, updateColumn, revertToPrevious } = useColumnStore(
+  const { deleteColumn, updateColumn, rollback } = useColumnStore(
     useShallow((state) => ({
       updateColumn: state.updateColumn,
-      revertToPrevious: state.revertToPrevious,
+      rollback: state.rollback,
       deleteColumn: state.deleteColumn,
     })),
   );
@@ -88,13 +88,8 @@ const ColumnActions = ({
       await updateColumnAction(columnId, updates);
     } catch (error) {
       console.error("Error updating column:", error);
-      revertToPrevious();
-      toast.error("Failed to update column", {
-        description:
-          "An error occurred while updating the column. Please try again.",
-        duration: 5000,
-        icon: "🚨",
-      });
+      handleOnError(error, "Failed to update column");
+      rollback();
     } finally {
       setIsLoading("column", "updating", false, columnId);
     }
@@ -105,19 +100,15 @@ const ColumnActions = ({
       setIsLoading("column", "deleting", true, columnId);
       await delay(500);
       deleteColumn(activeBoardId, columnId);
-      setIsLoading("column", "deleting", false, columnId);
 
       try {
         await deleteColumnAction(columnId);
       } catch (error) {
         console.error("Error deleting column:", error);
-        revertToPrevious();
-        toast.error("Failed to delete column", {
-          description:
-            "An error occurred while deleting the column. Please try again.",
-          duration: 5000,
-          icon: "🚨",
-        });
+        handleOnError(error, "Failed to delete column");
+        rollback();
+      } finally {
+        setIsLoading("column", "deleting", false, columnId);
       }
     }
   };

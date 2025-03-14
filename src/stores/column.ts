@@ -29,20 +29,44 @@ export const useColumnStore = create<ColumnStore>()(
 
     addColumn: (boardId, column) => {
       set((state) => {
-        state.previousState = { ...state.columnsByBoard };
-        if (!state.columnsByBoard[boardId]) {
-          state.columnsByBoard[boardId] = {};
-        }
-        state.columnsByBoard[boardId][column.id] = column;
+        if (!state.columnsByBoard[boardId]) state.columnsByBoard[boardId] = {};
+
+        state.previousState = {
+          boardId,
+          columnId: column.id,
+          previousData: null,
+        };
+
+        const columns = Object.values(state.columnsByBoard[boardId]);
+        const maxOrder =
+          columns.length > 0
+            ? Math.max(...columns.map((col) => col.order))
+            : -1;
+
+        state.columnsByBoard[boardId][column.id] = {
+          ...column,
+          order: maxOrder + 1,
+        };
       });
     },
 
     updateColumn: (boardId, columnId, updates) => {
       set((state) => {
         if (!state.columnsByBoard[boardId]?.[columnId]) return state;
-        state.previousState = { ...state.columnsByBoard };
+
+        const columnToUpdate = state.columnsByBoard[boardId][columnId];
+        state.previousState = {
+          boardId,
+          columnId,
+          previousData: {
+            id: columnToUpdate.id,
+            status: columnToUpdate.status,
+            order: columnToUpdate.order,
+          },
+        };
+
         state.columnsByBoard[boardId][columnId] = {
-          ...state.columnsByBoard[boardId][columnId],
+          ...columnToUpdate,
           ...updates,
         };
       });
@@ -95,43 +119,58 @@ export const useColumnStore = create<ColumnStore>()(
       });
     },
 
-    updateColumnsBoardId: (oldBoardId, newBoardId) => {
+    transferColumnsToBoard: (oldBoardId, newBoardId) => {
       set((state) => {
         if (!state.columnsByBoard[oldBoardId]) return state;
 
-        return {
-          columnsByBoard: {
-            ...state.columnsByBoard,
-            [newBoardId]: state.columnsByBoard[oldBoardId],
-          },
-        };
-      });
+        const updatedColumnsByBoard = { ...state.columnsByBoard };
 
-      set((state) => {
-        delete state.columnsByBoard[oldBoardId];
+        updatedColumnsByBoard[newBoardId] = state.columnsByBoard[oldBoardId];
+
+        delete updatedColumnsByBoard[oldBoardId];
+
+        return {
+          columnsByBoard: updatedColumnsByBoard,
+        };
       });
     },
 
     deleteColumn: (boardId, columnId) => {
       set((state) => {
-        if (!state.columnsByBoard[boardId]) return state;
-        state.previousState = { ...state.columnsByBoard };
+        if (!state.columnsByBoard[boardId]) return;
+
+        const columnToDelete = state.columnsByBoard[boardId][columnId];
+        state.previousState = {
+          boardId,
+          columnId,
+          previousData: columnToDelete,
+        };
+
         delete state.columnsByBoard[boardId][columnId];
       });
     },
 
-    backupState: () => {
+    rollback: () => {
       set((state) => {
-        state.previousState = { ...state.columnsByBoard };
-      });
-    },
+        if (!state.previousState) return state;
 
-    revertToPrevious: () => {
-      set((state) => {
-        if (state.previousState) {
-          state.columnsByBoard = { ...state.previousState };
-          state.previousState = null;
+        const { boardId, columnId, previousData } = state.previousState;
+
+        const updatedColumnsByBoard = { ...state.columnsByBoard };
+        const updatedBoard = { ...updatedColumnsByBoard[boardId] };
+        updatedColumnsByBoard[boardId] = updatedBoard;
+
+        if (!previousData) {
+          delete updatedBoard[columnId];
+        } else {
+          updatedBoard[columnId] = previousData;
         }
+
+        return {
+          ...state,
+          columnsByBoard: updatedColumnsByBoard,
+          previousState: null,
+        };
       });
     },
   })),

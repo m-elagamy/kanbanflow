@@ -12,10 +12,11 @@ type BoardWithColumnsAndTasks = SimplifiedBoard & {
 };
 
 export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
-  const { boards, setBoards } = useBoardStore(
+  const { boards, setBoards, setActiveBoardId } = useBoardStore(
     useShallow((state) => ({
       boards: state.boards,
       setBoards: state.setBoards,
+      setActiveBoardId: state.setActiveBoardId,
     })),
   );
   const setBoardColumns = useColumnStore((state) => state.setColumns);
@@ -27,10 +28,12 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
     const { columns, ...boardData } = initialBoard;
 
     setBoards({ [initialBoard.id]: boardData });
+    setActiveBoardId(initialBoard.id);
 
-    const columnsWithoutTasks = columns.map(({ id, status }) => ({
+    const columnsWithoutTasks = columns.map(({ id, status, order }) => ({
       id,
       status,
+      order,
     }));
 
     setBoardColumns(initialBoard.id, columnsWithoutTasks);
@@ -40,7 +43,13 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
         setColumnTasks(column.id, column.tasks);
       }
     });
-  }, [initialBoard, setBoards, setBoardColumns, setColumnTasks]);
+  }, [
+    initialBoard,
+    setBoards,
+    setBoardColumns,
+    setColumnTasks,
+    setActiveBoardId,
+  ]);
 
   const activeBoard = boards[initialBoard?.id] ?? null;
 
