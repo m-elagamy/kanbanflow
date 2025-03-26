@@ -113,6 +113,7 @@ export default function BoardActions({
             </DropdownMenuLabel>
           }
           board={board}
+          modalId={`edit-board-${board.id}`}
         />
         <DropdownMenuItem
           className="h-[30px] p-2 !py-1 text-destructive focus:text-destructive"

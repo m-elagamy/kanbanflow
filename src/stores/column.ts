@@ -9,7 +9,6 @@ export const useColumnStore = create<ColumnStore>()(
     previousState: null,
 
     setColumns: (boardId, columns) => {
-      console.log("setColumns", boardId, columns);
       set((state) => {
         const newColumns = columns.reduce<Record<string, SimplifiedColumn>>(
           (acc, col) => {

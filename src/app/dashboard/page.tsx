@@ -47,6 +47,7 @@ const Dashboard = async () => {
                 Create your first board
               </button>
             }
+            modalId="dashboard-new-board"
           />
         </CardContent>
       </Card>

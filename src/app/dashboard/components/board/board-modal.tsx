@@ -10,17 +10,24 @@ import { getModalDescription } from "../../utils/get-modal-description";
 
 type BoardModalProps = {
   mode: FormMode;
-  board?: BoardSummary;
+  modalId: string;
   trigger: React.ReactNode;
+  board?: BoardSummary;
   variant?: ButtonVariants;
 };
 
-const BoardModal = ({ mode, board, trigger, variant }: BoardModalProps) => {
+const BoardModal = ({
+  mode,
+  board,
+  trigger,
+  variant,
+  modalId,
+}: BoardModalProps) => {
   const openModal = useModalStore((state) => state.openModal);
 
-  const modalId = board ? `board-${board.id}` : "new-board";
+  const modalIdToUse = modalId ?? `board-${board?.id}`;
 
-  const handleOnClick = () => openModal("board", modalId);
+  const handleOnClick = () => openModal("board", modalIdToUse);
 
   return (
     <>
@@ -37,9 +44,9 @@ const BoardModal = ({ mode, board, trigger, variant }: BoardModalProps) => {
         title={getModalTitle("board", mode)}
         description={getModalDescription("board", mode)}
         modalType="board"
-        modalId={modalId}
+        modalId={modalIdToUse}
       >
-        <BoardForm formMode={mode} modalId={modalId} board={board} />
+        <BoardForm formMode={mode} modalId={modalIdToUse} board={board} />
       </Modal>
     </>
   );
