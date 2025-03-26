@@ -2,6 +2,7 @@
 
 import { Ellipsis, Loader, Settings2, TrashIcon } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
+import type { Task } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,12 +14,11 @@ import {
 import TaskModal from "./task-modal";
 import { deleteTaskAction } from "@/actions/task";
 import { useTaskStore } from "@/stores/task";
-import type { SimplifiedTask } from "@/lib/types/stores/task";
 import useLoadingStore from "@/stores/loading";
 import delay from "@/utils/delay";
 
 type TaskActionsProps = {
-  task: SimplifiedTask;
+  task: Task;
   columnId: string;
 };
 

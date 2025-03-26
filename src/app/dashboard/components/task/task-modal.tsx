@@ -1,8 +1,8 @@
+import type { Task } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/modal";
 import { useModalStore } from "@/stores/modal";
 import type { FormMode, ButtonVariants } from "@/lib/types";
-import type { SimplifiedTask } from "@/lib/types/stores/task";
 import TaskForm from "./task-form";
 import { getModalTitle } from "../../utils/get-modal-title";
 import { getModalDescription } from "../../utils/get-modal-description";
@@ -10,7 +10,7 @@ import { getModalDescription } from "../../utils/get-modal-description";
 type TaskModalProps = {
   columnId: string;
   trigger?: React.ReactNode;
-  task?: SimplifiedTask;
+  task?: Task;
   mode: FormMode;
   variant?: ButtonVariants;
 };

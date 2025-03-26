@@ -66,6 +66,7 @@ export function useTaskFormAction({
 
     const optimisticTask = {
       id: generateUUID(),
+      columnId,
       title,
       description,
       priority,

@@ -3,6 +3,7 @@ import { immer } from "zustand/middleware/immer";
 import { subscribeWithSelector } from "zustand/middleware";
 import isEqual from "fast-deep-equal";
 import type { TaskState, TaskStore } from "@/lib/types/stores/task";
+import type { Task } from "@prisma/client";
 
 const initialState: TaskState = {
   tasks: {},
@@ -15,29 +16,34 @@ export const useTaskStore = create<TaskStore>()(
     immer((set, get) => ({
       ...initialState,
 
-      setTasks: (columnId, tasks) => {
+      setTasks: (tasks) => {
         set((state) => {
-          const newTasks = { ...state.tasks };
-          tasks.forEach((task) => {
-            newTasks[task.id] = task;
-          });
+          const newTasks = tasks.reduce(
+            (acc, task) => {
+              acc[task.id] = task;
+              return acc;
+            },
+            {} as Record<string, Task>,
+          );
 
-          const newTaskIds = tasks.map((task) => task.id);
+          const newColumnTaskIds = tasks.reduce(
+            (acc, task) => {
+              if (!acc[task.columnId]) acc[task.columnId] = [];
+              acc[task.columnId].push(task.id);
+              return acc;
+            },
+            {} as Record<string, string[]>,
+          );
 
           if (
             isEqual(state.tasks, newTasks) &&
-            isEqual(state.columnTaskIds[columnId], newTaskIds)
+            isEqual(state.columnTaskIds, newColumnTaskIds)
           ) {
-            return state;
+            return;
           }
 
-          return {
-            tasks: newTasks,
-            columnTaskIds: {
-              ...state.columnTaskIds,
-              [columnId]: newTaskIds,
-            },
-          };
+          state.tasks = newTasks;
+          state.columnTaskIds = newColumnTaskIds;
         });
       },
 
@@ -82,11 +88,17 @@ export const useTaskStore = create<TaskStore>()(
             state.columnTaskIds[columnId] = state.columnTaskIds[
               columnId
             ].filter((id) => id !== taskId);
+
+            if (state.columnTaskIds[columnId].length === 0) {
+              delete state.columnTaskIds[columnId];
+            }
           }
 
           if (state.activeTaskId === taskId) {
             state.activeTaskId = null;
           }
+
+          console.log(state.columnTaskIds[columnId]);
         });
       },
 
