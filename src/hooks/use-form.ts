@@ -39,6 +39,8 @@ const useForm = <T extends Record<string, unknown>>(
       error,
     } = validateFormData<T>(formData, schema);
     if (!success) {
+      console.log("error", error);
+
       setSpecificError("title", error.issues[0]?.message);
       return { success: false };
     }
@@ -52,6 +54,8 @@ const useForm = <T extends Record<string, unknown>>(
         initialState.id as string,
       )
     ) {
+      console.log("Duplicate title detected");
+
       setSpecificError(
         "title",
         `A ${entityType} with the name "${validatedData.title}" already exists.`,
@@ -63,6 +67,8 @@ const useForm = <T extends Record<string, unknown>>(
 
     // Check if changes were actually made
     if (isEditMode && !hasChanges(initialState, validatedData, subsetFields)) {
+      console.log("No changes detected");
+
       setGenericError(
         "No changes detected. Please update something before submitting.",
       );

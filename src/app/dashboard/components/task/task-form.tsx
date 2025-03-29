@@ -15,6 +15,8 @@ type TaskFormProps = {
   modalId: string;
 };
 
+type TaskSchemaWithId = TaskSchema & { id: string };
+
 const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
   const getColumnTasks = useTaskStore(
     useShallow((state) => state.getColumnTasks),
@@ -35,8 +37,9 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
     formRef,
     errors,
     validateBeforeSubmit,
-  } = useForm<TaskSchema>(
+  } = useForm<TaskSchemaWithId>(
     {
+      id: task?.id ?? "",
       title: task?.title ?? "",
       description: task?.description ?? "",
       priority: task?.priority ?? "medium",
@@ -45,11 +48,11 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
   );
 
   const { handleFormAction, isEditMode, isLoading } = useTaskFormAction({
-    formMode,
     task,
+    existingTasks,
+    formMode,
     columnId,
     modalId,
-    existingTasks,
     validateBeforeSubmit,
   });
 

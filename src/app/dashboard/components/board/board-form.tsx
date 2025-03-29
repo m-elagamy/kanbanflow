@@ -63,7 +63,7 @@ export default function BoardForm({
         name="title"
         type="text"
         label="Name"
-        defaultValue={board?.title}
+        defaultValue={boardFormData?.title ?? ""}
         placeholder="e.g., Personal Tasks"
         required
         onChange={(value) => handleOnChange("title", value)}
