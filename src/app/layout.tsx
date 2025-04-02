@@ -9,7 +9,6 @@ import "./globals.css";
 // Google Font
 const inter = Inter({
   subsets: ["latin"],
-  display: "swap",
   variable: "--font-inter",
 });
 
