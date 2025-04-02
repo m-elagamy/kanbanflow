@@ -15,7 +15,7 @@ export default function AnimatedButton({
       whileHover={!disabled ? { scale: 1.05 } : undefined}
       whileTap={!disabled ? { scale: 0.95 } : undefined}
       transition={{ type: "spring", stiffness: 200, damping: 10 }}
-      className="!mt-0"
+      className="mb-0"
     >
       <Button disabled={disabled} {...props}>
         {children}

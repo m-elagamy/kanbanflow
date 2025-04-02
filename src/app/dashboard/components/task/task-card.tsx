@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Calendar } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -16,8 +15,6 @@ type TaskCardProps = {
 };
 
 const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
-  const [isDropped, setIsDropped] = useState(false);
-
   const {
     attributes,
     listeners,
@@ -37,17 +34,9 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
     scale: isSortableDragging ? "0.95" : "1",
   };
 
-  useEffect(() => {
-    if (!isDragging) {
-      setIsDropped(true);
-      const timer = setTimeout(() => setIsDropped(false), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isDragging]);
-
   return (
     <div
-      className={`group max-h-[165px] touch-manipulation overflow-y-auto rounded-lg border border-border bg-card/25 p-3 duration-300 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] ${isDragging ? "rotate-2 scale-105 shadow-xl" : "shadow-sm hover:shadow-md"} ${isDropped ? "animate-drop-bounce" : ""}`}
+      className={`group border-border bg-card/20 max-h-[165px] touch-manipulation overflow-y-auto rounded-lg border p-3 duration-300 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] ${isDragging ? "scale-105 rotate-2 shadow-xl" : "shadow-xs hover:shadow-md"}`}
       ref={setNodeRef}
       {...attributes}
       {...listeners}
@@ -69,13 +58,13 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
           </Badge>
         </div>
         {task.description && (
-          <p className="text-xs text-muted-foreground" dir="auto">
+          <p className="text-muted-foreground text-xs" dir="auto">
             {task.description}
           </p>
         )}
         <div className={`flex items-center justify-end`}>
           <div className="flex flex-col-reverse items-center gap-2">
-            <p className="flex items-center justify-center gap-1 text-[0.625rem] text-muted-foreground">
+            <p className="text-muted-foreground flex items-center justify-center gap-1 text-[0.625rem]">
               <Calendar size={12} />
               {formatDate(new Date().toLocaleDateString())}
             </p>

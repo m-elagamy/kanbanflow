@@ -7,7 +7,7 @@ const KanbanLogo = () => {
 
   return (
     <div
-      className={`${pathName === "/" ? "mx-0" : "mx-auto"} relative z-[1] md:mx-0`}
+      className={`${pathName === "/" ? "mx-0" : "mx-auto"} relative z-1 md:mx-0`}
     >
       <Link
         href="/"
@@ -23,7 +23,7 @@ const KanbanLogo = () => {
         </span>
       </Link>
       <div className="absolute inset-0 -z-10 flex items-center justify-center">
-        <div className="size-40 rounded-full bg-gradient-to-tr from-primary/10 via-primary/5 to-secondary/10 blur-3xl dark:from-primary/20 dark:via-primary/10 dark:to-secondary/20" />
+        <div className="size-40 rounded-full bg-linear-to-tr from-primary/10 via-primary/5 to-secondary/10 blur-3xl dark:from-primary/20 dark:via-primary/10 dark:to-secondary/20" />
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import type { FormErrors, FormMode } from "@/lib/types";
 import hasErrors from "@/app/dashboard/utils/check-form-errors";
 import ErrorMessage from "./error-message";
-import SubmitButton from "./submit-button";
+import FormActions from "./form-actions";
 
 type GenericFormProps = {
   children: React.ReactNode;
@@ -35,7 +35,7 @@ const GenericForm = ({ children, ...props }: GenericFormProps) => {
         )}
       </AnimatePresence>
       {children}
-      <SubmitButton
+      <FormActions
         isPending={props.isLoading}
         isFormInvalid={hasErrors(props.errors) ?? !props.hasAvailableStatuses}
         formMode={props.formMode}

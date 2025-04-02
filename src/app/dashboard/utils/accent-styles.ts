@@ -5,10 +5,10 @@ const accentStyles = cva(
   {
     variants: {
       priority: {
-        low: "bg-gradient-to-r from-green-400/50 via-green-500/50 to-green-600/50",
+        low: "bg-linear-to-r from-green-400/50 via-green-500/50 to-green-600/50",
         medium:
-          "bg-gradient-to-r from-yellow-400/50 via-yellow-500/50 to-yellow-600/50",
-        high: "bg-gradient-to-r from-red-400/50 via-red-500/50 to-red-600/50",
+          "bg-linear-to-r from-yellow-400/50 via-yellow-500/50 to-yellow-600/50",
+        high: "bg-linear-to-r from-red-400/50 via-red-500/50 to-red-600/50",
       },
     },
     defaultVariants: {

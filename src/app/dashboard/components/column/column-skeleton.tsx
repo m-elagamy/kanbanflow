@@ -21,7 +21,7 @@ export default function ColumnSkeleton({
       {Array.from({ length: visibleColumns }).map((_, columnIndex) => (
         <Card
           key={columnIndex}
-          className="flex h-[500px] w-80 shrink-0 flex-col"
+          className="bg-background flex h-[500px] w-80 shrink-0 flex-col gap-0 p-0"
         >
           {/* Column Header */}
           <div className="flex min-h-[55px] items-center justify-between border-b p-3">
@@ -40,12 +40,12 @@ export default function ColumnSkeleton({
           </div>
 
           {/* Tasks Container */}
-          <div className="flex-grow space-y-3 overflow-y-auto p-3">
+          <div className="grow space-y-3 overflow-y-auto p-3">
             {Array.from({ length: taskCounts[columnIndex] }).map(
               (_, taskIndex) => (
                 <Card
                   key={taskIndex}
-                  className="min-h-[141px] p-3 shadow-sm transition-all hover:shadow-md"
+                  className="bg-card/20 min-h-[141px] p-3 shadow-xs transition-all hover:shadow-md"
                 >
                   <div className="mb-2 flex items-start justify-between">
                     <div className="flex-1 space-y-4">

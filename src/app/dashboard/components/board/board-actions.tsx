@@ -86,7 +86,7 @@ export default function BoardActions({
       <DropdownMenuTrigger asChild>
         {isSidebarTrigger ? (
           <SidebarMenuAction
-            className="!top-[3px] size-7 peer-data-[active=true]/menu-button:opacity-100"
+            className="top-[3px]! size-7 peer-data-[active=true]/menu-button:opacity-100"
             showOnHover
           >
             <Ellipsis />
@@ -116,7 +116,7 @@ export default function BoardActions({
           modalId={`edit-board-${board.id}`}
         />
         <DropdownMenuItem
-          className="h-[30px] p-2 !py-1 text-destructive focus:text-destructive"
+          className="h-[30px] p-2 py-1! text-destructive focus:text-destructive"
           onClick={() => setIsAlertOpen(true)}
         >
           <TrashIcon /> Delete

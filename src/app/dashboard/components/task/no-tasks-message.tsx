@@ -11,23 +11,23 @@ import TaskModal from "./task-modal";
 
 export default function NoTasksMessage({ columnId }: { columnId: string }) {
   return (
-    <Card className="relative top-1/2 z-[1] border-none shadow-none">
+    <Card className="bg-background relative z-1 border-none shadow-none">
       <div className="absolute inset-0 z-[-1] flex items-center justify-center">
-        <div className="h-32 w-32 rounded-full bg-gradient-to-tr from-primary/5 via-primary/10 to-muted blur-2xl dark:from-primary/20 dark:via-primary/10 dark:to-muted" />
+        <div className="from-primary/5 via-primary/10 to-muted dark:from-primary/20 dark:via-primary/10 dark:to-muted h-32 w-32 rounded-full bg-linear-to-tr blur-2xl" />
       </div>
 
       <CardHeader className="relative text-center">
         <div className="group relative mx-auto mb-4">
-          <div className="rounded-xl bg-card p-3 shadow-lg ring-1 ring-black/[0.08] transition-all duration-300 group-hover:shadow-primary/20 group-hover:ring-primary/30 dark:ring-white/[0.09]">
-            <ClipboardPenLine className="size-5 text-muted-foreground/50 transition-colors duration-300 group-hover:text-primary dark:text-muted-foreground/70" />
+          <div className="bg-card group-hover:shadow-primary/20 group-hover:ring-primary/30 rounded-xl p-3 shadow-lg ring-1 ring-black/[0.08] transition-all duration-300 dark:ring-white/[0.09]">
+            <ClipboardPenLine className="text-muted-foreground/50 group-hover:text-primary dark:text-muted-foreground/70 size-5 transition-colors duration-300" />
           </div>
 
-          <div className="absolute -right-0.5 -top-0.5">
-            <div className="h-2 w-2 rounded-full bg-primary/30 blur-[4px] dark:bg-primary/50" />
+          <div className="absolute -top-0.5 -right-0.5">
+            <div className="bg-primary/30 dark:bg-primary/50 h-2 w-2 rounded-full blur-[4px]" />
           </div>
         </div>
 
-        <CardTitle className="bg-gradient-to-r from-foreground/90 to-foreground/70 bg-clip-text text-lg font-semibold text-transparent dark:from-foreground/80 dark:to-foreground/60">
+        <CardTitle className="from-foreground/90 to-foreground/70 dark:from-foreground/80 dark:to-foreground/60 bg-linear-to-r bg-clip-text text-lg font-semibold text-transparent">
           No tasks yet
         </CardTitle>
 
@@ -41,8 +41,8 @@ export default function NoTasksMessage({ columnId }: { columnId: string }) {
           mode="create"
           columnId={columnId}
           trigger={
-            <Button className="h-8 dark:hover:bg-accent/5" variant="outline">
-              <CirclePlus className="!size-[14px]" />
+            <Button className="dark:hover:bg-accent/5 h-8" variant="outline">
+              <CirclePlus className="size-[14px]!" />
               New Task
             </Button>
           }

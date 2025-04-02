@@ -15,7 +15,7 @@ export default function SocialConnectionButtons({
           variant="outline"
           type="button"
           aria-label="Sign in with GitHub"
-          className="relative z-[2] dark:hover:bg-accent/25"
+          className="relative z-2 dark:hover:bg-accent/25"
           disabled={isGlobalLoading}
         >
           <Clerk.Loading scope="provider:google">
@@ -37,7 +37,7 @@ export default function SocialConnectionButtons({
           variant="outline"
           type="button"
           aria-label="Sign in with GitHub"
-          className="relative z-[2] dark:hover:bg-accent/25"
+          className="relative z-2 dark:hover:bg-accent/25"
           disabled={isGlobalLoading}
         >
           <Clerk.Loading scope="provider:github">

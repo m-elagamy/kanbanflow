@@ -7,6 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogPortal,
+  DialogOverlay,
 } from "@/components/ui/dialog";
 import { useModalStore } from "@/stores/modal";
 
@@ -54,19 +56,23 @@ const Modal = ({
       open={shouldDisplayModal}
       onOpenChange={(isOpen) => (isOpen ? handleOpen() : handleClose())}
     >
-      {shouldDisplayModal && (
-        <DialogContent className={`${className}`}>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {title}
-            </DialogTitle>
-            {description && (
-              <DialogDescription>{description}</DialogDescription>
-            )}
-          </DialogHeader>
-          {children}
-        </DialogContent>
-      )}
+      <DialogPortal>
+        <DialogOverlay>
+          {shouldDisplayModal && (
+            <DialogContent className={`${className}`}>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  {title}
+                </DialogTitle>
+                {description && (
+                  <DialogDescription>{description}</DialogDescription>
+                )}
+              </DialogHeader>
+              {children}
+            </DialogContent>
+          )}
+        </DialogOverlay>
+      </DialogPortal>
     </Dialog>
   );
 };

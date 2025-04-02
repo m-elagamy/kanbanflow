@@ -28,15 +28,15 @@ const ColumnCard = ({ column }: ColumnCardProps) => {
 
   return (
     <Card
-      className={`relative max-h-[500px] w-72 shrink-0 snap-start overflow-y-auto transition-all duration-300 md:w-80 ${
+      className={`bg-background relative max-h-[500px] w-72 shrink-0 snap-start gap-0 overflow-y-auto p-0 transition-all duration-300 md:w-80 ${
         isOver
-          ? "before:absolute before:inset-0 before:animate-pulse before:bg-gradient-to-b before:from-blue-500/5 before:to-transparent before:opacity-100"
+          ? "before:absolute before:inset-0 before:animate-pulse before:bg-linear-to-b before:from-blue-500/5 before:to-transparent before:opacity-100"
           : "border-border before:opacity-0"
       }`}
       ref={setNodeRef}
     >
       <ColumnHeader column={column} tasksCount={tasks.length} />
-      <CardContent className="flex-grow space-y-2 overflow-y-auto p-3">
+      <CardContent className="grow space-y-2 overflow-y-auto p-3">
         {tasks?.length === 0 ? (
           <NoTasksMessage columnId={column.id} />
         ) : (

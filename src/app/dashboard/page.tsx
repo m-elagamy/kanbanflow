@@ -27,8 +27,8 @@ const Dashboard = async () => {
   });
 
   return (
-    <section className="relative right-3 grid flex-grow place-content-center">
-      <Card className="border-none text-center shadow-none">
+    <section className="relative right-3 grow place-content-center">
+      <Card className="bg-background border-none text-center shadow-none">
         <CardHeader>
           <CardTitle className="text-gradient flex flex-col items-center gap-4 text-xl md:text-3xl">
             <Layout size={32} className="text-primary" />

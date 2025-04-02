@@ -29,7 +29,7 @@ const Header = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 h-16 backdrop-blur-sm transition-colors ${isScrolled ? "border-b bg-background/50" : ""}`}
+      className={`sticky top-0 z-50 h-16 backdrop-blur-xs transition-colors ${isScrolled ? "border-b bg-background/50" : ""}`}
     >
       <div className="container flex h-full items-center justify-between">
         <KanbanLogo />
@@ -44,7 +44,7 @@ const Header = () => {
         </div>
       </div>
       {!isHomePage && (
-        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-[#3F8DA0]/50 to-transparent opacity-50 dark:via-[#4f637399]" />
+        <div className="h-[1px] w-full bg-linear-to-r from-transparent via-[#3F8DA0]/50 to-transparent opacity-50 dark:via-[#4f637399]" />
       )}
     </header>
   );
