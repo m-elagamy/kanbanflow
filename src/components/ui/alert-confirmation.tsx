@@ -1,4 +1,4 @@
-import { Loader, Trash2 } from "lucide-react";
+import { Loader } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -7,6 +7,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogOverlay,
+  AlertDialogPortal,
 } from "@/components/ui/alert-dialog";
 import { Button } from "./button";
 
@@ -33,28 +35,31 @@ const AlertConfirmation = ({
 }: AlertConfirmationProps) => {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogContent className="max-w-md p-4">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="flex flex-col items-center gap-1">
-            <Trash2 size={20} />
-            {title}?
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-center">
-            {description}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter className="justify-center">
-          <AlertDialogCancel className="px-2">{cancelLabel}</AlertDialogCancel>
-          <Button
-            className="gap-1 bg-destructive px-2 text-destructive-foreground hover:bg-destructive/90"
-            disabled={isPending}
-            onClick={onClick}
-          >
-            {isPending && <Loader className="animate-spin" aria-hidden />}
-            {confirmLabel}
-          </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
+      <AlertDialogPortal>
+        <AlertDialogOverlay>
+          <AlertDialogContent className="max-w-sm p-4">
+            <AlertDialogHeader className="gap-1">
+              <AlertDialogTitle>{title}?</AlertDialogTitle>
+              <AlertDialogDescription>{description}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="justify-center">
+              <AlertDialogCancel className="h-8 px-2">
+                {cancelLabel}
+              </AlertDialogCancel>
+              <Button
+                className="px-2"
+                size="sm"
+                variant="destructive"
+                disabled={isPending}
+                onClick={onClick}
+              >
+                {isPending && <Loader className="animate-spin" aria-hidden />}
+                {confirmLabel}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialogPortal>
     </AlertDialog>
   );
 };

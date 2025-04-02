@@ -93,7 +93,7 @@ const FormField = ({
           name={name}
           onValueChange={onChange}
         >
-          <SelectTrigger id={name}>
+          <SelectTrigger id={name} className="w-full">
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
           <SelectContent>

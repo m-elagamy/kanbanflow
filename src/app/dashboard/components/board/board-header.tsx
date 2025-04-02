@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { InfoIcon, PanelsTopLeft, ArrowLeft } from "lucide-react";
+import { InfoIcon, PanelsTopLeft } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -9,7 +8,6 @@ import {
 import type { BoardSummary } from "@/lib/types";
 import BoardActions from "./board-actions";
 import { TaskPriorityFilter } from "../task/tasks-filter";
-import { Button } from "@/components/ui/button";
 
 type BoardHeaderProps = {
   board: BoardSummary;
@@ -17,7 +15,7 @@ type BoardHeaderProps = {
 
 const BoardHeader = ({ board }: BoardHeaderProps) => {
   return (
-    <section className="mb-4 pb-6 pt-8">
+    <section className="mb-4 pt-8 pb-6">
       <div className="flex items-center justify-between">
         <div className="flex flex-col items-center gap-2">
           <div className="flex items-center gap-2">
@@ -29,7 +27,7 @@ const BoardHeader = ({ board }: BoardHeaderProps) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <InfoIcon className="size-4 text-muted-foreground hover:cursor-help hover:text-foreground" />
+                    <InfoIcon className="text-muted-foreground hover:text-foreground size-4 hover:cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-96">
                     {board.description}
@@ -38,12 +36,6 @@ const BoardHeader = ({ board }: BoardHeaderProps) => {
               </TooltipProvider>
             )}
           </div>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard">
-              <ArrowLeft size={16} />
-              Back to dashboard
-            </Link>
-          </Button>
         </div>
         <div className="flex items-center gap-2">
           <TaskPriorityFilter />

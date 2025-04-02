@@ -21,12 +21,13 @@ const SidebarActions = () => {
             mode="create"
             trigger={
               <SidebarMenuButton
-                className={`group/icon justify-center dark:hover:bg-accent/15 ${open ? "gap-2" : "gap-0"}`}
+                className={`group/icon dark:hover:bg-accent/15 justify-center ${open ? "gap-2" : "gap-0"}`}
+                variant="outline"
                 tooltip="New Board"
                 asChild
               >
                 <button>
-                  <CirclePlus className="text-muted-foreground transition-colors group-hover/icon:text-primary" />
+                  <CirclePlus className="text-muted-foreground group-hover/icon:text-primary transition-all group-hover/icon:rotate-90" />
                   <span>New Board</span>
                 </button>
               </SidebarMenuButton>

@@ -21,6 +21,7 @@ import StatusOptionsSkeleton from "./status-options-skeleton";
 import validateFormData from "../../utils/validate-form-data";
 import useLoadingStore from "@/stores/loading";
 import handleOnError from "@/utils/handle-on-error";
+import RequiredFieldSymbol from "@/components/ui/required-field-symbol";
 
 const SelectContent = dynamic(
   () => import("@/components/ui/select").then((mod) => mod.SelectContent),
@@ -136,11 +137,8 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
     >
       <section className="space-y-2">
         <Input type="hidden" name="boardId" value={boardId ?? ""} />
-        <Label
-          htmlFor="status"
-          className={`${errors?.status ? "text-destructive" : ""} transition-colors`}
-        >
-          Status
+        <Label htmlFor="status">
+          Status <RequiredFieldSymbol />
         </Label>
         <Select
           name="status"
@@ -154,6 +152,7 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
             aria-disabled={!hasAvailableStatuses}
             aria-describedby={errors?.status ? "column-error" : undefined}
             aria-invalid={!!errors?.status}
+            className="w-full"
           >
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>

@@ -23,7 +23,7 @@ export const ErrorCard = ({
   helperText,
 }: ErrorCardProps) => {
   return (
-    <div className="flex min-h-screen flex-grow items-center justify-center p-4">
+    <div className="flex min-h-screen grow items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-2 text-center">
           <div className="mx-auto">{icon}</div>

@@ -22,8 +22,8 @@ export default function ColumnHeader({
     columnStatusOptions[columnStatus as keyof typeof columnStatusOptions];
 
   return (
-    <CardHeader className="sticky top-0 z-[5] flex-row items-center justify-between border-b bg-card/80 p-2 px-3 drop-shadow-sm backdrop-blur-sm">
-      <CardTitle className="flex items-center gap-2 text-ellipsis whitespace-nowrap text-sm">
+    <CardHeader className="sticky top-0 z-5 flex flex-row items-center justify-between border-b p-4 !py-2 drop-shadow-xs backdrop-blur-xs">
+      <CardTitle className="flex items-center gap-2 text-sm text-ellipsis whitespace-nowrap">
         {<Icon size={16} color={color} />}
         <span
           className={clsx(

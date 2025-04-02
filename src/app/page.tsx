@@ -6,7 +6,7 @@ const LandingPage = () => {
   return (
     <>
       <Header />
-      <main className="flex-grow">
+      <main className="grow">
         <Landing />
       </main>
       <Footer />

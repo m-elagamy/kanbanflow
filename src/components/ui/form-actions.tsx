@@ -4,7 +4,7 @@ import { DialogClose } from "./dialog";
 import AnimatedButton from "./animated-button";
 import { cn } from "@/lib/utils"; // Assuming you have a cn utility
 
-type SubmitButtonProps = {
+type FormActionsProps = {
   isFormInvalid?: boolean;
   isPending?: boolean;
   formMode?: FormMode;
@@ -12,13 +12,13 @@ type SubmitButtonProps = {
   loadingText?: string;
 };
 
-export default function SubmitButton({
+export default function FormActions({
   isFormInvalid,
   isPending,
   formMode = "create",
   className,
   loadingText,
-}: Readonly<SubmitButtonProps>) {
+}: Readonly<FormActionsProps>) {
   const isDisabled = isFormInvalid || isPending;
   const isEditMode = formMode === "edit";
 
