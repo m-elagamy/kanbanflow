@@ -28,7 +28,7 @@ export default async function DashboardSidebar() {
       <SidebarTitle userId={userId} />
       <SidebarContent>
         <SidebarGroup>
-          <SidebarLabel />
+          <SidebarLabel boardsCount={userBoards?.length} />
           <SidebarGroupContent>
             {userBoards && <BoardsList boards={userBoards} />}
           </SidebarGroupContent>

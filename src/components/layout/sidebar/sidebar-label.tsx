@@ -1,13 +1,8 @@
-"use client";
-
 import { Inbox } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SidebarGroupLabel } from "@/components/ui/sidebar";
-import useBoardStore from "@/stores/board";
 
-const SidebarLabel = () => {
-  const boards = useBoardStore((state) => state.boards);
-  const boardsCount = Object.keys(boards).length;
+const SidebarLabel = ({ boardsCount }: { boardsCount?: number }) => {
   return (
     <SidebarGroupLabel
       className={`${boardsCount ? "flex-row justify-between pr-0" : "flex-col justify-center gap-2 pt-4"} uppercase`}

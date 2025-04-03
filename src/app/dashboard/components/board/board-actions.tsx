@@ -116,7 +116,7 @@ export default function BoardActions({
           modalId={`edit-board-${board.id}`}
         />
         <DropdownMenuItem
-          className="h-[30px] p-2 py-1! text-destructive focus:text-destructive"
+          className="text-destructive focus:text-destructive h-[30px] p-2 py-1!"
           onClick={() => setIsAlertOpen(true)}
         >
           <TrashIcon /> Delete
