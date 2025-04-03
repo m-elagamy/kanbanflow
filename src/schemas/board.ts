@@ -5,7 +5,7 @@ export const boardSchema = z.object({
     .string()
     .trim()
     .min(3, { message: "Board name must be at least 3 characters." })
-    .max(100, { message: "Board name must be less than 100 characters." }),
+    .max(50, { message: "Board name must be less than 50 characters." }),
   template: z
     .enum(["personal", "agile", "bug-tracking", "custom"])
     .default("personal")
