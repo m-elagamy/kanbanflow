@@ -10,11 +10,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import ErrorMessage from "./error-message";
+import getBadgeStyle from "@/app/dashboard/utils/get-badge-style";
 import RequiredFieldSymbol from "./required-field-symbol";
 import { MotionInput } from "./motion-input";
-import HelperText from "./helper-text";
-import getBadgeStyle from "@/app/dashboard/utils/get-badge-style";
+import FormMessage from "./form-message";
 
 interface FormFieldProps {
   type: "text" | "textarea" | "select" | "hidden";
@@ -116,10 +115,23 @@ const FormField = ({
         </Select>
       )}
 
-      {helperText && <HelperText error={!!error}>{helperText}</HelperText>}
       <AnimatePresence>
-        {error && <ErrorMessage id={`${name}-error`}>{error}</ErrorMessage>}
+        {error && (
+          <FormMessage
+            id={`${name}-error`}
+            variant="error"
+            className="mt-2"
+            animated
+          >
+            {error}
+          </FormMessage>
+        )}
       </AnimatePresence>
+      {helperText && (
+        <FormMessage error={!!error} variant="helper">
+          {helperText}
+        </FormMessage>
+      )}
 
       {type === "hidden" && (
         <Input type="hidden" name={name} value={defaultValue} />

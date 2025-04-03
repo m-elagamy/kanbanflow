@@ -1,9 +1,15 @@
+import dynamic from "next/dynamic";
 import Form from "next/form";
 import { AnimatePresence } from "framer-motion";
+import { FileX } from "lucide-react";
 import type { FormErrors, FormMode } from "@/lib/types";
 import hasErrors from "@/app/dashboard/utils/check-form-errors";
-import ErrorMessage from "./error-message";
 import FormActions from "./form-actions";
+
+const FormMessage = dynamic(() => import("./form-message"), {
+  loading: () => null,
+  ssr: false,
+});
 
 type GenericFormProps = {
   children: React.ReactNode;
@@ -29,12 +35,20 @@ const GenericForm = ({ children, ...props }: GenericFormProps) => {
     >
       <AnimatePresence>
         {props.errors?.generic && (
-          <ErrorMessage id="generic-error" className="justify-center">
+          <FormMessage
+            id="generic-error"
+            icon={FileX}
+            variant="info"
+            className="mx-auto w-fit justify-center border px-2 py-1"
+            animated
+          >
             {props.errors?.generic}
-          </ErrorMessage>
+          </FormMessage>
         )}
       </AnimatePresence>
+
       {children}
+
       <FormActions
         isPending={props.isLoading}
         isFormInvalid={hasErrors(props.errors) ?? !props.hasAvailableStatuses}

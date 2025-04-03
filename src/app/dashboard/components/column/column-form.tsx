@@ -9,10 +9,8 @@ import { useColumnStore } from "@/stores/column";
 import { useModalStore } from "@/stores/modal";
 import delay from "@/utils/delay";
 import generateUUID from "@/utils/generate-UUID";
-import ErrorMessage from "@/components/ui/error-message";
 import columnStatusSchema, { type ColumnStatus } from "@/schemas/column";
 import getAvailableStatusOptions from "@/utils/column-helpers";
-import HelperText from "@/components/ui/helper-text";
 import GenericForm from "@/components/ui/generic-form";
 import useAutoFocusOnError from "@/hooks/use-auto-focus-on-error";
 import useErrorManagement from "@/hooks/use-error-management";
@@ -21,6 +19,7 @@ import StatusOptionsSkeleton from "./status-options-skeleton";
 import validateFormData from "../../utils/validate-form-data";
 import useLoadingStore from "@/stores/loading";
 import handleOnError from "@/utils/handle-on-error";
+import FormMessage from "@/components/ui/form-message";
 
 const SelectContent = dynamic(
   () => import("@/components/ui/select").then((mod) => mod.SelectContent),
@@ -166,12 +165,14 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
             </SelectContent>
           )}
         </Select>
-        <HelperText error={!!errors?.status}>
-          Only active statuses allow tasks to be assigned.
-        </HelperText>
         {errors?.status && (
-          <ErrorMessage id="column-error">{errors?.status}</ErrorMessage>
+          <FormMessage id="column-error" variant="error" animated>
+            {errors?.status}
+          </FormMessage>
         )}
+        <FormMessage error={!!errors?.status} variant="helper">
+          Only active statuses allow tasks to be assigned.
+        </FormMessage>
       </section>
     </GenericForm>
   );

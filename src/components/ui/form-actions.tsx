@@ -9,7 +9,6 @@ type FormActionsProps = {
   isPending?: boolean;
   formMode?: FormMode;
   className?: string;
-  loadingText?: string;
 };
 
 export default function FormActions({
@@ -17,20 +16,19 @@ export default function FormActions({
   isPending,
   formMode = "create",
   className,
-  loadingText,
 }: Readonly<FormActionsProps>) {
   const isDisabled = isFormInvalid || isPending;
   const isEditMode = formMode === "edit";
 
   const actionText = !isEditMode ? "Create" : "Save";
-  const buttonText = isPending ? loadingText || actionText : actionText;
+  const actionTextPlural = !isEditMode ? "Creating..." : "Saving...";
+  const buttonText = isPending ? actionTextPlural || actionText : actionText;
 
   return (
     <div className={cn("flex items-center justify-end gap-2 pt-2", className)}>
       <DialogClose asChild>
         <AnimatedButton
           type="button"
-          size="sm"
           variant="outline"
           className="dark:hover:bg-accent/15"
           title="Close"
@@ -41,7 +39,6 @@ export default function FormActions({
       </DialogClose>
 
       <AnimatedButton
-        size="sm"
         type="submit"
         title={isPending ? `${actionText}ing...` : actionText}
         disabled={isDisabled}

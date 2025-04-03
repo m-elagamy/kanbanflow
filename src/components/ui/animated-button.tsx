@@ -17,7 +17,7 @@ export default function AnimatedButton({
       transition={{ type: "spring", stiffness: 200, damping: 10 }}
       className="mb-0"
     >
-      <Button disabled={disabled} {...props}>
+      <Button disabled={disabled} size="sm" className="gap-1" {...props}>
         {children}
       </Button>
     </motion.div>
