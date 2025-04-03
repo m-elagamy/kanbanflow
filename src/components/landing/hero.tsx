@@ -12,8 +12,8 @@ export default function Hero() {
           variant="secondary"
           icon={
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+              <span className="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+              <span className="bg-primary relative inline-flex h-2 w-2 rounded-full" />
             </span>
           }
         >
@@ -25,7 +25,7 @@ export default function Hero() {
         <h1 className="text-gradient mb-6 text-4xl font-extrabold tracking-tighter md:text-5xl">
           Streamline Your Workflow
         </h1>
-        <p className="mb-6 max-w-3xl text-muted-foreground md:text-xl">
+        <p className="text-muted-foreground mb-6 max-w-3xl md:text-xl">
           Stay organized, manage tasks effortlessly, and boost productivity with
           real-time updates. KanbanFlow helps you achieve more with a seamless
           and intuitive experience.

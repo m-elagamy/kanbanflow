@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Geist } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -7,9 +7,9 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 // Google Font
-const inter = Inter({
+const geist = Geist({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-geist",
 });
 
 // Metadata
@@ -48,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} flex min-h-dvh flex-col font-sans antialiased`}
+        className={`${geist.variable} flex min-h-dvh flex-col font-sans antialiased`}
       >
         <ClerkProvider>
           <ThemeProvider
