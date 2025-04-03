@@ -137,9 +137,7 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
     >
       <section className="space-y-2">
         <Input type="hidden" name="boardId" value={boardId ?? ""} />
-        <Label htmlFor="status">
-          Status <RequiredFieldSymbol />
-        </Label>
+        <Label htmlFor="status">Status</Label>
         <Select
           name="status"
           onValueChange={handleValueChange}
