@@ -53,8 +53,13 @@ const AlertConfirmation = ({
                 disabled={isPending}
                 onClick={onClick}
               >
-                {isPending && <Loader className="animate-spin" aria-hidden />}
-                {confirmLabel}
+                {isPending ? (
+                  <>
+                    <Loader className="animate-spin" aria-hidden /> Deleting...
+                  </>
+                ) : (
+                  confirmLabel
+                )}
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>

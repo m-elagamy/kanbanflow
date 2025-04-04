@@ -39,7 +39,7 @@ const GenericForm = ({ children, ...props }: GenericFormProps) => {
             id="generic-error"
             icon={FileX}
             variant="info"
-            className="mx-auto w-fit justify-center border px-2 py-1"
+            className="mx-auto w-fit justify-center border px-2 py-1 shadow-sm"
             animated
           >
             {props.errors?.generic}

@@ -66,7 +66,7 @@ function FormMessage({
       id={id}
       className={cn(
         "flex items-center gap-1",
-        !isHelper && "rounded-md shadow-sm",
+        !isHelper && "rounded-md",
         variantStyles[variant],
         isHelper && hasError && "opacity-50",
         !isHelper && !hasError && "opacity-100",
