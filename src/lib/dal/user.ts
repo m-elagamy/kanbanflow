@@ -1,7 +1,8 @@
+import { unstable_cache } from "next/cache";
 import { User } from "@prisma/client";
 import { withUserId } from "@/utils/auth-wrappers";
 import db from "../db";
-import { unstable_cache } from "next/cache";
+import { BOARDS_LIST_LIMIT } from "../constants";
 
 export const insertUser = async (data: User) => {
   return db.user.upsert({
@@ -30,6 +31,7 @@ export const getAllUserBoards = withUserId(async (userId: string) => {
           slug: true,
           description: true,
         },
+        take: BOARDS_LIST_LIMIT,
       });
     },
     [`boards-list`],
