@@ -1,6 +1,3 @@
-import { unauthorized } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
-
 import {
   Sidebar,
   SidebarContent,
@@ -17,15 +14,11 @@ import SidebarLabel from "./sidebar-label";
 import { BoardsList } from "./boards-list";
 
 export default async function DashboardSidebar() {
-  const { userId } = await auth();
-
-  if (!userId) unauthorized();
-
-  const userBoards = (await getAllUserBoardsAction(userId)).fields;
+  const userBoards = (await getAllUserBoardsAction()).fields;
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarTitle userId={userId} />
+      <SidebarTitle />
       <SidebarContent>
         <SidebarGroup>
           <SidebarLabel boardsCount={userBoards?.length} />

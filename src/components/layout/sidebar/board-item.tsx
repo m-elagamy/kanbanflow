@@ -8,23 +8,13 @@ type BoardItemProps = {
   board: SimplifiedBoard;
   isActive: boolean;
   href: string;
-  setActiveBoardId: (boardId: string | null) => void;
 };
 
-export default function BoardItem({
-  board,
-  isActive,
-  href,
-  setActiveBoardId,
-}: BoardItemProps) {
+export default function BoardItem({ board, isActive, href }: BoardItemProps) {
   return (
     <SidebarMenuItem key={board.id} className="flex">
       <SidebarMenuButton tooltip={board.title} isActive={isActive} asChild>
-        <Link
-          href={href}
-          onClick={() => setActiveBoardId(board.id)}
-          aria-label={`Go to board ${board.title}`}
-        >
+        <Link href={href} aria-label={`Go to board ${board.title}`}>
           <Clipboard size={24} />
           <span dir="auto">{board.title}</span>
         </Link>

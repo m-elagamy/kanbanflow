@@ -13,6 +13,7 @@ const SidebarLabel = ({ boardsCount }: { boardsCount?: number }) => {
           <Badge
             variant="outline"
             className="h-5 rounded-md px-[7px] text-[0.690rem]"
+            animate={false}
           >
             {boardsCount}
           </Badge>

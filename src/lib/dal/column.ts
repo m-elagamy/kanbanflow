@@ -1,9 +1,9 @@
-import withAuth from "@/utils/with-DAL-auth";
+import { ensureAuthenticated } from "@/utils/auth-wrappers";
 import db from "../db";
 import { Column } from "@prisma/client";
 import type { ColumnStatus } from "@/schemas/column";
 
-export const createColumn = withAuth(
+export const createColumn = ensureAuthenticated(
   async (boardId: string, status: ColumnStatus): Promise<Column> => {
     return db.$transaction(async (prisma) => {
       const highestOrderColumn = await prisma.column.findFirst({
@@ -25,7 +25,7 @@ export const createColumn = withAuth(
   },
 );
 
-export const updateColumn = withAuth(
+export const updateColumn = ensureAuthenticated(
   async (columnId: string, data: Partial<Pick<Column, "status">>) => {
     return db.column.update({
       where: { id: columnId },
@@ -34,7 +34,7 @@ export const updateColumn = withAuth(
   },
 );
 
-export const deleteColumn = withAuth(async (columnId: string) => {
+export const deleteColumn = ensureAuthenticated(async (columnId: string) => {
   return db.column.delete({
     where: { id: columnId },
   });

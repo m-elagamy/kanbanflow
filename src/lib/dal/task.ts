@@ -1,8 +1,8 @@
-import withAuth from "@/utils/with-DAL-auth";
+import { ensureAuthenticated } from "@/utils/auth-wrappers";
 import db from "../db";
 import { Task, type Priority } from "@prisma/client";
 
-export const createTask = withAuth(
+export const createTask = ensureAuthenticated(
   async (
     columnId: string,
     title: string,
@@ -29,7 +29,7 @@ export const createTask = withAuth(
   },
 );
 
-export const updateTask = withAuth(
+export const updateTask = ensureAuthenticated(
   async (
     taskId: string,
     data: Omit<Partial<Task>, "id" | "order">,
@@ -41,8 +41,10 @@ export const updateTask = withAuth(
   },
 );
 
-export const deleteTask = withAuth(async (taskId: string): Promise<Task> => {
-  return db.task.delete({
-    where: { id: taskId },
-  });
-});
+export const deleteTask = ensureAuthenticated(
+  async (taskId: string): Promise<Task> => {
+    return db.task.delete({
+      where: { id: taskId },
+    });
+  },
+);

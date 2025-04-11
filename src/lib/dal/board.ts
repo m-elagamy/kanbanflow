@@ -1,9 +1,9 @@
 import db from "../db";
 import { Board, type Column } from "@prisma/client";
-import withAuth from "@/utils/with-DAL-auth";
+import { withUserId, ensureAuthenticated } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 
-const createBoard = withAuth(
+const createBoard = withUserId(
   async (
     userId: string,
     title: string,
@@ -11,38 +11,34 @@ const createBoard = withAuth(
     description?: string | null,
     columnsStatus?: ColumnStatus[],
   ): Promise<Board & { columns: Column[] }> => {
-    return db.$transaction(async (prisma) => {
-      const lastBoard = await prisma.board.findFirst({
-        where: { userId },
-        orderBy: { order: "desc" },
-        select: { order: true },
-      });
+    const maxOrderResult = await db.board.aggregate({
+      where: { userId },
+      _max: { order: true },
+    });
+    const newOrder = (maxOrderResult._max.order ?? -1) + 1;
 
-      const newOrder = lastBoard ? lastBoard.order + 1 : 0;
-
-      const columnData =
-        columnsStatus
-          ?.filter(Boolean)
-          .map((status, index) => ({ status: status, order: index })) || [];
-
-      return prisma.board.create({
-        data: {
-          title,
-          slug,
-          description,
-          userId,
-          columns: columnData.length ? { create: columnData } : undefined,
-          order: newOrder,
-        },
-        include: {
-          columns: true,
-        },
-      });
+    return db.board.create({
+      data: {
+        title,
+        slug,
+        description,
+        userId,
+        order: newOrder,
+        columns: columnsStatus?.length
+          ? {
+              create: columnsStatus.map((status, index) => ({
+                status,
+                order: index,
+              })),
+            }
+          : undefined,
+      },
+      include: { columns: true },
     });
   },
 );
 
-const updateBoard = withAuth(
+const updateBoard = ensureAuthenticated(
   async (
     boardId: string,
     data: Partial<Omit<Board, "id" | "userId" | "order">>,
@@ -56,7 +52,7 @@ const updateBoard = withAuth(
   },
 );
 
-const deleteBoard = withAuth(async (boardId: string) => {
+const deleteBoard = ensureAuthenticated(async (boardId: string) => {
   await db.board.delete({
     where: {
       id: boardId,
@@ -64,7 +60,7 @@ const deleteBoard = withAuth(async (boardId: string) => {
   });
 });
 
-const getBoardBySlug = withAuth(async (userId: string, slug: string) => {
+const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
   return db.board.findUnique({
     where: { userId_slug: { userId, slug } },
     select: {

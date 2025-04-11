@@ -1,5 +1,3 @@
-"use client";
-
 import { FolderKanban } from "lucide-react";
 import {
   SidebarHeader,
@@ -7,17 +5,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { deleteAllBoardsAction } from "@/actions/board";
 
-const SidebarTitle = ({ userId }: { userId: string }) => {
+const SidebarTitle = () => {
   return (
-    <SidebarHeader className="border-b">
+    <SidebarHeader className="pointer-events-none border-b">
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton
-            onClick={() => deleteAllBoardsAction(userId)}
-            tooltip="Delete all boards"
-          >
+          <SidebarMenuButton>
             <FolderKanban />
             KanbanFlow
           </SidebarMenuButton>

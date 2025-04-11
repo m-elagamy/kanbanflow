@@ -31,10 +31,10 @@ export async function insertUserAction(
   };
 }
 
-export async function getAllUserBoardsAction(
-  userId: string,
-): Promise<ServerActionResult<SimplifiedBoard[]>> {
-  const result = await getAllUserBoards(userId);
+export async function getAllUserBoardsAction(): Promise<
+  ServerActionResult<SimplifiedBoard[]>
+> {
+  const result = await getAllUserBoards();
 
   if (!result.success) {
     return {
