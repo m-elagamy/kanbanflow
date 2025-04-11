@@ -35,9 +35,10 @@ export function BoardsList({ boards }: BoardsListProps) {
           );
         })}
       </SidebarMenu>
+
       {boards.length === BOARDS_LIST_LIMIT && (
         <SidebarMenuSubButton
-          className="text-muted-foreground group/link hover:text-foreground mt-2 cursor-pointer gap-[2px] hover:bg-transparent hover:underline hover:underline-offset-2"
+          className="text-muted-foreground group/link hover:text-foreground mt-2 w-fit cursor-pointer gap-[2px] hover:bg-transparent hover:underline hover:underline-offset-2"
           size="sm"
         >
           {/* <Link href="/dashboard/boards" className="flex items-center gap-1"> */}
