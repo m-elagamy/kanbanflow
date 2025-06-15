@@ -17,7 +17,7 @@ const stagger: Variants = {
   },
 };
 
-const particleVariants = {
+const particleVariants: Variants = {
   initial: {
     opacity: 0,
     scale: 0.8,
@@ -31,22 +31,22 @@ const particleVariants = {
     transition: {
       opacity: { duration: 0.5 },
       y: {
-        repeat: Number.POSITIVE_INFINITY,
+        repeat: Infinity,
         duration: 6,
         ease: "easeInOut",
       },
       x: {
-        repeat: Number.POSITIVE_INFINITY,
+        repeat: Infinity,
         duration: 7,
         ease: "easeInOut",
       },
       scale: {
-        repeat: Number.POSITIVE_INFINITY,
+        repeat: Infinity,
         duration: 8,
         ease: "easeInOut",
       },
       rotate: {
-        repeat: Number.POSITIVE_INFINITY,
+        repeat: Infinity,
         duration: 9,
         ease: "easeInOut",
       },
@@ -61,22 +61,22 @@ const particleVariants = {
     transition: {
       opacity: { duration: 0.5 },
       y: {
-        repeat: Number.POSITIVE_INFINITY,
+        repeat: Infinity,
         duration: 7,
         ease: "easeInOut",
       },
       x: {
-        repeat: Number.POSITIVE_INFINITY,
+        repeat: Infinity,
         duration: 8,
         ease: "easeInOut",
       },
       scale: {
-        repeat: Number.POSITIVE_INFINITY,
+        repeat: Infinity,
         duration: 6,
         ease: "easeInOut",
       },
       rotate: {
-        repeat: Number.POSITIVE_INFINITY,
+        repeat: Infinity,
         duration: 8,
         ease: "easeInOut",
       },
@@ -84,12 +84,12 @@ const particleVariants = {
   },
 };
 
-const glowVariant = {
+const glowVariant: Variants = {
   animate: {
     opacity: [0.5, 0.8, 0.5],
     scale: [1, 1.1, 1],
     transition: {
-      repeat: Number.POSITIVE_INFINITY,
+      repeat: Infinity,
       duration: 4,
       ease: "easeInOut",
     },

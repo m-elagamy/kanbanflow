@@ -8,7 +8,7 @@ const FloatingParticles = () => {
     variants: shouldReduceMotion ? undefined : particleVariants,
     animate: !shouldReduceMotion ? animateName : undefined,
     initial: { opacity: 0, scale: 0.5, y: -10 },
-    transition: { duration: 0.5, ease: "easeOut", delay },
+    transition: { duration: 0.5, ease: "easeOut" as const, delay },
     "aria-hidden": true,
   });
 
@@ -31,7 +31,7 @@ const FloatingParticles = () => {
       </motion.div>
 
       <motion.div
-        className="absolute -bottom-2 -right-2 size-7 rounded-full bg-linear-to-t from-[#EEBF2E]/30 via-[#EEA336]/30 to-[#EF7266] shadow-lg dark:from-[#6A0000]/10 dark:via-[#AA2A07]/10 dark:to-[#9A6B12]/10"
+        className="absolute -right-2 -bottom-2 size-7 rounded-full bg-linear-to-t from-[#EEBF2E]/30 via-[#EEA336]/30 to-[#EF7266] shadow-lg dark:from-[#6A0000]/10 dark:via-[#AA2A07]/10 dark:to-[#9A6B12]/10"
         {...particleProps("float2", 0.2)}
       >
         <motion.div
