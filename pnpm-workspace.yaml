@@ -1,9 +1,0 @@
-onlyBuiltDependencies:
-  - '@clerk/shared'
-  - '@prisma/client'
-  - '@prisma/engines'
-  - '@tailwindcss/oxide'
-  - '@vercel/speed-insights'
-  - prisma
-  - sharp
-  - unrs-resolver
