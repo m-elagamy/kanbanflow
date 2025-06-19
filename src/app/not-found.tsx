@@ -36,7 +36,7 @@ export default function NotFound() {
       title="404 - Page Not Found"
       description="We apologize, the page you're looking for doesn't exist."
       icon={
-        <AlertCircle className="size-6 animate-pulse text-muted-foreground" />
+        <AlertCircle className="text-muted-foreground size-6 animate-pulse" />
       }
       actions={actions}
       helperText="Please check the URL or return to the homepage."
