@@ -2,6 +2,7 @@ import db from "../db";
 import { Board, type Column } from "@prisma/client";
 import { withUserId, ensureAuthenticated } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
+import { BOARDS_LIST_LIMIT } from "../constants";
 
 const createBoard = withUserId(
   async (
@@ -11,11 +12,13 @@ const createBoard = withUserId(
     description?: string | null,
     columnsStatus?: ColumnStatus[],
   ): Promise<Board & { columns: Column[] }> => {
-    const maxOrderResult = await db.board.aggregate({
+    const minOrderResult = await db.board.aggregate({
       where: { userId },
-      _max: { order: true },
+      _min: { order: true },
+      take: BOARDS_LIST_LIMIT,
     });
-    const newOrder = (maxOrderResult._max.order ?? -1) + 1;
+
+    const newOrder = (minOrderResult._min.order ?? 0) - 1;
 
     return db.board.create({
       data: {
