@@ -15,12 +15,12 @@ type BoardHeaderProps = {
 
 const BoardHeader = ({ board }: BoardHeaderProps) => {
   return (
-    <section className="mb-4 pt-8 pb-6">
+    <section className="flex-shrink-0 p-6 pb-4">
       <div className="flex items-center justify-between">
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <PanelsTopLeft size={24} />
-            <h1 className="text-base font-semibold capitalize md:text-lg">
+            <h1 className="text-xl font-semibold capitalize md:text-2xl">
               {board.title?.replace(/-/g, " ")}
             </h1>
             {board.description && (

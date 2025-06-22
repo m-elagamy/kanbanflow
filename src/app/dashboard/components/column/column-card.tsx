@@ -28,15 +28,21 @@ const ColumnCard = ({ column }: ColumnCardProps) => {
 
   return (
     <Card
-      className={`bg-background relative max-h-[500px] w-72 shrink-0 snap-start gap-0 overflow-y-auto p-0 transition-all duration-300 md:w-80 ${
+      className={`group border-border/50 bg-card/30 relative max-h-[calc(100vh-82px)] w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl py-0 backdrop-blur-sm transition-all duration-300 hover:shadow-lg md:w-84 ${
         isOver
-          ? "before:absolute before:inset-0 before:animate-pulse before:bg-linear-to-b before:from-blue-500/5 before:to-transparent before:opacity-100"
-          : "border-border before:opacity-0"
+          ? "ring-primary/20 bg-primary/5 scale-[1.02] shadow-lg ring-2"
+          : "hover:border-border/70"
       }`}
       ref={setNodeRef}
     >
+      {/* Drop zone indicator */}
+      {isOver && (
+        <div className="from-primary/10 absolute inset-0 animate-pulse rounded-xl bg-gradient-to-b to-transparent" />
+      )}
+
       <ColumnHeader column={column} tasksCount={tasks.length} />
-      <CardContent className="grow space-y-2 overflow-y-auto p-3">
+
+      <CardContent className="scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent flex-1 space-y-3 overflow-y-auto p-4 pt-3">
         {tasks?.length === 0 ? (
           <NoTasksMessage columnId={column.id} />
         ) : (
@@ -44,12 +50,16 @@ const ColumnCard = ({ column }: ColumnCardProps) => {
             items={taskIds}
             strategy={verticalListSortingStrategy}
           >
-            {tasks?.map((task) => (
-              <TaskCard key={task.title} task={task} columnId={column.id} />
-            ))}
+            <div className="space-y-3">
+              {tasks?.map((task) => (
+                <TaskCard key={task.id} task={task} columnId={column.id} />
+              ))}
+            </div>
           </SortableContext>
         )}
       </CardContent>
+
+      <div className="from-background/50 pointer-events-none absolute right-0 bottom-0 left-0 h-4 bg-gradient-to-t to-transparent" />
     </Card>
   );
 };
