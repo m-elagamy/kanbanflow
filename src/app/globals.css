@@ -196,7 +196,7 @@
   * {
     @apply border-border outline-ring/50;
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted) / 0.5) hsl(var(--background));
+    scrollbar-color: rgba(156, 163, 175, 0.486) transparent;
   }
 
   body {
@@ -205,40 +205,6 @@
 
   :is(input, textarea)::placeholder {
     @apply text-sm;
-  }
-
-  /* Scroll bar customization */
-  *::-webkit-scrollbar {
-    @apply size-3;
-  }
-
-  *::-webkit-scrollbar-track {
-    @apply border-border bg-background rounded-lg border;
-  }
-
-  *::-webkit-scrollbar-thumb {
-    @apply border-border bg-muted-foreground/5 rounded-md border-[3px];
-  }
-
-  *::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/5;
-  }
-
-  *::-webkit-scrollbar-thumb:active,
-  .dark *::-webkit-scrollbar-thumb:active {
-    @apply bg-secondary;
-  }
-
-  .dark *::-webkit-scrollbar-track {
-    @apply border-border/5 bg-background;
-  }
-
-  .dark *::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/5;
-  }
-
-  .dark *::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/5;
   }
 
   .scrollbar-hide {
