@@ -1,4 +1,5 @@
 import {
+  CheckCircle,
   Database,
   Gauge,
   GripVertical,
@@ -46,4 +47,28 @@ const features = [
   },
 ];
 
-export { features };
+const steps = [
+  {
+    number: "01",
+    title: "Create Your Board",
+    description:
+      "Set up your first Kanban board in seconds. Choose from our templates or start from scratch.",
+    icon: CheckCircle,
+  },
+  {
+    number: "02",
+    title: "Add Your Tasks",
+    description:
+      "Create tasks with descriptions, priorities, and assignees. Organize them into columns.",
+    icon: CheckCircle,
+  },
+  {
+    number: "03",
+    title: "Drag & Drop",
+    description:
+      "Move tasks between columns as they progress. Visualize your workflow in real-time.",
+    icon: CheckCircle,
+  },
+];
+
+export { features, steps };
