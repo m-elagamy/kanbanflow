@@ -31,15 +31,14 @@ export function HowItWorks() {
             const Icon = step.icon;
             return (
               <div key={index} className="relative">
-                <Card className="group from-card to-card/50 border-border/50 relative h-full overflow-hidden bg-gradient-to-b backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-                  <div className="from-primary/5 absolute inset-0 bg-gradient-to-br via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <Card className="group relative h-full overflow-hidden border-none bg-transparent shadow-none">
                   <CardContent className="relative p-6 text-center">
                     <div className="mb-4 flex items-center justify-center">
-                      <div className="relative animate-pulse">
+                      <div className="relative">
                         <div className="bg-primary/10 rounded-full p-3">
                           <Icon className="text-primary h-6 w-6" />
                         </div>
-                        <div className="bg-primary text-primary-foreground absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold">
+                        <div className="bg-primary text-primary-foreground absolute -top-2 -right-2 flex h-6 w-6 animate-pulse items-center justify-center rounded-full text-xs font-bold">
                           {step.number}
                         </div>
                       </div>
