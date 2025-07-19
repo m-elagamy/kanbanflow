@@ -6,5 +6,7 @@ export function slugify(text: string): string {
     .replace(/[^\p{L}\p{N}\s-]/gu, "")
     .replace(/\s+/g, "-")
     .replace(/^-+/, "")
-    .replace(/-+$/, "");
+    .replace(/-+$/, "")
+    .replace(/-+/g, "-")
+    .replace(/[^\w\s-]/g, "-");
 }
