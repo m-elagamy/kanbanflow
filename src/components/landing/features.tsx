@@ -5,7 +5,7 @@ import { features } from "./data";
 
 export function Features() {
   return (
-    <div>
+    <>
       <div className="mb-4 flex items-center justify-center">
         <Badge variant="secondary" icon={<Sparkles className="h-3.5 w-3.5" />}>
           Features
@@ -26,12 +26,12 @@ export function Features() {
           return (
             <Card
               key={index}
-              className="group bg-background relative overflow-hidden p-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              className="group bg-card from-card to-card/50 relative overflow-hidden bg-gradient-to-b p-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
               <div className="absolute inset-0 bg-linear-to-br from-transparent via-transparent to-blue-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              <CardContent className="p-4">
+              <CardContent className="p-6">
                 <div className="mb-2 w-fit rounded-lg border p-2 transition-all duration-300 group-hover:scale-110 group-hover:border-blue-500/20 md:mb-4">
-                  <Icon className="size-4 transition-colors duration-300 group-hover:text-blue-500" />
+                  <Icon className="size-5 transition-colors duration-300 group-hover:text-blue-500" />
                 </div>
                 <h2 className="mb-2 font-semibold transition-colors duration-300 group-hover:text-blue-500 dark:group-hover:text-blue-400">
                   {feature.title}
@@ -46,6 +46,6 @@ export function Features() {
           );
         })}
       </div>
-    </div>
+    </>
   );
 }
