@@ -54,8 +54,6 @@ const useForm = <T extends Record<string, unknown>>(
         initialState.id as string,
       )
     ) {
-      console.log("Duplicate title detected");
-
       setSpecificError(
         "title",
         `A ${entityType} with the name "${validatedData.title}" already exists.`,

@@ -21,10 +21,10 @@ export default function Error({
 
   const actions = (
     <>
-      <Button size="sm" onClick={() => reset()}>
+      <Button size="sm" variant="outline" onClick={() => reset()}>
         Try again
       </Button>
-      <Button size="sm" variant="outline" asChild>
+      <Button size="sm" asChild>
         <Link href="/dashboard">Return to dashboard</Link>
       </Button>
     </>

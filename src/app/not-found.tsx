@@ -19,10 +19,10 @@ export default function NotFound() {
 
   const actions = (
     <>
-      <Button size="sm" onClick={handleGoBack}>
+      <Button size="sm" variant="outline" onClick={handleGoBack}>
         <ArrowLeft /> Go Back
       </Button>
-      <Button size="sm" asChild variant="outline">
+      <Button size="sm" asChild>
         <Link href="/">
           <Home />
           Return Home
