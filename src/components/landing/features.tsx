@@ -3,7 +3,7 @@ import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
 import { features } from "./data";
 
-export function Features() {
+export default function Features() {
   return (
     <>
       <div className="mb-4 flex items-center justify-center">

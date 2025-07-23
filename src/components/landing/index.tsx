@@ -1,6 +1,6 @@
 import Hero from "./hero";
-import { Features } from "./features";
-import { HowItWorks } from "./how-it-works";
+import Features from "./features";
+import HowItWorks from "./how-it-works";
 
 const Landing = () => {
   return (

@@ -1,14 +1,13 @@
-import { ArrowRight, Play, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
 import { steps } from "./data";
 import HowItWorksBackground from "./how-it-works-background";
 
-export function HowItWorks() {
+export default function HowItWorks() {
   return (
     <section className="relative overflow-hidden py-16">
       <HowItWorksBackground />
-
       <div className="relative z-10">
         <div className="mb-12 text-center">
           <Badge
