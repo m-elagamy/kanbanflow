@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { ThemeProvider } from "@/providers/theme-provider";
-import { ClerkProvider } from "@clerk/nextjs";
-import { Toaster } from "@/components/ui/sonner";
+import { Providers } from "@/providers";
 import "./globals.css";
 
 // Google Font
@@ -50,17 +47,7 @@ export default function RootLayout({
       <body
         className={`${geist.variable} flex min-h-dvh flex-col font-sans antialiased`}
       >
-        <ClerkProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            disableTransitionOnChange
-          >
-            {children}
-            <Toaster />
-            <SpeedInsights />
-          </ThemeProvider>
-        </ClerkProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

@@ -1,5 +1,5 @@
 import { useShallow } from "zustand/react/shallow";
-import DndProvider from "@/providers/dnd-provider";
+import { DndProvider } from "@/providers/dnd-provider";
 import { useColumnStore } from "@/stores/column";
 import ColumnCard from "./column-card";
 import ColumnModal from "./column-modal";

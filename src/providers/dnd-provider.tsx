@@ -19,7 +19,7 @@ type DndProviderProps = {
   children: ReactNode;
 };
 
-const DndProvider = ({ children }: DndProviderProps) => {
+export const DndProvider = ({ children }: DndProviderProps) => {
   const {
     activeTask,
     handleDragStart,
@@ -63,5 +63,3 @@ const DndProvider = ({ children }: DndProviderProps) => {
     </DndContext>
   );
 };
-
-export default DndProvider;
