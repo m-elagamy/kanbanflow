@@ -14,16 +14,16 @@ export default function Unauthorized() {
 
   const actions = (
     <>
+      <Button size="sm" asChild variant="outline">
+        <Link href="/">
+          <Home />
+          Homepage
+        </Link>
+      </Button>
       <Button size="sm" asChild>
         <Link href="/sign-in">
           <LogIn />
           Log In
-        </Link>
-      </Button>
-      <Button size="sm" asChild variant="secondary">
-        <Link href="/">
-          <Home />
-          Homepage
         </Link>
       </Button>
     </>
@@ -33,7 +33,7 @@ export default function Unauthorized() {
     <ErrorCard
       title="Access Denied"
       description="You don't have permission to access this page."
-      icon={<Lock className="size-6 text-muted-foreground" aria-hidden />}
+      icon={<Lock className="text-muted-foreground size-6" aria-hidden />}
       actions={actions}
       helperText="Your session may have expired. Please log in again."
     />
