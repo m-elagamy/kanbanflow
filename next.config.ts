@@ -5,8 +5,7 @@ const nextConfig: NextConfig = {
     reactCompiler: true,
     authInterrupts: true,
     staleTimes: {
-      dynamic: 10,
-      static: 60,
+      dynamic: 30,
     },
   },
 };
