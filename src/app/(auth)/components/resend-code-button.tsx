@@ -7,7 +7,7 @@ export default function ResendCodeButton() {
       asChild
       resend
       className="text-muted-foreground"
-      fallback={({ resendableAfter }) => (
+      fallback={({ resendableAfter }: { resendableAfter: number }) => (
         <Button variant="link" size="sm" disabled>
           Didn&apos;t receive a code? Resend (
           <span className="tabular-nums">{resendableAfter}</span>)
