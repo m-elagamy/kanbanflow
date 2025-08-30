@@ -2,7 +2,7 @@ import { after } from "next/server";
 import { unauthorized } from "next/navigation";
 import type { Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
-import { Layout, PlusCircle } from "lucide-react";
+import { FolderKanban, Layout, PlusCircle } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -31,11 +31,12 @@ const Dashboard = async () => {
       <Card className="bg-background border-none text-center shadow-none">
         <CardHeader>
           <CardTitle className="text-gradient flex flex-col items-center gap-4 text-xl md:text-3xl">
-            <Layout size={32} className="text-primary" />
+            <FolderKanban size={32} className="text-primary" />
             Welcome to Your Workspace
           </CardTitle>
           <CardDescription className="text-sm md:text-base">
-            Manage your boards and create new ones.
+            Get started by creating your first board to organize your projects
+            and tasks efficiently.
           </CardDescription>
         </CardHeader>
         <CardContent>
