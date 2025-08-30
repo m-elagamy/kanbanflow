@@ -2,7 +2,7 @@ import { after } from "next/server";
 import { unauthorized } from "next/navigation";
 import type { Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
-import { FolderKanban, Layout, PlusCircle } from "lucide-react";
+import { FolderKanban, PlusCircle } from "lucide-react";
 import {
   Card,
   CardContent,
