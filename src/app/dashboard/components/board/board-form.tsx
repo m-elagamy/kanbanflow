@@ -1,12 +1,12 @@
 import type { BoardFormValues, BoardSummary, FormMode } from "@/lib/types";
 import { handleOnBlur } from "@/utils/board-helpers";
-import { boardSchema } from "@/schemas/board";
 import useForm from "@/hooks/use-form";
 import GenericForm from "@/components/ui/generic-form";
 import FormField from "@/components/ui/form-field";
 import { useBoardFormAction } from "@/hooks/use-board-form-action";
 import useBoardStore from "@/stores/board";
 import columnsTemplates from "../../data/columns-templates";
+import { boardSchema, BoardFormSchema } from "@/schemas/board";
 
 type BoardFormProps = Readonly<{
   formMode: FormMode;
@@ -32,7 +32,7 @@ export default function BoardForm({
     formRef,
     errors,
     validateBeforeSubmit,
-  } = useForm<BoardFormValues>(
+  } = useForm<BoardFormValues, BoardFormSchema>(
     {
       id: board?.id ?? "",
       title: board?.title ?? "",

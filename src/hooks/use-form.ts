@@ -6,9 +6,9 @@ import useAutoFocusOnError from "./use-auto-focus-on-error";
 import useErrorManagement from "./use-error-management";
 import useFormValues from "./use-form-values";
 
-const useForm = <T extends Record<string, unknown>>(
+const useForm = <T extends Record<string, unknown>, V extends Record<string, unknown> = T>(
   initialState: T,
-  schema: ZodSchema,
+  schema: ZodSchema<V>,
 ) => {
   const {
     errors,
@@ -37,7 +37,7 @@ const useForm = <T extends Record<string, unknown>>(
       success,
       data: validatedData,
       error,
-    } = validateFormData<T>(formData, schema);
+    } = validateFormData<V>(formData, schema);
     if (!success) {
       console.log("error", error);
 
@@ -64,7 +64,7 @@ const useForm = <T extends Record<string, unknown>>(
     }
 
     // Check if changes were actually made
-    if (isEditMode && !hasChanges(initialState, validatedData, subsetFields)) {
+    if (isEditMode && !hasChanges(initialState, validatedData as Partial<T>, subsetFields)) {
       console.log("No changes detected");
 
       setGenericError(

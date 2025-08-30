@@ -37,7 +37,7 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
     formRef,
     errors,
     validateBeforeSubmit,
-  } = useForm<TaskSchemaWithId>(
+  } = useForm<TaskSchemaWithId, TaskSchema>(
     {
       id: task?.id ?? "",
       title: task?.title ?? "",
