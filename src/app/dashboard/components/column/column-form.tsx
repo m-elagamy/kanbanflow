@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { RefObject, useState } from "react";
 import dynamic from "next/dynamic";
 import { useShallow } from "zustand/react/shallow";
 import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -127,7 +127,7 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
 
   return (
     <GenericForm
-      formRef={formRef}
+      formRef={formRef as RefObject<HTMLFormElement>}
       onAction={handleFormAction}
       isLoading={isLoading}
       errors={errors}

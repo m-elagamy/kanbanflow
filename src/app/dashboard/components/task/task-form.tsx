@@ -1,3 +1,4 @@
+import { RefObject } from "react";
 import { useShallow } from "zustand/react/shallow";
 import type { FormMode, TaskSummary } from "@/lib/types";
 import { taskSchema, type TaskSchema } from "@/schemas/task";
@@ -58,7 +59,7 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
 
   return (
     <GenericForm
-      formRef={formRef}
+      formRef={formRef as RefObject<HTMLFormElement>}
       onAction={handleFormAction}
       errors={errors}
       formMode={formMode}

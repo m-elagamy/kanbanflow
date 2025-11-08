@@ -1,3 +1,4 @@
+import { RefObject } from "react";
 import type { BoardFormValues, BoardSummary, FormMode } from "@/lib/types";
 import { handleOnBlur } from "@/utils/board-helpers";
 import useForm from "@/hooks/use-form";
@@ -53,7 +54,7 @@ export default function BoardForm({
 
   return (
     <GenericForm
-      formRef={formRef}
+      formRef={formRef as RefObject<HTMLFormElement>}
       onAction={handleFormAction}
       formMode={formMode}
       errors={errors}
