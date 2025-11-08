@@ -1,3 +1,4 @@
+import type { RefObject } from "react";
 import dynamic from "next/dynamic";
 import Form from "next/form";
 import { AnimatePresence } from "framer-motion";
@@ -11,30 +12,36 @@ const FormMessage = dynamic(() => import("./form-message"), {
   ssr: false,
 });
 
-type GenericFormProps = {
+interface GenericFormProps {
   children: React.ReactNode;
-  formRef: {
-    current: HTMLFormElement | null;
-  };
+  formRef: RefObject<HTMLFormElement>;
   onAction: (formData: FormData) => Promise<void>;
   errors?: FormErrors<unknown> | null;
   formMode?: FormMode;
   isLoading?: boolean;
   hasAvailableStatuses?: boolean;
-};
+}
 
-const GenericForm = ({ children, ...props }: GenericFormProps) => {
+const GenericForm = ({
+  children,
+  formRef,
+  onAction,
+  errors,
+  formMode,
+  isLoading,
+  hasAvailableStatuses,
+}: GenericFormProps) => {
   return (
     <Form
-      ref={props.formRef}
-      action={props.onAction}
-      aria-invalid={!!props.errors?.generic}
+      ref={formRef}
+      action={onAction}
+      aria-invalid={!!errors?.generic}
       aria-describedby="generic-error"
-      disabled={props.isLoading}
+      disabled={isLoading}
       className="space-y-4 *:space-y-2"
     >
       <AnimatePresence>
-        {props.errors?.generic && (
+        {errors?.generic && (
           <FormMessage
             id="generic-error"
             icon={FileX}
@@ -42,7 +49,7 @@ const GenericForm = ({ children, ...props }: GenericFormProps) => {
             className="mx-auto w-fit justify-center border px-2 py-1 shadow-sm"
             animated
           >
-            {props.errors?.generic}
+            {errors?.generic}
           </FormMessage>
         )}
       </AnimatePresence>
@@ -50,9 +57,9 @@ const GenericForm = ({ children, ...props }: GenericFormProps) => {
       {children}
 
       <FormActions
-        isPending={props.isLoading}
-        isFormInvalid={hasErrors(props.errors) ?? !props.hasAvailableStatuses}
-        formMode={props.formMode}
+        isPending={isLoading}
+        isFormInvalid={hasErrors(errors) ?? !hasAvailableStatuses}
+        formMode={formMode}
       />
     </Form>
   );

@@ -97,8 +97,6 @@ export const useTaskStore = create<TaskStore>()(
           if (state.activeTaskId === taskId) {
             state.activeTaskId = null;
           }
-
-          console.log(state.columnTaskIds[columnId]);
         });
       },
 

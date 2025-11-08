@@ -48,7 +48,7 @@ export const createBoardAction = async (
   } catch (error) {
     return { success: false, message: handlePrismaError(error) };
   } finally {
-    revalidateTag(`user-boards`);
+    revalidateTag(`user-boards`, "max");
   }
 };
 
@@ -125,7 +125,7 @@ export const updateBoardAction = async (
     return { success: false, message: "Failed to update board" };
   }
 
-  revalidateTag(`user-boards`);
+  revalidateTag(`user-boards`, "max");
 
   return {
     success: true,
@@ -142,7 +142,7 @@ export async function deleteBoardAction(
 
   await deleteBoard(boardId);
 
-  revalidateTag(`user-boards`);
+  revalidateTag(`user-boards`, "max");
 
   return {
     success: true,

@@ -6,7 +6,10 @@ import useAutoFocusOnError from "./use-auto-focus-on-error";
 import useErrorManagement from "./use-error-management";
 import useFormValues from "./use-form-values";
 
-const useForm = <T extends Record<string, unknown>, V extends Record<string, unknown> = T>(
+const useForm = <
+  T extends Record<string, unknown>,
+  V extends Record<string, unknown> = T,
+>(
   initialState: T,
   schema: ZodSchema<V>,
 ) => {
@@ -39,7 +42,7 @@ const useForm = <T extends Record<string, unknown>, V extends Record<string, unk
       error,
     } = validateFormData<V>(formData, schema);
     if (!success) {
-      console.log("error", error);
+      console.error("Validation error:", error);
 
       setSpecificError("title", error.issues[0]?.message);
       return { success: false };
@@ -64,9 +67,10 @@ const useForm = <T extends Record<string, unknown>, V extends Record<string, unk
     }
 
     // Check if changes were actually made
-    if (isEditMode && !hasChanges(initialState, validatedData as Partial<T>, subsetFields)) {
-      console.log("No changes detected");
-
+    if (
+      isEditMode &&
+      !hasChanges(initialState, validatedData as Partial<T>, subsetFields)
+    ) {
       setGenericError(
         "No changes detected. Please update something before submitting.",
       );
