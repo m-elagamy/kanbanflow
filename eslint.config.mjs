@@ -13,6 +13,12 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      "no-duplicate-imports": "warn",
+      "no-console": ["warn", { allow: ["warn", "error", "debug"] }],
+    },
+  },
 ]);
 
 export default eslintConfig;
