@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "type-check": "next typegen && tsc --noEmit",
     "postinstall": "prisma generate && prisma migrate deploy"
   },
