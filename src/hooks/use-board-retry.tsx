@@ -31,7 +31,7 @@ export function useBoardRetry() {
     router.push("/dashboard");
     await delay(500);
     deleteBoard(failedBoard.id);
-  }, [router, failedBoard?.id, deleteBoard]);
+  }, [router, failedBoard, deleteBoard]);
 
   const retryBoardCreation = useCallback(async () => {
     if (!failedBoard) return;
