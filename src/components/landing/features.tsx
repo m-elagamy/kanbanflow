@@ -15,7 +15,7 @@ export default function Features() {
         <h2 className="text-gradient text-2xl font-bold tracking-tighter md:text-3xl">
           What&apos;s in KanbanFlow?
         </h2>
-        <p className="text-muted-foreground md:text-xl">
+        <p className="text-muted-foreground text-lg">
           Discover the powerful features that make project management intuitive,
           and effortlessly efficient.
         </p>
@@ -26,7 +26,7 @@ export default function Features() {
           return (
             <Card
               key={index}
-              className="group bg-card from-card to-card/50 relative overflow-hidden bg-gradient-to-b p-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              className="group bg-card from-card to-card/50 relative overflow-hidden bg-linear-to-b p-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
               <div className="absolute inset-0 bg-linear-to-br from-transparent via-transparent to-blue-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <CardContent className="p-6">
@@ -40,7 +40,7 @@ export default function Features() {
                   {feature.description}
                 </p>
 
-                <div className="absolute bottom-0 left-0 h-[1px] w-0 bg-linear-to-r from-blue-500/50 to-purple-500/50 transition-all duration-500 group-hover:w-full dark:from-blue-500/30 dark:to-purple-500/30" />
+                <div className="absolute bottom-0 left-0 h-px w-0 bg-linear-to-r from-blue-500/50 to-purple-500/50 transition-all duration-500 group-hover:w-full dark:from-blue-500/30 dark:to-purple-500/30" />
               </CardContent>
             </Card>
           );

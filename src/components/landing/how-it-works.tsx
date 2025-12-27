@@ -17,7 +17,7 @@ export default function HowItWorks() {
           >
             How It Works
           </Badge>
-          <h2 className="text-gradient mb-4 text-3xl font-bold tracking-tighter md:text-4xl">
+          <h2 className="text-gradient mb-4 text-3xl font-bold tracking-tighter">
             Simple Process to Get Started
           </h2>
           <p className="text-muted-foreground mx-auto max-w-2xl text-lg">

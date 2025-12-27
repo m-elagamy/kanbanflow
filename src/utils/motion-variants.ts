@@ -96,4 +96,15 @@ const glowVariant: Variants = {
   },
 };
 
-export { fadeIn, stagger, particleVariants, glowVariant };
+const gridVariants: Variants = {
+  animate: {
+    opacity: [0.4, 0.6, 0.4],
+    transition: {
+      repeat: Infinity,
+      duration: 8,
+      ease: "easeInOut" as const,
+    },
+  },
+};
+
+export { fadeIn, stagger, particleVariants, glowVariant, gridVariants };

@@ -1,6 +1,8 @@
 import Hero from "./hero";
 import Features from "./features";
 import HowItWorks from "./how-it-works";
+import FAQ from "./faq";
+import Cta from "./cta";
 
 const Landing = () => {
   return (
@@ -8,6 +10,8 @@ const Landing = () => {
       <Hero />
       <Features />
       <HowItWorks />
+      <FAQ />
+      <Cta />
     </div>
   );
 };

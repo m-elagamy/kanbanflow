@@ -25,7 +25,7 @@ export default function Hero() {
         <h1 className="text-gradient mb-6 text-4xl font-extrabold tracking-tighter md:text-5xl">
           Streamline Your Workflow
         </h1>
-        <p className="text-muted-foreground mb-6 max-w-3xl md:text-xl">
+        <p className="text-muted-foreground mb-6 max-w-3xl text-lg">
           Stay organized, manage tasks effortlessly, and boost productivity with
           real-time updates. KanbanFlow helps you achieve more with a seamless
           and intuitive experience.

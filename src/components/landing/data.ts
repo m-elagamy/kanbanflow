@@ -71,4 +71,32 @@ const steps = [
   },
 ];
 
-export { features, steps };
+const faqs = [
+  {
+    question: "Is KanbanFlow free to use?",
+    answer:
+      "Yes, KanbanFlow is completely free to use. You can create unlimited boards and tasks without any restrictions.",
+  },
+  {
+    question: "Do I need to download anything?",
+    answer:
+      "No, KanbanFlow is a web-based application. Simply sign up and start using it directly in your browser - no downloads or installations required.",
+  },
+  {
+    question: "Can I use KanbanFlow on mobile?",
+    answer:
+      "Yes! KanbanFlow is fully responsive and works seamlessly on mobile devices, tablets, and desktops. Access your boards from anywhere.",
+  },
+  {
+    question: "How secure is my data?",
+    answer:
+      "Your data is protected with industry-standard security measures. We use secure authentication and your information is stored safely in our database.",
+  },
+  {
+    question: "Can I collaborate with my team?",
+    answer:
+      "Currently, KanbanFlow is designed for personal use. Each user has their own boards and tasks. Team collaboration features may be added in future updates.",
+  },
+];
+
+export { features, steps, faqs };
