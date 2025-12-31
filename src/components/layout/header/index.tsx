@@ -7,7 +7,7 @@ import UserAvatar from "./user-avatar";
 import KanbanLogo from "./kanban-logo";
 import SignInButton from "./sign-in-btn";
 import { Button } from "@/components/ui/button";
-import { useMotionValueEvent, useScroll } from "framer-motion";
+import { useMotionValueEvent, useScroll } from "motion/react";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 

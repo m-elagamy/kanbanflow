@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { fadeIn } from "@/utils/motion-variants";
 import BackgroundEffect from "./components/background-effect";
 import { Button } from "@/components/ui/button";

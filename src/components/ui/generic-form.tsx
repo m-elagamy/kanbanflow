@@ -1,7 +1,7 @@
 import type { RefObject } from "react";
 import dynamic from "next/dynamic";
 import Form from "next/form";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
 import { FileX } from "lucide-react";
 import type { FormErrors, FormMode } from "@/lib/types";
 import hasErrors from "@/app/dashboard/utils/check-form-errors";

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Kanban, Zap } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import { Button } from "../ui/button";
 import { fadeIn, gridVariants } from "@/utils/motion-variants";
 

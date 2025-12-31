@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import { glowVariant, particleVariants } from "@/utils/motion-variants";
 
 const FloatingParticles = () => {
