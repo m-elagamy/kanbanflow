@@ -5,12 +5,14 @@ import { Kanban, Zap } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { Button } from "../ui/button";
 import { fadeIn, gridVariants } from "@/utils/motion-variants";
+import { Spotlight } from "../ui/spotlight";
 
 export default function Cta() {
   const shouldReduceMotion = useReducedMotion();
 
   return (
     <section className="bg-background relative my-20 overflow-hidden rounded-2xl border p-12 md:p-16">
+      <Spotlight />
       {/* Grid pattern background */}
       <motion.div
         className="absolute inset-0"
