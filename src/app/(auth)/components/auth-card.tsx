@@ -21,7 +21,7 @@ export function AuthCard({
   footer,
 }: AuthCardProps) {
   return (
-    <Card className="mx-auto w-full sm:w-96">
+    <Card className="mx-auto w-full sm:w-96 md:w-[420px]">
       <CardHeader className="text-center">
         <CardTitle className="mx-auto">{title}</CardTitle>
         {<CardDescription>{description}</CardDescription>}
