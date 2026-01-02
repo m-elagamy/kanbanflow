@@ -1,19 +1,17 @@
 "use client";
 
-import Link from "next/link";
-import { Kanban, Zap } from "lucide-react";
+import { Kanban } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { Button } from "../ui/button";
 import { fadeIn, gridVariants } from "@/utils/motion-variants";
 import { Spotlight } from "../ui/spotlight";
+import CtaButton from "./cta-button";
 
 export default function Cta() {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <section className="bg-background relative my-20 overflow-hidden rounded-2xl border border-border/50 p-12 shadow-lg shadow-primary/5 md:p-16">
+    <section className="bg-background border-border/50 shadow-primary/5 relative my-20 overflow-hidden rounded-2xl border p-12 shadow-lg md:p-16">
       <Spotlight />
-      {/* Grid pattern background */}
       <motion.div
         className="absolute inset-0"
         variants={shouldReduceMotion ? undefined : gridVariants}
@@ -23,7 +21,6 @@ export default function Cta() {
       </motion.div>
       <div className="bg-primary/50 absolute inset-x-0 top-0 mx-auto h-1/12 w-1/3 blur-[8rem]" />
 
-      {/* Content */}
       <motion.div
         className="relative z-10 flex flex-col items-center text-center"
         variants={shouldReduceMotion ? undefined : fadeIn}
@@ -32,12 +29,11 @@ export default function Cta() {
       >
         {/* Logo/Icon */}
         <div className="mb-8 flex items-center justify-center">
-          <div className="bg-foreground flex size-16 items-center justify-center rounded-full shadow-lg shadow-primary/20 transition-transform duration-300 hover:scale-110">
+          <div className="bg-foreground shadow-primary/20 flex size-16 items-center justify-center rounded-full shadow-lg transition-transform duration-300 hover:scale-110">
             <Kanban className="text-background size-8" />
           </div>
         </div>
 
-        {/* Headline with gradient on key word */}
         <h2 className="mb-6 text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
           <span className="text-foreground">Ready to </span>
           <span className="bg-linear-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">
@@ -47,26 +43,17 @@ export default function Cta() {
           <span className="text-foreground">your workflow?</span>
         </h2>
 
-        {/* Descriptive paragraph */}
         <p className="text-muted-foreground mx-auto mb-10 max-w-2xl text-base leading-relaxed md:text-lg">
           Experience the power of KanbanFlow for yourself, or explore the code
           to see how it&apos;s built. Start organizing your tasks today.
         </p>
 
-        {/* CTA Button - White with dark text */}
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           transition={{ type: "spring", stiffness: 400, damping: 17 }}
         >
-          <Button size="lg" className="shadow-lg shadow-primary/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary/20" asChild>
-            <Link href="/sign-up">
-              <span className="flex items-center gap-2">
-                Start for free
-                <Zap className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </span>
-            </Link>
-          </Button>
+          <CtaButton variant="cta-section" />
         </motion.div>
       </motion.div>
     </section>

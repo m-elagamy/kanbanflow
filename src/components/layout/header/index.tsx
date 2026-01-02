@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import UserAvatar from "./user-avatar";
 import KanbanLogo from "./kanban-logo";
-import SignInButton from "./sign-in-btn";
+import AuthButtons from "./auth-buttons";
 import { useMotionValueEvent, useScroll } from "motion/react";
 import { usePathname } from "next/navigation";
 
@@ -21,13 +21,13 @@ const Header = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 h-16 backdrop-blur-xs transition-colors ${isScrolled ? "border-b bg-background/50" : ""}`}
+      className={`sticky top-0 z-50 h-16 backdrop-blur-xs transition-colors ${isScrolled ? "bg-background/50 border-b" : ""}`}
     >
       <div className="container flex h-full items-center justify-between">
         <KanbanLogo />
 
         <div className="flex items-center gap-4">
-          {isHomePage ? <SignInButton /> : <UserAvatar />}
+          {isHomePage ? <AuthButtons /> : <UserAvatar />}
         </div>
       </div>
       {!isHomePage && (

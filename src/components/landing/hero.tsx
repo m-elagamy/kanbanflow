@@ -1,10 +1,8 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
 import FloatingParticlesWrapper from "./floating-particles-wrapper";
 import DashboardPreview from "./dashboard-preview";
 import { Tilt } from "../ui/tilt";
+import CtaButton from "./cta-button";
 
 export default function Hero() {
   return (
@@ -34,19 +32,7 @@ export default function Hero() {
           and intuitive experience.
         </p>
       </div>
-      <Button
-        className="group shadow-primary/10 hover:shadow-primary/20 mx-auto w-fit shadow-lg transition-all duration-300 hover:shadow-xl"
-        size="lg"
-        asChild
-      >
-        <Link href="/sign-up">
-          <span className="relative z-10 flex items-center gap-2 font-semibold">
-            Get Started
-            <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105" />
-          </span>
-        </Link>
-      </Button>
-      {/* Dashboard Preview */}
+      <CtaButton variant="cta-section" className="mx-auto w-fit" />
       <div className="mt-8 md:mt-12">
         <Tilt rotationFactor={2} isRevese>
           <DashboardPreview />
@@ -55,4 +41,3 @@ export default function Hero() {
     </div>
   );
 }
-
