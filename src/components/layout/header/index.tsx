@@ -1,19 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Moon, Sun } from "lucide-react";
 
 import UserAvatar from "./user-avatar";
 import KanbanLogo from "./kanban-logo";
 import SignInButton from "./sign-in-btn";
-import { Button } from "@/components/ui/button";
 import { useMotionValueEvent, useScroll } from "motion/react";
-import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 
 const Header = () => {
   const pathName = usePathname();
-  const { theme, setTheme } = useTheme();
   const { scrollY } = useScroll();
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -22,10 +18,6 @@ const Header = () => {
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 10);
   });
-
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
 
   return (
     <header
@@ -36,11 +28,6 @@ const Header = () => {
 
         <div className="flex items-center gap-4">
           {isHomePage ? <SignInButton /> : <UserAvatar />}
-          <Button variant="ghost" size="icon" onClick={toggleTheme}>
-            <Moon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Sun className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
         </div>
       </div>
       {!isHomePage && (

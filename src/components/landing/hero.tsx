@@ -3,13 +3,16 @@ import { ArrowRight } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import FloatingParticlesWrapper from "./floating-particles-wrapper";
+import DashboardPreview from "./dashboard-preview";
+import { Tilt } from "../ui/tilt";
 
 export default function Hero() {
   return (
-    <div className="my-20 grid min-h-96 place-content-center text-center">
+    <div className="my-20 grid min-h-96 text-center md:mt-40">
       <div className="mb-4 flex items-center justify-center">
         <Badge
-          variant="secondary"
+          variant="outline"
+          className="border-primary/20 bg-primary/5"
           icon={
             <span className="relative flex h-2 w-2">
               <span className="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
@@ -22,16 +25,20 @@ export default function Hero() {
       </div>
       <div className="relative">
         <FloatingParticlesWrapper />
-        <h1 className="text-gradient mb-6 text-4xl font-extrabold tracking-tighter md:text-5xl">
+        <h1 className="text-gradient mb-6 text-4xl font-extrabold tracking-tighter md:text-5xl lg:text-6xl">
           Streamline Your Workflow
         </h1>
-        <p className="text-muted-foreground mb-6 max-w-3xl text-lg">
+        <p className="text-muted-foreground mx-auto mb-8 max-w-3xl text-base leading-relaxed md:text-lg">
           Stay organized, manage tasks effortlessly, and boost productivity with
           real-time updates. KanbanFlow helps you achieve more with a seamless
           and intuitive experience.
         </p>
       </div>
-      <Button className="group mx-auto w-fit rounded-full" asChild>
+      <Button
+        className="group shadow-primary/10 hover:shadow-primary/20 mx-auto w-fit shadow-lg transition-all duration-300 hover:shadow-xl"
+        size="lg"
+        asChild
+      >
         <Link href="/sign-up">
           <span className="relative z-10 flex items-center gap-2 font-semibold">
             Get Started
@@ -39,6 +46,13 @@ export default function Hero() {
           </span>
         </Link>
       </Button>
+      {/* Dashboard Preview */}
+      <div className="mt-8 md:mt-12">
+        <Tilt rotationFactor={2} isRevese>
+          <DashboardPreview />
+        </Tilt>
+      </div>
     </div>
   );
 }
+

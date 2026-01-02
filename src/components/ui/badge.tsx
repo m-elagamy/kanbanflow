@@ -24,7 +24,7 @@ export function Badge({
         `${animate && "animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-300"}`,
         variant === "primary" && "border-primary/20 bg-primary/10 text-primary",
         variant === "secondary" &&
-          "border-secondary-foreground/15 bg-secondary/20 text-secondary-foreground dark:border-secondary/30",
+          "border-secondary-foreground/15 bg-secondary/20 dark:border-secondary/30",
         variant === "outline" && "border-border bg-background",
         className,
       )}
