@@ -21,7 +21,7 @@ export default function Hero() {
           Introducing KanbanFlow
         </Badge>
       </div>
-      <div className="relative">
+      <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both relative duration-500">
         <FloatingParticlesWrapper />
         <h1 className="text-gradient mb-6 text-4xl font-extrabold tracking-tighter md:text-5xl lg:text-6xl">
           Streamline Your Workflow
@@ -32,7 +32,9 @@ export default function Hero() {
           and intuitive experience.
         </p>
       </div>
-      <CtaButton variant="cta-section" className="mx-auto w-fit" />
+      <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500">
+        <CtaButton variant="cta-section" className="mx-auto w-fit" />
+      </div>
       <div className="mt-8 md:mt-12">
         <Tilt rotationFactor={2} isRevese>
           <DashboardPreview />
