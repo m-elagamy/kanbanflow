@@ -71,7 +71,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
 
   return (
     <div
-      className={`group border-border/70 bg-card/80 dark:bg-card/60 hover:border-border hover:bg-card/95 dark:hover:bg-card/70 relative touch-manipulation rounded-lg border p-4 shadow-md backdrop-blur-md transition-all duration-200 before:pointer-events-none before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-b before:from-white/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-200 hover:shadow-lg hover:before:opacity-100 dark:before:from-white/[0.02] ${isDragging ? "border-primary/50 bg-card dark:bg-card/80 ring-primary/20 z-50 scale-105 rotate-2 shadow-2xl ring-2" : ""}`}
+      className={`group border-border/70 bg-card/80 dark:bg-card/5 hover:border-border hover:bg-card/95 dark:hover:bg-card/70 relative touch-manipulation rounded-lg border p-4 shadow-md backdrop-blur-md transition-all duration-200 before:pointer-events-none before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-b before:from-white/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-200 hover:shadow-lg hover:before:opacity-100 dark:before:from-white/[0.02] ${isDragging ? "border-primary/50 bg-card dark:bg-card/80 ring-primary/20 z-50 scale-105 rotate-2 shadow-2xl ring-2" : ""}`}
       ref={setNodeRef}
       {...attributes}
       {...listeners}

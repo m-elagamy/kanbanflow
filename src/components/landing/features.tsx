@@ -30,7 +30,7 @@ export default function Features() {
           return (
             <Card
               key={index}
-              className="group bg-card hover:border-primary/20 hover:bg-card hover:shadow-primary/5 relative overflow-hidden p-0 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg"
+              className="group bg-card/50 hover:border-primary/20 hover:bg-card hover:shadow-primary/5 relative overflow-hidden p-0 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg"
             >
               <div className="to-primary/5 absolute inset-0 bg-linear-to-br from-transparent via-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <CardContent className="relative p-6">
