@@ -30,8 +30,8 @@ export function Badge({
       )}
       {...props}
     >
-      {icon && <span className="flex items-center">{icon}</span>}
-      <span>{children}</span>
+      {icon && <>{icon}</>}
+      {children}
     </div>
   );
 }

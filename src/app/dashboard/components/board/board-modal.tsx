@@ -35,7 +35,7 @@ const BoardModal = ({
         variant={variant}
         className="group"
         onClick={handleOnClick}
-        size="sm"
+        size="lg"
         asChild
       >
         {trigger}

@@ -10,7 +10,7 @@ export default function Cta() {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <section className="bg-background border-border/50 shadow-primary/5 relative my-20 overflow-hidden rounded-2xl border p-12 shadow-lg md:p-16">
+    <section className="bg-background border-border/50 shadow-primary/5 relative my-20 overflow-hidden rounded-2xl border p-12 md:p-16">
       <Spotlight />
       <motion.div
         className="absolute inset-0"

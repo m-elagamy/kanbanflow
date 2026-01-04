@@ -18,7 +18,7 @@ type UseTaskFormAction = {
     entityType: "board" | "task",
   ) => { success: boolean; data?: TaskSchema; error?: string };
   task?: TaskSummary;
-  columnId: string;
+  columnId?: string;
   existingTasks: { id: string; title: string }[];
   modalId: string;
 };
@@ -52,6 +52,15 @@ export function useTaskFormAction({
   );
 
   const handleFormAction = async (formData: FormData) => {
+    // Get columnId from formData if not provided as prop (when creating from board header)
+    const formColumnId = formData.get("columnId") as string;
+    const finalColumnId = columnId || formColumnId;
+
+    if (!finalColumnId) {
+      console.error("Column ID is required");
+      return;
+    }
+
     const { success, data: validatedData } = validateBeforeSubmit(
       formData,
       isEditMode,
@@ -66,11 +75,12 @@ export function useTaskFormAction({
 
     const optimisticTask = {
       id: generateUUID(),
-      columnId,
+      columnId: finalColumnId,
       title,
       description,
       priority,
       order: 0,
+      dueDate: null,
     };
 
     try {
@@ -85,7 +95,7 @@ export function useTaskFormAction({
         setIsLoading("task", "creating", true, optimisticTask.id);
 
         await delay(300);
-        addTask(columnId, optimisticTask);
+        addTask(finalColumnId, optimisticTask);
         closeModal("task", modalId);
         const res = await createTaskAction(formData);
         updateTaskId(optimisticTask.id, res.fields?.id || "");
@@ -95,7 +105,7 @@ export function useTaskFormAction({
       if (isEditMode && task) {
         updateTask(task.id, task);
       } else {
-        deleteTask(columnId, optimisticTask.id);
+        deleteTask(finalColumnId, optimisticTask.id);
       }
     } finally {
       if (isEditMode && task) {

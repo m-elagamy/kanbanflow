@@ -98,7 +98,7 @@ const glowVariant: Variants = {
 
 const gridVariants: Variants = {
   animate: {
-    opacity: [0.4, 0.6, 0.4],
+    opacity: [0.6, 0.7, 0.6],
     transition: {
       repeat: Infinity,
       duration: 8,

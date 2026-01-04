@@ -45,11 +45,7 @@ export default function TaskActions({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="z-10">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8 transition-opacity group-hover:opacity-100 md:opacity-0"
-        >
+        <Button variant="ghost" size="icon" className="size-8">
           <Ellipsis />
         </Button>
       </DropdownMenuTrigger>
@@ -69,7 +65,7 @@ export default function TaskActions({
         </DropdownMenuItem>
 
         <Button
-          className="flex h-7 w-full cursor-default items-center justify-start gap-2 rounded-lg p-2 text-destructive hover:bg-accent hover:text-destructive focus:text-destructive"
+          className="text-destructive hover:bg-accent hover:text-destructive focus:text-destructive flex h-7 w-full cursor-default items-center justify-start gap-2 rounded-lg p-2"
           variant="ghost"
           onClick={handleDelete}
           disabled={isLoading}

@@ -1,12 +1,18 @@
-import { Calendar } from "lucide-react";
+"use client";
+
+import { Clock, Flag } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useUser } from "@clerk/nextjs";
 import type { Task } from "@prisma/client";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { TaskProgress } from "@/components/ui/task-progress";
 import formatDate from "@/utils/format-date";
+import { formatTime } from "@/utils/format-time";
 import getBadgeStyle from "../../utils/get-badge-style";
 import TaskActions from "./task-actions";
-import accentStyles from "../../utils/accent-styles";
+import taskPriorities from "../../data/task-priorities";
 
 type TaskCardProps = {
   task: Task;
@@ -15,6 +21,7 @@ type TaskCardProps = {
 };
 
 const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
+  const { user } = useUser();
   const {
     attributes,
     listeners,
@@ -34,49 +41,118 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
     scale: isSortableDragging ? "0.95" : "1",
   };
 
+  const userInitials = user
+    ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}` ||
+      user.emailAddresses[0]?.emailAddress[0].toUpperCase() ||
+      "U"
+    : "U";
+
+  // Due date (only show if it exists)
+  const dueDate = task.dueDate ? formatDate(task.dueDate.toISOString()) : null;
+
+  // Progress, estimated time, and logged time (will be from task once schema is updated)
+  // For now, using type assertion to access these optional fields
+  const taskWithTime = task as Task & {
+    progress?: number;
+    estimatedMinutes?: number | null;
+    loggedMinutes?: number | null;
+  };
+
+  // Placeholder values for UI preview (remove when real data is available)
+  const progress = taskWithTime.progress ?? 0;
+  const estimatedMinutes = taskWithTime.estimatedMinutes ?? 120; // 2 hours
+
+  // Show progress only if it's greater than 0
+  const showProgress = progress > 0;
+
+  // Get the priority icon
+  const priorityOption = taskPriorities.find((p) => p.id === task.priority);
+  const PriorityIcon = priorityOption?.icon || taskPriorities[1].icon; // Default to medium
+
   return (
     <div
-      className={`group border-border bg-card/20 max-h-[165px] touch-manipulation overflow-y-auto rounded-lg border p-3 duration-300 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] ${isDragging ? "scale-105 rotate-2 shadow-xl" : "shadow-xs hover:shadow-md"}`}
+      className={`group border-border/70 bg-card/80 dark:bg-card/60 hover:border-border hover:bg-card/95 dark:hover:bg-card/70 relative touch-manipulation rounded-lg border p-4 shadow-md backdrop-blur-md transition-all duration-200 before:pointer-events-none before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-b before:from-white/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-200 hover:shadow-lg hover:before:opacity-100 dark:before:from-white/[0.02] ${isDragging ? "border-primary/50 bg-card dark:bg-card/80 ring-primary/20 z-50 scale-105 rotate-2 shadow-2xl ring-2" : ""}`}
       ref={setNodeRef}
       {...attributes}
       {...listeners}
       style={style}
     >
-      <div className="space-y-3">
-        <div className="flex items-center justify-between text-sm font-medium">
+      <div className="relative z-10 space-y-3">
+        {/* Header: Priority Badge and Actions */}
+        <div className="flex items-center justify-between">
+          <Badge
+            className={`${getBadgeStyle(task.priority)} flex h-5 shrink-0 items-center gap-1 px-2 py-0.5 text-[0.625rem] font-medium uppercase`}
+          >
+            <PriorityIcon size={10} />
+            {task.priority}
+          </Badge>
+          {columnId && <TaskActions task={task} columnId={columnId} />}
+        </div>
+
+        {/* Title and Description */}
+        <div className="space-y-1">
           <h3
-            className={`${task.title.length > 25 ? "necessary-ellipsis max-w-[150px] md:max-w-[220px]" : ""}`}
+            className={`text-foreground flex-1 text-sm font-medium ${task.title.length > 30 ? "line-clamp-2" : ""}`}
             title={task.title}
             dir="auto"
           >
             {task.title}
           </h3>
-          <Badge
-            className={`${getBadgeStyle(task.priority)} h-5 p-2 text-[0.525rem] uppercase`}
-          >
-            {task.priority}
-          </Badge>
-        </div>
-        {task.description && (
-          <p className="text-muted-foreground text-xs" dir="auto">
-            {task.description}
-          </p>
-        )}
-        <div className={`flex items-center justify-end`}>
-          <div className="flex flex-col-reverse items-center gap-2">
-            <p className="text-muted-foreground flex items-center justify-center gap-1 text-[0.625rem]">
-              <Calendar size={12} />
-              {formatDate(new Date().toLocaleDateString())}
+          {task.description && (
+            <p
+              className="text-muted-foreground line-clamp-2 text-xs"
+              dir="auto"
+            >
+              {task.description}
             </p>
-            {columnId && <TaskActions task={task} columnId={columnId} />}
-          </div>
+          )}
         </div>
+
+        {/* Progress Bar */}
+        {showProgress && (
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground text-xs font-medium">
+                Progress
+              </span>
+              <span className="text-muted-foreground text-xs font-semibold">
+                {progress}%
+              </span>
+            </div>
+            <TaskProgress progress={progress} />
+          </div>
+        )}
+
+        {/* Time Info */}
+        {(dueDate || estimatedMinutes) && (
+          <div className="flex items-center gap-3 text-xs">
+            {dueDate && (
+              <div className="text-muted-foreground flex items-center gap-1">
+                <Flag size={12} />
+                <span>{dueDate}</span>
+              </div>
+            )}
+            {estimatedMinutes && (
+              <div className="text-muted-foreground flex items-center gap-1">
+                <Clock size={12} />
+                <span>Est: {formatTime(estimatedMinutes)}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Footer: Avatar */}
+        {user && (
+          <div className="flex items-center justify-end">
+            <Avatar className="h-6 w-6">
+              <AvatarImage src={user.imageUrl} alt={user.fullName || "User"} />
+              <AvatarFallback className="text-[0.625rem]">
+                {userInitials}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        )}
       </div>
-      {!isDragging && (
-        <div
-          className={`group-hover:w-full ${accentStyles({ priority: task.priority })}`}
-        />
-      )}
     </div>
   );
 };

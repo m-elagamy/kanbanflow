@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import getBadgeStyle from "@/app/dashboard/utils/get-badge-style";
+import getPriorityIconColor from "@/app/dashboard/utils/get-priority-icon-color";
 import RequiredFieldSymbol from "./required-field-symbol";
 import { MotionInput } from "./motion-input";
 import FormMessage from "./form-message";
@@ -100,7 +101,7 @@ const FormField = ({
                 <SelectItem key={id} value={id}>
                   <div className="flex items-center gap-2">
                     {Icon ? (
-                      <Icon className={`size-4`} />
+                      <Icon className={`size-4 ${getPriorityIconColor(id)}`} />
                     ) : (
                       <span
                         className={`size-2 rounded-full ${getBadgeStyle(id)}`}

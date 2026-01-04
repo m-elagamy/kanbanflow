@@ -8,7 +8,8 @@ import { getModalTitle } from "../../utils/get-modal-title";
 import { getModalDescription } from "../../utils/get-modal-description";
 
 type TaskModalProps = {
-  columnId: string;
+  columnId?: string;
+  boardId?: string;
   trigger?: React.ReactNode;
   task?: Task;
   mode: FormMode;
@@ -17,6 +18,7 @@ type TaskModalProps = {
 
 const TaskModal = ({
   columnId,
+  boardId,
   trigger,
   task,
   mode,
@@ -24,13 +26,23 @@ const TaskModal = ({
 }: TaskModalProps) => {
   const openModal = useModalStore((state) => state.openModal);
 
-  const modalId = task ? `task-${task.id}` : `new-task-${columnId}`;
+  const modalId = task
+    ? `task-${task.id}`
+    : columnId
+      ? `new-task-${columnId}`
+      : `new-task-board-${boardId}`;
 
   const handleOnClick = () => openModal("task", modalId);
 
   return (
     <>
-      <Button className="" variant={variant} onClick={handleOnClick} asChild>
+      <Button
+        className=""
+        variant={variant}
+        onClick={handleOnClick}
+        size="lg"
+        asChild
+      >
         {trigger}
       </Button>
       <Modal
@@ -41,6 +53,7 @@ const TaskModal = ({
       >
         <TaskForm
           columnId={columnId}
+          boardId={boardId}
           modalId={modalId}
           task={task}
           formMode={mode}

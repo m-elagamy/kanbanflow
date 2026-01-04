@@ -86,6 +86,7 @@ const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
               priority: true,
               description: true,
               columnId: true,
+              dueDate: true,
             },
           },
         },

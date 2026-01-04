@@ -1,8 +1,9 @@
-import { RefObject } from "react";
+import { RefObject, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 import type { FormMode, TaskSummary } from "@/lib/types";
 import { taskSchema, type TaskSchema } from "@/schemas/task";
 import { useTaskStore } from "@/stores/task";
+import { useColumnStore } from "@/stores/column";
 import useForm from "@/hooks/use-form";
 import GenericForm from "@/components/ui/generic-form";
 import FormField from "@/components/ui/form-field";
@@ -12,18 +13,43 @@ import taskPriorities from "../../data/task-priorities";
 type TaskFormProps = {
   formMode: FormMode;
   task?: TaskSummary;
-  columnId: string;
+  columnId?: string;
+  boardId?: string;
   modalId: string;
 };
 
-type TaskSchemaWithId = TaskSchema & { id: string };
+type TaskSchemaWithId = TaskSchema & { id: string; columnId?: string };
 
-const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
+const TaskForm = ({
+  formMode,
+  task,
+  modalId,
+  columnId,
+  boardId,
+}: TaskFormProps) => {
   const getColumnTasks = useTaskStore(
     useShallow((state) => state.getColumnTasks),
   );
 
-  const columnTasks = getColumnTasks(columnId);
+  const columns = useColumnStore(
+    useShallow((state) => {
+      if (!boardId) return {};
+      return state.columnsByBoard[boardId] || {};
+    }),
+  );
+
+  const sortedColumns = useMemo(() => {
+    return Object.values(columns).sort((a, b) => a.order - b.order);
+  }, [columns]);
+
+  const columnOptions = useMemo(() => {
+    return sortedColumns.map((column) => ({
+      id: column.id,
+      label: column.status,
+    }));
+  }, [sortedColumns]);
+
+  const columnTasks = columnId ? getColumnTasks(columnId) : [];
 
   const existingTasks = columnTasks.map((task) => {
     return {
@@ -44,6 +70,7 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
       title: task?.title ?? "",
       description: task?.description ?? "",
       priority: task?.priority ?? "medium",
+      columnId: columnId ?? "",
     },
     taskSchema,
   );
@@ -56,6 +83,8 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
     modalId,
     validateBeforeSubmit,
   });
+
+  const showColumnSelector = !columnId && boardId;
 
   return (
     <GenericForm
@@ -76,7 +105,25 @@ const TaskForm = ({ formMode, task, modalId, columnId }: TaskFormProps) => {
         placeholder="e.g., Create a stunning new landing page"
       />
 
-      <FormField type="hidden" name="columnId" defaultValue={columnId} />
+      {showColumnSelector ? (
+        <FormField
+          type="select"
+          name="columnId"
+          label="Which column?"
+          defaultValue={taskFormData.columnId || ""}
+          onChange={(value) => handleOnChange("columnId", value)}
+          options={columnOptions}
+          error={errors?.columnId}
+          required
+          placeholder="Select a column"
+          helperText="Choose the column where this task should be added."
+        />
+      ) : (
+        columnId && (
+          <FormField type="hidden" name="columnId" defaultValue={columnId} />
+        )
+      )}
+
       {isEditMode && (
         <FormField type="hidden" name="taskId" defaultValue={task?.id} />
       )}

@@ -17,7 +17,7 @@ const ColumnsWrapper = ({ boardId }: ColumnsWrapperProps) => {
   );
 
   return (
-    <div className="scrollbar-hide flex h-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth md:justify-start">
+    <div className="scrollbar-hide flex h-full snap-x snap-mandatory gap-4 overflow-x-auto px-4 scroll-smooth pb-4 md:justify-start">
       <DndProvider>
         {sortedColumns?.map((column) => (
           <ColumnCard key={column.id} column={column} />
