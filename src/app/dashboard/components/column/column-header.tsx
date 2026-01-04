@@ -22,7 +22,7 @@ export default function ColumnHeader({
     columnStatusOptions[columnStatus as keyof typeof columnStatusOptions];
 
   return (
-    <CardHeader className="sticky top-0 z-5 flex flex-row items-center justify-between border-b p-4">
+    <CardHeader className="sticky top-0 z-5 flex flex-row items-center justify-between border-b p-4 pb-3!">
       <CardTitle className="flex items-center gap-2 text-sm text-ellipsis whitespace-nowrap">
         {<Icon size={16} color={color} />}
         <span
