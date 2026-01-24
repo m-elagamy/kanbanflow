@@ -40,13 +40,14 @@ model Column {
 }
 
 model Task {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
-  description String?  @default("")
-  priority    Priority @default(medium)
+  description String?   @default("")
+  priority    Priority  @default(medium)
   order       Int
   columnId    String
-  column      Column   @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  dueDate     DateTime?
+  column      Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
 
   @@unique([columnId, title])
   @@index([columnId, order])
