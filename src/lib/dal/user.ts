@@ -4,7 +4,9 @@ import { withUserId } from "@/utils/auth-wrappers";
 import db from "../db";
 import { BOARDS_LIST_LIMIT } from "../constants";
 
-export const insertUser = async (data: User) => {
+type UserInsertPayload = Pick<User, "id" | "name" | "email">;
+
+export const insertUser = async (data: UserInsertPayload) => {
   return db.user.upsert({
     where: { id: data.id },
     update: {
@@ -18,6 +20,32 @@ export const insertUser = async (data: User) => {
     },
   });
 };
+
+export const getUserOnboardingState = withUserId(async (userId: string) => {
+  const [user, boardsCount] = await Promise.all([
+    db.user.findUnique({
+      where: { id: userId },
+      select: { hasCreatedBoardOnce: true },
+    }),
+    db.board.count({ where: { userId } }),
+  ]);
+
+  return {
+    boardsCount,
+    hasCreatedBoardOnce: user?.hasCreatedBoardOnce ?? false,
+  };
+});
+
+export const markUserHasCreatedBoardOnce = withUserId(
+  async (userId: string) => {
+    await db.user.updateMany({
+      where: { id: userId, hasCreatedBoardOnce: false },
+      data: { hasCreatedBoardOnce: true },
+    });
+
+    return true;
+  },
+);
 
 export const getAllUserBoards = withUserId(async (userId: string) => {
   const getCachedBoards = unstable_cache(

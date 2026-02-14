@@ -1,5 +1,10 @@
 import { RefObject } from "react";
-import type { BoardFormValues, BoardSummary, FormMode } from "@/lib/types";
+import type {
+  BoardFormValues,
+  BoardSummary,
+  FormMode,
+  Templates,
+} from "@/lib/types";
 import { handleOnBlur } from "@/utils/board-helpers";
 import useForm from "@/hooks/use-form";
 import GenericForm from "@/components/ui/generic-form";
@@ -13,12 +18,14 @@ type BoardFormProps = Readonly<{
   formMode: FormMode;
   board?: BoardSummary;
   modalId: string;
+  defaultTemplate?: Templates;
 }>;
 
 export default function BoardForm({
   formMode,
   board,
   modalId,
+  defaultTemplate,
 }: BoardFormProps) {
   const boards = useBoardStore((state) => state.boards);
 
@@ -38,7 +45,7 @@ export default function BoardForm({
       id: board?.id ?? "",
       title: board?.title ?? "",
       description: board?.description ?? "",
-      template: "personal",
+      template: defaultTemplate ?? "personal",
     },
     boardSchema,
   );
@@ -78,7 +85,7 @@ export default function BoardForm({
           name="template"
           type="select"
           label="Template"
-          defaultValue="personal"
+          defaultValue={defaultTemplate ?? "personal"}
           options={columnsTemplates}
           error={errors?.template}
           helperText="Start with a ready-made template or customize it later."

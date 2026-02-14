@@ -15,6 +15,7 @@ import {
   getBoardBySlug,
   updateBoard,
 } from "@/lib/dal/board";
+import { markUserHasCreatedBoardOnce } from "@/lib/dal/user";
 import type { ColumnStatus } from "@/schemas/column";
 import handlePrismaError from "@/utils/prisma-error-handler";
 
@@ -49,6 +50,7 @@ export const createBoardAction = async (
     return { success: false, message: handlePrismaError(error) };
   } finally {
     revalidateTag(`user-boards`, "max");
+    markUserHasCreatedBoardOnce();
   }
 };
 

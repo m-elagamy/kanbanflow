@@ -3,7 +3,12 @@
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/modal";
 import { useModalStore } from "@/stores/modal";
-import type { BoardSummary, ButtonVariants, FormMode } from "@/lib/types";
+import type {
+  BoardSummary,
+  ButtonVariants,
+  FormMode,
+  Templates,
+} from "@/lib/types";
 import BoardForm from "./board-form";
 import { getModalTitle } from "../../utils/get-modal-title";
 import { getModalDescription } from "../../utils/get-modal-description";
@@ -14,6 +19,7 @@ type BoardModalProps = {
   trigger: React.ReactNode;
   board?: BoardSummary;
   variant?: ButtonVariants;
+  defaultTemplate?: Templates;
 };
 
 const BoardModal = ({
@@ -22,6 +28,7 @@ const BoardModal = ({
   trigger,
   variant,
   modalId,
+  defaultTemplate,
 }: BoardModalProps) => {
   const openModal = useModalStore((state) => state.openModal);
 
@@ -46,7 +53,12 @@ const BoardModal = ({
         modalType="board"
         modalId={modalIdToUse}
       >
-        <BoardForm formMode={mode} modalId={modalIdToUse} board={board} />
+        <BoardForm
+          formMode={mode}
+          modalId={modalIdToUse}
+          board={board}
+          defaultTemplate={defaultTemplate}
+        />
       </Modal>
     </>
   );
