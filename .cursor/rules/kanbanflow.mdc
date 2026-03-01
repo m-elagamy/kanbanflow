@@ -84,7 +84,65 @@ const params = await props.params;
 const searchParams = await props.searchParams;
 ```
 
-### Plans
+## Project Structure
 
+```
+src/
+  actions/      # Server Actions ("use server") — one file per domain
+  lib/
+    db/         # Prisma singleton — always import db from here
+    dal/        # Data Access Layer — all DB queries live here
+    types/      # ServerActionResult<T>, FormErrors<T>, store types
+  schemas/      # Zod schemas — one file per domain
+  stores/       # Zustand stores (Immer) — one file per domain
+  hooks/        # Custom React hooks (client only)
+  utils/        # auth-wrappers.ts, prisma-error-handler.ts, etc.
+  providers/    # dnd-provider.tsx, theme-provider.tsx
+  components/
+    ui/         # shadcn/ui — do not modify
+    layout/     # Header, sidebar, footer
+```
+
+## Server Actions (`src/actions/`)
+
+- Add `"use server"` at top of every actions file
+- Always validate with Zod schema from `src/schemas/` first
+- Call DAL only — never import `db` directly in actions
+- Return `ServerActionResult<T>` from `src/lib/types/`
+- Invalidate cache with `revalidateTag()` after mutations
+
+## Data Access Layer (`src/lib/dal/`)
+
+- All Prisma queries go here — never query `db` outside of `dal/`
+- Wrap with `withUserId` (auto-injects Clerk userId) or `ensureAuthenticated` from `src/utils/auth-wrappers.ts`
+- Import `db` from `src/lib/db/` only; add `import "server-only"` to files that use it
+
+## Authentication (Clerk)
+
+- Import `auth` from `@clerk/nextjs/server`
+- Get userId: `const { userId } = await auth()`
+- Unauthorized: call `unauthorized()` from `next/navigation`
+- Auth protection via DAL wrappers, not in actions directly
+
+## State Management
+
+- **Zustand** (`src/stores/`) for client UI state, Immer middleware for mutations
+- **Server state** initialized into Zustand via `use-initialize-board.ts`
+- **URL state** with `nuqs` for shareable UI state
+- Use `fast-deep-equal` to prevent unnecessary store updates
+- Stores track `previousState` for optimistic update rollbacks
+
+## Zod Schemas (`src/schemas/`)
+
+- One file per domain; reuse in both server validation and client forms
+
+## Component Conventions
+
+- Toasts: `sonner` (`toast.success` / `toast.error`) in client handlers only
+- Drag-and-drop: `dnd-kit` with `src/providers/dnd-provider.tsx`
+- Animations: `motion` (Framer Motion)
+- Never expose Prisma model types to client — map to plain objects first
+
+### Plans
 - Make the plan extremely concise. Sacrifice grammar for the sake of concision.
 - At the end of each plan, give me a list of unresolved question to answer, if any.
