@@ -26,7 +26,6 @@ const WelcomePage = async () => {
       id: user.id,
       name: user.fullName,
       email: user.emailAddresses[0].emailAddress,
-      hasCreatedBoardOnce: false,
     }).catch((error) => console.error("Failed to insert user:", error));
   });
 
@@ -42,23 +41,12 @@ const WelcomePage = async () => {
             </div>
             <div className="space-y-3">
               <h1 className="text-3xl font-semibold text-balance md:text-4xl">
-                Let’s set up your first board
+                Let’s set up your first board, {user.firstName}!
               </h1>
               <p className="text-muted-foreground max-w-2xl text-base md:text-lg">
                 Choose a template or start from scratch to organize your work.
               </p>
             </div>
-            <BoardModal
-              mode="create"
-              modalId="welcome-create-board"
-              trigger={
-                <button className="inline-flex items-center gap-2 text-base">
-                  Create your first board
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              }
-              defaultTemplate="personal"
-            />
           </div>
 
           <div className="mt-10">

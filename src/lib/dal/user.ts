@@ -4,9 +4,8 @@ import { withUserId } from "@/utils/auth-wrappers";
 import db from "../db";
 import { BOARDS_LIST_LIMIT } from "../constants";
 
-type UserInsertPayload = Pick<User, "id" | "name" | "email">;
 
-export const insertUser = async (data: UserInsertPayload) => {
+export const insertUser = async (data: Omit<User, "hasCreatedBoardOnce">) => {
   return db.user.upsert({
     where: { id: data.id },
     update: {

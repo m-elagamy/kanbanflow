@@ -10,8 +10,8 @@ import {
 import type { SimplifiedBoard } from "@/lib/types/stores/board";
 
 export async function insertUserAction(
-  data: User,
-): Promise<ServerActionResult<Partial<User>>> {
+  data: Omit<User, "hasCreatedBoardOnce">,
+): Promise<ServerActionResult<User>> {
   if (!data.id) {
     return {
       success: false,
