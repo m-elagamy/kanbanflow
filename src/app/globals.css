@@ -240,6 +240,16 @@
   @apply overflow-x-hidden text-ellipsis whitespace-nowrap;
 }
 
+@utility welcome-gradient {
+  background: radial-gradient(circle at top, rgba(59, 130, 246, 0.08), transparent 55%),
+              radial-gradient(circle at bottom, rgba(16, 185, 129, 0.06), transparent 50%);
+}
+
+.dark .welcome-gradient {
+  background: radial-gradient(circle at top, rgba(59, 130, 246, 0.18), transparent 55%),
+              radial-gradient(circle at bottom, rgba(16, 185, 129, 0.12), transparent 50%);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
