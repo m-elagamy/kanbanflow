@@ -54,7 +54,7 @@ export default function BoardsGrid({
             mode="create"
             modalId="dashboard-new-board"
             trigger={
-              <button className="bg-primary text-primary-foreground hover:bg-primary/90 flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors">
+              <button>
                 <PlusCircle className="h-4 w-4" />
                 New board
               </button>
