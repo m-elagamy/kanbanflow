@@ -11,20 +11,31 @@ const themes = [
   { value: "system", icon: Monitor, label: "System" },
 ] as const;
 
-export function ThemeSwitcher() {
+interface ThemeSwitcherProps {
+  size?: "sm" | "md";
+}
+
+export function ThemeSwitcher({ size = "md" }: ThemeSwitcherProps) {
   const { theme, setTheme } = useTheme();
 
   const currentTheme = theme || "system";
   const activeIndex = themes.findIndex((t) => t.value === currentTheme);
 
+  const isSm = size === "sm";
+
   return (
-    <div className="border-border/50 bg-muted/30 relative inline-flex items-center gap-1 rounded-lg border p-1">
+    <div
+      className={cn(
+        "border-border/50 bg-muted/30 relative inline-flex items-center border",
+        isSm ? "gap-0.5 rounded-md p-0.5" : "gap-1 rounded-lg p-1",
+      )}
+    >
       {/* Animated background indicator */}
       <motion.div
-        className="bg-primary/10 absolute rounded-md"
+        className="bg-primary/10 absolute rounded-sm"
         initial={false}
         animate={{
-          x: `calc(${activeIndex} * (2rem + 0.25rem))`,
+          x: `calc(${activeIndex} * (${isSm ? "1.5rem + 0.125rem" : "2rem + 0.25rem"}))`,
         }}
         transition={{
           type: "spring",
@@ -32,8 +43,8 @@ export function ThemeSwitcher() {
           damping: 30,
         }}
         style={{
-          width: "2rem",
-          height: "2rem",
+          width: isSm ? "1.5rem" : "2rem",
+          height: isSm ? "1.5rem" : "2rem",
         }}
       />
 
@@ -46,7 +57,8 @@ export function ThemeSwitcher() {
               setTheme(value);
             }}
             className={cn(
-              "relative z-10 flex size-8 items-center justify-center rounded-md transition-all duration-200",
+              "relative z-10 flex items-center justify-center rounded-sm transition-all duration-200",
+              isSm ? "size-6" : "size-8",
               isActive
                 ? "text-primary"
                 : "text-muted-foreground hover:text-foreground",
@@ -65,7 +77,7 @@ export function ThemeSwitcher() {
                 damping: 17,
               }}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className={isSm ? "h-3 w-3" : "h-4 w-4"} />
             </motion.div>
           </button>
         );

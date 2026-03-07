@@ -9,6 +9,8 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { ThemeSwitcher } from "@/components/layout/footer/theme-switcher";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -41,7 +43,7 @@ export function UserProfile() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
-              className="data-[state=open]:bg-sidebar-accent border border-border dark:border-border/60 data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent border-border dark:border-border/60 data-[state=open]:text-sidebar-accent-foreground border"
               size="lg"
             >
               <Avatar className="h-8 w-8 rounded-lg">
@@ -94,6 +96,16 @@ export function UserProfile() {
                 <Bell />
                 Notifications
               </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-xs font-medium">
+                Preferences
+              </DropdownMenuLabel>
+              <div className="flex items-center justify-between px-2 py-1.5 text-sm">
+                Theme
+                <ThemeSwitcher size="sm" />
+              </div>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
