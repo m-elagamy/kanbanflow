@@ -17,8 +17,14 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
       <DashboardSidebar />
-      <SidebarTrigger className="relative -top-11 left-3 z-50 md:top-2" />
-      <SidebarInset>{children}</SidebarInset>
+      <SidebarInset>
+        <header className="border-border/50 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-40 flex h-12 shrink-0 items-center border-b px-4 backdrop-blur">
+          <SidebarTrigger />
+        </header>
+        <div className="flex-1 overflow-auto">
+          {children}
+        </div>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

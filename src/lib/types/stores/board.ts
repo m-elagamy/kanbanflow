@@ -3,6 +3,13 @@ import type { BoardFormValues } from "..";
 
 export type SimplifiedBoard = Omit<Board, "userId" | "order">;
 
+export type BoardWithStats = SimplifiedBoard & {
+  _count: {
+    columns: number;
+    tasks: number;
+  };
+};
+
 export type BoardState = {
   boards: Record<string, SimplifiedBoard>;
   activeBoardId: string | null;

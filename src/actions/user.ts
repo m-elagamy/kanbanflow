@@ -6,8 +6,10 @@ import {
   insertUser,
   getAllUserBoards,
   getUserOnboardingState,
+  getUserBoardsWithStats,
+  getDashboardStats,
 } from "../lib/dal/user";
-import type { SimplifiedBoard } from "@/lib/types/stores/board";
+import type { SimplifiedBoard, BoardWithStats } from "@/lib/types/stores/board";
 
 export async function insertUserAction(
   data: Omit<User, "hasCreatedBoardOnce">,
@@ -50,6 +52,48 @@ export async function getAllUserBoardsAction(): Promise<
   return {
     success: true,
     message: "All user boards fetched successfully.",
+    fields: result.data,
+  };
+}
+
+export async function getUserBoardsWithStatsAction(): Promise<
+  ServerActionResult<BoardWithStats[]>
+> {
+  const result = await getUserBoardsWithStats();
+
+  if (!result.success) {
+    return {
+      success: false,
+      message: "Failed to fetch boards.",
+    };
+  }
+
+  return {
+    success: true,
+    message: "Boards fetched successfully.",
+    fields: result.data,
+  };
+}
+
+export async function getDashboardStatsAction(): Promise<
+  ServerActionResult<{
+    totalBoards: number;
+    totalTasks: number;
+    highPriorityTasks: number;
+  }>
+> {
+  const result = await getDashboardStats();
+
+  if (!result.success) {
+    return {
+      success: false,
+      message: "Failed to fetch dashboard stats.",
+    };
+  }
+
+  return {
+    success: true,
+    message: "Dashboard stats fetched successfully.",
     fields: result.data,
   };
 }

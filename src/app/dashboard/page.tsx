@@ -1,16 +1,12 @@
 import { redirect, unauthorized } from "next/navigation";
 import type { Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
-import { FolderKanban, PlusCircle } from "lucide-react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { getUserOnboardingStateAction } from "@/actions/user";
-import BoardModal from "./components/board/board-modal";
+  getUserOnboardingStateAction,
+  getUserBoardsWithStatsAction,
+  getDashboardStatsAction,
+} from "@/actions/user";
+import BoardsGrid from "./components/board/boards-grid";
 
 const Dashboard = async () => {
   const user = await currentUser();
@@ -19,46 +15,31 @@ const Dashboard = async () => {
 
   const onboardingState = await getUserOnboardingStateAction();
 
-  const boardsCount = onboardingState.fields?.boardsCount ?? 0;
   const hasCreatedBoardOnce =
     onboardingState.fields?.hasCreatedBoardOnce ?? false;
+  const boardsCount = onboardingState.fields?.boardsCount ?? 0;
 
   if (boardsCount === 0 && !hasCreatedBoardOnce) redirect("/welcome");
 
-  const isEmptyAfterFirstBoard = boardsCount === 0 && hasCreatedBoardOnce;
+  const [boardsResult, statsResult] = await Promise.all([
+    getUserBoardsWithStatsAction(),
+    getDashboardStatsAction(),
+  ]);
+
+  const boards = boardsResult.fields ?? [];
+  const stats = statsResult.fields ?? {
+    totalBoards: 0,
+    totalTasks: 0,
+    highPriorityTasks: 0,
+  };
 
   return (
-    <section className="relative right-3 grow place-content-center">
-      <Card className="bg-background border-none text-center shadow-none">
-        <CardHeader>
-          <CardTitle className="text-gradient flex flex-col items-center gap-4 text-xl md:text-3xl">
-            <FolderKanban size={32} className="text-primary" />
-            {isEmptyAfterFirstBoard
-              ? "No boards yet"
-              : "Choose a board to continue"}
-          </CardTitle>
-          <CardDescription className="text-sm md:text-base">
-            {isEmptyAfterFirstBoard
-              ? "Create a new board to start organizing tasks and projects again."
-              : "Select a board from the sidebar or create a new one to get started."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <BoardModal
-            mode="create"
-            trigger={
-              <button>
-                <PlusCircle className="transition-transform group-hover:rotate-90" />
-                {isEmptyAfterFirstBoard
-                  ? "Create a new board"
-                  : "Create another board"}
-              </button>
-            }
-            modalId="dashboard-new-board"
-          />
-        </CardContent>
-      </Card>
-    </section>
+    <main className="relative min-h-full overflow-hidden px-6 py-8 md:px-10">
+      <div className="welcome-gradient pointer-events-none absolute inset-0" />
+      <section className="relative z-10 mx-auto max-w-5xl">
+        <BoardsGrid boards={boards} userName={user.firstName} stats={stats} />
+      </section>
+    </main>
   );
 };
 

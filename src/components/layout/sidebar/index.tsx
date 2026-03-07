@@ -17,7 +17,7 @@ export default async function DashboardSidebar() {
   const userBoards = (await getAllUserBoardsAction()).fields;
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" variant="inset">
       <SidebarTitle />
       <SidebarContent>
         <SidebarGroup>
