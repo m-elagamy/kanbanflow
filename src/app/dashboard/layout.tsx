@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import DashboardSidebar from "@/components/layout/sidebar";
+import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
 import {
   SidebarProvider,
   SidebarTrigger,
@@ -21,8 +22,9 @@ export default async function DashboardLayout({
     >
       <DashboardSidebar />
       <SidebarInset className="border-border/60 border">
-        <header className="border-border/60 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-40 flex h-12 shrink-0 items-center border-b px-4 backdrop-blur md:rounded-t-xl">
+        <header className="border-border/60 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-40 flex h-12 shrink-0 items-center gap-3 border-b px-4 backdrop-blur md:rounded-t-xl">
           <SidebarTrigger />
+          <DashboardBreadcrumb />
         </header>
         <div className="flex-1 overflow-auto">{children}</div>
       </SidebarInset>
