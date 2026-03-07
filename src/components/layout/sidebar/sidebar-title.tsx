@@ -8,7 +8,7 @@ import {
 
 const SidebarTitle = () => {
   return (
-    <SidebarHeader className="pointer-events-none border-b">
+    <SidebarHeader className="pointer-events-none">
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton>

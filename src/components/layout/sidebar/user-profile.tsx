@@ -41,7 +41,7 @@ export function UserProfile() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent border border-border dark:border-border/60 data-[state=open]:text-sidebar-accent-foreground"
               size="lg"
             >
               <Avatar className="h-8 w-8 rounded-lg">

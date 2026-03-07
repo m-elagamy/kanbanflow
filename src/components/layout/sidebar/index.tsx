@@ -31,7 +31,7 @@ export default async function DashboardSidebar() {
       <SidebarFooter>
         <UserProfile />
       </SidebarFooter>
-      <SidebarRail />
+      {/* <SidebarRail /> */}
     </Sidebar>
   );
 }

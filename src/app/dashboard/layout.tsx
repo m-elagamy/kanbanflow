@@ -15,15 +15,16 @@ export default async function DashboardLayout({
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
   return (
-    <SidebarProvider defaultOpen={defaultOpen}>
+    <SidebarProvider
+      defaultOpen={defaultOpen}
+      className="bg-muted dark:bg-[oklch(0.175_0_0)]"
+    >
       <DashboardSidebar />
-      <SidebarInset>
-        <header className="border-border/50 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-40 flex h-12 shrink-0 items-center border-b px-4 backdrop-blur">
+      <SidebarInset className="border-border/60 border">
+        <header className="border-border/60 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-40 flex h-12 shrink-0 items-center border-b px-4 backdrop-blur md:rounded-t-xl">
           <SidebarTrigger />
         </header>
-        <div className="flex-1 overflow-auto">
-          {children}
-        </div>
+        <div className="flex-1 overflow-auto">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

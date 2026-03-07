@@ -20,6 +20,7 @@ type BoardModalProps = {
   board?: BoardSummary;
   variant?: ButtonVariants;
   defaultTemplate?: Templates;
+  size?: "sm" | "default" | "lg" | "icon";
 };
 
 const BoardModal = ({
@@ -29,6 +30,7 @@ const BoardModal = ({
   variant,
   modalId,
   defaultTemplate,
+  size = "default",
 }: BoardModalProps) => {
   const openModal = useModalStore((state) => state.openModal);
 
@@ -42,7 +44,7 @@ const BoardModal = ({
         variant={variant}
         className="group"
         onClick={handleOnClick}
-        size="lg"
+        size={size}
         asChild
       >
         {trigger}
