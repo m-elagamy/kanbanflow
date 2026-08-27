@@ -8,6 +8,7 @@ import {
   getAllUserBoards,
   getUserOnboardingState,
   getUserBoardsWithStats,
+  getUserBoardsPage,
   getDashboardStats,
 } from "../lib/dal/user";
 import type { SimplifiedBoard, BoardWithStats } from "@/lib/types/stores/board";
@@ -65,6 +66,25 @@ export async function getUserBoardsWithStatsAction(): Promise<
   const result = await getUserBoardsWithStats();
 
   if (!result.success) {
+    return {
+      success: false,
+      message: "Failed to fetch boards.",
+    };
+  }
+
+  return {
+    success: true,
+    message: "Boards fetched successfully.",
+    fields: result.data,
+  };
+}
+
+export async function getUserBoardsPageAction(
+  page: number,
+): Promise<ServerActionResult<{ boards: BoardWithStats[]; totalCount: number }>> {
+  const result = await getUserBoardsPage(page);
+
+  if (!result.success || !result.data) {
     return {
       success: false,
       message: "Failed to fetch boards.",

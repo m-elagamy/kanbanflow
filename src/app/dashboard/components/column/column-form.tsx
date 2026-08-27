@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { createColumnAction } from "@/actions/column";
 import { useColumnStore } from "@/stores/column";
 import { useModalStore } from "@/stores/modal";
-import delay from "@/utils/delay";
 import generateUUID from "@/utils/generate-UUID";
 import columnStatusSchema, { type ColumnStatus } from "@/schemas/column";
 import getAvailableStatusOptions from "@/utils/column-helpers";
@@ -85,7 +84,6 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
     }
 
     setIsLoading("column", "creating", true, tempId);
-    await delay(400);
 
     addColumn(boardId, {
       id: tempId,

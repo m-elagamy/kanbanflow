@@ -63,7 +63,6 @@ export function useBoardFormAction({
     if (isEditMode && board) {
       setIsLoading("board", "updating", true, board.id);
 
-      await delay(500);
       updateBoard(board.id, omit(optimisticBoard, ["id"]));
       closeModal("board", modalId);
 

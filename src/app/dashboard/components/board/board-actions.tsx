@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import { deleteBoardAction } from "@/actions/board";
 import { SidebarMenuAction, useSidebar } from "@/components/ui/sidebar";
 import useBoardStore from "@/stores/board";
-import delay from "@/utils/delay";
 import BoardModal from "./board-modal";
 import useLoadingStore from "@/stores/loading";
 import type { BoardSummary } from "@/lib/types";
@@ -65,7 +64,6 @@ export default function BoardActions({
         redirectIfActiveBoard(board.slug);
       }, 0);
 
-      await delay(600);
       deleteBoard(board.id);
     } catch (error) {
       handleOnError(error, "Failed to delete board");

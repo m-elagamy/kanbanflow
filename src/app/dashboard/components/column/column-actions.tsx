@@ -17,7 +17,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { deleteColumnAction, updateColumnAction } from "@/actions/column";
 import { useColumnStore } from "@/stores/column";
 import TaskModal from "../task/task-modal";
-import delay from "@/utils/delay";
 import useLoadingStore from "@/stores/loading";
 import useBoardStore from "@/stores/board";
 import handleOnError from "@/utils/handle-on-error";
@@ -80,7 +79,6 @@ const ColumnActions = ({
 
     setIsLoading("column", "updating", true, columnId);
 
-    await delay(300);
     updateColumn(activeBoardId, columnId, updates);
     setIsMainDropdownOpen(false);
 
@@ -98,7 +96,6 @@ const ColumnActions = ({
   const handleOnClick = async () => {
     if (activeBoardId && columnId) {
       setIsLoading("column", "deleting", true, columnId);
-      await delay(500);
       deleteColumn(activeBoardId, columnId);
 
       try {

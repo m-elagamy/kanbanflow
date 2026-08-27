@@ -6,7 +6,6 @@ import { useModalStore } from "@/stores/modal";
 import { useTaskStore } from "@/stores/task";
 import generateUUID from "@/utils/generate-UUID";
 import useLoadingStore from "@/stores/loading";
-import delay from "@/utils/delay";
 import handleOnError from "@/utils/handle-on-error";
 
 type UseTaskFormAction = {
@@ -88,7 +87,6 @@ export function useTaskFormAction({
       if (isEditMode && task) {
         setIsLoading("task", "updating", true, task.id);
 
-        await delay(250);
         updateTask(task.id, { title, description, priority });
         closeModal("task", modalId);
 
@@ -100,7 +98,6 @@ export function useTaskFormAction({
       } else {
         setIsLoading("task", "creating", true, optimisticTask.id);
 
-        await delay(300);
         addTask(finalColumnId, optimisticTask);
         closeModal("task", modalId);
 

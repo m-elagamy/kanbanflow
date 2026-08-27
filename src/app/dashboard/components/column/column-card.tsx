@@ -7,8 +7,10 @@ import { useShallow } from "zustand/react/shallow";
 import { Card, CardContent } from "@/components/ui/card";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import { useTaskStore } from "@/stores/task";
+import { useTaskFilterStore } from "@/stores/task-filter";
 import ColumnHeader from "./column-header";
 import NoTasksMessage from "../task/no-tasks-message";
+import NoMatchingTasksMessage from "../task/no-matching-tasks-message";
 import TaskCard from "../task/task-card";
 
 type ColumnCardProps = {
@@ -23,8 +25,14 @@ const ColumnCard = ({ column }: ColumnCardProps) => {
   const tasks = useTaskStore(
     useShallow((state) => state.getColumnTasks(column.id)),
   );
+  const priorityFilter = useTaskFilterStore((state) => state.priorityFilter);
 
-  const taskIds = tasks.map((task) => task.id);
+  const visibleTasks =
+    priorityFilter === "all"
+      ? tasks
+      : tasks.filter((task) => task.priority === priorityFilter);
+
+  const taskIds = visibleTasks.map((task) => task.id);
 
   return (
     <Card
@@ -43,15 +51,17 @@ const ColumnCard = ({ column }: ColumnCardProps) => {
       <ColumnHeader column={column} tasksCount={tasks.length} />
 
       <CardContent className="scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent flex-1 space-y-3 overflow-y-auto p-4 pt-3">
-        {tasks?.length === 0 ? (
+        {tasks.length === 0 ? (
           <NoTasksMessage columnId={column.id} />
+        ) : visibleTasks.length === 0 ? (
+          <NoMatchingTasksMessage />
         ) : (
           <SortableContext
             items={taskIds}
             strategy={verticalListSortingStrategy}
           >
             <div className="space-y-3">
-              {tasks?.map((task) => (
+              {visibleTasks.map((task) => (
                 <TaskCard key={task.id} task={task} columnId={column.id} />
               ))}
             </div>

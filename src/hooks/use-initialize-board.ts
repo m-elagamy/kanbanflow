@@ -4,6 +4,7 @@ import type { Task } from "@prisma/client";
 import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
 import { useTaskStore } from "@/stores/task";
+import { useTaskFilterStore } from "@/stores/task-filter";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import type { SimplifiedBoard } from "@/lib/types/stores/board";
 
@@ -21,6 +22,9 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
   );
   const setBoardColumns = useColumnStore((state) => state.setColumns);
   const setTasks = useTaskStore((state) => state.setTasks);
+  const setPriorityFilter = useTaskFilterStore(
+    (state) => state.setPriorityFilter,
+  );
 
   useEffect(() => {
     if (!initialBoard?.id) return;
@@ -29,6 +33,7 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
 
     setBoards({ [initialBoard.id]: boardData });
     setActiveBoardId(initialBoard.id);
+    setPriorityFilter("all");
 
     const columnsWithoutTasks = columns.map(({ id, status, order }) => ({
       id,
@@ -43,7 +48,14 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
     if (allTasks.length > 0) {
       setTasks(allTasks);
     }
-  }, [initialBoard, setBoards, setBoardColumns, setTasks, setActiveBoardId]);
+  }, [
+    initialBoard,
+    setBoards,
+    setBoardColumns,
+    setTasks,
+    setActiveBoardId,
+    setPriorityFilter,
+  ]);
 
   const activeBoard = boards[initialBoard?.id] ?? null;
 

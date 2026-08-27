@@ -10,10 +10,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  useTaskFilterStore,
+  type PriorityFilterValue,
+} from "@/stores/task-filter";
 
 export function TaskPriorityFilter() {
+  const { priorityFilter, setPriorityFilter } = useTaskFilterStore();
+
   return (
-    <Select>
+    <Select
+      value={priorityFilter}
+      onValueChange={(value) => setPriorityFilter(value as PriorityFilterValue)}
+    >
       <SelectTrigger className="hover:bg-muted-foreground/5">
         <Filter size={14} className="text-muted-foreground" />
         <SelectValue placeholder="Filter" />

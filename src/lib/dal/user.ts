@@ -1,9 +1,37 @@
 import { unstable_cache } from "next/cache";
-import { User } from "@prisma/client";
+import { User, type Prisma } from "@prisma/client";
 import { withUserId, ensureAuthenticated } from "@/utils/auth-wrappers";
 import db from "../db";
-import { BOARDS_LIST_LIMIT } from "../constants";
+import { BOARDS_LIST_LIMIT, BOARDS_PAGE_SIZE } from "../constants";
 import type { BoardWithStats } from "../types/stores/board";
+
+const boardWithStatsSelect = {
+  id: true,
+  title: true,
+  slug: true,
+  description: true,
+  _count: { select: { columns: true } },
+  columns: {
+    select: {
+      _count: { select: { tasks: true } },
+    },
+  },
+} satisfies Prisma.BoardSelect;
+
+type BoardRowWithStats = Prisma.BoardGetPayload<{
+  select: typeof boardWithStatsSelect;
+}>;
+
+const toBoardWithStats = (board: BoardRowWithStats): BoardWithStats => ({
+  id: board.id,
+  title: board.title,
+  slug: board.slug,
+  description: board.description,
+  _count: {
+    columns: board._count.columns,
+    tasks: board.columns.reduce((sum, col) => sum + col._count.tasks, 0),
+  },
+});
 
 export const insertUser = ensureAuthenticated(
   async (data: Omit<User, "hasCreatedBoardOnce">) => {
@@ -98,31 +126,11 @@ export const getUserBoardsWithStats = withUserId(async (userId: string) => {
       const boards = await db.board.findMany({
         where: { userId: uid },
         orderBy: { order: "asc" },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          description: true,
-          _count: { select: { columns: true } },
-          columns: {
-            select: {
-              _count: { select: { tasks: true } },
-            },
-          },
-        },
+        select: boardWithStatsSelect,
         take: BOARDS_LIST_LIMIT,
       });
 
-      return boards.map((board) => ({
-        id: board.id,
-        title: board.title,
-        slug: board.slug,
-        description: board.description,
-        _count: {
-          columns: board._count.columns,
-          tasks: board.columns.reduce((sum, col) => sum + col._count.tasks, 0),
-        },
-      }));
+      return boards.map(toBoardWithStats);
     },
     [`boards-with-stats`],
     { tags: [`user-boards-${userId}`] },
@@ -130,3 +138,31 @@ export const getUserBoardsWithStats = withUserId(async (userId: string) => {
 
   return getCachedBoardsWithStats(userId);
 });
+
+export const getUserBoardsPage = withUserId(
+  async (
+    userId: string,
+    page: number,
+  ): Promise<{ boards: BoardWithStats[]; totalCount: number }> => {
+    const getCachedPage = unstable_cache(
+      async (uid: string, pageNumber: number) => {
+        const [boards, totalCount] = await Promise.all([
+          db.board.findMany({
+            where: { userId: uid },
+            orderBy: { order: "asc" },
+            select: boardWithStatsSelect,
+            skip: (pageNumber - 1) * BOARDS_PAGE_SIZE,
+            take: BOARDS_PAGE_SIZE,
+          }),
+          db.board.count({ where: { userId: uid } }),
+        ]);
+
+        return { boards: boards.map(toBoardWithStats), totalCount };
+      },
+      [`boards-with-stats-paginated`],
+      { tags: [`user-boards-${userId}`] },
+    );
+
+    return getCachedPage(userId, page);
+  },
+);

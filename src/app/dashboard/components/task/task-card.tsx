@@ -1,15 +1,11 @@
 "use client";
 
-import { Clock, Flag } from "lucide-react";
+import { Flag } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useUser } from "@clerk/nextjs";
 import type { Task } from "@prisma/client";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { TaskProgress } from "@/components/ui/task-progress";
 import formatDate from "@/utils/format-date";
-import { formatTime } from "@/utils/format-time";
 import getBadgeStyle from "../../utils/get-badge-style";
 import TaskActions from "./task-actions";
 import taskPriorities from "../../data/task-priorities";
@@ -21,7 +17,6 @@ type TaskCardProps = {
 };
 
 const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
-  const { user } = useUser();
   const {
     attributes,
     listeners,
@@ -41,31 +36,8 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
     scale: isSortableDragging ? "0.95" : "1",
   };
 
-  const userInitials = user
-    ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}` ||
-      user.emailAddresses[0]?.emailAddress[0].toUpperCase() ||
-      "U"
-    : "U";
-
-  // Due date (only show if it exists)
   const dueDate = task.dueDate ? formatDate(task.dueDate.toISOString()) : null;
 
-  // Progress, estimated time, and logged time (will be from task once schema is updated)
-  // For now, using type assertion to access these optional fields
-  const taskWithTime = task as Task & {
-    progress?: number;
-    estimatedMinutes?: number | null;
-    loggedMinutes?: number | null;
-  };
-
-  // Placeholder values for UI preview (remove when real data is available)
-  const progress = taskWithTime.progress ?? 0;
-  const estimatedMinutes = taskWithTime.estimatedMinutes ?? 120; // 2 hours
-
-  // Show progress only if it's greater than 0
-  const showProgress = progress > 0;
-
-  // Get the priority icon
   const priorityOption = taskPriorities.find((p) => p.id === task.priority);
   const PriorityIcon = priorityOption?.icon || taskPriorities[1].icon; // Default to medium
 
@@ -108,48 +80,13 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
           )}
         </div>
 
-        {/* Progress Bar */}
-        {showProgress && (
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-xs font-medium">
-                Progress
-              </span>
-              <span className="text-muted-foreground text-xs font-semibold">
-                {progress}%
-              </span>
-            </div>
-            <TaskProgress progress={progress} />
-          </div>
-        )}
-
-        {/* Time Info */}
-        {(dueDate || estimatedMinutes) && (
+        {/* Due Date */}
+        {dueDate && (
           <div className="flex items-center gap-3 text-xs">
-            {dueDate && (
-              <div className="text-muted-foreground flex items-center gap-1">
-                <Flag size={12} />
-                <span>{dueDate}</span>
-              </div>
-            )}
-            {estimatedMinutes && (
-              <div className="text-muted-foreground flex items-center gap-1">
-                <Clock size={12} />
-                <span>Est: {formatTime(estimatedMinutes)}</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Footer: Avatar */}
-        {user && (
-          <div className="flex items-center justify-end">
-            <Avatar className="h-6 w-6">
-              <AvatarImage src={user.imageUrl} alt={user.fullName || "User"} />
-              <AvatarFallback className="text-[0.625rem]">
-                {userInitials}
-              </AvatarFallback>
-            </Avatar>
+            <div className="text-muted-foreground flex items-center gap-1">
+              <Flag size={12} />
+              <span>{dueDate}</span>
+            </div>
           </div>
         )}
       </div>

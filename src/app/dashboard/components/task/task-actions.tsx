@@ -15,7 +15,6 @@ import TaskModal from "./task-modal";
 import { deleteTaskAction } from "@/actions/task";
 import { useTaskStore } from "@/stores/task";
 import useLoadingStore from "@/stores/loading";
-import delay from "@/utils/delay";
 import handleOnError from "@/utils/handle-on-error";
 
 type TaskActionsProps = {
@@ -42,7 +41,6 @@ export default function TaskActions({
 
   const handleDelete = async () => {
     setIsLoading("task", "deleting", true, task.id);
-    await delay(400);
     deleteTask(columnId, task.id);
 
     try {

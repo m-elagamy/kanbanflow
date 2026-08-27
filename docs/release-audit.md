@@ -69,16 +69,16 @@ This snapshot goes stale as the code changes. To regenerate against a newer comm
 
 > Cheapest stage, biggest change in how the project reads to a reviewer.
 
-- [ ] **UX-02** `src/app/dashboard/components/task/task-card.tsx:63,135-140,145-153` — every card shows a fabricated "Est: 2h" and the current viewer as a pseudo-assignee _(30 min)_
-- [ ] **PERF-02** `src/app/dashboard/components/task/task-card.tsx:24` — `useUser()` in every card _(resolved by UX-02)_
-- [ ] **UX-03** 7 `delay()` calls across form/action hooks — ~1.5 s of artificial latency, applied *before* the optimistic update _(1 h)_
-- [ ] **UX-01** `src/app/dashboard/components/task/tasks-filter.tsx` — priority filter in the board toolbar is inert _(3 h to wire / 5 min to remove)_
-- [ ] **UX-04** `src/app/dashboard/boards/page.tsx` — placeholder page is routable and shadows the `[board]` segment _(5 min)_
-- [ ] **FEAT-04** `src/app/dashboard/components/task/task-card.tsx:55-66` — progress read from a field that never existed _(20 min)_
-- [ ] **FEAT-03** `src/app/dashboard/components/task/task-card.tsx:145-153` — avatar implies assignees; no such model exists _(15 min to remove)_
-- [ ] **QUAL-03** 10 unreferenced files (see reference section) _(45 min)_
-- [ ] **QUAL-07** `src/actions/task.ts:6-7` · `src/components/layout/sidebar/index.tsx:7` — two lint warnings _(5 min)_
-- [ ] **SEO-03** `src/app/layout.tsx:16` — title template has leading/trailing spaces _(1 min)_
+- [x] **UX-02** `src/app/dashboard/components/task/task-card.tsx:63,135-140,145-153` — every card shows a fabricated "Est: 2h" and the current viewer as a pseudo-assignee _(30 min)_ — removed the estimate/progress block and the pseudo-assignee avatar; card now only shows real fields (priority, title, description, due date)
+- [x] **PERF-02** `src/app/dashboard/components/task/task-card.tsx:24` — `useUser()` in every card _(resolved by UX-02)_ — `useUser()` removed along with the fake avatar
+- [x] **UX-03** 7 `delay() `calls across form/action hooks — ~1.5 s of artificial latency, applied *before* the optimistic update _(1 h)_ — removed the 8 `delay()` calls sitting directly before an optimistic store mutation (task create/update/delete, column create/update/delete, board update) across `use-task-form-action.ts`, `task-actions.tsx`, `column-actions.tsx`, `column-form.tsx`, `board-actions.tsx`, `use-board-form-action.ts`; left the 4 in `use-board-retry.tsx`/board-create-navigation alone since they don't fit that pattern (failure-recovery pacing / post-update navigation stagger, not "artificial wait before an optimistic update")
+- [x] **UX-01** `src/app/dashboard/components/task/tasks-filter.tsx` — priority filter in the board toolbar is inert _(3 h to wire / 5 min to remove)_ — wired up via a new `useTaskFilterStore`; filters visible tasks per column client-side (board's tasks are all loaded upfront, not paginated, so this is correct — would need to move server-side if tasks are ever paginated)
+- [x] **UX-04** `src/app/dashboard/boards/page.tsx` — placeholder page is routable and shadows the `[board]` segment _(5 min)_ — built a real paginated all-boards page (`getUserBoardsPage` DAL fn, `BOARDS_PAGE_SIZE`); also added `RESERVED_BOARD_SLUGS` + a `boardSchema` refine so a board can never be named/slugged "boards" and collide with this route
+- [x] **FEAT-04** `src/app/dashboard/components/task/task-card.tsx:55-66` — progress read from a field that never existed _(20 min)_ — removed; deleted the now-unreferenced `task-progress.tsx`
+- [x] **FEAT-03** `src/app/dashboard/components/task/task-card.tsx:145-153` — avatar implies assignees; no such model exists _(15 min to remove)_ — removed
+- [x] **QUAL-03** 10 unreferenced files (see reference section) _(45 min)_ — deleted 7; kept `get-toast-message.ts`, `info-toast.tsx`, `boards-skeleton.tsx` since they're partial implementations of still-open Stage 5 items (UX-08, UX-05) — revisit when we get there
+- [x] **QUAL-07** `src/actions/task.ts:6-7` · `src/components/layout/sidebar/index.tsx:7` — two lint warnings _(5 min)_ — already fixed by a prior commit; verified clean via `pnpm lint`
+- [x] **SEO-03** `src/app/layout.tsx:16` — title template has leading/trailing spaces _(1 min)_ — fixed: `"%s | KanbanFlow"`
 
 ## Stage 4 — Accessibility and the drag layer (~2 days)
 
@@ -147,21 +147,26 @@ Confirmed working as claimed: Clerk auth flows, route protection (`proxy.ts` + `
 
 ### Unreferenced files (QUAL-03)
 
+Deleted (no other findings depended on them):
+
 ```
 src/app/dashboard/utils/accent-styles.ts
-src/app/dashboard/utils/get-toast-message.ts     # most of the work for UX-08
 src/app/dashboard/utils/process-form-data.ts
-src/components/layout/sidebar/boards-skeleton.tsx # most of the work for UX-05
 src/components/ui/border-trail.tsx
 src/components/ui/clock.tsx
-src/components/ui/info-toast.tsx                  # most of the work for UX-08
 src/hooks/use-boards-list.ts
 src/hooks/use-modal-close.ts
 src/utils/performance.ts
 ```
 
-Read `get-toast-message.ts`, `info-toast.tsx`, and `boards-skeleton.tsx` before deleting — they are partial
-implementations of findings still open above.
+Kept for now — partial implementations of still-open Stage 5 items, reuse them when we get there instead of
+rebuilding from scratch:
+
+```
+src/app/dashboard/utils/get-toast-message.ts     # most of the work for UX-08
+src/components/layout/sidebar/boards-skeleton.tsx # most of the work for UX-05
+src/components/ui/info-toast.tsx                  # most of the work for UX-08
+```
 
 ### Root causes worth understanding
 

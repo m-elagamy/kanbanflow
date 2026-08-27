@@ -1,5 +1,9 @@
 export const BOARDS_LIST_LIMIT = 12;
 
+export const BOARDS_PAGE_SIZE = 24;
+
+export const RESERVED_BOARD_SLUGS = ["boards"];
+
 export const AUTH_ROUTES = {
   SIGN_IN: "/sign-in",
   SIGN_UP: "/sign-up",
