@@ -108,3 +108,11 @@ src/
 ## Plans
 - Make plans extremely concise — sacrifice grammar for brevity
 - End every plan with a list of unresolved questions, if any
+
+## Release Audit
+- Open findings live in `docs/release-audit.md` — 62 findings against `2e04a1c` (2026-08-23), tracked as checkboxes
+- **7 critical items currently block deployment.** Read Stage 1 of that doc before any release or deploy work
+- Known-broken as of the audit: `ensureAuthenticated` (`src/utils/auth-wrappers.ts`) authenticates but does NOT
+  authorize — every board/column/task mutation is an IDOR. Do not copy that pattern into new code; scope
+  mutations by `userId` and route all Prisma access through `src/lib/dal/`
+- When you fix something listed there, tick its checkbox in the same commit
