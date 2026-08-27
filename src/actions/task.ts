@@ -2,8 +2,12 @@
 
 import db from "@/lib/db";
 import { taskSchema, type TaskSchema } from "@/schemas/task";
-import { ServerActionResult, type TaskSummary } from "@/lib/types";
-import { createTask, updateTask, deleteTask } from "../lib/dal/task";
+import {
+  ServerActionResult,
+  type TaskSummary,
+  type TaskSearchResult,
+} from "@/lib/types";
+import { createTask, updateTask, deleteTask, searchTasks } from "../lib/dal/task";
 
 export const createTaskAction = async (
   formData: FormData,
@@ -153,6 +157,21 @@ export async function deleteTaskAction(
     success: true,
     message: "Task was deleted successfully.",
   };
+}
+
+export async function searchTasksAction(
+  boardId: string,
+  query: string,
+): Promise<ServerActionResult<TaskSearchResult[]>> {
+  if (!query.trim()) return { success: true, message: "", fields: [] };
+
+  const result = await searchTasks(boardId, query.trim());
+
+  if (!result.success) {
+    return { success: false, message: "Search failed." };
+  }
+
+  return { success: true, message: "", fields: result.data ?? [] };
 }
 
 export async function updateTaskPositionAction(

@@ -1,6 +1,7 @@
-import { ensureAuthenticated } from "@/utils/auth-wrappers";
+import { ensureAuthenticated, withUserId } from "@/utils/auth-wrappers";
 import db from "../db";
 import { Task, type Priority } from "@prisma/client";
+import type { TaskSearchResult } from "@/lib/types";
 
 export const createTask = ensureAuthenticated(
   async (
@@ -46,5 +47,33 @@ export const deleteTask = ensureAuthenticated(
     return db.task.delete({
       where: { id: taskId },
     });
+  },
+);
+
+export const searchTasks = withUserId(
+  async (
+    userId: string,
+    boardId: string,
+    query: string,
+  ): Promise<TaskSearchResult[]> => {
+    return db.task.findMany({
+      where: {
+        column: { board: { id: boardId, userId } },
+        OR: [
+          { title: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } },
+        ],
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        priority: true,
+        columnId: true,
+        column: { select: { status: true } },
+      },
+      orderBy: { order: "asc" },
+      take: 20,
+    }) as Promise<TaskSearchResult[]>;
   },
 );

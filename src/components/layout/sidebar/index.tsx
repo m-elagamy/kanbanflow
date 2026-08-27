@@ -4,7 +4,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarRail,
 } from "@/components/ui/sidebar";
 import { getAllUserBoardsAction } from "@/actions/user";
 import SidebarTitle from "./sidebar-title";
