@@ -7,6 +7,7 @@ import { useTaskStore } from "@/stores/task";
 import generateUUID from "@/utils/generate-UUID";
 import useLoadingStore from "@/stores/loading";
 import delay from "@/utils/delay";
+import handleOnError from "@/utils/handle-on-error";
 
 type UseTaskFormAction = {
   formMode: FormMode;
@@ -33,12 +34,12 @@ export function useTaskFormAction({
 }: UseTaskFormAction) {
   const isEditMode = formMode === "edit";
 
-  const { addTask, updateTask, deleteTask, updateTaskId } = useTaskStore(
+  const { addTask, updateTask, updateTaskId, rollback } = useTaskStore(
     useShallow((state) => ({
       addTask: state.addTask,
       updateTask: state.updateTask,
-      deleteTask: state.deleteTask,
       updateTaskId: state.updateTaskId,
+      rollback: state.rollback,
     })),
   );
   const closeModal = useModalStore((state) => state.closeModal);
@@ -90,23 +91,34 @@ export function useTaskFormAction({
         await delay(250);
         updateTask(task.id, { title, description, priority });
         closeModal("task", modalId);
-        await updateTaskAction(formData);
+
+        const result = await updateTaskAction(formData);
+        if (!result.success) {
+          handleOnError(result.message, "Failed to update task");
+          rollback();
+        }
       } else {
         setIsLoading("task", "creating", true, optimisticTask.id);
 
         await delay(300);
         addTask(finalColumnId, optimisticTask);
         closeModal("task", modalId);
+
         const res = await createTaskAction(formData);
-        updateTaskId(optimisticTask.id, res.fields?.id || "");
+        if (!res.success || !res.fields?.id) {
+          handleOnError(res.message, "Failed to create task");
+          rollback();
+        } else {
+          updateTaskId(optimisticTask.id, res.fields.id);
+        }
       }
     } catch (error) {
       console.error("Error processing task:", error);
-      if (isEditMode && task) {
-        updateTask(task.id, task);
-      } else {
-        deleteTask(finalColumnId, optimisticTask.id);
-      }
+      handleOnError(
+        error,
+        isEditMode ? "Failed to update task" : "Failed to create task",
+      );
+      rollback();
     } finally {
       if (isEditMode && task) {
         setIsLoading("task", "updating", false, task.id);

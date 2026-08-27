@@ -54,15 +54,15 @@ This snapshot goes stale as the code changes. To regenerate against a newer comm
 
 > `BUG-06` first — the task store's rollback is a prerequisite for `BUG-05` and `BUG-07`.
 
-- [ ] **BUG-06** `src/stores/task.ts` — task store has no `previousState`/`rollback()`; all optimistic task mutations are unrecoverable _(3–4 h)_
-- [ ] **BUG-05** `src/app/dashboard/components/task/task-actions.tsx:37-43` — task deletion has no error path _(30 min)_
-- [ ] **BUG-07** `src/hooks/use-dnd-handlers.ts:86-91` — drag-and-drop persistence is fire-and-forget, no `await`, no `.catch()` _(1 h)_
-- [ ] **BUG-02** `src/hooks/use-task-form-action.ts:100-101` — failed task creation re-keys the card to `""`, leaving a phantom _(1 h)_
-- [ ] **BUG-03** `src/hooks/use-task-form-action.ts:93` — `updateTaskAction` result discarded; server errors never surface _(45 min)_
-- [ ] **BUG-01** `src/app/dashboard/components/board/board-search.tsx:50` — `react-hooks/set-state-in-effect` fails `pnpm lint`, so CI is red _(20 min)_
-- [ ] **BUG-04** `src/actions/task.ts` · `src/actions/column.ts` — no `revalidateTag`; dashboard totals go stale _(1 h)_
-- [ ] **PERF-03** `src/lib/dal/user.ts:66,88,127` — cache tags are global; one user's write evicts every user's cache _(do with BUG-04)_
-- [ ] **BUG-11** `src/actions/board.ts:51-54` — `finally` marks onboarding complete even when creation failed _(20 min)_
+- [x] **BUG-06** `src/stores/task.ts` — task store has no `previousState`/`rollback()`; all optimistic task mutations are unrecoverable _(3–4 h)_ — added a `previousState` snapshot (`tasks` + `columnTaskIds`) taken before every mutating action, plus a `rollback()` action, mirroring the column store's pattern
+- [x] **BUG-05** `src/app/dashboard/components/task/task-actions.tsx:37-43` — task deletion has no error path _(30 min)_ — now awaits `deleteTaskAction`, checks `result.success`, toasts and calls `rollback()` on failure or thrown error
+- [x] **BUG-07** `src/hooks/use-dnd-handlers.ts:86-91` — drag-and-drop persistence is fire-and-forget, no `await`, no `.catch()` _(1 h)_ — `updateTaskPositionAction` call now has `.then()`/`.catch()` handling that toasts and rolls back the optimistic move on failure
+- [x] **BUG-02** `src/hooks/use-task-form-action.ts:100-101` — failed task creation re-keys the card to `""`, leaving a phantom _(1 h)_ — `updateTaskId` only runs when `res.success && res.fields?.id`; otherwise `rollback()` removes the optimistic card entirely
+- [x] **BUG-03** `src/hooks/use-task-form-action.ts:93` — `updateTaskAction` result discarded; server errors never surface _(45 min)_ — result is checked; failure toasts and calls `rollback()`
+- [x] **BUG-01** `src/app/dashboard/components/board/board-search.tsx:50` — `react-hooks/set-state-in-effect` fails `pnpm lint`, so CI is red _(20 min)_ — already fixed by a prior commit (task search feature rewrite); verified clean via a fresh `pnpm lint` run, no changes needed
+- [x] **BUG-04** `src/actions/task.ts` · `src/actions/column.ts` — no `revalidateTag`; dashboard totals go stale _(1 h)_ — added `revalidateUserBoards()` calls after task create/delete/priority-change and column create/delete
+- [x] **PERF-03** `src/lib/dal/user.ts:66,88,127` — cache tags are global; one user's write evicts every user's cache _(do with BUG-04)_ — cache tags scoped to `user-boards-${userId}`; added `src/utils/revalidate-user-boards.ts` so every action revalidates only the current user's tag
+- [x] **BUG-11** `src/actions/board.ts:51-54` — `finally` marks onboarding complete even when creation failed _(20 min)_ — `markUserHasCreatedBoardOnce()` (and the cache revalidation) moved into the success path, out of `finally`
 - [x] **BUG-13** `src/actions/board.ts:139-153` — `deleteBoardAction` always returns `success: true` _(15 min)_ — fixed incidentally by the SEC-02 rewrite, which now checks `result.success` from `deleteBoard` before returning
 
 ## Stage 3 — Remove what is fake, fix what is misleading (~1 day)

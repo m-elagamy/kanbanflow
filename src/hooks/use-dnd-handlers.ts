@@ -10,6 +10,7 @@ import { debounce } from "@/utils/debounce";
 import { useTaskStore } from "@/stores/task";
 import { findColumnIdByTaskId } from "@/utils/task-helpers";
 import useTaskStateComparison from "./use-task-position-comparison";
+import handleOnError from "@/utils/handle-on-error";
 
 const useDndHandlers = () => {
   const {
@@ -20,6 +21,7 @@ const useDndHandlers = () => {
     activeTaskId,
     setActiveTask,
     getColumnTasks,
+    rollback,
   } = useTaskStore(
     useShallow((state) => ({
       columnTaskIds: state.columnTaskIds,
@@ -29,6 +31,7 @@ const useDndHandlers = () => {
       activeTaskId: state.activeTaskId,
       setActiveTask: state.setActiveTask,
       getColumnTasks: state.getColumnTasks,
+      rollback: state.rollback,
     })),
   );
 
@@ -88,7 +91,17 @@ const useDndHandlers = () => {
           fromColumnId,
           toColumnId,
           updatedTaskOrder,
-        );
+        )
+          .then((result) => {
+            if (!result.success) {
+              handleOnError(result.message, "Failed to move task");
+              rollback();
+            }
+          })
+          .catch((error) => {
+            handleOnError(error, "Failed to move task");
+            rollback();
+          });
       }
       setActiveTask(null);
     }

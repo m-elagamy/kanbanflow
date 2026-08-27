@@ -9,7 +9,18 @@ const initialState: TaskState = {
   tasks: {},
   columnTaskIds: {},
   activeTaskId: null,
+  previousState: null,
 };
+
+const snapshotState = (state: TaskState) => ({
+  tasks: { ...state.tasks },
+  columnTaskIds: Object.fromEntries(
+    Object.entries(state.columnTaskIds).map(([columnId, taskIds]) => [
+      columnId,
+      [...taskIds],
+    ]),
+  ),
+});
 
 export const useTaskStore = create<TaskStore>()(
   subscribeWithSelector(
@@ -59,6 +70,8 @@ export const useTaskStore = create<TaskStore>()(
 
       addTask: (columnId, task) => {
         set((state) => {
+          state.previousState = snapshotState(state);
+
           state.tasks[task.id] = task;
 
           if (!state.columnTaskIds[columnId]) {
@@ -73,6 +86,8 @@ export const useTaskStore = create<TaskStore>()(
         set((state) => {
           if (!state.tasks[taskId]) return;
 
+          state.previousState = snapshotState(state);
+
           state.tasks[taskId] = {
             ...state.tasks[taskId],
             ...updates,
@@ -82,6 +97,8 @@ export const useTaskStore = create<TaskStore>()(
 
       deleteTask: (columnId, taskId) => {
         set((state) => {
+          state.previousState = snapshotState(state);
+
           delete state.tasks[taskId];
 
           if (state.columnTaskIds[columnId]) {
@@ -139,6 +156,8 @@ export const useTaskStore = create<TaskStore>()(
 
           if (oldIndex === -1 || newIndex === -1) return;
 
+          state.previousState = snapshotState(state);
+
           column.splice(oldIndex, 1);
           column.splice(newIndex, 0, activeTaskId);
         });
@@ -153,6 +172,8 @@ export const useTaskStore = create<TaskStore>()(
         set((state) => {
           const fromColumn = state.columnTaskIds[fromColumnId];
           if (!fromColumn) return;
+
+          state.previousState = snapshotState(state);
 
           if (!state.columnTaskIds[toColumnId]) {
             state.columnTaskIds[toColumnId] = [];
@@ -183,6 +204,16 @@ export const useTaskStore = create<TaskStore>()(
         const state = get();
         const taskIds = state.columnTaskIds[columnId] || [];
         return taskIds.map((id) => state.tasks[id]).filter(Boolean);
+      },
+
+      rollback: () => {
+        set((state) => {
+          if (!state.previousState) return;
+
+          state.tasks = state.previousState.tasks;
+          state.columnTaskIds = state.previousState.columnTaskIds;
+          state.previousState = null;
+        });
       },
     })),
   ),

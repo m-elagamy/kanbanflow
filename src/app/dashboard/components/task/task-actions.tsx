@@ -16,6 +16,7 @@ import { deleteTaskAction } from "@/actions/task";
 import { useTaskStore } from "@/stores/task";
 import useLoadingStore from "@/stores/loading";
 import delay from "@/utils/delay";
+import handleOnError from "@/utils/handle-on-error";
 
 type TaskActionsProps = {
   task: Task;
@@ -26,7 +27,12 @@ export default function TaskActions({
   task,
   columnId,
 }: Readonly<TaskActionsProps>) {
-  const deleteTask = useTaskStore((state) => state.deleteTask);
+  const { deleteTask, rollback } = useTaskStore(
+    useShallow((state) => ({
+      deleteTask: state.deleteTask,
+      rollback: state.rollback,
+    })),
+  );
   const { isLoading, setIsLoading } = useLoadingStore(
     useShallow((state) => ({
       isLoading: state.isLoading("task", "deleting"),
@@ -38,8 +44,20 @@ export default function TaskActions({
     setIsLoading("task", "deleting", true, task.id);
     await delay(400);
     deleteTask(columnId, task.id);
-    await deleteTaskAction(task.id);
-    setIsLoading("task", "deleting", false, task.id);
+
+    try {
+      const result = await deleteTaskAction(task.id);
+
+      if (!result.success) {
+        handleOnError(result.message, "Failed to delete task");
+        rollback();
+      }
+    } catch (error) {
+      handleOnError(error, "Failed to delete task");
+      rollback();
+    } finally {
+      setIsLoading("task", "deleting", false, task.id);
+    }
   };
 
   return (

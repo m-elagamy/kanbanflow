@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
 import { type Board, type Column } from "@prisma/client";
 import columnsTemplates from "@/app/dashboard/data/columns-templates";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
@@ -17,6 +16,7 @@ import {
 import { markUserHasCreatedBoardOnce } from "@/lib/dal/user";
 import type { ColumnStatus } from "@/schemas/column";
 import handlePrismaError from "@/utils/prisma-error-handler";
+import { revalidateUserBoards } from "@/utils/revalidate-user-boards";
 
 export const createBoardAction = async (
   boardData: BoardFormSchema,
@@ -40,6 +40,9 @@ export const createBoardAction = async (
       template?.status as ColumnStatus[],
     );
 
+    await revalidateUserBoards();
+    markUserHasCreatedBoardOnce();
+
     return {
       success: true,
       message: "Board created successfully",
@@ -47,9 +50,6 @@ export const createBoardAction = async (
     };
   } catch (error) {
     return { success: false, message: handlePrismaError(error) };
-  } finally {
-    revalidateTag(`user-boards`, "max");
-    markUserHasCreatedBoardOnce();
   }
 };
 
@@ -118,7 +118,7 @@ export const updateBoardAction = async (
     return { success: false, message: "Failed to update board" };
   }
 
-  revalidateTag(`user-boards`, "max");
+  await revalidateUserBoards();
 
   return {
     success: true,
@@ -136,7 +136,7 @@ export async function deleteBoardAction(
     return { success: false, message: "Failed to delete board" };
   }
 
-  revalidateTag(`user-boards`, "max");
+  await revalidateUserBoards();
 
   return {
     success: true,

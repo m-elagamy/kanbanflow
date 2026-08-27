@@ -5,6 +5,7 @@ import { createColumn, updateColumn, deleteColumn } from "@/lib/dal/column";
 import columnStatusSchema, { type ColumnStatus } from "@/schemas/column";
 import type { ServerActionResult } from "@/lib/types";
 import handlePrismaError from "@/utils/prisma-error-handler";
+import { revalidateUserBoards } from "@/utils/revalidate-user-boards";
 
 export async function createColumnAction(
   boardId: string,
@@ -28,6 +29,8 @@ export async function createColumnAction(
         message: "Failed to create a column.",
       };
     }
+
+    await revalidateUserBoards();
 
     return {
       success: true,
@@ -81,6 +84,8 @@ export async function deleteColumnAction(
         message: "Failed to delete column",
       };
     }
+
+    await revalidateUserBoards();
 
     return {
       success: true,

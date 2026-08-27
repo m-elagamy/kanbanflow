@@ -17,6 +17,7 @@ import {
   updateTaskPosition,
 } from "@/lib/dal/task";
 import handlePrismaError from "@/utils/prisma-error-handler";
+import { revalidateUserBoards } from "@/utils/revalidate-user-boards";
 
 export const createTaskAction = async (
   formData: FormData,
@@ -58,6 +59,8 @@ export const createTaskAction = async (
       message: "Failed to create a task.",
     };
   }
+
+  await revalidateUserBoards();
 
   return {
     success: true,
@@ -138,6 +141,10 @@ export async function updateTaskAction(
     return { success: false, message: "Failed to update the task." };
   }
 
+  if (priorityChanged) {
+    await revalidateUserBoards();
+  }
+
   return {
     success: true,
     message: "Task updated successfully.",
@@ -156,6 +163,8 @@ export async function deleteTaskAction(
       message: "Failed to delete the task.",
     };
   }
+
+  await revalidateUserBoards();
 
   return {
     success: true,

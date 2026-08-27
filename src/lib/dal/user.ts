@@ -64,7 +64,7 @@ export const getAllUserBoards = withUserId(async (userId: string) => {
       });
     },
     [`boards-list`],
-    { tags: [`user-boards`] },
+    { tags: [`user-boards-${userId}`] },
   );
 
   return getCachedBoards(userId);
@@ -86,7 +86,7 @@ export const getDashboardStats = withUserId(async (userId: string) => {
       return { totalBoards, totalTasks, highPriorityTasks };
     },
     [`dashboard-stats`],
-    { tags: [`user-boards`] },
+    { tags: [`user-boards-${userId}`] },
   );
 
   return getCachedStats(userId);
@@ -125,7 +125,7 @@ export const getUserBoardsWithStats = withUserId(async (userId: string) => {
       }));
     },
     [`boards-with-stats`],
-    { tags: [`user-boards`] },
+    { tags: [`user-boards-${userId}`] },
   );
 
   return getCachedBoardsWithStats(userId);

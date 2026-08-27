@@ -1,9 +1,15 @@
 import type { Task } from "@prisma/client";
 
+export type TaskSnapshot = {
+  tasks: Record<string, Task>;
+  columnTaskIds: Record<string, string[]>;
+} | null;
+
 export type TaskState = {
   tasks: Record<string, Task>;
   columnTaskIds: Record<string, string[]>;
   activeTaskId: string | null;
+  previousState: TaskSnapshot;
 };
 
 type TaskActions = {
@@ -26,6 +32,8 @@ type TaskActions = {
     toColumnId: string,
     targetTaskId?: string,
   ) => void;
+
+  rollback: () => void;
 };
 
 type TaskSelectors = {
