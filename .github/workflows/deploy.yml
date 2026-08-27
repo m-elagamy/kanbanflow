@@ -36,7 +36,7 @@ jobs:
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
       - name: Setup pnpm cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -46,10 +46,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Run database migrations
+        run: pnpm exec prisma migrate deploy
+
       - name: Build project
         run: pnpm build
 
-      - name: Deploy
-        run: |
-          echo "Deployment steps would go here"
-          # Add your deployment commands here
+      # Deployment itself is not handled here — wire in your actual deploy
+      # step (a hosting provider's deploy hook, Vercel CLI, etc.) or remove
+      # this workflow if deploys are already triggered another way (e.g.
+      # Vercel's own Git integration).

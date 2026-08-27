@@ -37,18 +37,18 @@ This snapshot goes stale as the code changes. To regenerate against a newer comm
 > Do `QUAL-02` first: moving the stray queries into the DAL is what makes the rest mechanical, because the
 > DAL is where the auth wrappers live. `OPS-01` is a one-line change and should land immediately.
 
-- [ ] **QUAL-02** `src/actions/board.ts:78,103` · `src/actions/task.ts:27,83,106,189` — six Prisma queries live outside `src/lib/dal/`, bypassing the auth layer by construction _(folded into the SEC items)_
-- [ ] **SEC-01** `src/utils/auth-wrappers.ts:18-27` — `ensureAuthenticated` performs no ownership check; replace with ownership-resolving wrappers _(6–10 h)_
-- [ ] **SEC-02** `src/actions/board.ts:139-153` — any signed-in user can delete any board by ID; scope with `deleteMany({ where: { id, userId } })` _(30 min)_
-- [ ] **SEC-03** `src/actions/task.ts:174-237` — `updateTaskPositionAction` has no authentication at all _(2–3 h)_
-- [ ] **SEC-04** `src/actions/user.ts:14-38` — `insertUserAction` is unauthenticated and trusts a client-supplied user id _(1 h inline / 3 h via Clerk webhook)_
-- [ ] **SEC-05** `src/actions/column.ts:8,28,48` — all three column actions are unscoped; delete cascades to another user's tasks _(1.5 h)_
-- [ ] **SEC-06** `src/actions/task.ts:9,65,141` — task create/update/delete are unscoped _(1.5 h)_
-- [ ] **SEC-07** `src/actions/column.ts:8-12` · `src/actions/task.ts:141,174` — server actions skip Zod validation _(2 h)_
-- [ ] **SEC-09** `src/lib/db/index.ts` — add `import "server-only"` to the Prisma singleton _(2 min)_
-- [ ] **OPS-01** `package.json:9` · `.github/workflows/ci.yml:13,44` — `postinstall` runs `prisma migrate deploy`; CI passes the production `DATABASE_URL`, so every PR migrates production _(1.5 h)_
-- [ ] **OPS-02** `.github/workflows/deploy.yml:52-55` — deploy job's final step is an `echo` placeholder _(2 h to implement / 10 min to delete)_
-- [ ] **OPS-03** `.github/workflows/deploy.yml:39` — `actions/cache@v3` is retired and fails the job _(2 min)_
+- [x] **QUAL-02** `src/actions/board.ts:78,103` · `src/actions/task.ts:27,83,106,189` — six Prisma queries live outside `src/lib/dal/`, bypassing the auth layer by construction _(folded into the SEC items)_ — moved into `src/lib/dal/board.ts` and `src/lib/dal/task.ts` as `getBoardForRename`/`countBoardsBySlug`/`findTaskByColumnAndTitle`/`getTaskForRename`/`findDuplicateTaskTitle`/`updateTaskPosition`
+- [x] **SEC-01** `src/utils/auth-wrappers.ts:18-27` — `ensureAuthenticated` performs no ownership check; replace with ownership-resolving wrappers _(6–10 h)_ — added `withOwnership` (resolves the resource's owning `userId` via a relation lookup, 404s on mismatch); all board/column/task mutations now go through it
+- [x] **SEC-02** `src/actions/board.ts:139-153` — any signed-in user can delete any board by ID; scope with `deleteMany({ where: { id, userId } })` _(30 min)_ — `deleteBoard` now checked via `withOwnership` and the delete query itself is scoped `{ id, userId }`
+- [x] **SEC-03** `src/actions/task.ts:174-237` — `updateTaskPositionAction` has no authentication at all _(2–3 h)_ — moved to `updateTaskPosition` in the DAL, wrapped with `withOwnership`; verifies ownership of both the source task and the destination column
+- [x] **SEC-04** `src/actions/user.ts:14-38` — `insertUserAction` is unauthenticated and trusts a client-supplied user id _(1 h inline / 3 h via Clerk webhook)_ — now requires `auth().userId === data.id`; `insertUser` DAL fn wrapped with `ensureAuthenticated`
+- [x] **SEC-05** `src/actions/column.ts:8,28,48` — all three column actions are unscoped; delete cascades to another user's tasks _(1.5 h)_ — all three now go through `withOwnership`
+- [x] **SEC-06** `src/actions/task.ts:9,65,141` — task create/update/delete are unscoped _(1.5 h)_ — all three now go through `withOwnership`
+- [x] **SEC-07** `src/actions/column.ts:8-12` · `src/actions/task.ts:141,174` — server actions skip Zod validation _(2 h)_ — `createColumnAction`/`updateColumnAction` validate against `columnStatusSchema`; `updateTaskPositionAction` validates against the new `taskPositionSchema`
+- [x] **SEC-09** `src/lib/db/index.ts` — add `import "server-only"` to the Prisma singleton _(2 min)_
+- [x] **OPS-01** `package.json:9` · `.github/workflows/ci.yml:13,44` — `postinstall` runs `prisma migrate deploy`; CI passes the production `DATABASE_URL`, so every PR migrates production _(1.5 h)_ — `postinstall` now runs `prisma generate` only; `prisma migrate deploy` moved to a dedicated step in `deploy.yml` (push-to-main only)
+- [x] **OPS-02** `.github/workflows/deploy.yml:52-55` — deploy job's final step is an `echo` placeholder _(2 h to implement / 10 min to delete)_ — removed; left a comment pointing at wiring in a real deploy step or removing the workflow if deploys already happen via Vercel's Git integration
+- [x] **OPS-03** `.github/workflows/deploy.yml:39` — `actions/cache@v3` is retired and fails the job _(2 min)_ — bumped to `actions/cache@v4`
 
 ## Stage 2 — Make failures visible (~1 day)
 
@@ -63,7 +63,7 @@ This snapshot goes stale as the code changes. To regenerate against a newer comm
 - [ ] **BUG-04** `src/actions/task.ts` · `src/actions/column.ts` — no `revalidateTag`; dashboard totals go stale _(1 h)_
 - [ ] **PERF-03** `src/lib/dal/user.ts:66,88,127` — cache tags are global; one user's write evicts every user's cache _(do with BUG-04)_
 - [ ] **BUG-11** `src/actions/board.ts:51-54` — `finally` marks onboarding complete even when creation failed _(20 min)_
-- [ ] **BUG-13** `src/actions/board.ts:139-153` — `deleteBoardAction` always returns `success: true` _(15 min)_
+- [x] **BUG-13** `src/actions/board.ts:139-153` — `deleteBoardAction` always returns `success: true` _(15 min)_ — fixed incidentally by the SEC-02 rewrite, which now checks `result.success` from `deleteBoard` before returning
 
 ## Stage 3 — Remove what is fake, fix what is misleading (~1 day)
 

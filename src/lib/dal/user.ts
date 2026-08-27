@@ -1,25 +1,26 @@
 import { unstable_cache } from "next/cache";
 import { User } from "@prisma/client";
-import { withUserId } from "@/utils/auth-wrappers";
+import { withUserId, ensureAuthenticated } from "@/utils/auth-wrappers";
 import db from "../db";
 import { BOARDS_LIST_LIMIT } from "../constants";
 import type { BoardWithStats } from "../types/stores/board";
 
-
-export const insertUser = async (data: Omit<User, "hasCreatedBoardOnce">) => {
-  return db.user.upsert({
-    where: { id: data.id },
-    update: {
-      ...(data.name ? { name: data.name } : {}),
-      ...(data.email ? { email: data.email } : {}),
-    },
-    create: {
-      id: data.id,
-      name: data.name,
-      email: data.email,
-    },
-  });
-};
+export const insertUser = ensureAuthenticated(
+  async (data: Omit<User, "hasCreatedBoardOnce">) => {
+    return db.user.upsert({
+      where: { id: data.id },
+      update: {
+        ...(data.name ? { name: data.name } : {}),
+        ...(data.email ? { email: data.email } : {}),
+      },
+      create: {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+      },
+    });
+  },
+);
 
 export const getUserOnboardingState = withUserId(async (userId: string) => {
   const [user, boardsCount] = await Promise.all([

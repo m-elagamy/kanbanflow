@@ -25,3 +25,21 @@ export function ensureAuthenticated<T extends unknown[], R>(
     return { success: true, message: "Authenticated", data: result };
   };
 }
+
+export function withOwnership<T extends unknown[], R>(
+  fn: DALFunction<[userId: string, ...args: T], R>,
+  resolveOwnerId: (...args: T) => Promise<string | null | undefined>,
+): DALFunction<T, DALResult<R>> {
+  return async (...args: T) => {
+    const { userId } = await auth();
+    if (!userId) unauthorized();
+
+    const ownerId = await resolveOwnerId(...args);
+    if (!ownerId || ownerId !== userId) {
+      return { success: false, message: "Not found" };
+    }
+
+    const result = await fn(userId, ...args);
+    return { success: true, message: "Authenticated", data: result };
+  };
+}

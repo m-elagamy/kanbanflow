@@ -1,8 +1,16 @@
 import db from "../db";
 import { Board, type Column } from "@prisma/client";
-import { withUserId, ensureAuthenticated } from "@/utils/auth-wrappers";
+import { withUserId, withOwnership } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { BOARDS_LIST_LIMIT } from "../constants";
+
+const resolveBoardOwnerId = async (boardId: string) => {
+  const board = await db.board.findUnique({
+    where: { id: boardId },
+    select: { userId: true },
+  });
+  return board?.userId;
+};
 
 const createBoard = withUserId(
   async (
@@ -41,27 +49,47 @@ const createBoard = withUserId(
   },
 );
 
-const updateBoard = ensureAuthenticated(
+const updateBoard = withOwnership(
   async (
+    userId: string,
     boardId: string,
     data: Partial<Omit<Board, "id" | "userId" | "order">>,
   ) => {
     return db.board.update({
-      where: {
-        id: boardId,
-      },
+      where: { id: boardId, userId },
       data,
     });
   },
+  resolveBoardOwnerId,
 );
 
-const deleteBoard = ensureAuthenticated(async (boardId: string) => {
-  await db.board.delete({
-    where: {
-      id: boardId,
-    },
-  });
-});
+const deleteBoard = withOwnership(
+  async (userId: string, boardId: string) => {
+    return db.board.delete({
+      where: { id: boardId, userId },
+    });
+  },
+  resolveBoardOwnerId,
+);
+
+const getBoardForRename = withOwnership(
+  async (userId: string, boardId: string) => {
+    return db.board.findUnique({
+      where: { id: boardId, userId },
+      select: { title: true, description: true },
+    });
+  },
+  resolveBoardOwnerId,
+);
+
+const countBoardsBySlug = withOwnership(
+  async (userId: string, boardId: string, slug: string) => {
+    return db.board.count({
+      where: { userId, slug, NOT: { id: boardId } },
+    });
+  },
+  resolveBoardOwnerId,
+);
 
 const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
   return db.board.findUnique({
@@ -95,4 +123,11 @@ const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
   });
 });
 
-export { createBoard, getBoardBySlug, updateBoard, deleteBoard };
+export {
+  createBoard,
+  getBoardBySlug,
+  updateBoard,
+  deleteBoard,
+  getBoardForRename,
+  countBoardsBySlug,
+};

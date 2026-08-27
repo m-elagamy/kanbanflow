@@ -1,10 +1,7 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-import { unauthorized } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
 import { type Board, type Column } from "@prisma/client";
-import db from "@/lib/db";
 import columnsTemplates from "@/app/dashboard/data/columns-templates";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slugify";
@@ -14,6 +11,8 @@ import {
   deleteBoard,
   getBoardBySlug,
   updateBoard,
+  getBoardForRename,
+  countBoardsBySlug,
 } from "@/lib/dal/board";
 import { markUserHasCreatedBoardOnce } from "@/lib/dal/user";
 import type { ColumnStatus } from "@/schemas/column";
@@ -59,9 +58,6 @@ export const updateBoardAction = async (
 ): Promise<
   ServerActionResult<Pick<Board, "title" | "description" | "slug">>
 > => {
-  const { userId } = await auth();
-  if (!userId) unauthorized();
-
   const data = Object.fromEntries(formData.entries());
   const validatedData = boardSchema.omit({ template: true }).safeParse(data);
 
@@ -75,17 +71,14 @@ export const updateBoardAction = async (
   const { title, description } = validatedData.data;
   const boardId = formData.get("boardId") as string;
 
-  const existingBoard = await db.board.findUnique({
-    where: { id: boardId, userId },
-    select: { title: true, description: true },
-  });
+  const existingBoard = await getBoardForRename(boardId);
 
-  if (!existingBoard) {
+  if (!existingBoard.success || !existingBoard.data) {
     return { success: false, message: "Board not found." };
   }
 
-  const titleChanged = existingBoard.title !== title;
-  const descriptionChanged = existingBoard.description !== description;
+  const titleChanged = existingBoard.data.title !== title;
+  const descriptionChanged = existingBoard.data.description !== description;
 
   if (!titleChanged && !descriptionChanged) {
     return {
@@ -100,15 +93,13 @@ export const updateBoardAction = async (
   if (titleChanged) {
     newSlug = slugify(title);
 
-    const duplicateCount = await db.board.count({
-      where: {
-        userId,
-        slug: newSlug,
-        NOT: { id: boardId },
-      },
-    });
+    const duplicateCount = await countBoardsBySlug(boardId, newSlug);
 
-    if (duplicateCount > 0) {
+    if (!duplicateCount.success) {
+      return { success: false, message: "Board not found." };
+    }
+
+    if ((duplicateCount.data ?? 0) > 0) {
       return {
         success: false,
         message: `A board with the name "${title}" already exists.`,
@@ -123,7 +114,7 @@ export const updateBoardAction = async (
 
   const result = await updateBoard(boardId, updatedData);
 
-  if (!result.success) {
+  if (!result.success || !result.data) {
     return { success: false, message: "Failed to update board" };
   }
 
@@ -139,10 +130,11 @@ export const updateBoardAction = async (
 export async function deleteBoardAction(
   boardId: string,
 ): Promise<ServerActionResult<{ boardId: string }>> {
-  const { userId } = await auth();
-  if (!userId) unauthorized();
+  const result = await deleteBoard(boardId);
 
-  await deleteBoard(boardId);
+  if (!result.success) {
+    return { success: false, message: "Failed to delete board" };
+  }
 
   revalidateTag(`user-boards`, "max");
 

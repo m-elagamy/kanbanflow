@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@clerk/nextjs/server";
 import { User } from "@prisma/client";
 import type { ServerActionResult } from "@/lib/types";
 import {
@@ -14,7 +15,9 @@ import type { SimplifiedBoard, BoardWithStats } from "@/lib/types/stores/board";
 export async function insertUserAction(
   data: Omit<User, "hasCreatedBoardOnce">,
 ): Promise<ServerActionResult<User>> {
-  if (!data.id) {
+  const { userId } = await auth();
+
+  if (!userId || userId !== data.id) {
     return {
       success: false,
       message: "Authentication required.",
@@ -23,7 +26,7 @@ export async function insertUserAction(
 
   const result = await insertUser(data);
 
-  if (!result) {
+  if (!result.success || !result.data) {
     return {
       success: false,
       message: "Failed to insert user.",
@@ -33,7 +36,7 @@ export async function insertUserAction(
   return {
     success: true,
     message: "User inserted successfully.",
-    fields: result,
+    fields: result.data,
   };
 }
 

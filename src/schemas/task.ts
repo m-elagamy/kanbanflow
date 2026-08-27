@@ -10,3 +10,12 @@ export const taskSchema = z.object({
 });
 
 export type TaskSchema = z.infer<typeof taskSchema>;
+
+export const taskPositionSchema = z.object({
+  taskId: z.string().min(1),
+  oldColumnId: z.string().min(1),
+  newColumnId: z.string().min(1),
+  newTaskOrder: z.array(z.string().min(1)).min(1),
+});
+
+export type TaskPositionSchema = z.infer<typeof taskPositionSchema>;

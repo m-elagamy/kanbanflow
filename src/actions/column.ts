@@ -1,64 +1,92 @@
 "use server";
 
 import { Column } from "@prisma/client";
-import { createColumn, updateColumn, deleteColumn } from "../lib/dal/column";
+import { createColumn, updateColumn, deleteColumn } from "@/lib/dal/column";
+import columnStatusSchema, { type ColumnStatus } from "@/schemas/column";
 import type { ServerActionResult } from "@/lib/types";
-import type { ColumnStatus } from "@/schemas/column";
+import handlePrismaError from "@/utils/prisma-error-handler";
 
 export async function createColumnAction(
   boardId: string,
   columnStatus: ColumnStatus,
 ): Promise<ServerActionResult<Column>> {
-  const createdColumn = await createColumn(boardId, columnStatus);
+  const validatedData = columnStatusSchema.safeParse({ status: columnStatus });
 
-  if (!createdColumn.success) {
-    return {
-      success: false,
-      message: "Failed to create a column.",
-    };
+  if (!validatedData.success) {
+    return { success: false, message: "Invalid column status." };
   }
 
-  return {
-    success: true,
-    message: `Column was added successfully.`,
-    fields: createdColumn.data,
-  };
+  try {
+    const createdColumn = await createColumn(
+      boardId,
+      validatedData.data.status,
+    );
+
+    if (!createdColumn.success || !createdColumn.data) {
+      return {
+        success: false,
+        message: "Failed to create a column.",
+      };
+    }
+
+    return {
+      success: true,
+      message: `Column was added successfully.`,
+      fields: createdColumn.data,
+    };
+  } catch (error) {
+    return { success: false, message: handlePrismaError(error) };
+  }
 }
 
 export async function updateColumnAction(
   columnId: string,
   data: Partial<Pick<Column, "status">>,
 ): Promise<ServerActionResult<Column>> {
-  const updatedColumn = await updateColumn(columnId, data);
+  const validatedData = columnStatusSchema.partial().safeParse(data);
 
-  if (!updatedColumn) {
-    return {
-      success: false,
-      message: "Failed to update column.",
-    };
+  if (!validatedData.success) {
+    return { success: false, message: "Invalid column status." };
   }
 
-  return {
-    success: true,
-    message: "Column updated successfully.",
-    fields: updatedColumn.data,
-  };
+  try {
+    const updatedColumn = await updateColumn(columnId, validatedData.data);
+
+    if (!updatedColumn.success || !updatedColumn.data) {
+      return {
+        success: false,
+        message: "Failed to update column.",
+      };
+    }
+
+    return {
+      success: true,
+      message: "Column updated successfully.",
+      fields: updatedColumn.data,
+    };
+  } catch (error) {
+    return { success: false, message: handlePrismaError(error) };
+  }
 }
 
 export async function deleteColumnAction(
   columnId: string,
 ): Promise<ServerActionResult<Column>> {
-  const result = await deleteColumn(columnId);
+  try {
+    const result = await deleteColumn(columnId);
 
-  if (!result.success) {
+    if (!result.success) {
+      return {
+        success: false,
+        message: "Failed to delete column",
+      };
+    }
+
     return {
-      success: false,
-      message: "Failed to delete column",
+      success: true,
+      message: "Column deleted successfully",
     };
+  } catch (error) {
+    return { success: false, message: handlePrismaError(error) };
   }
-
-  return {
-    success: true,
-    message: "Column deleted successfully",
-  };
 }

@@ -1,13 +1,22 @@
 "use server";
 
-import db from "@/lib/db";
-import { taskSchema, type TaskSchema } from "@/schemas/task";
+import { taskSchema, taskPositionSchema, type TaskSchema } from "@/schemas/task";
 import {
   ServerActionResult,
   type TaskSummary,
   type TaskSearchResult,
 } from "@/lib/types";
-import { createTask, updateTask, deleteTask, searchTasks } from "../lib/dal/task";
+import {
+  createTask,
+  updateTask,
+  deleteTask,
+  searchTasks,
+  findTaskByColumnAndTitle,
+  getTaskForRename,
+  findDuplicateTaskTitle,
+  updateTaskPosition,
+} from "@/lib/dal/task";
+import handlePrismaError from "@/utils/prisma-error-handler";
 
 export const createTaskAction = async (
   formData: FormData,
@@ -27,16 +36,13 @@ export const createTaskAction = async (
 
   const columnId = formData.get("columnId") as string;
 
-  const existingTask = await db.task.findUnique({
-    where: {
-      columnId_title: { columnId, title },
-    },
-    select: {
-      title: true,
-    },
-  });
+  const existingTask = await findTaskByColumnAndTitle(columnId, title);
 
-  if (existingTask) {
+  if (!existingTask.success) {
+    return { success: false, message: "Column not found." };
+  }
+
+  if (existingTask.data) {
     return {
       success: false,
       message: `A task with the name "${title}" already exists.`,
@@ -46,7 +52,7 @@ export const createTaskAction = async (
 
   const result = await createTask(columnId, title, description, priority);
 
-  if (!result.success) {
+  if (!result.success || !result.data) {
     return {
       success: false,
       message: "Failed to create a task.",
@@ -57,7 +63,7 @@ export const createTaskAction = async (
     success: true,
     message: `Task was added successfully.`,
     fields: {
-      id: result.data?.id,
+      id: result.data.id,
       title,
       description: description ?? "",
       priority,
@@ -83,18 +89,15 @@ export async function updateTaskAction(
   const columnId = formData.get("columnId") as string;
   const taskId = formData.get("taskId") as string;
 
-  const existingTask = await db.task.findUnique({
-    where: { id: taskId },
-    select: { title: true, description: true, priority: true },
-  });
+  const existingTask = await getTaskForRename(taskId);
 
-  if (!existingTask) {
+  if (!existingTask.success || !existingTask.data) {
     return { success: false, message: "Task not found." };
   }
 
-  const titleChanged = existingTask.title !== title;
-  const descriptionChanged = existingTask.description !== description;
-  const priorityChanged = existingTask.priority !== priority;
+  const titleChanged = existingTask.data.title !== title;
+  const descriptionChanged = existingTask.data.description !== description;
+  const priorityChanged = existingTask.data.priority !== priority;
 
   if (!titleChanged && !descriptionChanged && !priorityChanged) {
     return {
@@ -106,16 +109,17 @@ export async function updateTaskAction(
   }
 
   if (titleChanged) {
-    const duplicateTask = await db.task.findFirst({
-      where: {
-        columnId,
-        title,
-        NOT: { id: taskId },
-      },
-      select: { title: true },
-    });
+    const duplicateTask = await findDuplicateTaskTitle(
+      columnId,
+      title,
+      taskId,
+    );
 
-    if (duplicateTask) {
+    if (!duplicateTask.success) {
+      return { success: false, message: "Column not found." };
+    }
+
+    if (duplicateTask.data) {
       return {
         success: false,
         message: `A task with the name "${title}" already exists.`,
@@ -179,62 +183,32 @@ export async function updateTaskPositionAction(
   oldColumnId: string,
   newColumnId: string,
   newTaskOrder: string[],
-): Promise<void> {
-  if (!taskId || !oldColumnId || !newColumnId || !Array.isArray(newTaskOrder)) {
-    throw new Error("updateTaskPositionAction: Invalid parameters provided");
-  }
+): Promise<ServerActionResult<null>> {
+  const validatedData = taskPositionSchema.safeParse({
+    taskId,
+    oldColumnId,
+    newColumnId,
+    newTaskOrder,
+  });
 
-  if (!newTaskOrder.length) {
-    throw new Error("updateTaskPositionAction: newTaskOrder is invalid");
+  if (!validatedData.success) {
+    return { success: false, message: "Invalid parameters provided." };
   }
 
   try {
-    await db.$transaction(async (tx) => {
-      const existingTask = await tx.task.findUnique({
-        where: { id: taskId },
-        select: { id: true },
-      });
-
-      if (!existingTask) {
-        throw new Error(`Task ${taskId} not found in the old column`);
-      }
-
-      const newColumnTasks = await tx.task.findMany({
-        where: { columnId: newColumnId },
-        select: { id: true, order: true },
-      });
-
-      const currentOrders = new Map(
-        newColumnTasks.map((task) => [task.id, task.order]),
-      );
-
-      const tasksNeedingUpdate = newTaskOrder
-        .map((id, index) => ({
-          id,
-          newOrder: index,
-          currentOrder: currentOrders.get(id),
-        }))
-        .filter(({ newOrder, currentOrder }) => newOrder !== currentOrder);
-
-      await tx.task.update({
-        where: { id: taskId },
-        data: {
-          columnId: newColumnId,
-          order: newTaskOrder.indexOf(taskId),
-        },
-      });
-
-      for (const { id, newOrder } of tasksNeedingUpdate) {
-        await tx.task.update({
-          where: { id },
-          data: { order: newOrder },
-        });
-      }
-    });
-  } catch (error) {
-    console.error("Error moving task between columns:", error);
-    throw new Error(
-      `Failed to move task: ${error instanceof Error ? error.message : error}`,
+    const result = await updateTaskPosition(
+      validatedData.data.taskId,
+      validatedData.data.oldColumnId,
+      validatedData.data.newColumnId,
+      validatedData.data.newTaskOrder,
     );
+
+    if (!result.success) {
+      return { success: false, message: "Failed to move task." };
+    }
+
+    return { success: true, message: "Task moved successfully." };
+  } catch (error) {
+    return { success: false, message: handlePrismaError(error) };
   }
 }
