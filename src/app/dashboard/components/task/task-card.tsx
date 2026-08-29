@@ -1,6 +1,6 @@
 "use client";
 
-import { Flag } from "lucide-react";
+import { Flag, GripVertical } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Task } from "@prisma/client";
@@ -31,7 +31,6 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition: transition,
-    cursor: isDragging ? "grabbing" : "grab",
     opacity: isSortableDragging ? "0.5" : "1",
     scale: isSortableDragging ? "0.95" : "1",
   };
@@ -45,19 +44,29 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
     <div
       className={`group border-border/70 bg-card/80 dark:bg-card/5 hover:border-border hover:bg-card/95 dark:hover:bg-card/70 relative touch-manipulation rounded-lg border p-4 shadow-md backdrop-blur-md transition-all duration-200 before:pointer-events-none before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-b before:from-white/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-200 hover:shadow-lg hover:before:opacity-100 dark:before:from-white/[0.02] ${isDragging ? "border-primary/50 bg-card dark:bg-card/80 ring-primary/20 z-50 scale-105 rotate-2 shadow-2xl ring-2" : ""}`}
       ref={setNodeRef}
-      {...attributes}
-      {...listeners}
       style={style}
     >
       <div className="relative z-10 space-y-3">
-        {/* Header: Priority Badge and Actions */}
+        {/* Header: Drag Handle, Priority Badge and Actions */}
         <div className="flex items-center justify-between">
-          <Badge
-            className={`${getBadgeStyle(task.priority)} flex h-5 shrink-0 items-center gap-1 px-2 py-0.5 text-[0.625rem] font-medium uppercase`}
-          >
-            <PriorityIcon size={10} />
-            {task.priority}
-          </Badge>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              className="text-muted-foreground/50 hover:text-muted-foreground -ml-1 touch-none rounded p-0.5 active:cursor-grabbing"
+              style={{ cursor: isDragging ? "grabbing" : "grab" }}
+              aria-label="Drag to reorder task"
+              {...attributes}
+              {...listeners}
+            >
+              <GripVertical size={14} />
+            </button>
+            <Badge
+              className={`${getBadgeStyle(task.priority)} flex h-5 shrink-0 items-center gap-1 px-2 py-0.5 text-[0.625rem] font-medium uppercase`}
+            >
+              <PriorityIcon size={10} />
+              {task.priority}
+            </Badge>
+          </div>
           {columnId && <TaskActions task={task} columnId={columnId} />}
         </div>
 

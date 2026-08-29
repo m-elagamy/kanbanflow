@@ -113,11 +113,14 @@ const useDndHandlers = () => {
     processDragEvent(String(active.id), String(over.id));
   }, 100);
 
-  const handleDragEnd = debounce(({ active, over }: DragEndEvent) => {
-    if (!active?.id || !over?.id) return;
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!active?.id || !over?.id) {
+      setActiveTask(null);
+      return;
+    }
 
     processDragEvent(String(active.id), String(over.id), true);
-  }, 300);
+  };
 
   return {
     activeTask,

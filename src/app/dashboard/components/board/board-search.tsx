@@ -89,13 +89,13 @@ export function BoardSearch() {
       </Button>
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogHeader className="sr-only">
-          <DialogTitle>Search tasks</DialogTitle>
-          <DialogDescription>
-            Search for tasks by title or description
-          </DialogDescription>
-        </DialogHeader>
         <DialogContent className="overflow-hidden p-0">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Search tasks</DialogTitle>
+            <DialogDescription>
+              Search for tasks by title or description
+            </DialogDescription>
+          </DialogHeader>
           <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search tasks..."

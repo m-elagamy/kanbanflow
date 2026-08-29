@@ -256,6 +256,11 @@
     scrollbar-color: rgba(156, 163, 175, 0.486) transparent;
   }
 
+  *:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -274,5 +279,20 @@
     ::-webkit-scrollbar {
       @apply hidden;
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

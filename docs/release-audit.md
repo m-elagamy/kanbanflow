@@ -84,15 +84,15 @@ This snapshot goes stale as the code changes. To regenerate against a newer comm
 
 > `A11Y-01`'s dedicated grip element is the keystone; it also gives `MOB-02` a surface for `touch-action`.
 
-- [ ] **A11Y-02** `src/app/globals.css` — no `prefers-reduced-motion` anywhere; 18 files import `motion` _(1.5 h)_
-- [ ] **A11Y-01** `src/app/dashboard/components/task/task-card.tsx:74-78` — whole card is the drag handle and wraps a button _(2–3 h)_
-- [ ] **A11Y-03** `src/providers/dnd-provider.tsx` — no dnd-kit announcements or screen-reader instructions _(2 h)_
-- [ ] **MOB-02** `src/providers/dnd-provider.tsx:37-41` — touch drag competes with two nested scroll containers _(3–4 h, needs device testing)_
-- [ ] **A11Y-04** `src/app/globals.css:252-256` · `src/app/welcome/page.tsx:68` — custom surfaces have no `:focus-visible` _(1 h)_
-- [ ] **BUG-12** `src/app/dashboard/components/board/board-search.tsx:90-97` — `DialogTitle` outside `DialogContent`; dialog has no accessible name _(5 min)_
-- [ ] **BUG-08** `prisma/schema.prisma:53` — `@@unique([columnId, title])` makes a drag throw `P2002` _(1 h to handle)_
-- [ ] **BUG-09** `src/hooks/use-dnd-handlers.ts:103-107` — `onDragEnd` is debounced, dropping fast successive drags _(30 min)_
-- [ ] **MOB-01** `src/app/dashboard/components/column/column-card.tsx:31` — `100vh` should be `h-full`/`dvh` _(30 min)_
+- [x] **A11Y-01** `src/app/dashboard/components/task/task-card.tsx:74-78` — whole card is the drag handle and wraps a button _(2–3 h)_ — added a dedicated grip button (`GripVertical`, `aria-label="Drag to reorder task"`) that alone carries `{...attributes} {...listeners}`; the rest of the card (including the actions dropdown button) is no longer part of the draggable region
+- [x] **MOB-02** `src/providers/dnd-provider.tsx:37-41` — touch drag competes with two nested scroll containers _(3–4 h, needs device testing)_ — resolved as a side effect of A11Y-01: `touch-none` now sits only on the small grip handle, so touching anywhere else on the card scrolls normally; **real-device verification still recommended**, not done here
+- [x] **A11Y-03** `src/providers/dnd-provider.tsx` — no dnd-kit announcements or screen-reader instructions _(2 h)_ — added `src/utils/dnd-announcements.ts` with custom `announcements`/`screenReaderInstructions` (names the task and destination column/position instead of dnd-kit's generic defaults), wired via `DndContext`'s `accessibility` prop
+- [x] **A11Y-02** `src/app/globals.css` — no `prefers-reduced-motion` anywhere; 18 files import `motion` _(1.5 h)_ — added a `@media (prefers-reduced-motion: reduce)` block collapsing CSS transitions/animations, plus `<MotionConfig reducedMotion="user">` in `providers/index.tsx` so every framer-motion animation also respects the OS setting
+- [x] **A11Y-04** `src/app/globals.css:252-256` · `src/app/welcome/page.tsx:68` — custom surfaces have no `:focus-visible` _(1 h)_ — added a global `*:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }` rule so every focusable element gets a visible keyboard ring, not just ones with an existing utility class
+- [x] **BUG-12** `src/app/dashboard/components/board/board-search.tsx:90-97` — `DialogTitle` outside `DialogContent`; dialog has no accessible name _(5 min)_ — moved `DialogHeader` inside `DialogContent`
+- [x] **BUG-08** `prisma/schema.prisma:53` — `@@unique([columnId, title])` makes a drag throw `P2002` _(1 h to handle)_ — already resolved as a side effect of the Stage 2 `BUG-07` fix: `updateTaskPositionAction`'s try/catch + `handlePrismaError` turns the P2002 into a clean `ServerActionResult` failure, and the client already rolls back + toasts on it
+- [x] **BUG-09** `src/hooks/use-dnd-handlers.ts:103-107` — `onDragEnd` is debounced, dropping fast successive drags _(30 min)_ — removed the debounce; `onDragEnd` fires once per gesture already, so debouncing it only added a 300ms lag and silently dropped a drop if another drag started within that window
+- [x] **MOB-01** `src/app/dashboard/components/column/column-card.tsx:31` — `100vh` should be `h-full`/`dvh` _(30 min)_ — `max-h-[calc(100vh-82px)]` → `max-h-[calc(100dvh-82px)]`
 
 ## Stage 5 — Polish for the portfolio audience (~2 days)
 

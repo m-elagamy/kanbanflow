@@ -14,6 +14,10 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import TaskCard from "@/app/dashboard/components/task/task-card";
 import useDndHandlers from "@/hooks/use-dnd-handlers";
+import {
+  dndAnnouncements,
+  screenReaderInstructions,
+} from "@/utils/dnd-announcements";
 
 type DndProviderProps = {
   children: ReactNode;
@@ -52,6 +56,10 @@ export const DndProvider = ({ children }: DndProviderProps) => {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
+      accessibility={{
+        announcements: dndAnnouncements,
+        screenReaderInstructions,
+      }}
     >
       {children}
       {createPortal(
