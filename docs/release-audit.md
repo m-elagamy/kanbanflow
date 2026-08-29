@@ -100,7 +100,7 @@ This snapshot goes stale as the code changes. To regenerate against a newer comm
 - [ ] **UX-06** only one `error.tsx`; no `global-error.tsx` _(1.5 h)_
 - [ ] **UX-07** `src/app/dashboard/[board]/page.tsx:14` — missing board 404s on the client after shipping HTML _(2 h)_
 - [ ] **UX-08** `toast.success` is never called anywhere _(1 h)_
-- [ ] **SEO-01** no `robots.ts`, no `sitemap.ts` _(45 min)_
+- [x] **SEO-01** no `robots.ts`, no `sitemap.ts` _(45 min)_ — added `src/app/robots.ts` (disallows `/dashboard`, `/welcome`) and `src/app/sitemap.ts` listing the public routes; both build as static `/robots.txt` and `/sitemap.xml`
 - [ ] **SEO-02** `src/app/layout.tsx:13-38` — no `metadataBase`, no OG image, no Twitter card _(2 h)_
 - [ ] **PERF-01** `src/app/dashboard/page.tsx:12` — `currentUser()` where `auth()` would do, awaited serially _(1 h)_
 - [ ] **BUG-10** `src/hooks/use-board-form-action.ts:94-115` — board creation persisted from a detached `setTimeout` _(1.5 h)_

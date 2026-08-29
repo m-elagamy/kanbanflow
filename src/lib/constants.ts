@@ -1,3 +1,5 @@
+export const SITE_URL = "https://kanbanflow-app.vercel.app";
+
 export const BOARDS_LIST_LIMIT = 12;
 
 export const BOARDS_PAGE_SIZE = 24;
