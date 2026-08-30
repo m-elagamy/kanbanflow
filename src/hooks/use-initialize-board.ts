@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
-import type { Task } from "@prisma/client";
 import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
 import { useTaskStore } from "@/stores/task";
 import { useTaskFilterStore } from "@/stores/task-filter";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import type { SimplifiedBoard } from "@/lib/types/stores/board";
+import type { ClientTask } from "@/lib/types";
 
 type BoardWithColumnsAndTasks = SimplifiedBoard & {
-  columns: (SimplifiedColumn & { tasks: Task[] })[];
+  columns: (SimplifiedColumn & { tasks: ClientTask[] })[];
 };
 
 export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {

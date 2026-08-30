@@ -1,23 +1,23 @@
-import type { Task } from "@prisma/client";
+import type { ClientTask } from "@/lib/types";
 
 export type TaskSnapshot = {
-  tasks: Record<string, Task>;
+  tasks: Record<string, ClientTask>;
   columnTaskIds: Record<string, string[]>;
 } | null;
 
 export type TaskState = {
-  tasks: Record<string, Task>;
+  tasks: Record<string, ClientTask>;
   columnTaskIds: Record<string, string[]>;
   activeTaskId: string | null;
   previousState: TaskSnapshot;
 };
 
 type TaskActions = {
-  setTasks: (tasks: Task[]) => void;
-  setActiveTask: (task: Task | null) => void;
+  setTasks: (tasks: ClientTask[]) => void;
+  setActiveTask: (task: ClientTask | null) => void;
 
-  addTask: (columnId: string, task: Task) => void;
-  updateTask: (taskId: string, updates: Partial<Task>) => void;
+  addTask: (columnId: string, task: ClientTask) => void;
+  updateTask: (taskId: string, updates: Partial<ClientTask>) => void;
   deleteTask: (columnId: string, taskId: string) => void;
   updateTaskId: (oldTaskId: string, newTaskId: string) => void;
 
@@ -37,8 +37,8 @@ type TaskActions = {
 };
 
 type TaskSelectors = {
-  getTask: (taskId: string) => Task | undefined;
-  getColumnTasks: (columnId: string) => Task[];
+  getTask: (taskId: string) => ClientTask | undefined;
+  getColumnTasks: (columnId: string) => ClientTask[];
 };
 
 export type TaskStore = TaskState & TaskActions & TaskSelectors;

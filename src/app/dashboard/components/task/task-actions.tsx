@@ -3,7 +3,7 @@
 import { Ellipsis, Loader, Settings2, TrashIcon } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import { toast } from "sonner";
-import type { Task } from "@prisma/client";
+import type { ClientTask } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,7 +19,7 @@ import useLoadingStore from "@/stores/loading";
 import handleOnError from "@/utils/handle-on-error";
 
 type TaskActionsProps = {
-  task: Task;
+  task: ClientTask;
   columnId: string;
 };
 

@@ -92,7 +92,7 @@ const countBoardsBySlug = withOwnership(
 );
 
 const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
-  return db.board.findUnique({
+  const board = await db.board.findUnique({
     where: { userId_slug: { userId, slug } },
     select: {
       id: true,
@@ -121,6 +121,19 @@ const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
       },
     },
   });
+
+  if (!board) return null;
+
+  return {
+    ...board,
+    columns: board.columns.map((column) => ({
+      ...column,
+      tasks: column.tasks.map((task) => ({
+        ...task,
+        dueDate: task.dueDate ? task.dueDate.toISOString() : null,
+      })),
+    })),
+  };
 });
 
 export {

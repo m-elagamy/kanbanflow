@@ -3,7 +3,7 @@
 import { Flag, GripVertical } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { Task } from "@prisma/client";
+import type { ClientTask } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import formatDate from "@/utils/format-date";
 import getBadgeStyle from "../../utils/get-badge-style";
@@ -11,7 +11,7 @@ import TaskActions from "./task-actions";
 import taskPriorities from "../../data/task-priorities";
 
 type TaskCardProps = {
-  task: Task;
+  task: ClientTask;
   columnId?: string | null;
   isDragging?: boolean;
 };
@@ -35,7 +35,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
     scale: isSortableDragging ? "0.95" : "1",
   };
 
-  const dueDate = task.dueDate ? formatDate(task.dueDate.toISOString()) : null;
+  const dueDate = task.dueDate ? formatDate(task.dueDate) : null;
 
   const priorityOption = taskPriorities.find((p) => p.id === task.priority);
   const PriorityIcon = priorityOption?.icon || taskPriorities[1].icon; // Default to medium

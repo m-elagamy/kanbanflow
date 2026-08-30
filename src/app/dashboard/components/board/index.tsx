@@ -3,7 +3,7 @@
 import { useInitializeBoardData } from "@/hooks/use-initialize-board";
 import type { SimplifiedBoard } from "@/lib/types/stores/board";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
-import type { Task } from "@prisma/client";
+import type { ClientTask } from "@/lib/types";
 import BoardHeader from "./board-header";
 import ColumnsWrapper from "../column";
 import BoardSkeleton from "./board-skeleton";
@@ -11,7 +11,7 @@ import BoardContainer from "./board-container";
 
 type BoardLayoutProps = {
   initialBoard: SimplifiedBoard & {
-    columns: (SimplifiedColumn & { tasks: Task[] })[];
+    columns: (SimplifiedColumn & { tasks: ClientTask[] })[];
   };
 };
 

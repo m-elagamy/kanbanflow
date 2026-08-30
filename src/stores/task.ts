@@ -3,7 +3,7 @@ import { immer } from "zustand/middleware/immer";
 import { subscribeWithSelector } from "zustand/middleware";
 import isEqual from "fast-deep-equal";
 import type { TaskState, TaskStore } from "@/lib/types/stores/task";
-import type { Task } from "@prisma/client";
+import type { ClientTask } from "@/lib/types";
 
 const initialState: TaskState = {
   tasks: {},
@@ -34,7 +34,7 @@ export const useTaskStore = create<TaskStore>()(
               acc[task.id] = task;
               return acc;
             },
-            {} as Record<string, Task>,
+            {} as Record<string, ClientTask>,
           );
 
           const newColumnTaskIds = tasks.reduce(

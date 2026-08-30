@@ -66,6 +66,16 @@ export type TaskSummary = Pick<
   "id" | "title" | "description" | "priority"
 >;
 
+export type ClientTask = {
+  id: string;
+  title: string;
+  description: string | null;
+  priority: "low" | "medium" | "high";
+  order: number;
+  columnId: string;
+  dueDate: string | null;
+};
+
 export type TaskSearchResult = {
   id: string;
   title: string;

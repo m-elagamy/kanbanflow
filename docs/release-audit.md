@@ -115,7 +115,7 @@ This snapshot goes stale as the code changes. To regenerate against a newer comm
 - [ ] **OPS-04** no test runner, no tests, no `test` script _(1 day for stores+utils · 2–3 days with E2E)_
 - [ ] **OPS-05** no error monitoring; 13 `console.error` calls are the only sink _(3 h)_
 - [ ] **OPS-06** database backups unverified (provider-level) _(1 h)_
-- [ ] **QUAL-01** Prisma model types cross into client components _(3 h)_
+- [x] **QUAL-01** Prisma model types cross into client components _(3 h)_ — added `ClientTask` (plain object, `dueDate: string | null`) to `src/lib/types/index.ts`; `getBoardBySlug` in the DAL now converts `dueDate` to an ISO string at the server boundary before it ever reaches the client. Replaced `import type { Task } from "@prisma/client"` with `ClientTask` across all 10 client-side consumers (task store + its types, both DnD/position-comparison hooks, `use-initialize-board.ts`, and the board/task-card/task-actions/task-modal components); `task-card.tsx` simplified from `formatDate(task.dueDate.toISOString())` to `formatDate(task.dueDate)` now that it's already a string. Verified with `pnpm type-check` — no lingering Date-vs-string mismatches anywhere in the chain
 - [ ] **QUAL-04** `src/components/ui/modal.tsx:59-74` — `DialogContent` nested inside `DialogOverlay` _(30 min)_
 - [ ] **QUAL-06** `prisma/schema.prisma:34` — `Column.status` is an unconstrained `String` _(30 min / 2 h with migration)_
 - [ ] **SEC-08** `src/schemas/task.ts:6-9` — unbounded description, untrimmed title _(10 min)_
