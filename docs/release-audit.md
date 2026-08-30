@@ -96,7 +96,7 @@ This snapshot goes stale as the code changes. To regenerate against a newer comm
 
 ## Stage 5 — Polish for the portfolio audience (~2 days)
 
-- [ ] **UX-05** no `loading.tsx` in any segment; `boards-skeleton.tsx` written but unused _(1.5 h)_
+- [x] **UX-05** no `loading.tsx` in any segment; `boards-skeleton.tsx` written but unused _(1.5 h)_ — added `loading.tsx` to `/dashboard`, `/dashboard/[board]` (reuses `BoardSkeleton` with generic placeholder counts), and `/dashboard/boards`; new `DashboardSkeleton` built for the grid. Split `DashboardSidebar` into a static shell + async `BoardsSection`, wrapped in `<Suspense>` with `BoardsSkeleton` as the fallback — the previously-unused skeleton is now wired up
 - [ ] **UX-06** only one `error.tsx`; no `global-error.tsx` _(1.5 h)_
 - [ ] **UX-07** `src/app/dashboard/[board]/page.tsx:14` — missing board 404s on the client after shipping HTML _(2 h)_
 - [ ] **UX-08** `toast.success` is never called anywhere _(1 h)_
