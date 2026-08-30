@@ -7,6 +7,7 @@ export const useColumnStore = create<ColumnStore>()(
   immer((set) => ({
     columnsByBoard: {},
     previousState: null,
+    previousReorderState: null,
 
     setColumns: (boardId, columns) => {
       set((state) => {
@@ -131,6 +132,41 @@ export const useColumnStore = create<ColumnStore>()(
         return {
           columnsByBoard: updatedColumnsByBoard,
         };
+      });
+    },
+
+    reorderColumns: (boardId, activeColumnId, overColumnId) => {
+      set((state) => {
+        const columns = state.columnsByBoard[boardId];
+        if (!columns) return state;
+
+        state.previousReorderState = {
+          boardId,
+          previousColumns: { ...columns },
+        };
+
+        const sorted = Object.values(columns).sort((a, b) => a.order - b.order);
+        const activeIndex = sorted.findIndex((c) => c.id === activeColumnId);
+        const overIndex = sorted.findIndex((c) => c.id === overColumnId);
+
+        if (activeIndex === -1 || overIndex === -1) return state;
+
+        const [moved] = sorted.splice(activeIndex, 1);
+        sorted.splice(overIndex, 0, moved);
+
+        sorted.forEach((column, index) => {
+          state.columnsByBoard[boardId][column.id] = { ...column, order: index };
+        });
+      });
+    },
+
+    rollbackReorder: () => {
+      set((state) => {
+        if (!state.previousReorderState) return state;
+
+        const { boardId, previousColumns } = state.previousReorderState;
+        state.columnsByBoard[boardId] = previousColumns;
+        state.previousReorderState = null;
       });
     },
 

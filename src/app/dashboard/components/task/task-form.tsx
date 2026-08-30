@@ -1,6 +1,6 @@
 import { RefObject, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
-import type { FormMode, TaskSummary } from "@/lib/types";
+import type { FormMode, ClientTask } from "@/lib/types";
 import { taskSchema, type TaskSchema } from "@/schemas/task";
 import { useTaskStore } from "@/stores/task";
 import { useColumnStore } from "@/stores/column";
@@ -12,7 +12,7 @@ import taskPriorities from "../../data/task-priorities";
 
 type TaskFormProps = {
   formMode: FormMode;
-  task?: TaskSummary;
+  task?: ClientTask;
   columnId?: string;
   boardId?: string;
   modalId: string;
@@ -70,6 +70,7 @@ const TaskForm = ({
       title: task?.title ?? "",
       description: task?.description ?? "",
       priority: task?.priority ?? "medium",
+      dueDate: task?.dueDate ? task.dueDate.slice(0, 10) : null,
       columnId: columnId ?? "",
     },
     taskSchema,
@@ -146,6 +147,16 @@ const TaskForm = ({
         options={taskPriorities}
         helperText="Select a priority level to manage urgency."
         placeholder="Select a Priority"
+      />
+
+      <FormField
+        type="date"
+        name="dueDate"
+        label="Due date"
+        defaultValue={taskFormData.dueDate ?? ""}
+        onChange={(value) => handleOnChange("dueDate", value)}
+        error={errors?.dueDate}
+        helperText="Optional. Leave blank if there's no deadline."
       />
     </GenericForm>
   );

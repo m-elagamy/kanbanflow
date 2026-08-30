@@ -17,7 +17,7 @@ import { MotionInput } from "./motion-input";
 import FormMessage from "./form-message";
 
 interface FormFieldProps {
-  type: "text" | "textarea" | "select" | "hidden";
+  type: "text" | "textarea" | "select" | "hidden" | "date";
   name: string;
   label?: string;
   defaultValue?: string;
@@ -78,6 +78,18 @@ const FormField = ({
           className="resize-none"
           defaultValue={defaultValue}
           placeholder={placeholder}
+          onChange={(e) => onChange?.(e.target.value)}
+          aria-invalid={!!error}
+          aria-describedby={error ? `${name}-error` : undefined}
+        />
+      )}
+
+      {type === "date" && (
+        <Input
+          id={name}
+          type="date"
+          name={name}
+          defaultValue={defaultValue}
           onChange={(e) => onChange?.(e.target.value)}
           aria-invalid={!!error}
           aria-describedby={error ? `${name}-error` : undefined}

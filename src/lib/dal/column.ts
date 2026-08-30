@@ -68,3 +68,25 @@ export const deleteColumn = withOwnership(
   },
   resolveColumnOwnerId,
 );
+
+export const updateColumnPosition = withOwnership(
+  async (userId: string, boardId: string, newColumnOrder: string[]) => {
+    const matchingCount = await db.column.count({
+      where: { id: { in: newColumnOrder }, boardId },
+    });
+
+    if (matchingCount !== newColumnOrder.length) {
+      throw new Error("One or more columns do not belong to this board.");
+    }
+
+    await db.$transaction(
+      newColumnOrder.map((columnId, index) =>
+        db.column.update({
+          where: { id: columnId, boardId },
+          data: { order: index },
+        }),
+      ),
+    );
+  },
+  resolveBoardOwnerId,
+);

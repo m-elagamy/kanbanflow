@@ -26,6 +26,7 @@ export const createTask = withOwnership(
     title: string,
     description?: string,
     priority?: Priority,
+    dueDate?: Date | null,
   ): Promise<Task> => {
     const highestOrderTask = await db.task.findFirst({
       where: { columnId },
@@ -42,6 +43,7 @@ export const createTask = withOwnership(
         priority,
         columnId,
         order: newOrder,
+        dueDate,
       },
     });
   },
@@ -85,7 +87,12 @@ export const getTaskForRename = withOwnership(
   async (userId: string, taskId: string) => {
     return db.task.findUnique({
       where: { id: taskId },
-      select: { title: true, description: true, priority: true },
+      select: {
+        title: true,
+        description: true,
+        priority: true,
+        dueDate: true,
+      },
     });
   },
   resolveTaskOwnerId,

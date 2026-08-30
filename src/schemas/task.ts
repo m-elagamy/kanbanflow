@@ -3,10 +3,15 @@ import { z } from "zod";
 export const taskSchema = z.object({
   title: z
     .string()
+    .trim()
     .min(3, "Task name must be at least 3 characters.")
     .max(50, "Task name must be less than 50 characters."),
-  description: z.string().optional(),
+  description: z.string().trim().max(2000, "Description too long.").optional(),
   priority: z.enum(["low", "medium", "high"]).default("medium").optional(),
+  dueDate: z
+    .union([z.iso.date("Invalid date."), z.literal("")])
+    .optional()
+    .transform((value) => value || null),
 });
 
 export type TaskSchema = z.infer<typeof taskSchema>;

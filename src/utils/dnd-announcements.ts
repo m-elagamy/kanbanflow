@@ -46,27 +46,68 @@ const describeDrop = (taskId: string, overId: string | undefined): string => {
   return `Task "${title}" in the "${status}" column, position ${position.index} of ${position.total}.`;
 };
 
+const getColumnPosition = (
+  columnId: string,
+): { index: number; total: number } | null => {
+  const boardId = useBoardStore.getState().activeBoardId;
+  if (!boardId) return null;
+
+  const columns = useColumnStore.getState().columnsByBoard[boardId];
+  if (!columns) return null;
+
+  const sorted = Object.values(columns).sort((a, b) => a.order - b.order);
+  const index = sorted.findIndex((column) => column.id === columnId);
+  if (index === -1) return null;
+
+  return { index: index + 1, total: sorted.length };
+};
+
+const describeColumnDrop = (columnId: string): string => {
+  const status = getColumnStatus(columnId) ?? "column";
+  const position = getColumnPosition(columnId);
+
+  if (!position) return `Column "${status}".`;
+
+  return `Column "${status}", position ${position.index} of ${position.total}.`;
+};
+
+const isColumnDrag = (active: { data: { current?: unknown } }) =>
+  (active.data.current as { type?: string } | undefined)?.type === "column";
+
 export const screenReaderInstructions: ScreenReaderInstructions = {
   draggable: `
-    To pick up a task, press space or enter.
-    While dragging, use the arrow keys to move the task over another task or column.
-    Press space or enter again to drop the task in its new position, or press escape to cancel.
+    To pick up a task or column, press space or enter.
+    While dragging a task, use the arrow keys to move it over another task or column.
+    While dragging a column, use the arrow keys to move it over another column to reorder it.
+    Press space or enter again to drop it in its new position, or press escape to cancel.
   `,
 };
 
 export const dndAnnouncements: Announcements = {
   onDragStart({ active }) {
+    if (isColumnDrag(active)) {
+      return `Picked up ${describeColumnDrop(String(active.id))}`;
+    }
     return `Picked up ${describeDrop(String(active.id), undefined)}`;
   },
   onDragOver({ active, over }) {
     if (!over) return undefined;
+    if (isColumnDrag(active)) {
+      return `${describeColumnDrop(String(active.id))} is over the drop target.`;
+    }
     return `${describeDrop(String(active.id), String(over.id))} is over the drop target.`;
   },
   onDragEnd({ active, over }) {
+    if (isColumnDrag(active)) {
+      return `${describeColumnDrop(String(active.id))} was dropped.`;
+    }
     if (!over) return `${describeDrop(String(active.id), undefined)} was dropped.`;
     return `${describeDrop(String(active.id), String(over.id))} was dropped.`;
   },
   onDragCancel({ active }) {
+    if (isColumnDrag(active)) {
+      return `Dragging ${describeColumnDrop(String(active.id))} was cancelled.`;
+    }
     return `Dragging ${describeDrop(String(active.id), undefined)} was cancelled.`;
   },
 };

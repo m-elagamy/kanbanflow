@@ -26,6 +26,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
     isDragging: isSortableDragging,
   } = useSortable({
     id: task.id,
+    data: { type: "task" },
   });
 
   const style = {

@@ -8,9 +8,15 @@ export type ColumnSnapshot = {
   previousData: SimplifiedColumn | null;
 } | null;
 
+export type ColumnReorderSnapshot = {
+  boardId: string;
+  previousColumns: Record<string, SimplifiedColumn>;
+} | null;
+
 export type ColumnState = {
   columnsByBoard: Record<string, Record<string, SimplifiedColumn>>;
   previousState: ColumnSnapshot;
+  previousReorderState: ColumnReorderSnapshot;
 };
 
 export type ColumnActions = {
@@ -37,6 +43,13 @@ export type ColumnActions = {
     columns: ReadonlyArray<{ oldId: string; newId: string }>,
   ) => void;
   transferColumnsToBoard: (oldBoardId: string, newBoardId: string) => void;
+
+  reorderColumns: (
+    boardId: string,
+    activeColumnId: string,
+    overColumnId: string,
+  ) => void;
+  rollbackReorder: () => void;
 
   rollback: () => void;
 };

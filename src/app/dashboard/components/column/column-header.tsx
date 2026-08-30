@@ -1,6 +1,11 @@
 "use client";
 
 import clsx from "clsx";
+import { GripVertical } from "lucide-react";
+import type {
+  DraggableAttributes,
+  DraggableSyntheticListeners,
+} from "@dnd-kit/core";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
@@ -10,11 +15,16 @@ import columnStatusOptions from "../../data/column-status-options";
 type ColumnHeaderProps = {
   tasksCount: number;
   column: SimplifiedColumn;
+  dragHandleProps?: {
+    attributes: DraggableAttributes;
+    listeners: DraggableSyntheticListeners;
+  };
 };
 
 export default function ColumnHeader({
   tasksCount,
   column,
+  dragHandleProps,
 }: ColumnHeaderProps) {
   const { id: columnId, status: columnStatus } = column;
 
@@ -24,6 +34,17 @@ export default function ColumnHeader({
   return (
     <CardHeader className="sticky top-0 z-5 flex flex-row items-center justify-between border-b p-4 pb-3!">
       <CardTitle className="flex items-center gap-2 text-sm text-ellipsis whitespace-nowrap">
+        {dragHandleProps && (
+          <button
+            type="button"
+            className="text-muted-foreground/50 hover:text-muted-foreground -ml-1 touch-none rounded p-0.5 active:cursor-grabbing"
+            aria-label="Drag to reorder column"
+            {...dragHandleProps.attributes}
+            {...dragHandleProps.listeners}
+          >
+            <GripVertical size={14} />
+          </button>
+        )}
         {<Icon size={16} color={color} />}
         <span
           className={clsx(

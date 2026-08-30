@@ -1,8 +1,9 @@
-import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
+  useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { useShallow } from "zustand/react/shallow";
 import { Card, CardContent } from "@/components/ui/card";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
@@ -18,9 +19,24 @@ type ColumnCardProps = {
 };
 
 const ColumnCard = ({ column }: ColumnCardProps) => {
-  const { setNodeRef, isOver } = useDroppable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isOver,
+    isDragging,
+  } = useSortable({
     id: column.id,
+    data: { type: "column" },
   });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
 
   const tasks = useTaskStore(
     useShallow((state) => state.getColumnTasks(column.id)),
@@ -42,13 +58,18 @@ const ColumnCard = ({ column }: ColumnCardProps) => {
           : ""
       }`}
       ref={setNodeRef}
+      style={style}
     >
       {/* Drop zone indicator */}
       {isOver && (
         <div className="from-primary/10 absolute inset-0 animate-pulse rounded-xl bg-gradient-to-b to-transparent" />
       )}
 
-      <ColumnHeader column={column} tasksCount={tasks.length} />
+      <ColumnHeader
+        column={column}
+        tasksCount={tasks.length}
+        dragHandleProps={{ attributes, listeners }}
+      />
 
       <CardContent className="scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent flex-1 space-y-3 overflow-y-auto p-4 pt-3">
         {tasks.length === 0 ? (

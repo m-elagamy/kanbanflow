@@ -1,7 +1,7 @@
 import { useShallow } from "zustand/react/shallow";
 import { toast } from "sonner";
 import { createTaskAction, updateTaskAction } from "@/actions/task";
-import type { FormMode, TaskSummary } from "@/lib/types";
+import type { FormMode, ClientTask } from "@/lib/types";
 import type { TaskSchema } from "@/schemas/task";
 import { useModalStore } from "@/stores/modal";
 import { useTaskStore } from "@/stores/task";
@@ -18,7 +18,7 @@ type UseTaskFormAction = {
     subsetFields: (keyof TaskSchema)[],
     entityType: "board" | "task",
   ) => { success: boolean; data?: TaskSchema; error?: string };
-  task?: TaskSummary;
+  task?: ClientTask;
   columnId?: string;
   existingTasks: { id: string; title: string }[];
   modalId: string;
@@ -66,13 +66,18 @@ export function useTaskFormAction({
       formData,
       isEditMode,
       existingTasks,
-      ["title", "description", "priority"],
+      ["title", "description", "priority", "dueDate"],
       "task",
     );
 
     if (!success || !validatedData) return;
 
-    const { title, description = "", priority = "medium" } = validatedData;
+    const {
+      title,
+      description = "",
+      priority = "medium",
+      dueDate = null,
+    } = validatedData;
 
     const optimisticTask = {
       id: generateUUID(),
@@ -81,14 +86,14 @@ export function useTaskFormAction({
       description,
       priority,
       order: 0,
-      dueDate: null,
+      dueDate,
     };
 
     try {
       if (isEditMode && task) {
         setIsLoading("task", "updating", true, task.id);
 
-        updateTask(task.id, { title, description, priority });
+        updateTask(task.id, { title, description, priority, dueDate });
         closeModal("task", modalId);
 
         const result = await updateTaskAction(formData);

@@ -33,7 +33,8 @@ export const createTaskAction = async (
     };
   }
 
-  const { title, description, priority = "medium" } = validatedData.data;
+  const { title, description, priority = "medium", dueDate } =
+    validatedData.data;
 
   const columnId = formData.get("columnId") as string;
 
@@ -51,7 +52,13 @@ export const createTaskAction = async (
     };
   }
 
-  const result = await createTask(columnId, title, description, priority);
+  const result = await createTask(
+    columnId,
+    title,
+    description,
+    priority,
+    dueDate ? new Date(dueDate) : null,
+  );
 
   if (!result.success || !result.data) {
     return {
@@ -88,7 +95,7 @@ export async function updateTaskAction(
     };
   }
 
-  const { title, description, priority } = validatedData.data;
+  const { title, description, priority, dueDate } = validatedData.data;
   const columnId = formData.get("columnId") as string;
   const taskId = formData.get("taskId") as string;
 
@@ -98,11 +105,21 @@ export async function updateTaskAction(
     return { success: false, message: "Task not found." };
   }
 
+  const existingDueDate = existingTask.data.dueDate
+    ? existingTask.data.dueDate.toISOString().slice(0, 10)
+    : null;
+
   const titleChanged = existingTask.data.title !== title;
   const descriptionChanged = existingTask.data.description !== description;
   const priorityChanged = existingTask.data.priority !== priority;
+  const dueDateChanged = existingDueDate !== dueDate;
 
-  if (!titleChanged && !descriptionChanged && !priorityChanged) {
+  if (
+    !titleChanged &&
+    !descriptionChanged &&
+    !priorityChanged &&
+    !dueDateChanged
+  ) {
     return {
       success: false,
       message:
@@ -126,7 +143,7 @@ export async function updateTaskAction(
       return {
         success: false,
         message: `A task with the name "${title}" already exists.`,
-        fields: { title, description: description ?? "", priority },
+        fields: { title, description: description ?? "", priority, dueDate },
       };
     }
   }
@@ -135,6 +152,7 @@ export async function updateTaskAction(
     ...(titleChanged && { title }),
     ...(descriptionChanged && { description }),
     ...(priorityChanged && { priority }),
+    ...(dueDateChanged && { dueDate: dueDate ? new Date(dueDate) : null }),
   });
 
   if (!updatedTask.success) {
@@ -148,7 +166,7 @@ export async function updateTaskAction(
   return {
     success: true,
     message: "Task updated successfully.",
-    fields: { title, description: description ?? "", priority },
+    fields: { title, description: description ?? "", priority, dueDate },
   };
 }
 
