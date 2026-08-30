@@ -89,18 +89,15 @@ export function useBoardFormAction({
     setIsLoading("board", "creating", true, optimisticBoard.id);
     createBoard(optimisticBoard);
     setColumns(optimisticBoard.id, constructColumns(template as Templates));
-
-    await delay(600);
-    router.push(`/dashboard/${optimisticBoard.slug}`);
-
-    setTimeout(async () => {
-      try {
-        const res = await createBoardAction(validatedData);
+    
+    createBoardAction(validatedData)
+      .then((res) => {
         if (res.fields) {
           updateBoardId(optimisticBoard.id, res.fields.id);
           updateColumnIds(res.fields.id, res.fields.columns);
         }
-      } catch (err) {
+      })
+      .catch((err) => {
         console.error(err);
         setError(true, {
           id: optimisticBoard.id,
@@ -108,10 +105,13 @@ export function useBoardFormAction({
           description,
           template: validatedData.template,
         });
-      } finally {
+      })
+      .finally(() => {
         setIsLoading("board", "creating", false, optimisticBoard.id);
-      }
-    }, 50);
+      });
+
+    await delay(600);
+    router.push(`/dashboard/${optimisticBoard.slug}`);
   };
 
   const redirectIfSlugChanged = (

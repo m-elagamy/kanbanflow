@@ -102,8 +102,8 @@ This snapshot goes stale as the code changes. To regenerate against a newer comm
 - [ ] **UX-08** `toast.success` is never called anywhere _(1 h)_
 - [x] **SEO-01** no `robots.ts`, no `sitemap.ts` _(45 min)_ — added `src/app/robots.ts` (disallows `/dashboard`, `/welcome`) and `src/app/sitemap.ts` listing the public routes; both build as static `/robots.txt` and `/sitemap.xml`
 - [ ] **SEO-02** `src/app/layout.tsx:13-38` — no `metadataBase`, no OG image, no Twitter card _(2 h)_
-- [ ] **PERF-01** `src/app/dashboard/page.tsx:12` — `currentUser()` where `auth()` would do, awaited serially _(1 h)_
-- [ ] **BUG-10** `src/hooks/use-board-form-action.ts:94-115` — board creation persisted from a detached `setTimeout` _(1.5 h)_
+- [x] **PERF-01** `src/app/dashboard/page.tsx:12` — `currentUser()` where `auth()` would do, awaited serially _(1 h)_ — auth guard now uses `auth()` (local, no Clerk API round-trip); `currentUser()` runs in `Promise.all` alongside the onboarding query instead of blocking before it
+- [x] **BUG-10** `src/hooks/use-board-form-action.ts:94-115` — board creation persisted from a detached `setTimeout` _(1.5 h)_ — removed the `setTimeout(..., 50)` wrapper; `createBoardAction` now fires immediately after the optimistic store update, running concurrently with the (intentionally-kept, see UX-03) 600ms navigation delay instead of being gated behind it
 - [ ] **QUAL-05** `src/hooks/use-page-metadata.ts` — imperative `document.title` mutation, never restored _(1 h)_
 - [ ] **OPS-07** no `engines` field, no `.nvmrc` _(20 min)_
 

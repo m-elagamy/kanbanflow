@@ -1,6 +1,6 @@
 import { redirect, unauthorized } from "next/navigation";
 import type { Metadata } from "next";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import {
   getUserOnboardingStateAction,
   getUserBoardsWithStatsAction,
@@ -9,11 +9,16 @@ import {
 import BoardsGrid from "./components/board/boards-grid";
 
 const Dashboard = async () => {
-  const user = await currentUser();
+  const { userId } = await auth();
+
+  if (!userId) unauthorized();
+
+  const [user, onboardingState] = await Promise.all([
+    currentUser(),
+    getUserOnboardingStateAction(),
+  ]);
 
   if (!user) unauthorized();
-
-  const onboardingState = await getUserOnboardingStateAction();
 
   const hasCreatedBoardOnce =
     onboardingState.fields?.hasCreatedBoardOnce ?? false;
