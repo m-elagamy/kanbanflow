@@ -111,7 +111,7 @@ export function useBoardFormAction({
       });
 
     await delay(600);
-    router.push(`/dashboard/${optimisticBoard.slug}`);
+    router.push(`/dashboard/${optimisticBoard.slug}?new=1`);
   };
 
   const redirectIfSlugChanged = (
