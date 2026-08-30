@@ -1,17 +1,16 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Home, LogIn, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import usePageMetadata from "@/hooks/use-page-metadata";
 import { ErrorCard } from "@/components/ui/error-card";
 
-export default function Unauthorized() {
-  usePageMetadata(
-    "Access Denied | KanbanFlow",
+export const metadata: Metadata = {
+  title: "Access Denied",
+  description:
     "You do not have permission to access this page. Please log in or return to the homepage.",
-  );
+};
 
+export default function Unauthorized() {
   const actions = (
     <>
       <Button size="sm" asChild variant="outline">

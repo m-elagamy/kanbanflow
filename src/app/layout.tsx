@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Providers } from "@/providers";
+import { SITE_URL } from "@/lib/constants";
 import "./globals.css";
 
 // Google Font
@@ -11,6 +12,7 @@ const geist = Geist({
 
 // Metadata
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "KanbanFlow | Modern Task Management",
     template: "%s | KanbanFlow",
@@ -29,8 +31,14 @@ export const metadata: Metadata = {
   publisher: "Mahmoud Elagamy",
   openGraph: {
     type: "website",
-    url: "https://kanbanflow-app.vercel.app/",
+    url: SITE_URL,
     siteName: "KanbanFlow",
+    title: "KanbanFlow | Modern Task Management",
+    description:
+      "Manage tasks, organize projects, and boost productivity with KanbanFlow - your modern Kanban solution.",
+  },
+  twitter: {
+    card: "summary_large_image",
     title: "KanbanFlow | Modern Task Management",
     description:
       "Manage tasks, organize projects, and boost productivity with KanbanFlow - your modern Kanban solution.",

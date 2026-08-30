@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Ellipsis, SquarePen, TrashIcon } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,14 +58,19 @@ export default function BoardActions({
     setIsDeleting("board", "deleting", true, board.id);
 
     try {
-      const { success } = await deleteBoardAction(board.id);
-      if (!success) return;
+      const { success, message } = await deleteBoardAction(board.id);
+      if (!success) {
+        handleOnError(message, "Failed to delete board");
+        setIsAlertOpen(false);
+        return;
+      }
 
       setTimeout(() => {
         redirectIfActiveBoard(board.slug);
       }, 0);
 
       deleteBoard(board.id);
+      toast.success(message);
     } catch (error) {
       handleOnError(error, "Failed to delete board");
       setIsAlertOpen(false);

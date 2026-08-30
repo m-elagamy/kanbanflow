@@ -2,6 +2,7 @@
 
 import { Ellipsis, Loader, Settings2, TrashIcon } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
+import { toast } from "sonner";
 import type { Task } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,6 +50,8 @@ export default function TaskActions({
       if (!result.success) {
         handleOnError(result.message, "Failed to delete task");
         rollback();
+      } else {
+        toast.success(result.message);
       }
     } catch (error) {
       handleOnError(error, "Failed to delete task");

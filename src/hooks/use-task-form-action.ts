@@ -1,4 +1,5 @@
 import { useShallow } from "zustand/react/shallow";
+import { toast } from "sonner";
 import { createTaskAction, updateTaskAction } from "@/actions/task";
 import type { FormMode, TaskSummary } from "@/lib/types";
 import type { TaskSchema } from "@/schemas/task";
@@ -94,6 +95,8 @@ export function useTaskFormAction({
         if (!result.success) {
           handleOnError(result.message, "Failed to update task");
           rollback();
+        } else {
+          toast.success(result.message);
         }
       } else {
         setIsLoading("task", "creating", true, optimisticTask.id);
@@ -107,6 +110,7 @@ export function useTaskFormAction({
           rollback();
         } else {
           updateTaskId(optimisticTask.id, res.fields.id);
+          toast.success(res.message);
         }
       }
     } catch (error) {

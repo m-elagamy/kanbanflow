@@ -1,4 +1,5 @@
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { constructColumns, createOptimisticBoard } from "@/utils/board-helpers";
 import delay from "@/utils/delay";
 import { omit } from "@/utils/object";
@@ -67,14 +68,20 @@ export function useBoardFormAction({
       closeModal("board", modalId);
 
       try {
-        await updateBoardAction(formData);
+        const result = await updateBoardAction(formData);
 
-        redirectIfSlugChanged(
-          board.slug,
-          optimisticBoard.slug,
-          board.id,
-          activeBoardId,
-        );
+        if (!result.success) {
+          handleOnError(result.message, "Failed to update board");
+          updateBoard(board.id, board);
+        } else {
+          redirectIfSlugChanged(
+            board.slug,
+            optimisticBoard.slug,
+            board.id,
+            activeBoardId,
+          );
+          toast.success(result.message);
+        }
       } catch (error) {
         console.error(error);
         handleOnError(error, "Failed to update board");
@@ -92,9 +99,17 @@ export function useBoardFormAction({
     
     createBoardAction(validatedData)
       .then((res) => {
-        if (res.fields) {
+        if (res.success && res.fields) {
           updateBoardId(optimisticBoard.id, res.fields.id);
           updateColumnIds(res.fields.id, res.fields.columns);
+          toast.success(res.message);
+        } else {
+          setError(true, {
+            id: optimisticBoard.id,
+            title,
+            description,
+            template: validatedData.template,
+          });
         }
       })
       .catch((err) => {

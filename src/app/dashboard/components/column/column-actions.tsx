@@ -1,6 +1,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useShallow } from "zustand/react/shallow";
+import { toast } from "sonner";
 import { Ellipsis, PlusIcon, Settings2, TrashIcon } from "lucide-react";
 import type { Column } from "@prisma/client";
 import { Button } from "@/components/ui/button";
@@ -83,7 +84,13 @@ const ColumnActions = ({
     setIsMainDropdownOpen(false);
 
     try {
-      await updateColumnAction(columnId, updates);
+      const result = await updateColumnAction(columnId, updates);
+      if (!result.success) {
+        handleOnError(result.message, "Failed to update column");
+        rollback();
+      } else {
+        toast.success(result.message);
+      }
     } catch (error) {
       console.error("Error updating column:", error);
       handleOnError(error, "Failed to update column");
@@ -99,7 +106,13 @@ const ColumnActions = ({
       deleteColumn(activeBoardId, columnId);
 
       try {
-        await deleteColumnAction(columnId);
+        const result = await deleteColumnAction(columnId);
+        if (!result.success) {
+          handleOnError(result.message, "Failed to delete column");
+          rollback();
+        } else {
+          toast.success(result.message);
+        }
       } catch (error) {
         console.error("Error deleting column:", error);
         handleOnError(error, "Failed to delete column");
