@@ -11,13 +11,13 @@ const columnsTemplates = [
     id: "agile",
     label: "Agile Development",
     icon: Layers,
-    status: ["In Progress", "Under Review", "Ready for Development"],
+    status: ["Backlog", "In Progress", "Under Review", "Done"],
   },
   {
     id: "bug-tracking",
     label: "Bug Tracking",
     icon: Bug,
-    status: ["Testing", "Under Review", "Done"],
+    status: ["Reported", "Testing", "Under Review", "Done"],
   },
   {
     id: "custom",

@@ -2,7 +2,6 @@ import { RefObject, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 import type { FormMode, ClientTask } from "@/lib/types";
 import { taskSchema, type TaskSchema } from "@/schemas/task";
-import { useTaskStore } from "@/stores/task";
 import { useColumnStore } from "@/stores/column";
 import useForm from "@/hooks/use-form";
 import GenericForm from "@/components/ui/generic-form";
@@ -27,10 +26,6 @@ const TaskForm = ({
   columnId,
   boardId,
 }: TaskFormProps) => {
-  const getColumnTasks = useTaskStore(
-    useShallow((state) => state.getColumnTasks),
-  );
-
   const columns = useColumnStore(
     useShallow((state) => {
       if (!boardId) return {};
@@ -48,15 +43,6 @@ const TaskForm = ({
       label: column.status,
     }));
   }, [sortedColumns]);
-
-  const columnTasks = columnId ? getColumnTasks(columnId) : [];
-
-  const existingTasks = columnTasks.map((task) => {
-    return {
-      id: task.id,
-      title: task.title,
-    };
-  });
 
   const {
     formValues: taskFormData,
@@ -78,7 +64,6 @@ const TaskForm = ({
 
   const { handleFormAction, isEditMode, isLoading } = useTaskFormAction({
     task,
-    existingTasks,
     formMode,
     columnId,
     modalId,

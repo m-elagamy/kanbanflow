@@ -11,9 +11,7 @@ import {
   updateTask,
   deleteTask,
   searchTasks,
-  findTaskByColumnAndTitle,
   getTaskForRename,
-  findDuplicateTaskTitle,
   updateTaskPosition,
 } from "@/lib/dal/task";
 import handlePrismaError from "@/utils/prisma-error-handler";
@@ -37,20 +35,6 @@ export const createTaskAction = async (
     validatedData.data;
 
   const columnId = formData.get("columnId") as string;
-
-  const existingTask = await findTaskByColumnAndTitle(columnId, title);
-
-  if (!existingTask.success) {
-    return { success: false, message: "Column not found." };
-  }
-
-  if (existingTask.data) {
-    return {
-      success: false,
-      message: `A task with the name "${title}" already exists.`,
-      fields: { title, description: description ?? "", priority },
-    };
-  }
 
   const result = await createTask(
     columnId,
@@ -96,7 +80,6 @@ export async function updateTaskAction(
   }
 
   const { title, description, priority, dueDate } = validatedData.data;
-  const columnId = formData.get("columnId") as string;
   const taskId = formData.get("taskId") as string;
 
   const existingTask = await getTaskForRename(taskId);
@@ -126,26 +109,6 @@ export async function updateTaskAction(
         "No changes detected. Please update something before submitting.",
       fields: validatedData.data,
     };
-  }
-
-  if (titleChanged) {
-    const duplicateTask = await findDuplicateTaskTitle(
-      columnId,
-      title,
-      taskId,
-    );
-
-    if (!duplicateTask.success) {
-      return { success: false, message: "Column not found." };
-    }
-
-    if (duplicateTask.data) {
-      return {
-        success: false,
-        message: `A task with the name "${title}" already exists.`,
-        fields: { title, description: description ?? "", priority, dueDate },
-      };
-    }
   }
 
   const updatedTask = await updateTask(taskId, {

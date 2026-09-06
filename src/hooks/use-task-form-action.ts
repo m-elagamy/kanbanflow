@@ -20,7 +20,6 @@ type UseTaskFormAction = {
   ) => { success: boolean; data?: TaskSchema; error?: string };
   task?: ClientTask;
   columnId?: string;
-  existingTasks: { id: string; title: string }[];
   modalId: string;
 };
 
@@ -29,7 +28,6 @@ export function useTaskFormAction({
   validateBeforeSubmit,
   task,
   columnId,
-  existingTasks,
   modalId,
 }: UseTaskFormAction) {
   const isEditMode = formMode === "edit";
@@ -65,7 +63,7 @@ export function useTaskFormAction({
     const { success, data: validatedData } = validateBeforeSubmit(
       formData,
       isEditMode,
-      existingTasks,
+      [],
       ["title", "description", "priority", "dueDate"],
       "task",
     );

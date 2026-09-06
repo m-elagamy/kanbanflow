@@ -111,8 +111,9 @@ src/
 
 ## Release Audit
 - Open findings live in `docs/release-audit.md` — 62 findings against `2e04a1c` (2026-08-23), tracked as checkboxes
-- **7 critical items currently block deployment.** Read Stage 1 of that doc before any release or deploy work
-- Known-broken as of the audit: `ensureAuthenticated` (`src/utils/auth-wrappers.ts`) authenticates but does NOT
-  authorize — every board/column/task mutation is an IDOR. Do not copy that pattern into new code; scope
-  mutations by `userId` and route all Prisma access through `src/lib/dal/`
+- **58/62 closed as of 2026-09-04.** Stage 1 (the auth/IDOR/CI-migration blockers) is fully closed — `withOwnership`
+  in `src/utils/auth-wrappers.ts` resolves resource ownership before every board/column/task mutation, and all
+  DB access for those domains routes through `src/lib/dal/`. Follow that pattern in new code.
+- **4 items remain open, none deployment-blocking:** `OPS-04` (no test suite), `OPS-05` (no error monitoring),
+  `OPS-06` (DB backups unverified), `OPS-07` (no `engines`/`.nvmrc`)
 - When you fix something listed there, tick its checkbox in the same commit

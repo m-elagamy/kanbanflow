@@ -73,16 +73,6 @@ export const deleteTask = withOwnership(
   resolveTaskOwnerId,
 );
 
-export const findTaskByColumnAndTitle = withOwnership(
-  async (userId: string, columnId: string, title: string) => {
-    return db.task.findUnique({
-      where: { columnId_title: { columnId, title } },
-      select: { title: true },
-    });
-  },
-  resolveColumnOwnerId,
-);
-
 export const getTaskForRename = withOwnership(
   async (userId: string, taskId: string) => {
     return db.task.findUnique({
@@ -96,21 +86,6 @@ export const getTaskForRename = withOwnership(
     });
   },
   resolveTaskOwnerId,
-);
-
-export const findDuplicateTaskTitle = withOwnership(
-  async (
-    userId: string,
-    columnId: string,
-    title: string,
-    excludeTaskId: string,
-  ) => {
-    return db.task.findFirst({
-      where: { columnId, title, NOT: { id: excludeTaskId } },
-      select: { title: true },
-    });
-  },
-  resolveColumnOwnerId,
 );
 
 export const updateTaskPosition = withOwnership(

@@ -17,9 +17,9 @@ const features = [
   },
   {
     icon: Database,
-    title: "Real-Time Collaboration",
+    title: "Always Saved",
     description:
-      "Your tasks are safely stored and quickly retrievable for a smooth workflow.",
+      "Every change is persisted instantly, so your boards are exactly where you left them.",
   },
   {
     icon: Gauge,
@@ -43,7 +43,7 @@ const features = [
     icon: Settings,
     title: "Customizable Workflows",
     description:
-      "Adapt the board to your unique workflow with customizable columns and labels.",
+      "Adapt the board to your unique workflow with fully customizable columns.",
   },
 ];
 
@@ -59,7 +59,7 @@ const steps = [
     number: "02",
     title: "Add Your Tasks",
     description:
-      "Create tasks with descriptions, priorities, and assignees. Organize them into columns.",
+      "Create tasks with descriptions, priorities, and due dates. Organize them into columns.",
     icon: CheckCircle,
   },
   {

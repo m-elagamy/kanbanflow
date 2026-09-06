@@ -50,7 +50,6 @@ model Task {
   dueDate     DateTime?
   column      Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
 
-  @@unique([columnId, title])
   @@index([columnId, order])
 }
 
