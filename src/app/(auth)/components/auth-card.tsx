@@ -1,3 +1,4 @@
+import * as Clerk from "@clerk/elements/common";
 import {
   Card,
   CardContent,
@@ -9,7 +10,7 @@ import {
 
 type AuthCardProps = {
   title: React.ReactNode;
-  description?: string;
+  description?: React.ReactNode;
   children: React.ReactNode;
   footer: React.ReactNode;
 };
@@ -26,7 +27,10 @@ export function AuthCard({
         <CardTitle className="mx-auto">{title}</CardTitle>
         {<CardDescription>{description}</CardDescription>}
       </CardHeader>
-      <CardContent className="grid gap-y-4">{children}</CardContent>
+      <CardContent className="grid gap-y-4">
+        <Clerk.GlobalError role="alert" className="text-destructive text-sm" />
+        {children}
+      </CardContent>
       <CardFooter>
         <div className="grid w-full gap-y-4">{footer}</div>
       </CardFooter>

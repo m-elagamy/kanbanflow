@@ -14,7 +14,7 @@ export default function SocialConnectionButtons({
         <Button
           variant="outline"
           type="button"
-          aria-label="Sign in with GitHub"
+          aria-label="Continue with Google"
           className="relative z-2 dark:hover:bg-accent/25"
           disabled={isGlobalLoading}
         >
@@ -36,7 +36,7 @@ export default function SocialConnectionButtons({
         <Button
           variant="outline"
           type="button"
-          aria-label="Sign in with GitHub"
+          aria-label="Continue with GitHub"
           className="relative z-2 dark:hover:bg-accent/25"
           disabled={isGlobalLoading}
         >

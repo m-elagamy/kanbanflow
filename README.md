@@ -39,6 +39,12 @@ pnpm prisma migrate deploy
 pnpm dev
 ```
 
+### Authentication settings
+
+The custom signup and sign-in screens use email verification codes, Google, and GitHub. In the Clerk instance used by your deployment, enable email-address signup and email-code sign-in, require email-code verification at signup, and keep passwords optional or disabled. These screens do not collect passwords. Keep Google and GitHub enabled if their buttons are displayed, and avoid requiring additional signup fields or authentication factors without adding the corresponding screens.
+
+The locally configured instance was inspected on September 9, 2026: email-code signup verification and sign-in were enabled, passwords were optional and unused for sign-in, and MFA was not required. A separate production instance must use matching settings. See [Clerk's authentication settings documentation](https://clerk.com/docs/guides/configure/auth-strategies/sign-up-sign-in-options).
+
 ### Scripts
 
 | Command | Description |

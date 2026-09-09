@@ -2,6 +2,7 @@
 
 import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
+import { Button } from "@/components/ui/button";
 
 import SocialConnectionButtons from "../../components/social-connection-buttons";
 import AuthStrategiesSeparator from "../../components/auth-strategies-separator";
@@ -21,7 +22,7 @@ export default function SignInPage() {
             <SignIn.Step name="start">
               <AuthCard
                 title={<KanbanLogo />}
-                description="Welcome back! Please sign in to continue."
+                description="Welcome back! Use Google, GitHub, or an email code to sign in. No password needed."
                 footer={
                   <>
                     <SignIn.Action submit asChild>
@@ -45,7 +46,14 @@ export default function SignInPage() {
               <SignIn.Strategy name="email_code">
                 <AuthCard
                   title="Check your email"
-                  description="Enter the verification code sent to your email"
+                  description={
+                    <>
+                      Enter the verification code sent to{" "}
+                      <span className="font-medium break-all">
+                        <SignIn.SafeIdentifier />
+                      </span>.
+                    </>
+                  }
                   footer={
                     <div className="grid w-full gap-y-4">
                       <SignIn.Action submit asChild>
@@ -64,6 +72,7 @@ export default function SignInPage() {
                           type="otp"
                           autoSubmit
                           autoFocus
+                          autoComplete="one-time-code"
                           className="flex justify-center has-disabled:opacity-50"
                           render={({ value, status }) => {
                             return (
@@ -78,9 +87,24 @@ export default function SignInPage() {
                         />
                       </div>
                       <Clerk.FieldError className="block text-center text-sm text-destructive" />
-                      <ResendCodeButton />
                     </div>
                   </Clerk.Field>
+                  <div className="grid justify-items-center gap-2">
+                    <ResendCodeButton
+                      mode="sign-in"
+                      isGlobalLoading={isGlobalLoading}
+                    />
+                    <SignIn.Action navigate="start" asChild>
+                      <Button
+                        type="button"
+                        variant="link"
+                        size="sm"
+                        disabled={isGlobalLoading}
+                      >
+                        Change email address
+                      </Button>
+                    </SignIn.Action>
+                  </div>
                 </AuthCard>
               </SignIn.Strategy>
             </SignIn.Step>

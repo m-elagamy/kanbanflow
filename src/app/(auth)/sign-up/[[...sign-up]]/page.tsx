@@ -2,10 +2,9 @@
 
 import * as Clerk from "@clerk/elements/common";
 import * as SignUp from "@clerk/elements/sign-up";
-import { Lock } from "lucide-react";
+import { useSignUp } from "@clerk/nextjs";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import SocialConnectionButtons from "../../components/social-connection-buttons";
 import AuthStrategiesSeparator from "../../components/auth-strategies-separator";
@@ -17,6 +16,8 @@ import AuthModeSwitcher from "../../components/auth-mode-switcher";
 import ResendCodeButton from "../../components/resend-code-button";
 
 export default function SignUpPage() {
+  const { signUp } = useSignUp();
+
   return (
     <SignUp.Root>
       <Clerk.Loading>
@@ -25,7 +26,7 @@ export default function SignUpPage() {
             <SignUp.Step name="start">
               <AuthCard
                 title={<KanbanLogo />}
-                description="Welcome! Please fill in the details to get started."
+                description="Create your account with Google, GitHub, or an email code. No password needed."
                 footer={
                   <>
                     <SignUp.Captcha className="empty:hidden" />
@@ -43,23 +44,6 @@ export default function SignUpPage() {
                 <SocialConnectionButtons isGlobalLoading={isGlobalLoading} />
                 <AuthStrategiesSeparator />
                 <EmailInput inputName="emailAddress" />
-                <Clerk.Field name="password" className="space-y-2">
-                  <Clerk.Label asChild>
-                    <Label className="flex items-center gap-1">
-                      <Lock size={14} />
-                      Password
-                    </Label>
-                  </Clerk.Label>
-                  <Clerk.Input
-                    type="password"
-                    placeholder="••••••••"
-                    required
-                    asChild
-                  >
-                    <Input />
-                  </Clerk.Input>
-                  <Clerk.FieldError className="block text-sm text-destructive" />
-                </Clerk.Field>
               </AuthCard>
             </SignUp.Step>
 
@@ -67,7 +51,18 @@ export default function SignUpPage() {
               <SignUp.Strategy name="email_code">
                 <AuthCard
                   title="Verify your email"
-                  description="Use the verification link sent to your email address"
+                  description={
+                    <>
+                      Enter the verification code sent to{" "}
+                      {signUp?.emailAddress ? (
+                        <span className="font-medium break-all">
+                          {signUp.emailAddress}
+                        </span>
+                      ) : (
+                        "your email address"
+                      )}.
+                    </>
+                  }
                   footer={
                     <SignUp.Action submit asChild>
                       <SubmitButton isGlobalLoading={isGlobalLoading} />
@@ -77,13 +72,15 @@ export default function SignUpPage() {
                   <div className="grid items-center justify-center gap-y-2">
                     <Clerk.Field name="code" className="space-y-2">
                       <Clerk.Label className="sr-only">
-                        Email address
+                        Email verification code
                       </Clerk.Label>
                       <div className="flex justify-center text-center">
                         <Clerk.Input
                           type="otp"
                           className="flex justify-center has-disabled:opacity-50"
                           autoSubmit
+                          autoFocus
+                          autoComplete="one-time-code"
                           render={({ value, status }) => {
                             return (
                               <div
@@ -110,7 +107,20 @@ export default function SignUpPage() {
                       </div>
                       <Clerk.FieldError className="block text-center text-sm text-destructive" />
                     </Clerk.Field>
-                    <ResendCodeButton />
+                    <ResendCodeButton
+                      mode="sign-up"
+                      isGlobalLoading={isGlobalLoading}
+                    />
+                    <SignUp.Action navigate="start" asChild>
+                      <Button
+                        type="button"
+                        variant="link"
+                        size="sm"
+                        disabled={isGlobalLoading}
+                      >
+                        Change email address
+                      </Button>
+                    </SignUp.Action>
                   </div>
                 </AuthCard>
               </SignUp.Strategy>
