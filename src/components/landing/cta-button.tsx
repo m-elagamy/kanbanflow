@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
 import { ArrowRight, Zap } from "lucide-react";
 import { Button, buttonVariants } from "../ui/button";
 import { AUTH_ROUTES } from "@/lib/constants";
@@ -51,7 +52,10 @@ export default function CtaButton({
   icon,
   buttonVariant,
 }: CtaButtonProps) {
+  const { isLoaded, isSignedIn } = useAuth();
   const config = variantConfig[variant];
+  const href = isSignedIn ? "/dashboard" : config.href;
+  const label = isSignedIn ? "Go to dashboard" : config.label;
   const displayIcon = icon ?? config.icon;
   const finalButtonVariant = buttonVariant ?? config.buttonVariant ?? "default";
 
@@ -63,6 +67,20 @@ export default function CtaButton({
     ? "shadow-primary/10 hover:shadow-primary/20 shadow-lg transition-all duration-300 hover:shadow-xl"
     : "transition-all duration-300";
 
+  if (!isLoaded) {
+    return (
+      <Button
+        variant={finalButtonVariant}
+        className={cn("group", shadowClasses, className)}
+        size={size}
+        disabled
+        aria-busy="true"
+      >
+        Loading…
+      </Button>
+    );
+  }
+
   return (
     <Button
       variant={finalButtonVariant}
@@ -70,9 +88,9 @@ export default function CtaButton({
       size={size}
       asChild
     >
-      <Link href={config.href}>
+      <Link href={href}>
         <span className="relative z-10 flex items-center gap-2 font-semibold">
-          {config.label}
+          {label}
           {showIcon && IconComponent && (
             <IconComponent className="transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105" />
           )}

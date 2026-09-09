@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { LogIn, UserPlus } from "lucide-react";
+import { useAuth } from "@clerk/nextjs";
+import { LayoutDashboard, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AUTH_ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -17,7 +20,32 @@ export default function AuthButtons({
   showSignUp = true,
   className,
 }: AuthButtonsProps) {
+  const { isLoaded, isSignedIn } = useAuth();
+
   if (!showSignIn && !showSignUp) return null;
+
+  if (!isLoaded || isSignedIn) {
+    return (
+      <div className={cn("flex items-center gap-2", className)}>
+        {isLoaded ? (
+          <Button size={variant === "compact" ? "sm" : "default"} asChild>
+            <Link href="/dashboard">
+              <LayoutDashboard />
+              Dashboard
+            </Link>
+          </Button>
+        ) : (
+          <Button
+            size={variant === "compact" ? "sm" : "default"}
+            disabled
+            aria-busy="true"
+          >
+            Loading…
+          </Button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
