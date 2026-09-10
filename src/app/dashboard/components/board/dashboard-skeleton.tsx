@@ -13,11 +13,11 @@ export default function DashboardSkeleton() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         {Array.from({ length: 3 }).map((_, index) => (
           <div
             key={index}
-            className="border-border/60 bg-background/80 flex items-center gap-4 rounded-xl border p-5"
+            className="border-border/60 bg-background/80 flex flex-col gap-3 rounded-xl border p-3 sm:flex-row sm:items-center sm:p-4"
           >
             <Skeleton className="h-11 w-11 shrink-0 rounded-2xl" />
             <div className="min-w-0 flex-1 space-y-2">
@@ -29,6 +29,10 @@ export default function DashboardSkeleton() {
       </div>
 
       {/* Board cards */}
+      <div className="space-y-2">
+        <Skeleton className="h-5 w-28" />
+        <Skeleton className="h-4 w-16" />
+      </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, index) => (
           <div

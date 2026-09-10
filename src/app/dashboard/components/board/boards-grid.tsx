@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { PlusCircle, ChevronRight } from "lucide-react";
+import { Plus, ChevronRight } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";
-import { BOARDS_LIST_LIMIT } from "@/lib/constants";
 import BoardCard from "./board-card";
 import BoardModal from "./board-modal";
 import DashboardStats from "./dashboard-stats";
@@ -25,9 +24,9 @@ export default function BoardsGrid({
   userName,
   stats,
 }: BoardsGridProps) {
-  const greeting = userName ? `Good to see you, ${userName}` : "Welcome back";
+  const greeting = userName ? `Welcome back, ${userName}` : "Welcome back";
   const hasBoards = boards.length > 0;
-  const isAtLimit = boards.length === BOARDS_LIST_LIMIT;
+  const hasMoreBoards = stats.totalBoards > boards.length;
 
   return (
     <div className="flex flex-col gap-8">
@@ -39,14 +38,16 @@ export default function BoardsGrid({
       >
         <div>
           <p className="text-muted-foreground mb-1 text-xs font-semibold tracking-[0.25em] uppercase">
-            Dashboard
+            Your workspace
           </p>
           <h1 className="text-gradient text-2xl font-semibold md:text-3xl">
             {greeting}
           </h1>
-          {!hasBoards && (
-            <p className="text-muted-foreground mt-1 text-sm">No boards yet</p>
-          )}
+          <p className="text-muted-foreground mt-1 text-sm">
+            {hasBoards
+              ? "Pick up where you left off or start something new."
+              : "Create a board to start organizing your work."}
+          </p>
         </div>
 
         {hasBoards && (
@@ -55,7 +56,7 @@ export default function BoardsGrid({
             modalId="dashboard-new-board"
             trigger={
               <button>
-                <PlusCircle className="h-4 w-4" />
+                <Plus className="h-4 w-4" />
                 New board
               </button>
             }
@@ -67,28 +68,34 @@ export default function BoardsGrid({
         <>
           <DashboardStats {...stats} />
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {boards.map((board, index) => (
-              <BoardCard key={board.id} board={board} index={index} />
-            ))}
-          </div>
+          <section aria-labelledby="boards-heading" className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 id="boards-heading" className="text-lg font-semibold">
+                  Your boards
+                </h2>
+                <p className="text-muted-foreground text-sm">
+                  {stats.totalBoards}{" "}
+                  {stats.totalBoards === 1 ? "board" : "boards"}
+                </p>
+              </div>
+              {hasMoreBoards && (
+                <Link
+                  href="/dashboard/boards"
+                  className="text-muted-foreground hover:text-foreground group flex items-center gap-1 text-sm transition-colors"
+                >
+                  View all
+                  <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              )}
+            </div>
 
-          {isAtLimit && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3, delay: 0.4 }}
-              className="flex justify-center"
-            >
-              <Link
-                href="/dashboard/boards"
-                className="text-muted-foreground hover:text-foreground group flex items-center gap-1 text-sm transition-colors"
-              >
-                View all boards
-                <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            </motion.div>
-          )}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {boards.map((board, index) => (
+                <BoardCard key={board.id} board={board} index={index} />
+              ))}
+            </div>
+          </section>
         </>
       ) : (
         <DashboardEmptyState />

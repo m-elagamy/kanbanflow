@@ -35,7 +35,10 @@ const stats = (values: DashboardStatsProps) => [
 
 export default function DashboardStats(props: DashboardStatsProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <section
+      aria-label="Workspace overview"
+      className="grid grid-cols-3 gap-2 sm:gap-4"
+    >
       {stats(props).map(({ label, value, icon: Icon, color, bg }, index) => (
         <motion.div
           key={label}
@@ -46,21 +49,23 @@ export default function DashboardStats(props: DashboardStatsProps) {
             ease: "easeOut",
             delay: 0.1 + index * 0.07,
           }}
-          className="border-border/60 bg-background/80 flex items-center gap-4 rounded-xl border p-5 shadow-sm backdrop-blur"
+          className="border-border/60 bg-background/80 flex min-w-0 flex-col gap-3 rounded-xl border p-3 shadow-sm backdrop-blur sm:flex-row sm:items-center sm:p-4"
         >
           <span
-            className={`${bg} ${color} flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl`}
+            className={`${bg} ${color} flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10`}
           >
             <Icon className="h-5 w-5" />
           </span>
           <div className="min-w-0">
-            <p className="text-foreground text-2xl leading-none font-semibold md:text-3xl">
+            <p className="text-foreground text-xl leading-none font-semibold sm:text-2xl">
               {value}
             </p>
-            <p className="text-muted-foreground mt-1 text-sm">{label}</p>
+            <p className="text-muted-foreground mt-1 text-xs leading-tight sm:text-sm">
+              {label}
+            </p>
           </div>
         </motion.div>
       ))}
-    </div>
+    </section>
   );
 }

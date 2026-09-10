@@ -29,11 +29,8 @@ export default function BoardCard({ board, index }: BoardCardProps) {
         className="flex h-full flex-col gap-4 p-5 pr-14"
       >
         <div className="flex items-start justify-between gap-6">
-          <div>
-            <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
-              Board
-            </p>
-            <h2 className="group-hover:text-primary mt-2 text-base leading-snug font-semibold transition-colors duration-200">
+          <div className="min-w-0">
+            <h2 className="group-hover:text-primary truncate text-base leading-snug font-semibold transition-colors duration-200">
               {board.title}
             </h2>
           </div>
@@ -43,7 +40,7 @@ export default function BoardCard({ board, index }: BoardCardProps) {
 
         <p className="text-muted-foreground line-clamp-2 min-h-10 text-sm leading-6">
           {board.description?.trim() ||
-            "No description yet. Add context to make this board easier to scan for collaborators."}
+            "No description yet. Add a short note about what this board is for."}
         </p>
 
         <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
@@ -57,10 +54,6 @@ export default function BoardCard({ board, index }: BoardCardProps) {
             {board._count.tasks} {board._count.tasks === 1 ? "task" : "tasks"}
           </span>
         </div>
-
-        <p className="text-muted-foreground text-xs font-medium">
-          Open board to continue planning
-        </p>
       </Link>
 
       <div className="absolute top-3 right-3 opacity-100 transition-opacity duration-150 md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100">

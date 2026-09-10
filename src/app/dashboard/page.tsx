@@ -31,12 +31,17 @@ const Dashboard = async () => {
     getDashboardStatsAction(),
   ]);
 
-  const boards = boardsResult.fields ?? [];
-  const stats = statsResult.fields ?? {
-    totalBoards: 0,
-    totalTasks: 0,
-    highPriorityTasks: 0,
-  };
+  if (
+    !boardsResult.success ||
+    !boardsResult.fields ||
+    !statsResult.success ||
+    !statsResult.fields
+  ) {
+    throw new Error("Failed to load your dashboard. Please try again.");
+  }
+
+  const boards = boardsResult.fields;
+  const stats = statsResult.fields;
 
   return (
     <main className="relative min-h-full overflow-hidden px-4 py-6 sm:px-6 sm:py-8 md:px-10">
