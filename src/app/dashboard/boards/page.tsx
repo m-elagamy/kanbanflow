@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getUserBoardsPageAction } from "@/actions/user";
 import { BOARDS_PAGE_SIZE } from "@/lib/constants";
@@ -13,12 +14,24 @@ export default async function BoardsPage({
   searchParams: SearchParams;
 }) {
   const { page: pageParam } = await searchParams;
-  const page = Math.max(1, Number.parseInt(pageParam ?? "1", 10) || 1);
+  const page = Number(pageParam ?? "1");
+  if (
+    !Number.isSafeInteger(page) ||
+    page < 1 ||
+    page > 2147483647 / BOARDS_PAGE_SIZE
+  ) {
+    redirect("/dashboard/boards?page=1");
+  }
 
   const result = await getUserBoardsPageAction(page);
-  const boards = result.fields?.boards ?? [];
-  const totalCount = result.fields?.totalCount ?? 0;
+  if (!result.success || !result.fields) {
+    throw new Error("Failed to load boards. Please try again.");
+  }
+  const { boards, totalCount } = result.fields;
   const totalPages = Math.max(1, Math.ceil(totalCount / BOARDS_PAGE_SIZE));
+  if (page > totalPages) {
+    redirect(`/dashboard/boards?page=${totalPages}`);
+  }
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-8 md:px-10">

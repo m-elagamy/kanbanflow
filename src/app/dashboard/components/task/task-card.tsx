@@ -1,14 +1,15 @@
 "use client";
 
-import { Flag, GripVertical } from "lucide-react";
+import { GripVertical } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { ClientTask } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
-import formatDate from "@/utils/format-date";
+import TaskDueDate from "./task-due-date";
 import getBadgeStyle from "../../utils/get-badge-style";
 import TaskActions from "./task-actions";
 import taskPriorities from "../../data/task-priorities";
+import useLoadingStore from "@/stores/loading";
 
 type TaskCardProps = {
   task: ClientTask;
@@ -17,6 +18,9 @@ type TaskCardProps = {
 };
 
 const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
+  const isUpdating = useLoadingStore((state) =>
+    state.isLoading("task", "updating", task.id),
+  );
   const {
     attributes,
     listeners,
@@ -26,6 +30,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
     isDragging: isSortableDragging,
   } = useSortable({
     id: task.id,
+    disabled: isUpdating,
     data: { type: "task" },
   });
 
@@ -35,8 +40,6 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
     opacity: isSortableDragging ? "0.5" : "1",
     scale: isSortableDragging ? "0.95" : "1",
   };
-
-  const dueDate = task.dueDate ? formatDate(task.dueDate) : null;
 
   const priorityOption = taskPriorities.find((p) => p.id === task.priority);
   const PriorityIcon = priorityOption?.icon || taskPriorities[1].icon; // Default to medium
@@ -53,6 +56,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
           <div className="flex items-center gap-1.5">
             <button
               type="button"
+              disabled={isUpdating}
               className="text-muted-foreground/50 hover:text-muted-foreground -ml-1 touch-none rounded p-0.5 active:cursor-grabbing"
               style={{ cursor: isDragging ? "grabbing" : "grab" }}
               aria-label="Drag to reorder task"
@@ -91,14 +95,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
         </div>
 
         {/* Due Date */}
-        {dueDate && (
-          <div className="flex items-center gap-3 text-xs">
-            <div className="text-muted-foreground flex items-center gap-1">
-              <Flag size={12} />
-              <span>{dueDate}</span>
-            </div>
-          </div>
-        )}
+        {task.dueDate && <TaskDueDate date={task.dueDate} />}
       </div>
     </div>
   );

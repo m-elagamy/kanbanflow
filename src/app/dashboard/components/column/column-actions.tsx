@@ -182,7 +182,7 @@ const ColumnActions = ({
           open={showAlertConfirmation}
           setOpen={setShowAlertConfirmation}
           title="Delete Column"
-          description="Are you sure you want to delete this column? This action cannot be undone."
+          description="This will permanently delete this column and all its tasks. This action cannot be undone."
           isPending={isLoading}
           onClick={handleOnClick}
         />

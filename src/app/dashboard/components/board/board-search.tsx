@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Search, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,8 +28,13 @@ import type { TaskSearchResult } from "@/lib/types";
 export function BoardSearch() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<TaskSearchResult[]>([]);
-  const [isPending, startTransition] = useTransition();
+  const [search, setSearch] = useState<{
+    query: string;
+    boardId: string;
+    results: TaskSearchResult[];
+    error: string | null;
+  } | null>(null);
+  const [retry, setRetry] = useState(0);
 
   const activeBoardId = useBoardStore((state) => state.activeBoardId);
   const openModal = useModalStore((state) => state.openModal);
@@ -46,19 +51,42 @@ export function BoardSearch() {
   }, []);
 
   useEffect(() => {
-    if (!query.trim() || !activeBoardId) {
+    if (!open || !query.trim() || !activeBoardId) {
       return;
     }
-    const timeout = setTimeout(() => {
-      startTransition(async () => {
+    let cancelled = false;
+    const timeout = setTimeout(async () => {
+      try {
         const result = await searchTasksAction(activeBoardId, query);
-        setResults(result.fields ?? []);
-      });
+        if (!cancelled) {
+          setSearch({
+            query,
+            boardId: activeBoardId,
+            results: result.success ? (result.fields ?? []) : [],
+            error: result.success ? null : "Search failed. Please try again.",
+          });
+        }
+      } catch {
+        if (!cancelled) {
+          setSearch({
+            query,
+            boardId: activeBoardId,
+            results: [],
+            error: "Search failed. Please try again.",
+          });
+        }
+      }
     }, 300);
-    return () => clearTimeout(timeout);
-  }, [query, activeBoardId]);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [query, activeBoardId, open, retry]);
 
-  const visibleResults = query.trim() && activeBoardId ? results : [];
+  const currentSearch =
+    search?.query === query && search.boardId === activeBoardId ? search : null;
+  const isPending = Boolean(query.trim() && activeBoardId && !currentSearch);
+  const visibleResults = currentSearch?.results ?? [];
 
   const handleSelect = useCallback(
     (taskId: string) => {
@@ -78,12 +106,12 @@ export function BoardSearch() {
     <>
       <Button
         variant="outline"
-        className="text-muted-foreground h-9 w-50 justify-start gap-2 pl-3 pr-2 text-sm font-normal md:w-62.5"
+        className="text-muted-foreground h-9 w-50 justify-start gap-2 pr-2 pl-3 text-sm font-normal md:w-62.5"
         onClick={() => setOpen(true)}
       >
         <Search size={14} />
         <span className="flex-1 text-left">Search tasks...</span>
-        <kbd className="bg-muted pointer-events-none hidden select-none rounded border px-1.5 py-0.5 font-mono text-[0.625rem] md:inline-flex">
+        <kbd className="bg-muted pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none md:inline-flex">
           ⌘K
         </kbd>
       </Button>
@@ -100,7 +128,10 @@ export function BoardSearch() {
             <CommandInput
               placeholder="Search tasks..."
               value={query}
-              onValueChange={setQuery}
+              onValueChange={(value) => {
+                setQuery(value);
+                setSearch(null);
+              }}
             />
             <CommandList>
               {isPending ? (
@@ -111,6 +142,20 @@ export function BoardSearch() {
               ) : !query.trim() ? (
                 <div className="text-muted-foreground py-6 text-center text-sm">
                   Type to search tasks...
+                </div>
+              ) : currentSearch?.error ? (
+                <div role="alert" className="py-6 text-center text-sm">
+                  <p>{currentSearch.error}</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSearch(null);
+                      setRetry((value) => value + 1);
+                    }}
+                  >
+                    Retry
+                  </Button>
                 </div>
               ) : visibleResults.length === 0 ? (
                 <CommandEmpty>No tasks found.</CommandEmpty>
