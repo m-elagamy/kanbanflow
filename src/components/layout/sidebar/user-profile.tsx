@@ -31,11 +31,19 @@ export function UserProfile() {
 
   const identity = (
     <>
-      <Avatar className="h-8 w-8 rounded-lg">
-        <AvatarImage src={user?.imageUrl} alt={name} />
-        <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
-      </Avatar>
-      <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+      <span className="relative block shrink-0">
+        <Avatar className="h-8 w-8 rounded-lg">
+          <AvatarImage src={user?.imageUrl} alt={name} />
+          <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+        </Avatar>
+        <span
+          aria-hidden="true"
+          className="absolute right-0 bottom-0 flex size-3 items-center justify-center"
+        >
+          <span className="border-background relative size-2.5 rounded-full border-2 bg-emerald-500" />
+        </span>
+      </span>
+      <div className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
         <span className="truncate font-semibold">
           {isLoaded ? name : "Loading…"}
         </span>
@@ -51,12 +59,12 @@ export function UserProfile() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
-                className="data-[state=open]:bg-sidebar-accent border-border dark:border-border/60 data-[state=open]:text-sidebar-accent-foreground border"
+                className="data-[state=open]:bg-sidebar-accent border-border dark:border-border/60 data-[state=open]:text-sidebar-accent-foreground overflow-visible border"
                 size="lg"
                 disabled={!isLoaded}
               >
                 {identity}
-                <ChevronsUpDown className="ml-auto size-4" />
+                <ChevronsUpDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <UserMenuContent
