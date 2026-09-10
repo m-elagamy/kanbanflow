@@ -39,7 +39,7 @@ const Dashboard = async () => {
   };
 
   return (
-    <main className="relative min-h-full overflow-hidden px-6 py-8 md:px-10">
+    <main className="relative min-h-full overflow-hidden px-4 py-6 sm:px-6 sm:py-8 md:px-10">
       {/* <div className="welcome-gradient pointer-events-none absolute inset-0" /> */}
       <section className="relative z-10 mx-auto max-w-5xl">
         <BoardsGrid boards={boards} userName={user.firstName} stats={stats} />

@@ -52,7 +52,7 @@ const ColumnCard = ({ column }: ColumnCardProps) => {
 
   return (
     <Card
-      className={`group border-border/70 bg-accent/25 dark:bg-accent/30 hover:border-border hover:bg-accent/70 dark:hover:bg-accent/40 relative max-h-[calc(100dvh-82px)] w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-lg backdrop-blur-md transition-all duration-300 hover:shadow-xl md:w-84 ${
+      className={`group border-border/70 bg-accent/25 dark:bg-accent/30 hover:border-border hover:bg-accent/70 dark:hover:bg-accent/40 relative max-h-[calc(100dvh-82px)] w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-lg backdrop-blur-md transition-all duration-300 hover:shadow-xl md:w-84 md:max-w-none ${
         isOver
           ? "ring-primary/20 border-primary/30 bg-primary/5 scale-[1.02] shadow-lg ring-2"
           : ""
@@ -71,7 +71,7 @@ const ColumnCard = ({ column }: ColumnCardProps) => {
         dragHandleProps={{ attributes, listeners }}
       />
 
-      <CardContent className="scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent flex-1 space-y-3 overflow-y-auto p-4 pt-3">
+      <CardContent className="scrollbar-thumb-border flex-1 scrollbar-thin scrollbar-track-transparent space-y-3 overflow-y-auto p-4 pt-3">
         {tasks.length === 0 ? (
           <NoTasksMessage columnId={column.id} />
         ) : visibleTasks.length === 0 ? (

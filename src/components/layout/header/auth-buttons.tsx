@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
-import { LayoutDashboard, LogIn, UserPlus } from "lucide-react";
+import { LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AUTH_ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import UserAvatar from "./user-avatar";
 
 interface AuthButtonsProps {
   variant?: "default" | "compact";
@@ -28,12 +29,7 @@ export default function AuthButtons({
     return (
       <div className={cn("flex items-center gap-2", className)}>
         {isLoaded ? (
-          <Button size={variant === "compact" ? "sm" : "default"} asChild>
-            <Link href="/dashboard">
-              <LayoutDashboard />
-              Dashboard
-            </Link>
-          </Button>
+          <UserAvatar />
         ) : (
           <Button
             size={variant === "compact" ? "sm" : "default"}

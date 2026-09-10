@@ -1,10 +1,4 @@
-import {
-  Layout,
-  Download,
-  Database,
-  HardDrive,
-  UserCircle,
-} from "lucide-react";
+import { Layout, Database, UserCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Accordion,
@@ -37,7 +31,7 @@ const TermsOfService = () => (
                   purposes
                 </li>
                 <li>Respect intellectual property rights</li>
-                <li>Do not share sensitive information on public boards</li>
+                <li>Do not store content that violates applicable laws</li>
               </ul>
             </AccordionContent>
           </AccordionItem>
@@ -49,9 +43,7 @@ const TermsOfService = () => (
             </AccordionTrigger>
             <AccordionContent>
               <ul className="list-disc space-y-2 pl-5 text-sm">
-                <li>
-                  No guaranteed uptime, but we strive for 99.9% availability
-                </li>
+                <li>Service availability is not guaranteed</li>
                 <li>
                   Potential service interruptions for maintenance or upgrades
                 </li>
@@ -77,16 +69,6 @@ const TermsOfService = () => (
             <span>
               You retain full ownership of all data you input into the
               application
-            </span>
-          </li>
-          <li className="flex items-center">
-            <Download className="mr-2 size-5 text-green-500" />
-            <span>You have the right to export your data at any time</span>
-          </li>
-          <li className="flex items-center">
-            <HardDrive className="mr-2 size-5 text-yellow-500" />
-            <span>
-              You are responsible for managing and backing up your exported data
             </span>
           </li>
         </ul>

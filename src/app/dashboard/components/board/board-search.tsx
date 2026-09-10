@@ -106,11 +106,13 @@ export function BoardSearch() {
     <>
       <Button
         variant="outline"
-        className="text-muted-foreground h-9 w-50 justify-start gap-2 pr-2 pl-3 text-sm font-normal md:w-62.5"
+        className="text-muted-foreground h-9 min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal sm:w-50 md:w-62.5"
         onClick={() => setOpen(true)}
       >
         <Search size={14} />
-        <span className="flex-1 text-left">Search tasks...</span>
+        <span className="min-w-0 flex-1 truncate text-left">
+          Search tasks...
+        </span>
         <kbd className="bg-muted pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none md:inline-flex">
           ⌘K
         </kbd>

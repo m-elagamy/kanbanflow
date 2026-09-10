@@ -28,8 +28,7 @@ const PrivacyPolicy = () => (
               <ul className="list-disc space-y-2 pl-5 text-sm">
                 <li>User account information</li>
                 <li>Board names and content</li>
-                <li>Task details and assignments</li>
-                <li>Usage statistics</li>
+                <li>Task details, priorities, and due dates</li>
               </ul>
             </AccordionContent>
           </AccordionItem>
@@ -43,8 +42,7 @@ const PrivacyPolicy = () => (
               <ul className="list-disc space-y-2 pl-5 text-sm">
                 <li>Personalizing your Kanban experience</li>
                 <li>Improving task management features</li>
-                <li>Personalizing user experience</li>
-                <li>Analyzing app usage patterns</li>
+                <li>Saving and displaying your personal boards and tasks</li>
               </ul>
             </AccordionContent>
           </AccordionItem>

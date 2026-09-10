@@ -22,7 +22,7 @@ const ColumnsWrapper = ({ boardId }: ColumnsWrapperProps) => {
   const columnIds = sortedColumns.map((column) => column.id);
 
   return (
-    <div className="scrollbar-hide flex h-full snap-x snap-mandatory gap-4 overflow-x-auto px-4 scroll-smooth pb-4 md:justify-start">
+    <div className="scrollbar-hide flex h-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-3 pb-4 sm:gap-4 sm:px-4 md:justify-start">
       <DndProvider boardId={boardId}>
         <SortableContext
           items={columnIds}

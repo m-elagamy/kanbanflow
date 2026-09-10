@@ -85,7 +85,7 @@ const faqs = [
   {
     question: "Can I use KanbanFlow on mobile?",
     answer:
-      "Yes! KanbanFlow is fully responsive and works seamlessly on mobile devices, tablets, and desktops. Access your boards from anywhere.",
+      "Yes. KanbanFlow adapts to phones, tablets, and desktops, with direct task-moving controls available when dragging is inconvenient.",
   },
   {
     question: "How secure is my data?",

@@ -21,9 +21,9 @@ const BoardHeader = ({ board }: BoardHeaderProps) => {
 
   return (
     <section className="border-border/50 bg-background/95 supports-backdrop-filter:bg-background/60 mb-4 shrink-0 border-b backdrop-blur">
-      <div className="p-6 pb-4">
+      <div className="p-4 sm:p-6 sm:pb-4">
         {/* Top Row: Title/Description and Board Actions */}
-        <div className="mb-4 flex items-start justify-between">
+        <div className="mb-4 flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-xl font-semibold capitalize md:text-2xl">
               {board.title?.replace(/-/g, " ")}
@@ -34,7 +34,7 @@ const BoardHeader = ({ board }: BoardHeaderProps) => {
               </p>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             {activeBoardId && (
               <TaskModal
                 mode="create"
@@ -42,7 +42,8 @@ const BoardHeader = ({ board }: BoardHeaderProps) => {
                 trigger={
                   <Button>
                     <Plus size={16} />
-                    Create New Task
+                    <span className="hidden sm:inline">Create New Task</span>
+                    <span className="sm:hidden">Task</span>
                   </Button>
                 }
                 variant="default"
@@ -53,7 +54,7 @@ const BoardHeader = ({ board }: BoardHeaderProps) => {
         </div>
 
         {/* Bottom Row: Quick Actions Bar */}
-        <div className="flex items-center justify-end gap-3">
+        <div className="grid grid-cols-[auto_1fr] items-center gap-2 sm:flex sm:justify-end sm:gap-3">
           <TaskPriorityFilter />
           <BoardSearch />
         </div>
