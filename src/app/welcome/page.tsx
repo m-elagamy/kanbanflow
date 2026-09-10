@@ -2,12 +2,9 @@ import { redirect, unauthorized } from "next/navigation";
 import type { Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
 import { after } from "next/server";
-import { ArrowRight, Sparkles } from "lucide-react";
-import BoardModal from "@/app/dashboard/components/board/board-modal";
-import columnsTemplates from "@/app/dashboard/data/columns-templates";
+import WelcomeSetup from "./components/welcome-setup";
 import { getUserOnboardingStateAction } from "@/actions/user";
 import { prepareUserRecord } from "@/lib/dal/user";
-import type { Templates } from "@/lib/types";
 
 const WelcomePage = async () => {
   const user = await currentUser();
@@ -35,70 +32,7 @@ const WelcomePage = async () => {
     });
   }
 
-  return (
-    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden px-6 py-16">
-      <div className="welcome-gradient pointer-events-none absolute inset-0" />
-      <section className="relative z-10 mx-auto w-full max-w-4xl">
-        <div className="border-border/60 bg-background/90 rounded-3xl border p-8 shadow-[0_20px_60px_-45px_rgba(15,23,42,0.5)] backdrop-blur md:p-12">
-          <div className="flex flex-col gap-4 md:gap-6">
-            <div className="text-muted-foreground flex items-center gap-3 text-xs tracking-[0.3em] uppercase md:text-sm">
-              <Sparkles className="h-3.5 w-3.5 md:h-4 md:w-4" />
-              Welcome to KanbanFlow 👋
-            </div>
-            <div className="space-y-2 md:space-y-3">
-              <h1 className="text-2xl font-semibold text-balance md:text-4xl">
-                Let’s set up your first board, {user.firstName}!
-              </h1>
-              <p className="text-muted-foreground max-w-2xl text-sm md:text-lg">
-                Choose a template or start from scratch to organize your work.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-7 md:mt-10">
-            <div className="text-muted-foreground mb-4 text-xs font-semibold tracking-[0.25em] uppercase">
-              Templates
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              {columnsTemplates.map((template) => {
-                const Icon = template.icon;
-
-                return (
-                  <BoardModal
-                    key={template.id}
-                    mode="create"
-                    modalId={`welcome-template-${template.id}`}
-                    defaultTemplate={template.id as Templates}
-                    variant="outline"
-                    trigger={
-                      <button className="group border-border/70 bg-background/70 hover:border-primary/40 hover:bg-primary/5 flex h-auto w-full items-center justify-between gap-4 rounded-2xl border p-4 text-start shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-                        <div className="flex min-w-51 items-center gap-4 md:min-w-xs">
-                          <span className="bg-primary/10 text-primary group-hover:bg-primary/15 flex h-11 w-11 items-center justify-center rounded-2xl transition-colors duration-200">
-                            <Icon className="h-5 w-5" />
-                          </span>
-                          <div>
-                            <div className="text-sm font-semibold">
-                              {template.label}
-                            </div>
-                            <div className="text-muted-foreground text-xs">
-                              {template.status.length
-                                ? `${template.status.length} columns ready`
-                                : "Start from scratch"}
-                            </div>
-                          </div>
-                        </div>
-                        <ArrowRight className="text-muted-foreground h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-                      </button>
-                    }
-                  />
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-  );
+  return <WelcomeSetup firstName={user.firstName} />;
 };
 
 export const metadata: Metadata = {

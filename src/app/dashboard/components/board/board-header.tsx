@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { FolderKanban, Plus } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import type { BoardSummary } from "@/lib/types";
 import BoardActions from "./board-actions";
@@ -24,15 +24,20 @@ const BoardHeader = ({ board }: BoardHeaderProps) => {
       <div className="p-4 sm:p-6 sm:pb-4">
         {/* Top Row: Title/Description and Board Actions */}
         <div className="mb-4 flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-xl font-semibold capitalize md:text-2xl">
-              {board.title?.replace(/-/g, " ")}
-            </h1>
-            {board.description && (
-              <p className="text-muted-foreground mt-1 max-w-md truncate text-sm">
-                {board.description}
-              </p>
-            )}
+          <div className="flex min-w-0 flex-1 items-start gap-3">
+            <span className="bg-primary/10 text-primary ring-primary/15 flex size-11 shrink-0 items-center justify-center rounded-xl shadow-sm ring-1 md:size-12">
+              <FolderKanban className="size-5 md:size-6" aria-hidden="true" />
+            </span>
+            <div className="min-w-0 pt-0.5">
+              <h1 className="truncate text-xl font-semibold capitalize md:text-2xl">
+                {board.title?.replace(/-/g, " ")}
+              </h1>
+              {board.description && (
+                <p className="text-muted-foreground mt-1 max-w-md truncate text-sm">
+                  {board.description}
+                </p>
+              )}
+            </div>
           </div>
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             {activeBoardId && (
