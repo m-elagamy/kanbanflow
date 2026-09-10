@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
+import { BorderTrail } from "@/components/ui/border-trail";
 
 interface DashboardPreviewProps {
   /**
@@ -86,6 +87,11 @@ export default function DashboardPreview({
             whileHover={{ opacity: 1 }}
           />
         </div>
+        <BorderTrail
+          size={140}
+          className="from-primary/10 via-primary to-secondary/80 bg-linear-to-r"
+          transition={{ duration: 8 }}
+        />
       </motion.div>
 
       {/* Floating accent elements */}
