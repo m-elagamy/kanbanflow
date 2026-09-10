@@ -1,101 +1,101 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import { toast } from "sonner";
 import useBoardStore from "@/stores/board";
-import { useUpdatePredefinedColumnsId } from "@/hooks/use-update-predefined-columns-id";
+import { useColumnStore } from "@/stores/column";
+import useLoadingStore from "@/stores/loading";
 import { createBoardAction } from "@/actions/board";
-import delay from "@/utils/delay";
-import BoardErrorCard from "@/components/ui/board-error-card";
+import type { BoardFormValues } from "@/lib/types";
 
 export function useBoardRetry() {
   const router = useRouter();
-
-  const { hasError, failedBoard, resetError, updateBoardId, deleteBoard } =
-    useBoardStore(
-      useShallow((state) => ({
-        hasError: state.hasError,
-        failedBoard: state.failedBoard,
-        resetError: state.resetError,
-        updateBoardId: state.updateBoardId,
-        deleteBoard: state.deleteBoard,
-      })),
-    );
-  const updateColumnIds = useUpdatePredefinedColumnsId();
-
-  const navigateToDashboard = useCallback(async () => {
-    if (!failedBoard?.id) return;
-
-    router.push("/dashboard");
-    await delay(500);
-    deleteBoard(failedBoard.id);
-  }, [router, failedBoard, deleteBoard]);
-
-  const retryBoardCreation = useCallback(async () => {
-    if (!failedBoard) return;
-
-    await delay(500);
-
-    const promise = toast.promise(
-      async () => {
-        const result = await createBoardAction(failedBoard);
-
-        if (!result.fields) return;
-
-        updateBoardId(failedBoard.id, result.fields.id);
-        updateColumnIds(failedBoard.id, result.fields.columns);
-
-        resetError();
-        await delay(500);
-
-        return result;
-      },
-      {
-        loading: "Attempting to create your board...",
-        success: (result) =>
-          `Board "${result?.fields?.title}" is ready! Start organizing your tasks now.`,
-        error: "Board creation failed. Redirecting to the dashboard...",
-        position: "top-center",
-      },
-    );
-
-    promise.unwrap().catch(() => navigateToDashboard());
-  }, [
+  const inFlight = useRef(false);
+  const {
+    hasError,
     failedBoard,
-    updateBoardId,
-    updateColumnIds,
     resetError,
-    navigateToDashboard,
-  ]);
+    setError,
+    createBoard,
+    deleteBoard,
+  } = useBoardStore(
+    useShallow((state) => ({
+      hasError: state.hasError,
+      failedBoard: state.failedBoard,
+      resetError: state.resetError,
+      setError: state.setError,
+      createBoard: state.createBoard,
+      deleteBoard: state.deleteBoard,
+    })),
+  );
+  const setColumns = useColumnStore((state) => state.setColumns);
+  const isCreating = useLoadingStore((state) =>
+    state.isLoading("board", "creating"),
+  );
+  const setIsLoading = useLoadingStore((state) => state.setIsLoading);
 
-  useEffect(() => {
-    if (!hasError) return;
+  const submitBoardCreation = async (attempt: BoardFormValues) => {
+    if (
+      inFlight.current ||
+      useLoadingStore.getState().isLoading("board", "creating")
+    )
+      return false;
+    inFlight.current = true;
+    setIsLoading("board", "creating", true, attempt.id);
 
-    const id = toast.custom(
-      (id) => (
-        <BoardErrorCard
-          onRetry={() => {
-            toast.dismiss(id);
-            retryBoardCreation();
-          }}
-        />
-      ),
-      {
-        position: "top-center",
-        duration: Infinity,
-      },
-    );
-    return () => {
-      if (id) toast.dismiss(id);
-    };
-  }, [hasError, retryBoardCreation, failedBoard, router, deleteBoard]);
+    try {
+      const result = await createBoardAction(attempt, attempt.id);
+      if (!result.success || !result.fields?.id) {
+        throw new Error(
+          result.message || "Could not confirm that your board was saved.",
+        );
+      }
+
+      const { id, title, slug, description, columns } = result.fields;
+      deleteBoard(attempt.id);
+      createBoard({ id, title, slug, description });
+      setColumns(id, columns);
+      resetError();
+      toast.success(`Board "${title}" is ready.`);
+      router.push(`/dashboard/${slug}`);
+      router.refresh();
+      return true;
+    } catch (error) {
+      setError(true, attempt);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Could not confirm that your board was saved. Please retry.",
+      );
+      return false;
+    } finally {
+      inFlight.current = false;
+      setIsLoading("board", "creating", false, attempt.id);
+    }
+  };
+
+  const retryBoardCreation = async () => {
+    if (!failedBoard) return false;
+    return submitBoardCreation(failedBoard);
+  };
+
+  const navigateToDashboard = () => {
+    if (inFlight.current || isCreating) return;
+    if (failedBoard) deleteBoard(failedBoard.id);
+    resetError();
+    router.push("/dashboard");
+    router.refresh();
+  };
 
   return {
     hasError,
     failedBoard,
+    isCreating,
+    submitBoardCreation,
     retryBoardCreation,
-    isRetryAvailable: !!failedBoard,
+    navigateToDashboard,
+    isRetryAvailable: !!failedBoard && !isCreating,
   };
 }

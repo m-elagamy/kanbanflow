@@ -1,6 +1,7 @@
 "use server";
 
 import { type Board, type Column } from "@prisma/client";
+import { z } from "zod";
 import columnsTemplates from "@/app/dashboard/data/columns-templates";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slugify";
@@ -13,16 +14,17 @@ import {
   getBoardForRename,
   countBoardsBySlug,
 } from "@/lib/dal/board";
-import { markUserHasCreatedBoardOnce } from "@/lib/dal/user";
 import type { ColumnStatus } from "@/schemas/column";
 import handlePrismaError from "@/utils/prisma-error-handler";
 import { revalidateUserBoards } from "@/utils/revalidate-user-boards";
 
 export const createBoardAction = async (
   boardData: BoardFormSchema,
+  requestId: string,
 ): Promise<ServerActionResult<Board & { columns: Column[] }>> => {
   const validatedData = boardSchema.safeParse(boardData);
-  if (!validatedData.success) {
+  const validatedRequestId = z.uuid().safeParse(requestId);
+  if (!validatedData.success || !validatedRequestId.success) {
     return { success: false, message: "Validation Errors" };
   }
 
@@ -34,14 +36,21 @@ export const createBoardAction = async (
 
   try {
     const result = await createBoard(
+      validatedRequestId.data,
       title,
       boardSlug,
       description,
       template?.status as ColumnStatus[],
     );
 
+    if (!result.success || !result.data) {
+      return {
+        success: false,
+        message: "Failed to create board. Please try again.",
+      };
+    }
+
     await revalidateUserBoards();
-    markUserHasCreatedBoardOnce();
 
     return {
       success: true,

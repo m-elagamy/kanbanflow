@@ -1,14 +1,13 @@
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { constructColumns, createOptimisticBoard } from "@/utils/board-helpers";
-import delay from "@/utils/delay";
+import { createOptimisticBoard } from "@/utils/board-helpers";
 import { omit } from "@/utils/object";
-import type { BoardSummary, FormMode, Templates } from "@/lib/types";
+import type { BoardSummary, FormMode } from "@/lib/types";
 import type { BoardFormSchema } from "@/schemas/board";
 import handleOnError from "@/utils/handle-on-error";
-import { useUpdatePredefinedColumnsId } from "./use-update-predefined-columns-id";
+import { useBoardRetry } from "./use-board-retry";
 import { useBoardFormStore } from "./use-board-form-store";
-import { createBoardAction, updateBoardAction } from "@/actions/board";
+import { updateBoardAction } from "@/actions/board";
 
 type UseBoardFormAction = {
   formMode: FormMode;
@@ -33,21 +32,19 @@ export function useBoardFormAction({
   const isEditMode = formMode === "edit";
   const router = useRouter();
 
-  const {
-    createBoard,
-    updateBoard,
-    updateBoardId,
-    activeBoardId,
-    setColumns,
-    closeModal,
-    isLoading,
-    setIsLoading,
-    setError,
-  } = useBoardFormStore();
+  const { updateBoard, activeBoardId, closeModal, isLoading, setIsLoading } =
+    useBoardFormStore();
 
-  const updateColumnIds = useUpdatePredefinedColumnsId();
+  const {
+    hasError,
+    failedBoard,
+    submitBoardCreation,
+    retryBoardCreation,
+    navigateToDashboard,
+  } = useBoardRetry();
 
   const handleFormAction = async (formData: FormData) => {
+    if (isLoading || (!isEditMode && failedBoard)) return;
     const { success, data: validatedData } = validateBeforeSubmit(
       formData,
       isEditMode,
@@ -57,7 +54,7 @@ export function useBoardFormAction({
 
     if (!success || !validatedData) return;
 
-    const { title, description = "", template } = validatedData;
+    const { title, description = "" } = validatedData;
 
     const optimisticBoard = createOptimisticBoard(title, description ?? "");
 
@@ -93,40 +90,11 @@ export function useBoardFormAction({
       return;
     }
 
-    setIsLoading("board", "creating", true, optimisticBoard.id);
-    createBoard(optimisticBoard);
-    setColumns(optimisticBoard.id, constructColumns(template as Templates));
-    
-    createBoardAction(validatedData)
-      .then((res) => {
-        if (res.success && res.fields) {
-          updateBoardId(optimisticBoard.id, res.fields.id);
-          updateColumnIds(res.fields.id, res.fields.columns);
-          toast.success(res.message);
-        } else {
-          setError(true, {
-            id: optimisticBoard.id,
-            title,
-            description,
-            template: validatedData.template,
-          });
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(true, {
-          id: optimisticBoard.id,
-          title,
-          description,
-          template: validatedData.template,
-        });
-      })
-      .finally(() => {
-        setIsLoading("board", "creating", false, optimisticBoard.id);
-      });
-
-    await delay(600);
-    router.push(`/dashboard/${optimisticBoard.slug}?new=1`);
+    const created = await submitBoardCreation({
+      ...validatedData,
+      id: optimisticBoard.id,
+    });
+    if (created) closeModal("board", modalId);
   };
 
   const redirectIfSlugChanged = (
@@ -142,5 +110,19 @@ export function useBoardFormAction({
     }
   };
 
-  return { handleFormAction, isEditMode, router, isLoading };
+  return {
+    handleFormAction,
+    isEditMode,
+    router,
+    isLoading,
+    hasCreationError: !isEditMode && hasError && !!failedBoard,
+    retryCreation: async () => {
+      if (await retryBoardCreation()) closeModal("board", modalId);
+    },
+    returnToDashboard: () => {
+      if (isLoading) return;
+      closeModal("board", modalId);
+      navigateToDashboard();
+    },
+  };
 }

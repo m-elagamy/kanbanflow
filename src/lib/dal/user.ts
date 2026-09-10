@@ -1,3 +1,5 @@
+import "server-only";
+
 import { unstable_cache } from "next/cache";
 import { User, type Prisma } from "@prisma/client";
 import { withUserId, ensureAuthenticated } from "@/utils/auth-wrappers";
@@ -33,6 +35,15 @@ const toBoardWithStats = (board: BoardRowWithStats): BoardWithStats => ({
   },
 });
 
+// Expects a server-authenticated profile; safe to call inside after().
+export async function prepareUserRecord(data: Omit<User, "hasCreatedBoardOnce">) {
+  return db.user.upsert({
+    where: { id: data.id },
+    create: data,
+    update: { id: data.id },
+  });
+}
+
 export const insertUser = ensureAuthenticated(
   async (data: Omit<User, "hasCreatedBoardOnce">) => {
     return db.user.upsert({
@@ -64,17 +75,6 @@ export const getUserOnboardingState = withUserId(async (userId: string) => {
     hasCreatedBoardOnce: user?.hasCreatedBoardOnce ?? false,
   };
 });
-
-export const markUserHasCreatedBoardOnce = withUserId(
-  async (userId: string) => {
-    await db.user.updateMany({
-      where: { id: userId, hasCreatedBoardOnce: false },
-      data: { hasCreatedBoardOnce: true },
-    });
-
-    return true;
-  },
-);
 
 export const getAllUserBoards = withUserId(async (userId: string) => {
   const getCachedBoards = unstable_cache(

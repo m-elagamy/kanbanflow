@@ -5,7 +5,6 @@ import type {
   FormMode,
   Templates,
 } from "@/lib/types";
-import { handleOnBlur } from "@/utils/board-helpers";
 import useForm from "@/hooks/use-form";
 import GenericForm from "@/components/ui/generic-form";
 import FormField from "@/components/ui/form-field";
@@ -13,6 +12,7 @@ import { useBoardFormAction } from "@/hooks/use-board-form-action";
 import useBoardStore from "@/stores/board";
 import columnsTemplates from "../../data/columns-templates";
 import { boardSchema, BoardFormSchema } from "@/schemas/board";
+import BoardErrorCard from "@/components/ui/board-error-card";
 
 type BoardFormProps = Readonly<{
   formMode: FormMode;
@@ -50,14 +50,30 @@ export default function BoardForm({
     boardSchema,
   );
 
-  const { handleFormAction, isEditMode, router, isLoading } =
-    useBoardFormAction({
-      board,
-      existingBoards,
-      formMode,
-      modalId,
-      validateBeforeSubmit,
-    });
+  const {
+    handleFormAction,
+    isEditMode,
+    isLoading,
+    hasCreationError,
+    retryCreation,
+    returnToDashboard,
+  } = useBoardFormAction({
+    board,
+    existingBoards,
+    formMode,
+    modalId,
+    validateBeforeSubmit,
+  });
+
+  if (hasCreationError) {
+    return (
+      <BoardErrorCard
+        onRetry={retryCreation}
+        onBack={returnToDashboard}
+        isPending={isLoading}
+      />
+    );
+  }
 
   return (
     <GenericForm
@@ -75,7 +91,6 @@ export default function BoardForm({
         placeholder="e.g., Personal Tasks"
         required
         onChange={(value) => handleOnChange("title", value)}
-        onBlur={(value) => handleOnBlur(router, value)}
         error={errors?.title}
         helperText="Choose a clear and descriptive name for your board."
       />

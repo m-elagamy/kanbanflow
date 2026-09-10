@@ -1,12 +1,13 @@
 import { redirect, unauthorized } from "next/navigation";
 import type { Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
+import { after } from "next/server";
 import { ArrowRight, Sparkles } from "lucide-react";
 import BoardModal from "@/app/dashboard/components/board/board-modal";
 import columnsTemplates from "@/app/dashboard/data/columns-templates";
-import { getUserOnboardingStateAction, insertUserAction } from "@/actions/user";
+import { getUserOnboardingStateAction } from "@/actions/user";
+import { prepareUserRecord } from "@/lib/dal/user";
 import type { Templates } from "@/lib/types";
-import { after } from "next/server";
 
 const WelcomePage = async () => {
   const user = await currentUser();
@@ -21,13 +22,18 @@ const WelcomePage = async () => {
 
   if (boardsCount !== 0 || hasCreatedBoardOnce) redirect("/dashboard");
 
-  after(() => {
-    insertUserAction({
-      id: user.id,
-      name: user.fullName,
-      email: user.emailAddresses[0].emailAddress,
-    }).catch((error) => console.error("Failed to insert user:", error));
-  });
+  // Server Components must read request data before after().
+  const email = user.primaryEmailAddress?.emailAddress;
+  if (email) {
+    const profile = { id: user.id, name: user.fullName, email };
+    after(async () => {
+      try {
+        await prepareUserRecord(profile);
+      } catch (error) {
+        console.error("Background account preparation failed:", error);
+      }
+    });
+  }
 
   return (
     <main className="relative flex min-h-dvh items-center justify-center overflow-hidden px-6 py-16">

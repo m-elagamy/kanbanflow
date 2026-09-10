@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
 import { Button } from "./button";
 import {
@@ -7,38 +6,51 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card";
+} from "./card";
 
-function BoardErrorCard({ onRetry }: { onRetry: () => void }) {
+function BoardErrorCard({
+  onRetry,
+  onBack,
+  isPending = false,
+}: {
+  onRetry: () => void;
+  onBack: () => void;
+  isPending?: boolean;
+}) {
   return (
-    <Card className="animate-fadeIn mx-auto w-full max-w-md border border-border bg-background shadow-lg">
+    <Card
+      className="border-border bg-background mx-auto w-full max-w-md border shadow-lg"
+      aria-busy={isPending}
+    >
       <CardHeader className="flex-col items-center">
-        <AlertCircle className="h-6 w-6 text-destructive" aria-hidden />
-        <CardTitle className="text-xl font-semibold">
-          Board Creation Failed
+        <AlertCircle className="text-destructive h-6 w-6" aria-hidden />
+        <CardTitle className="text-center text-xl font-semibold">
+          We couldn’t confirm your board was saved
         </CardTitle>
         <CardDescription className="text-center">
-          Oops! We couldn’t save your board due to a server error. Please choose
-          whether to try again or return to the dashboard.
+          Retry to finish creating it or recover the saved board. Retrying this
+          attempt won’t create a duplicate.
         </CardDescription>
       </CardHeader>
       <CardFooter className="flex flex-col gap-3 sm:flex-row sm:justify-between">
         <Button
+          type="button"
           variant="outline"
-          className="group/return w-full sm:w-auto"
-          asChild
+          className="w-full sm:w-auto"
+          onClick={onBack}
+          disabled={isPending}
         >
-          <Link href="/dashboard" aria-label="Return to Dashboard">
-            <ArrowLeft className="size-4 transition-transform duration-300 group-hover/return:-translate-x-1" />
-            Return to Dashboard
-          </Link>
+          <ArrowLeft className="size-4" />
+          Back to dashboard
         </Button>
         <Button
-          className="group/retry-button w-full sm:w-auto"
+          type="button"
+          className="w-full sm:w-auto"
           onClick={onRetry}
+          disabled={isPending}
         >
-          <RefreshCw className="size-4 transition-transform duration-300 group-hover/retry-button:rotate-180" />
-          Retry Creation
+          <RefreshCw className={`size-4 ${isPending ? "animate-spin" : ""}`} />
+          {isPending ? "Retrying…" : "Retry"}
         </Button>
       </CardFooter>
     </Card>

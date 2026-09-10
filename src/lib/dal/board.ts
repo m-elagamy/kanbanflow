@@ -1,8 +1,9 @@
 import db from "../db";
-import { Board, type Column, type Priority } from "@prisma/client";
+import { Board, type Column, type Priority, type Prisma } from "@prisma/client";
+import { createHash } from "node:crypto";
+import { currentUser } from "@clerk/nextjs/server";
 import { withUserId, withOwnership } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
-import { BOARDS_LIST_LIMIT } from "../constants";
 
 const resolveBoardOwnerId = async (boardId: string) => {
   const board = await db.board.findUnique({
@@ -50,7 +51,10 @@ const SAMPLE_TASKS: {
   },
 ];
 
-const seedSampleTasks = async (columns: Column[]) => {
+const seedSampleTasks = async (
+  tx: Prisma.TransactionClient,
+  columns: Column[],
+) => {
   const orderedColumns = [...columns].sort((a, b) => a.order - b.order);
   const orderByColumn = new Map<string, number>();
 
@@ -74,50 +78,89 @@ const seedSampleTasks = async (columns: Column[]) => {
     };
   });
 
-  await db.task.createMany({ data });
+  await tx.task.createMany({ data });
 };
 
 const createBoard = withUserId(
   async (
     userId: string,
+    requestId: string,
     title: string,
     slug: string,
     description?: string | null,
     columnsStatus?: ColumnStatus[],
   ): Promise<Board & { columns: Column[] }> => {
-    const minOrderResult = await db.board.aggregate({
-      where: { userId },
-      _min: { order: true },
-      take: BOARDS_LIST_LIMIT,
+    // Reuse the board ID on retries, scoped to its owner.
+    const boardId = `board_${createHash("sha256").update(`${userId}:${requestId}`).digest("hex")}`;
+    const existing = await db.board.findUnique({
+      where: { id: boardId, userId },
+      include: { columns: { orderBy: { order: "asc" } } },
     });
+    if (existing) return existing;
 
-    const isFirstBoard = minOrderResult._min.order === null;
-    const newOrder = (minOrderResult._min.order ?? 0) - 1;
-
-    const board = await db.board.create({
-      data: {
-        title,
-        slug,
-        description,
-        userId,
-        order: newOrder,
-        columns: columnsStatus?.length
-          ? {
-              create: columnsStatus.map((status, index) => ({
-                status,
-                order: index,
-              })),
-            }
-          : undefined,
-      },
-      include: { columns: true },
+    let account = await db.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, email: true },
     });
-
-    if (isFirstBoard && board.columns.length) {
-      await seedSampleTasks(board.columns);
+    if (!account) {
+      const profile = await currentUser();
+      const email = profile?.primaryEmailAddress?.emailAddress;
+      if (!profile || profile.id !== userId || !email) {
+        throw new Error("Unable to prepare your account. Please sign in again.");
+      }
+      account = { id: userId, name: profile.fullName, email };
     }
+    const accountData = account;
 
-    return board;
+    return db.$transaction(async (tx) => {
+      // Lock the owner row to serialize concurrent board creation.
+      const user = await tx.user.upsert({
+        where: { id: userId },
+        create: accountData,
+        update: { id: userId },
+      });
+
+      const saved = await tx.board.findUnique({
+        where: { id: boardId, userId },
+        include: { columns: { orderBy: { order: "asc" } } },
+      });
+      if (saved) return saved;
+
+      const minOrderResult = await tx.board.aggregate({
+        where: { userId },
+        _min: { order: true },
+      });
+      const isFirstBoard =
+        !user.hasCreatedBoardOnce && minOrderResult._min.order === null;
+      const board = await tx.board.create({
+        data: {
+          id: boardId,
+          title,
+          slug,
+          description,
+          userId,
+          order: (minOrderResult._min.order ?? 0) - 1,
+          columns: columnsStatus?.length
+            ? {
+                create: columnsStatus.map((status, order) => ({
+                  status,
+                  order,
+                })),
+              }
+            : undefined,
+        },
+        include: { columns: { orderBy: { order: "asc" } } },
+      });
+
+      if (isFirstBoard && board.columns.length) {
+        await seedSampleTasks(tx, board.columns);
+      }
+      await tx.user.update({
+        where: { id: userId },
+        data: { hasCreatedBoardOnce: true },
+      });
+      return board;
+    });
   },
 );
 
@@ -135,14 +178,11 @@ const updateBoard = withOwnership(
   resolveBoardOwnerId,
 );
 
-const deleteBoard = withOwnership(
-  async (userId: string, boardId: string) => {
-    return db.board.delete({
-      where: { id: boardId, userId },
-    });
-  },
-  resolveBoardOwnerId,
-);
+const deleteBoard = withOwnership(async (userId: string, boardId: string) => {
+  return db.board.delete({
+    where: { id: boardId, userId },
+  });
+}, resolveBoardOwnerId);
 
 const getBoardForRename = withOwnership(
   async (userId: string, boardId: string) => {
