@@ -13,6 +13,7 @@ type TaskModalProps = {
   task?: ClientTask;
   mode: FormMode;
   variant?: ButtonVariants;
+  modalId?: string;
 };
 
 const TaskModal = ({
@@ -22,28 +23,33 @@ const TaskModal = ({
   task,
   mode,
   variant = "ghost",
+  modalId: providedModalId,
 }: TaskModalProps) => {
   const openModal = useModalStore((state) => state.openModal);
 
-  const modalId = task
-    ? `task-${task.id}`
-    : columnId
-      ? `new-task-${columnId}`
-      : `new-task-board-${boardId}`;
+  const modalId =
+    providedModalId ??
+    (task
+      ? `task-${task.id}`
+      : columnId
+        ? `new-task-${columnId}`
+        : `new-task-board-${boardId}`);
 
   const handleOnClick = () => openModal("task", modalId);
 
   return (
     <>
-      <Button
-        className=""
-        variant={variant}
-        onClick={handleOnClick}
-        size="lg"
-        asChild
-      >
-        {trigger}
-      </Button>
+      {trigger && (
+        <Button
+          className=""
+          variant={variant}
+          onClick={handleOnClick}
+          size="lg"
+          asChild
+        >
+          {trigger}
+        </Button>
+      )}
       <Modal
         title={getModalTitle("task", mode)}
         description={getModalDescription("task", mode)}
