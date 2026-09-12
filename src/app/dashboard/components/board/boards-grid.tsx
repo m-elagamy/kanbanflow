@@ -46,7 +46,7 @@ export default function BoardsGrid({
           <p className="text-muted-foreground mt-1 text-sm">
             {hasBoards
               ? "Pick up where you left off or start something new."
-              : "Create a board to start organizing your work."}
+              : "Your workspace is ready when you are."}
           </p>
         </div>
 
