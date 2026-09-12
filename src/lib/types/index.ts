@@ -75,12 +75,3 @@ export type ClientTask = {
   columnId: string;
   dueDate: string | null;
 };
-
-export type TaskSearchResult = {
-  id: string;
-  title: string;
-  description: string | null;
-  priority: "low" | "medium" | "high";
-  columnId: string;
-  column: { status: string };
-};
