@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CornerDownLeft, Plus, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -20,24 +21,21 @@ import {
 } from "@/components/ui/command";
 import { EmptyState } from "@/components/ui/empty-state";
 import EmptyResultsIllustration from "@/components/ui/empty-results-illustration";
+import { searchTasksAction } from "@/actions/task";
 import useBoardStore from "@/stores/board";
-import { useColumnStore } from "@/stores/column";
 import { useModalStore } from "@/stores/modal";
-import { useTaskStore } from "@/stores/task";
-import type { ClientTask } from "@/lib/types";
+import type { ClientTask, TaskSearchPage, TaskSearchResult } from "@/lib/types";
 import getBadgeStyle from "../../utils/get-badge-style";
 import TaskModal from "../task/task-modal";
 
-type SearchTask = ClientTask & {
-  column: { status: string };
-};
+type SearchState = TaskSearchPage & { key: string; error: string | null };
 
 function SearchResultItem({
   task,
   onSelect,
 }: {
-  task: SearchTask;
-  onSelect: (task: SearchTask) => void;
+  task: TaskSearchResult;
+  onSelect: (task: TaskSearchResult) => void;
 }) {
   return (
     <CommandItem
@@ -70,38 +68,18 @@ function SearchResultItem({
 export function BoardSearch() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [search, setSearch] = useState<SearchState | null>(null);
+  const [retry, setRetry] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ClientTask | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const activeBoardId = useBoardStore((state) => state.activeBoardId);
-  const columns = useColumnStore((state) =>
-    activeBoardId ? state.columnsByBoard[activeBoardId] : undefined,
-  );
-  const tasks = useTaskStore((state) => state.tasks);
   const openModal = useModalStore((state) => state.openModal);
-
-  const boardTasks: SearchTask[] = Object.values(tasks)
-    .filter((task) => columns?.[task.columnId])
-    .sort((a, b) => {
-      const columnOrder =
-        (columns?.[a.columnId]?.order ?? 0) -
-        (columns?.[b.columnId]?.order ?? 0);
-      return columnOrder || a.order - b.order;
-    })
-    .map((task) => ({
-      ...task,
-      column: { status: columns?.[task.columnId]?.status ?? "" },
-    }));
-
-  const normalizedQuery = query.trim().toLocaleLowerCase();
-  const results = normalizedQuery
-    ? boardTasks
-        .filter(
-          (task) =>
-            task.title.toLocaleLowerCase().includes(normalizedQuery) ||
-            task.description?.toLocaleLowerCase().includes(normalizedQuery),
-        )
-        .slice(0, 20)
-    : boardTasks.slice(0, 5);
+  const normalizedQuery = query.trim();
+  const searchKey = `${activeBoardId ?? ""}:${normalizedQuery}`;
+  const currentSearch = search?.key === searchKey ? search : null;
+  const nextCursor = currentSearch?.nextCursor ?? null;
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
@@ -114,9 +92,66 @@ export function BoardSearch() {
     return () => document.removeEventListener("keydown", handleShortcut);
   }, []);
 
+  useEffect(() => {
+    if (!open || !activeBoardId) return;
+
+    let cancelled = false;
+    const timeout = setTimeout(
+      async () => {
+        try {
+          const result = await searchTasksAction(
+            activeBoardId,
+            normalizedQuery,
+            null,
+            normalizedQuery ? 20 : 5,
+          );
+          if (cancelled) return;
+
+          setSearch({
+            key: searchKey,
+            items: result.success ? (result.fields?.items ?? []) : [],
+            nextCursor: result.success
+              ? (result.fields?.nextCursor ?? null)
+              : null,
+            error: result.success ? null : result.message,
+          });
+        } catch {
+          if (!cancelled) {
+            setSearch({
+              key: searchKey,
+              items: [],
+              nextCursor: null,
+              error: "Search failed. Please try again.",
+            });
+          }
+        }
+      },
+      normalizedQuery ? 250 : 0,
+    );
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [activeBoardId, normalizedQuery, open, retry, searchKey]);
+
+  const handleOpenChange = useCallback((isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) setQuery("");
+  }, []);
+
   const handleSelect = useCallback(
-    (task: SearchTask) => {
-      setSelectedTask(task);
+    (task: TaskSearchResult) => {
+      const clientTask: ClientTask = {
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
+        order: task.order,
+        columnId: task.columnId,
+        dueDate: task.dueDate,
+      };
+      setSelectedTask(clientTask);
       setOpen(false);
       setQuery("");
       setTimeout(() => openModal("task", `search-task-${task.id}`), 0);
@@ -124,10 +159,74 @@ export function BoardSearch() {
     [openModal],
   );
 
-  const handleOpenChange = useCallback((isOpen: boolean) => {
-    setOpen(isOpen);
-    if (!isOpen) setQuery("");
-  }, []);
+  const handleLoadMore = useCallback(async () => {
+    if (!activeBoardId || !nextCursor || isLoadingMore) return;
+
+    setIsLoadingMore(true);
+    const requestedKey = searchKey;
+    try {
+      const result = await searchTasksAction(
+        activeBoardId,
+        normalizedQuery,
+        nextCursor,
+        20,
+      );
+      if (!result.success || !result.fields) {
+        setSearch((current) =>
+          current?.key === requestedKey
+            ? { ...current, error: result.message }
+            : current,
+        );
+        return;
+      }
+      const page = result.fields;
+
+      setSearch((current) => {
+        if (current?.key !== requestedKey) return current;
+        const existingIds = new Set(current.items.map((task) => task.id));
+        return {
+          ...current,
+          items: [
+            ...current.items,
+            ...page.items.filter((task) => !existingIds.has(task.id)),
+          ],
+          nextCursor: page.nextCursor,
+          error: null,
+        };
+      });
+    } catch {
+      setSearch((current) =>
+        current?.key === requestedKey
+          ? { ...current, error: "Search failed. Please try again." }
+          : current,
+      );
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [activeBoardId, isLoadingMore, nextCursor, normalizedQuery, searchKey]);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !normalizedQuery || !nextCursor || isLoadingMore) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        void handleLoadMore();
+      },
+      {
+        root: target.closest("[cmdk-list]"),
+        rootMargin: "80px",
+      },
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [handleLoadMore, isLoadingMore, nextCursor, normalizedQuery]);
+
+  const isPending = Boolean(open && activeBoardId && !currentSearch);
+  const results = currentSearch?.items ?? [];
 
   return (
     <>
@@ -161,7 +260,39 @@ export function BoardSearch() {
               onValueChange={setQuery}
             />
             <CommandList>
-              {boardTasks.length === 0 ? (
+              {isPending ? (
+                <div className="space-y-2 p-3" aria-label="Searching tasks">
+                  {[0, 1, 2].map((item) => (
+                    <div
+                      key={item}
+                      className="flex items-center gap-3 rounded-md p-2"
+                    >
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-2/3" />
+                        <Skeleton className="h-3 w-1/3" />
+                      </div>
+                      <Skeleton className="h-5 w-14 rounded-md" />
+                    </div>
+                  ))}
+                </div>
+              ) : currentSearch?.error ? (
+                <div
+                  role="alert"
+                  className="space-y-2 py-6 text-center text-sm"
+                >
+                  <p>{currentSearch.error}</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSearch(null);
+                      setRetry((value) => value + 1);
+                    }}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              ) : results.length === 0 && !normalizedQuery ? (
                 <EmptyState
                   size="compact"
                   className="min-h-56 py-6"
@@ -180,8 +311,7 @@ export function BoardSearch() {
                             size="sm"
                             onClick={() => setOpen(false)}
                           >
-                            <Plus aria-hidden="true" />
-                            Add task
+                            <Plus aria-hidden="true" /> Add task
                           </Button>
                         }
                       />
@@ -193,8 +323,8 @@ export function BoardSearch() {
                   size="compact"
                   className="min-h-44 py-6"
                   illustration={<EmptyResultsIllustration />}
-                  title="No tasks found"
-                  description="Try another keyword or clear your search."
+                  title="No matching tasks"
+                  description="Try a different title, keyword, or description."
                   action={
                     <Button
                       variant="ghost"
@@ -220,19 +350,24 @@ export function BoardSearch() {
                       onSelect={handleSelect}
                     />
                   ))}
+                  {normalizedQuery && nextCursor && (
+                    <div
+                      ref={loadMoreRef}
+                      className="text-muted-foreground flex min-h-8 items-center justify-center py-1 text-xs"
+                      aria-live="polite"
+                    >
+                      {isLoadingMore ? "Loading more…" : null}
+                    </div>
+                  )}
                 </CommandGroup>
               )}
             </CommandList>
-            <div className="border-border text-muted-foreground flex items-center justify-end gap-4 border-t px-3 py-2 text-[0.6875rem]">
-              <span className="flex items-center gap-1">
-                <kbd className="font-sans">↑↓</kbd> Navigate
-              </span>
+            <div className="text-muted-foreground flex items-center justify-end gap-4 border-t px-3 py-2 text-[0.625rem]">
+              <span>↑↓ Navigate</span>
               <span className="flex items-center gap-1">
                 <CornerDownLeft className="size-3" aria-hidden="true" /> Open
               </span>
-              <span className="flex items-center gap-1">
-                <kbd className="font-sans">Esc</kbd> Close
-              </span>
+              <span>Esc Close</span>
             </div>
           </Command>
         </DialogContent>

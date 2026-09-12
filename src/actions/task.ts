@@ -2,14 +2,20 @@
 
 import {
   taskSchema,
+  taskSearchSchema,
   taskPositionSchema,
   type TaskSchema,
 } from "@/schemas/task";
-import { ServerActionResult, type TaskSummary } from "@/lib/types";
+import {
+  ServerActionResult,
+  type TaskSearchPage,
+  type TaskSummary,
+} from "@/lib/types";
 import {
   createTask,
   updateTask,
   deleteTask,
+  searchTasks,
   getTaskForRename,
   updateTaskPosition,
 } from "@/lib/dal/task";
@@ -154,6 +160,36 @@ export async function deleteTaskAction(
     success: true,
     message: "Task was deleted successfully.",
   };
+}
+
+export async function searchTasksAction(
+  boardId: string,
+  query: string,
+  cursor: string | null = null,
+  limit = 20,
+): Promise<ServerActionResult<TaskSearchPage>> {
+  const validated = taskSearchSchema.safeParse({
+    boardId,
+    query,
+    cursor,
+    limit,
+  });
+  if (!validated.success) {
+    return { success: false, message: "Invalid search parameters." };
+  }
+
+  const result = await searchTasks(
+    validated.data.boardId,
+    validated.data.query,
+    validated.data.cursor,
+    validated.data.limit,
+  );
+
+  if (!result.success || !result.data) {
+    return { success: false, message: "Search failed. Please try again." };
+  }
+
+  return { success: true, message: "", fields: result.data };
 }
 
 export async function updateTaskPositionAction(

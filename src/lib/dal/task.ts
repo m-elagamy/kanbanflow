@@ -1,6 +1,7 @@
-import { withOwnership } from "@/utils/auth-wrappers";
+import { withOwnership, withUserId } from "@/utils/auth-wrappers";
 import db from "../db";
 import { Task, type Priority } from "@prisma/client";
+import type { TaskSearchPage } from "@/lib/types";
 
 const resolveColumnOwnerId = async (columnId: string) => {
   const column = await db.column.findUnique({
@@ -135,4 +136,57 @@ export const updateTaskPosition = withOwnership(
     });
   },
   resolveTaskOwnerId,
+);
+
+export const searchTasks = withUserId(
+  async (
+    userId: string,
+    boardId: string,
+    query: string,
+    cursor: string | null,
+    limit: number,
+  ): Promise<TaskSearchPage> => {
+    const normalizedQuery = query.trim();
+    const tasks = await db.task.findMany({
+      where: {
+        column: { board: { id: boardId, userId } },
+        ...(normalizedQuery && {
+          OR: [
+            { title: { contains: normalizedQuery, mode: "insensitive" } },
+            {
+              description: {
+                contains: normalizedQuery,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }),
+      },
+      cursor: cursor ? { id: cursor } : undefined,
+      skip: cursor ? 1 : 0,
+      take: limit + 1,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        priority: true,
+        order: true,
+        columnId: true,
+        dueDate: true,
+        column: { select: { status: true } },
+      },
+      orderBy: [{ column: { order: "asc" } }, { order: "asc" }, { id: "asc" }],
+    });
+
+    const hasMore = tasks.length > limit;
+    const page = hasMore ? tasks.slice(0, limit) : tasks;
+
+    return {
+      items: page.map((task) => ({
+        ...task,
+        dueDate: task.dueDate?.toISOString() ?? null,
+      })),
+      nextCursor: hasMore ? (page.at(-1)?.id ?? null) : null,
+    };
+  },
 );

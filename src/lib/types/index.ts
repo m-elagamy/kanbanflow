@@ -75,3 +75,12 @@ export type ClientTask = {
   columnId: string;
   dueDate: string | null;
 };
+
+export type TaskSearchResult = ClientTask & {
+  column: { status: string };
+};
+
+export type TaskSearchPage = {
+  items: TaskSearchResult[];
+  nextCursor: string | null;
+};

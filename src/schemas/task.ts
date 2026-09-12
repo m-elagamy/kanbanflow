@@ -16,6 +16,15 @@ export const taskSchema = z.object({
 
 export type TaskSchema = z.infer<typeof taskSchema>;
 
+export const taskSearchSchema = z.object({
+  boardId: z.string().min(1),
+  query: z.string().trim().max(100),
+  cursor: z.string().min(1).nullable(),
+  limit: z.number().int().min(1).max(50),
+});
+
+export type TaskSearchSchema = z.infer<typeof taskSearchSchema>;
+
 export const taskPositionSchema = z.object({
   taskId: z.string().min(1),
   oldColumnId: z.string().min(1),
