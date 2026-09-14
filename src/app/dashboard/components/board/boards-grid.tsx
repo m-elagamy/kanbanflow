@@ -50,9 +50,7 @@ export default function BoardsGrid({
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             {hasBoards
-              ? stats.highPriorityTasks > 0
-                ? `You have ${stats.highPriorityTasks} high-priority ${stats.highPriorityTasks === 1 ? "task" : "tasks"} that need attention.`
-                : "Everything looks organized. Choose a board to continue."
+              ? "Search your tasks or choose a board to keep things moving."
               : "Your workspace is ready when you are."}
           </p>
         </div>
@@ -75,9 +73,9 @@ export default function BoardsGrid({
         <>
           <BoardSearch scope="workspace" />
 
-          <DashboardStats {...stats} />
-
           <DashboardFocus tasks={focusTasks} />
+
+          <DashboardStats {...stats} />
 
           <section aria-labelledby="boards-heading" className="space-y-4">
             <div className="flex items-center justify-between gap-4">

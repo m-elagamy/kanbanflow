@@ -277,7 +277,7 @@ export function BoardSearch({
     <>
       <Button
         variant="outline"
-        className={`text-muted-foreground h-9 min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "w-full" : "sm:w-50 md:w-62.5"}`}
+        className={`text-muted-foreground h-10 min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "w-full" : "sm:w-50 md:w-62.5"}`}
         onClick={() => setOpen(true)}
       >
         <Search size={14} aria-hidden="true" />
