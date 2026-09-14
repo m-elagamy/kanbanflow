@@ -96,3 +96,20 @@ export type DashboardFocusTask = ClientTask & {
   board: { title: string; slug: string };
   attentionReason: "overdue" | "high-priority";
 };
+
+export type DashboardFocusPreview = {
+  items: DashboardFocusTask[];
+  hasMore: boolean;
+};
+
+export type TasksFilter =
+  "all" | "needs-attention" | "overdue" | "high-priority";
+
+export type WorkspaceTask = TaskSearchResult & {
+  attentionReason: DashboardFocusTask["attentionReason"] | null;
+};
+
+export type WorkspaceTasksPage = {
+  items: WorkspaceTask[];
+  totalCount: number;
+};

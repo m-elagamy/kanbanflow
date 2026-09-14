@@ -1,14 +1,17 @@
 import { withOwnership, withUserId } from "@/utils/auth-wrappers";
 import db from "../db";
-import { Task, type Priority } from "@prisma/client";
+import { Task, type Prisma, type Priority } from "@prisma/client";
 import type {
+  DashboardFocusPreview,
   DashboardFocusTask,
   TaskPage,
   TaskSearchPage,
+  TasksFilter,
+  WorkspaceTasksPage,
 } from "@/lib/types";
 import { generateKeyBetween } from "fractional-indexing";
 import {
-  DASHBOARD_FOCUS_LIMIT,
+  DASHBOARD_FOCUS_PREVIEW_SIZE,
   TERMINAL_COLUMN_STATUSES,
 } from "@/lib/constants";
 import { getStartOfTodayUtc } from "@/utils/due-date-boundary";
@@ -297,81 +300,119 @@ export const getTasksPage = withUserId(
   },
 );
 
+const workspaceTaskSelect = {
+  id: true,
+  title: true,
+  description: true,
+  priority: true,
+  order: true,
+  columnId: true,
+  dueDate: true,
+  column: {
+    select: {
+      status: true,
+      board: { select: { title: true, slug: true } },
+    },
+  },
+} satisfies Prisma.TaskSelect;
+
+const toWorkspaceTask = <
+  T extends {
+    dueDate: Date | null;
+    priority: Priority;
+    column: { status: string; board: { title: string; slug: string } };
+  },
+>(
+  task: T,
+  startOfToday: Date,
+) => ({
+  ...task,
+  board: task.column.board,
+  column: { status: task.column.status },
+  dueDate: task.dueDate?.toISOString() ?? null,
+  attentionReason:
+    task.dueDate && task.dueDate < startOfToday
+      ? ("overdue" as const)
+      : task.priority === "high"
+        ? ("high-priority" as const)
+        : null,
+});
+
 export const getDashboardFocusTasks = withUserId(
-  async (userId: string): Promise<DashboardFocusTask[]> => {
+  async (userId: string): Promise<DashboardFocusPreview> => {
     const startOfToday = getStartOfTodayUtc();
-    const overdue = await db.task.findMany({
+    const tasks = await db.task.findMany({
       where: {
-        dueDate: { lt: startOfToday },
+        OR: [{ dueDate: { lt: startOfToday } }, { priority: "high" }],
         column: {
           status: { notIn: TERMINAL_COLUMN_STATUSES },
           board: { userId },
         },
       },
-      orderBy: [{ dueDate: "asc" }, { id: "asc" }],
-      take: DASHBOARD_FOCUS_LIMIT,
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        priority: true,
-        order: true,
-        columnId: true,
-        dueDate: true,
-        column: {
-          select: {
-            status: true,
-            board: { select: { title: true, slug: true } },
-          },
-        },
-      },
+      orderBy: [{ dueDate: { sort: "asc", nulls: "last" } }, { id: "asc" }],
+      take: DASHBOARD_FOCUS_PREVIEW_SIZE + 1,
+      select: workspaceTaskSelect,
     });
 
-    const remaining = DASHBOARD_FOCUS_LIMIT - overdue.length;
-    const highPriority = remaining
-      ? await db.task.findMany({
-          where: {
-            priority: "high",
-            id: { notIn: overdue.map((task) => task.id) },
-            column: {
-              status: { notIn: TERMINAL_COLUMN_STATUSES },
-              board: { userId },
-            },
-          },
-          orderBy: [
-            { dueDate: { sort: "asc", nulls: "last" } },
+    return {
+      items: tasks
+        .slice(0, DASHBOARD_FOCUS_PREVIEW_SIZE)
+        .map(
+          (task) => toWorkspaceTask(task, startOfToday) as DashboardFocusTask,
+        ),
+      hasMore: tasks.length > DASHBOARD_FOCUS_PREVIEW_SIZE,
+    };
+  },
+);
+
+export const getWorkspaceTasksOverviewPage = withUserId(
+  async (
+    userId: string,
+    filter: TasksFilter,
+    page: number,
+    limit: number,
+  ): Promise<WorkspaceTasksPage> => {
+    const startOfToday = getStartOfTodayUtc();
+    const activeColumn = { status: { notIn: TERMINAL_COLUMN_STATUSES } };
+    const filterWhere: Prisma.TaskWhereInput =
+      filter === "needs-attention"
+        ? {
+            OR: [{ dueDate: { lt: startOfToday } }, { priority: "high" }],
+            column: activeColumn,
+          }
+        : filter === "overdue"
+          ? { dueDate: { lt: startOfToday }, column: activeColumn }
+          : filter === "high-priority"
+            ? { priority: "high", column: activeColumn }
+            : {};
+    const where: Prisma.TaskWhereInput = {
+      AND: [{ column: { board: { userId } } }, filterWhere],
+    };
+    const orderBy: Prisma.TaskOrderByWithRelationInput[] =
+      filter === "all"
+        ? [
+            { column: { board: { order: "asc" } } },
+            { column: { order: "asc" } },
+            { order: "asc" },
             { id: "asc" },
-          ],
-          take: remaining,
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            priority: true,
-            order: true,
-            columnId: true,
-            dueDate: true,
-            column: {
-              select: {
-                status: true,
-                board: { select: { title: true, slug: true } },
-              },
-            },
-          },
-        })
-      : [];
+          ]
+        : [{ dueDate: { sort: "asc", nulls: "last" } }, { id: "asc" }];
 
-    const overdueTaskIds = new Set(overdue.map((task) => task.id));
+    const [tasks, totalCount] = await Promise.all([
+      db.task.findMany({
+        where,
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+        select: workspaceTaskSelect,
+      }),
+      db.task.count({ where }),
+    ]);
 
-    return [...overdue, ...highPriority].map((task) => ({
-      ...task,
-      board: task.column.board,
-      column: { status: task.column.status },
-      dueDate: task.dueDate?.toISOString() ?? null,
-      attentionReason: overdueTaskIds.has(task.id)
-        ? ("overdue" as const)
-        : ("high-priority" as const),
-    }));
+    return {
+      items: tasks.map((task) => toWorkspaceTask(task, startOfToday)),
+      totalCount,
+    };
   },
 );
 

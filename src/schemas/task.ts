@@ -26,6 +26,12 @@ export const taskSearchSchema = z.object({
 
 export type TaskSearchSchema = z.infer<typeof taskSearchSchema>;
 
+export const workspaceTasksPageSchema = z.object({
+  filter: z.enum(["all", "needs-attention", "overdue", "high-priority"]),
+  page: z.number().int().min(1).max(2147483647),
+  limit: z.number().int().min(1).max(50),
+});
+
 export const taskPageSchema = z.object({
   columnId: z.string().min(1),
   cursor: z.string().min(1).nullable(),

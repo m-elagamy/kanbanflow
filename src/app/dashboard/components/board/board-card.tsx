@@ -43,7 +43,7 @@ export default function BoardCard({ board, index }: BoardCardProps) {
 
         <p className="text-muted-foreground line-clamp-2 min-h-10 text-sm leading-6">
           {board.description?.trim() ||
-            "Open this board to view and manage its tasks."}
+            "No description"}
         </p>
 
         <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">

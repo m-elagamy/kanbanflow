@@ -10,7 +10,7 @@ import DashboardStats from "./dashboard-stats";
 import DashboardEmptyState from "./dashboard-empty-state";
 import DashboardFocus from "./dashboard-focus";
 import { BoardSearch } from "./board-search";
-import type { DashboardFocusTask } from "@/lib/types";
+import type { DashboardFocusPreview } from "@/lib/types";
 
 interface BoardsGridProps {
   boards: BoardWithStats[];
@@ -19,7 +19,7 @@ interface BoardsGridProps {
     totalBoards: number;
     openTasks: number;
   };
-  focusTasks: DashboardFocusTask[] | null;
+  focusTasks: DashboardFocusPreview | null;
 }
 
 export default function BoardsGrid({
@@ -78,9 +78,9 @@ export default function BoardsGrid({
         <>
           <BoardSearch scope="workspace" />
 
-          <DashboardFocus tasks={focusTasks} />
-
           <DashboardStats {...stats} />
+
+          <DashboardFocus tasks={focusTasks} />
 
           <section aria-labelledby="boards-heading" className="space-y-4">
             <div className="flex items-center justify-between gap-4">

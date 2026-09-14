@@ -30,7 +30,7 @@ export default async function DashboardLayout({
             <KeyboardShortcuts />
           </div>
         </header>
-        <div className="flex-1 overflow-auto">{children}</div>
+        <div className="min-h-0 flex-1 overflow-auto">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

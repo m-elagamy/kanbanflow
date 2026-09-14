@@ -1,23 +1,31 @@
-"use client";
-
 import Link from "next/link";
-import {
-  CircleCheck,
-  CircleAlert,
-  ChevronRight,
-  Flag,
-} from "lucide-react";
-import type { DashboardFocusTask } from "@/lib/types";
+import { CircleAlert, CircleCheck, ChevronRight, Flag } from "lucide-react";
+import type { DashboardFocusPreview } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import TaskDueDate from "../task/task-due-date";
 import getBadgeStyle from "../../utils/get-badge-style";
-import { DASHBOARD_FOCUS_LIMIT } from "@/lib/constants";
 
 export default function DashboardFocus({
   tasks,
 }: {
-  tasks: DashboardFocusTask[] | null;
+  tasks: DashboardFocusPreview | null;
 }) {
+  if (tasks?.items.length === 0) {
+    return (
+      <div className="border-border/80 bg-background/80 flex items-center gap-3 rounded-xl border p-4 shadow-sm">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
+          <CircleCheck className="size-5" aria-hidden="true" />
+        </span>
+        <div>
+          <p className="text-sm font-medium">You’re all caught up</p>
+          <p className="text-muted-foreground text-xs">
+            No overdue or high-priority tasks.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <section aria-labelledby="focus-heading" className="space-y-4">
       <div>
@@ -36,30 +44,17 @@ export default function DashboardFocus({
         >
           Attention items are temporarily unavailable.
         </div>
-      ) : tasks.length === 0 ? (
-        <div className="border-border/80 bg-background/80 flex items-center gap-3 rounded-xl border p-4 shadow-sm">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
-            <CircleCheck className="size-5" aria-hidden="true" />
-          </span>
-          <div>
-            <p className="text-sm font-medium">You’re all caught up</p>
-            <p className="text-muted-foreground text-xs">
-              No overdue or high-priority tasks.
-            </p>
-          </div>
-        </div>
       ) : (
         <div className="border-border/80 bg-background/80 divide-border/80 overflow-hidden rounded-xl border shadow-sm">
-          {tasks.map((task) => {
+          {tasks.items.map((task) => {
             const isOverdue = task.attentionReason === "overdue";
             const AttentionIcon = isOverdue ? CircleAlert : Flag;
-
             return (
               <Link
                 key={task.id}
                 href={`/dashboard/${task.board.slug}?focus=${task.id}`}
                 className="hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-ring group flex min-w-0 items-center gap-3 border-b p-3 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-4"
-                aria-label={`Open ${task.title} in ${task.board.title}`}
+                aria-label={`Focus ${task.title} in ${task.board.title}`}
               >
                 <span
                   className={`${isOverdue ? "bg-destructive/10 text-destructive" : "bg-orange-500/10 text-orange-600 dark:text-orange-400"} flex size-9 shrink-0 items-center justify-center rounded-lg`}
@@ -87,11 +82,19 @@ export default function DashboardFocus({
               </Link>
             );
           })}
-          {tasks.length === DASHBOARD_FOCUS_LIMIT && (
-            <p className="text-muted-foreground bg-muted/20 px-4 py-2.5 text-center text-xs">
-              Showing up to {DASHBOARD_FOCUS_LIMIT} overdue or high-priority
-              tasks.
-            </p>
+          {tasks.hasMore && (
+            <div className="bg-muted/20 flex justify-center px-4 py-2.5">
+              <Link
+                href="/dashboard/tasks?attention=needs-attention&page=1"
+                className="text-foreground/70 hover:text-foreground group flex items-center gap-1 text-sm font-medium transition-colors"
+              >
+                View all
+                <ChevronRight
+                  className="size-4 transition-transform group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                />
+              </Link>
+            </div>
           )}
         </div>
       )}

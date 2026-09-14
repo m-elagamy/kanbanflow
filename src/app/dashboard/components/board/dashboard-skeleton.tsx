@@ -16,21 +16,6 @@ export default function DashboardSkeleton() {
       {/* Search */}
       <Skeleton className="h-9 w-full rounded-md" />
 
-      {/* Needs attention */}
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Skeleton className="h-5 w-36" />
-          <Skeleton className="h-4 w-72 max-w-full" />
-        </div>
-        <div className="border-border/60 bg-background/80 flex items-center gap-3 rounded-xl border p-4">
-          <Skeleton className="size-9 shrink-0 rounded-lg" />
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-4 w-48 max-w-full" />
-            <Skeleton className="h-3 w-64 max-w-full" />
-          </div>
-        </div>
-      </div>
-
       {/* Stats */}
       <div className="grid grid-cols-2 gap-2 sm:gap-4">
         {Array.from({ length: 2 }).map((_, index) => (
@@ -45,6 +30,21 @@ export default function DashboardSkeleton() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Needs attention */}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Skeleton className="h-5 w-36" />
+          <Skeleton className="h-4 w-72 max-w-full" />
+        </div>
+        <div className="border-border/80 bg-background/80 flex items-center gap-3 rounded-xl border p-4">
+          <Skeleton className="size-9 shrink-0 rounded-lg" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-48 max-w-full" />
+            <Skeleton className="h-3 w-64 max-w-full" />
+          </div>
+        </div>
       </div>
 
       {/* Boards */}

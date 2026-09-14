@@ -4,16 +4,19 @@ import {
   taskSchema,
   taskPageSchema,
   taskSearchSchema,
+  workspaceTasksPageSchema,
   taskPositionSchema,
   type TaskSchema,
 } from "@/schemas/task";
 import {
   ServerActionResult,
   type TaskPage,
-  type DashboardFocusTask,
+  type DashboardFocusPreview,
   type ClientTask,
   type TaskSearchPage,
   type TaskSummary,
+  type TasksFilter,
+  type WorkspaceTasksPage,
 } from "@/lib/types";
 import {
   createTask,
@@ -21,6 +24,7 @@ import {
   deleteTask,
   getColumnTasksPage,
   getDashboardFocusTasks,
+  getWorkspaceTasksOverviewPage,
   getTasksPage,
   getTaskForRename,
   getTaskDetails,
@@ -225,9 +229,31 @@ export async function getWorkspaceTasksPageAction(
 }
 
 export async function getDashboardFocusTasksAction(): Promise<
-  ServerActionResult<DashboardFocusTask[]>
+  ServerActionResult<DashboardFocusPreview>
 > {
   const result = await getDashboardFocusTasks();
+  if (!result.success || !result.data) {
+    return { success: false, message: "Failed to load tasks." };
+  }
+
+  return { success: true, message: "", fields: result.data };
+}
+
+export async function getWorkspaceTasksOverviewPageAction(
+  filter: TasksFilter,
+  page: number,
+  limit = TASKS_PAGE_SIZE,
+): Promise<ServerActionResult<WorkspaceTasksPage>> {
+  const validated = workspaceTasksPageSchema.safeParse({ filter, page, limit });
+  if (!validated.success) {
+    return { success: false, message: "Invalid pagination parameters." };
+  }
+
+  const result = await getWorkspaceTasksOverviewPage(
+    validated.data.filter,
+    validated.data.page,
+    validated.data.limit,
+  );
   if (!result.success || !result.data) {
     return { success: false, message: "Failed to load tasks." };
   }

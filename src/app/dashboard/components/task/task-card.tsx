@@ -71,7 +71,7 @@ const TaskCard = ({
       inline: "center",
     });
 
-    const timeout = window.setTimeout(() => setShowFocus(false), 5000);
+    const timeout = window.setTimeout(() => setShowFocus(false), 3000);
     return () => window.clearTimeout(timeout);
   }, [isFocused]);
 

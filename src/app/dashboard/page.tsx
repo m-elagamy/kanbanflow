@@ -53,7 +53,9 @@ const Dashboard = async () => {
           userName={user.firstName}
           stats={stats}
           focusTasks={
-            focusTasksResult.success ? (focusTasksResult.fields ?? []) : null
+            focusTasksResult.success
+              ? (focusTasksResult.fields ?? { items: [], hasMore: false })
+              : null
           }
         />
       </section>
