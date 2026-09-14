@@ -8,6 +8,7 @@ import type {
 } from "@/lib/types";
 import { generateKeyBetween } from "fractional-indexing";
 import { TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
+import { getStartOfTodayUtc } from "@/utils/due-date-boundary";
 
 const resolveColumnOwnerId = async (columnId: string) => {
   const column = await db.column.findUnique({
@@ -296,10 +297,10 @@ export const getTasksPage = withUserId(
 export const getDashboardFocusTasks = withUserId(
   async (userId: string): Promise<DashboardFocusTask[]> => {
     const limit = 5;
-    const now = new Date();
+    const startOfToday = getStartOfTodayUtc();
     const overdue = await db.task.findMany({
       where: {
-        dueDate: { lt: now },
+        dueDate: { lt: startOfToday },
         column: {
           status: { notIn: TERMINAL_COLUMN_STATUSES },
           board: { userId },
@@ -358,11 +359,16 @@ export const getDashboardFocusTasks = withUserId(
         })
       : [];
 
+    const overdueTaskIds = new Set(overdue.map((task) => task.id));
+
     return [...overdue, ...highPriority].map((task) => ({
       ...task,
       board: task.column.board,
       column: { status: task.column.status },
       dueDate: task.dueDate?.toISOString() ?? null,
+      attentionReason: overdueTaskIds.has(task.id)
+        ? ("overdue" as const)
+        : ("high-priority" as const),
     }));
   },
 );

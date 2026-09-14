@@ -11,6 +11,7 @@ import {
   TERMINAL_COLUMN_STATUSES,
 } from "../constants";
 import type { BoardWithStats } from "../types/stores/board";
+import { getStartOfTodayUtc } from "@/utils/due-date-boundary";
 
 const boardWithStatsSelect = {
   id: true,
@@ -106,6 +107,7 @@ export const getAllUserBoards = withUserId(async (userId: string) => {
 export const getDashboardStats = withUserId(async (userId: string) => {
   const getCachedStats = unstable_cache(
     async (uid: string) => {
+      const startOfToday = getStartOfTodayUtc();
       const [totalBoards, openTasks, needsAttentionTasks] = await Promise.all([
         db.board.count({ where: { userId: uid } }),
         db.task.count({
@@ -118,7 +120,7 @@ export const getDashboardStats = withUserId(async (userId: string) => {
         }),
         db.task.count({
           where: {
-            OR: [{ priority: "high" }, { dueDate: { lt: new Date() } }],
+            OR: [{ priority: "high" }, { dueDate: { lt: startOfToday } }],
             column: {
               status: { notIn: TERMINAL_COLUMN_STATUSES },
               board: { userId: uid },

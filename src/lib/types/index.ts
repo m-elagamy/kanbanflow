@@ -94,4 +94,5 @@ export type TaskPage = {
 export type DashboardFocusTask = ClientTask & {
   column: { status: string };
   board: { title: string; slug: string };
+  attentionReason: "overdue" | "high-priority";
 };
