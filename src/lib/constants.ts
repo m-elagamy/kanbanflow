@@ -2,9 +2,13 @@ export const SITE_URL = "https://kanbanflow-app.vercel.app";
 
 export const BOARDS_LIST_LIMIT = 12;
 
+export const DASHBOARD_BOARDS_LIMIT = 6;
+
 export const BOARDS_PAGE_SIZE = 24;
 
 export const TASKS_PAGE_SIZE = 20;
+
+export const TERMINAL_COLUMN_STATUSES = ["Done", "Deployed", "Cancelled"];
 
 export const RESERVED_BOARD_SLUGS = ["boards"];
 

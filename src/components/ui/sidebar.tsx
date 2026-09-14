@@ -281,7 +281,12 @@ function SidebarTrigger({
           <span className="sr-only">{label}</span>
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">{label}</TooltipContent>
+      <TooltipContent side="bottom" className="flex items-center gap-2">
+        {label}
+        <kbd className="bg-background/15 rounded border border-current/20 px-1 py-0.5 font-mono text-[0.625rem]">
+          Ctrl/Cmd B
+        </kbd>
+      </TooltipContent>
     </Tooltip>
   );
 }

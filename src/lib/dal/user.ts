@@ -4,7 +4,12 @@ import { unstable_cache } from "next/cache";
 import { User, type Prisma } from "@prisma/client";
 import { withUserId, ensureAuthenticated } from "@/utils/auth-wrappers";
 import db from "../db";
-import { BOARDS_LIST_LIMIT, BOARDS_PAGE_SIZE } from "../constants";
+import {
+  BOARDS_LIST_LIMIT,
+  BOARDS_PAGE_SIZE,
+  DASHBOARD_BOARDS_LIMIT,
+  TERMINAL_COLUMN_STATUSES,
+} from "../constants";
 import type { BoardWithStats } from "../types/stores/board";
 
 const boardWithStatsSelect = {
@@ -107,13 +112,19 @@ export const getDashboardStats = withUserId(async (userId: string) => {
           where: { column: { board: { userId: uid } } },
         }),
         db.task.count({
-          where: { priority: "high", column: { board: { userId: uid } } },
+          where: {
+            priority: "high",
+            column: {
+              status: { notIn: TERMINAL_COLUMN_STATUSES },
+              board: { userId: uid },
+            },
+          },
         }),
       ]);
 
       return { totalBoards, totalTasks, highPriorityTasks };
     },
-    [`dashboard-stats`],
+    [`dashboard-stats-v2`],
     { tags: [`user-boards-${userId}`] },
   );
 
@@ -127,12 +138,12 @@ export const getUserBoardsWithStats = withUserId(async (userId: string) => {
         where: { userId: uid },
         orderBy: { order: "asc" },
         select: boardWithStatsSelect,
-        take: BOARDS_LIST_LIMIT,
+        take: DASHBOARD_BOARDS_LIMIT,
       });
 
       return boards.map(toBoardWithStats);
     },
-    [`boards-with-stats`],
+    [`dashboard-boards-with-stats-v2`],
     { tags: [`user-boards-${userId}`] },
   );
 

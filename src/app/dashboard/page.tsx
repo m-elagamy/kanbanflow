@@ -7,6 +7,7 @@ import {
   getDashboardStatsAction,
 } from "@/actions/user";
 import BoardsGrid from "./components/board/boards-grid";
+import { getDashboardFocusTasksAction } from "@/actions/task";
 
 const Dashboard = async () => {
   const { userId } = await auth();
@@ -26,9 +27,10 @@ const Dashboard = async () => {
 
   if (boardsCount === 0 && !hasCreatedBoardOnce) redirect("/welcome");
 
-  const [boardsResult, statsResult] = await Promise.all([
+  const [boardsResult, statsResult, focusTasksResult] = await Promise.all([
     getUserBoardsWithStatsAction(),
     getDashboardStatsAction(),
+    getDashboardFocusTasksAction(),
   ]);
 
   if (
@@ -47,7 +49,14 @@ const Dashboard = async () => {
     <main className="relative min-h-full overflow-hidden px-4 py-6 sm:px-6 sm:py-8 md:px-10">
       {/* <div className="welcome-gradient pointer-events-none absolute inset-0" /> */}
       <section className="relative z-10 mx-auto max-w-5xl">
-        <BoardsGrid boards={boards} userName={user.firstName} stats={stats} />
+        <BoardsGrid
+          boards={boards}
+          userName={user.firstName}
+          stats={stats}
+          focusTasks={
+            focusTasksResult.success ? (focusTasksResult.fields ?? []) : null
+          }
+        />
       </section>
     </main>
   );

@@ -10,6 +10,8 @@ import {
 import {
   ServerActionResult,
   type TaskPage,
+  type DashboardFocusTask,
+  type ClientTask,
   type TaskSearchPage,
   type TaskSummary,
 } from "@/lib/types";
@@ -18,8 +20,10 @@ import {
   updateTask,
   deleteTask,
   getColumnTasksPage,
+  getDashboardFocusTasks,
   searchTasks,
   getTaskForRename,
+  getTaskDetails,
   updateTaskPosition,
 } from "@/lib/dal/task";
 import handlePrismaError from "@/utils/prisma-error-handler";
@@ -174,7 +178,7 @@ export async function deleteTaskAction(
 }
 
 export async function searchTasksAction(
-  boardId: string,
+  boardId: string | null,
   query: string,
   cursor: string | null = null,
   limit = 20,
@@ -198,6 +202,30 @@ export async function searchTasksAction(
 
   if (!result.success || !result.data) {
     return { success: false, message: "Search failed. Please try again." };
+  }
+
+  return { success: true, message: "", fields: result.data };
+}
+
+export async function getDashboardFocusTasksAction(): Promise<
+  ServerActionResult<DashboardFocusTask[]>
+> {
+  const result = await getDashboardFocusTasks();
+  if (!result.success || !result.data) {
+    return { success: false, message: "Failed to load tasks." };
+  }
+
+  return { success: true, message: "", fields: result.data };
+}
+
+export async function getTaskDetailsAction(
+  taskId: string,
+): Promise<ServerActionResult<ClientTask & { boardSlug: string }>> {
+  if (!taskId) return { success: false, message: "Task not found." };
+
+  const result = await getTaskDetails(taskId);
+  if (!result.success || !result.data) {
+    return { success: false, message: "Task not found." };
   }
 
   return { success: true, message: "", fields: result.data };
@@ -260,6 +288,8 @@ export async function updateTaskPositionAction(
     if (!result.success) {
       return { success: false, message: "Failed to move task." };
     }
+
+    await revalidateUserBoards();
 
     return {
       success: true,

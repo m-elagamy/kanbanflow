@@ -8,6 +8,9 @@ import BoardCard from "./board-card";
 import BoardModal from "./board-modal";
 import DashboardStats from "./dashboard-stats";
 import DashboardEmptyState from "./dashboard-empty-state";
+import DashboardFocus from "./dashboard-focus";
+import { BoardSearch } from "./board-search";
+import type { DashboardFocusTask } from "@/lib/types";
 
 interface BoardsGridProps {
   boards: BoardWithStats[];
@@ -17,12 +20,14 @@ interface BoardsGridProps {
     totalTasks: number;
     highPriorityTasks: number;
   };
+  focusTasks: DashboardFocusTask[] | null;
 }
 
 export default function BoardsGrid({
   boards,
   userName,
   stats,
+  focusTasks,
 }: BoardsGridProps) {
   const greeting = userName ? `Welcome back, ${userName}` : "Welcome back";
   const hasBoards = boards.length > 0;
@@ -45,7 +50,9 @@ export default function BoardsGrid({
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             {hasBoards
-              ? "Pick up where you left off or start something new."
+              ? stats.highPriorityTasks > 0
+                ? `You have ${stats.highPriorityTasks} high-priority ${stats.highPriorityTasks === 1 ? "task" : "tasks"} that need attention.`
+                : "Everything looks organized. Choose a board to continue."
               : "Your workspace is ready when you are."}
           </p>
         </div>
@@ -66,7 +73,11 @@ export default function BoardsGrid({
 
       {hasBoards ? (
         <>
+          <BoardSearch scope="workspace" />
+
           <DashboardStats {...stats} />
+
+          <DashboardFocus tasks={focusTasks} />
 
           <section aria-labelledby="boards-heading" className="space-y-4">
             <div className="flex items-center justify-between gap-4">
@@ -75,8 +86,7 @@ export default function BoardsGrid({
                   Your boards
                 </h2>
                 <p className="text-muted-foreground text-sm">
-                  {stats.totalBoards}{" "}
-                  {stats.totalBoards === 1 ? "board" : "boards"}
+                  Open a board to continue where you left off.
                 </p>
               </div>
               {hasMoreBoards && (
@@ -84,8 +94,11 @@ export default function BoardsGrid({
                   href="/dashboard/boards"
                   className="text-muted-foreground hover:text-foreground group flex items-center gap-1 text-sm transition-colors"
                 >
-                  View all
-                  <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  View all {stats.totalBoards}
+                  <ChevronRight
+                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                    aria-hidden="true"
+                  />
                 </Link>
               )}
             </div>

@@ -6,6 +6,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar";
+import KeyboardShortcuts from "@/components/layout/keyboard-shortcuts";
 
 export default async function DashboardLayout({
   children,
@@ -25,6 +26,9 @@ export default async function DashboardLayout({
         <header className="border-border/60 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-40 flex h-12 shrink-0 items-center gap-3 border-b px-4 backdrop-blur md:rounded-t-xl">
           <SidebarTrigger />
           <DashboardBreadcrumb />
+          <div className="ml-auto">
+            <KeyboardShortcuts />
+          </div>
         </header>
         <div className="flex-1 overflow-auto">{children}</div>
       </SidebarInset>

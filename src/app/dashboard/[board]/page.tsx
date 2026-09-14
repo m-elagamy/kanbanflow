@@ -4,9 +4,10 @@ import { getBoardBySlugAction } from "@/actions/board";
 import deslugify from "@/utils/deslugify";
 import BoardLayout from "../components/board";
 import OptimisticBoardLayout from "../components/board/optimistic-board";
+import { getTaskDetailsAction } from "@/actions/task";
 
 type Params = Promise<{ board: string }>;
-type SearchParams = Promise<{ new?: string }>;
+type SearchParams = Promise<{ new?: string; task?: string }>;
 
 export default async function BoardPage({
   params,
@@ -16,16 +17,24 @@ export default async function BoardPage({
   searchParams: SearchParams;
 }) {
   const boardSlug = decodeURIComponent((await params).board);
-  const { new: isFreshlyCreated } = await searchParams;
+  const { new: isFreshlyCreated, task: taskId } = await searchParams;
 
-  const { board: currentBoard } = await getBoardBySlugAction(boardSlug);
+  const [{ board: currentBoard }, taskResult] = await Promise.all([
+    getBoardBySlugAction(boardSlug),
+    taskId ? getTaskDetailsAction(taskId) : Promise.resolve(null),
+  ]);
 
   if (!currentBoard) {
     if (isFreshlyCreated) return <OptimisticBoardLayout />;
     notFound();
   }
 
-  return <BoardLayout initialBoard={currentBoard} />;
+  const linkedTask =
+    taskResult?.success && taskResult.fields?.boardSlug === boardSlug
+      ? taskResult.fields
+      : null;
+
+  return <BoardLayout initialBoard={currentBoard} linkedTask={linkedTask} />;
 }
 
 export async function generateMetadata({

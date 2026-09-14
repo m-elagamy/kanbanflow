@@ -78,6 +78,7 @@ export type ClientTask = {
 
 export type TaskSearchResult = ClientTask & {
   column: { status: string };
+  board: { title: string; slug: string };
 };
 
 export type TaskSearchPage = {
@@ -88,4 +89,9 @@ export type TaskSearchPage = {
 export type TaskPage = {
   items: ClientTask[];
   nextCursor: string | null;
+};
+
+export type DashboardFocusTask = ClientTask & {
+  column: { status: string };
+  board: { title: string; slug: string };
 };

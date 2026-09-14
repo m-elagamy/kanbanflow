@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CornerDownLeft, Plus, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,9 +35,11 @@ type SearchState = TaskSearchPage & { key: string; error: string | null };
 function SearchResultItem({
   task,
   onSelect,
+  showBoard,
 }: {
   task: TaskSearchResult;
   onSelect: (task: TaskSearchResult) => void;
+  showBoard: boolean;
 }) {
   return (
     <CommandItem
@@ -54,7 +57,7 @@ function SearchResultItem({
       </div>
       <div className="flex shrink-0 items-center gap-2 max-sm:flex-col max-sm:items-end max-sm:gap-1">
         <span className="text-muted-foreground max-w-24 truncate text-xs">
-          {task.column.status}
+          {showBoard ? task.board.title : task.column.status}
         </span>
         <Badge
           className={`${getBadgeStyle(task.priority)} h-5 px-2 text-[0.625rem] font-medium uppercase`}
@@ -66,7 +69,12 @@ function SearchResultItem({
   );
 }
 
-export function BoardSearch() {
+export function BoardSearch({
+  scope = "board",
+}: {
+  scope?: "board" | "workspace";
+}) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState<SearchState | null>(null);
@@ -77,8 +85,10 @@ export function BoardSearch() {
 
   const activeBoardId = useBoardStore((state) => state.activeBoardId);
   const openModal = useModalStore((state) => state.openModal);
+  const boardId = scope === "board" ? activeBoardId : null;
+  const canSearch = scope === "workspace" || Boolean(boardId);
   const normalizedQuery = query.trim();
-  const searchKey = `${activeBoardId ?? ""}:${normalizedQuery}`;
+  const searchKey = `${scope}:${boardId ?? "all"}:${normalizedQuery}`;
   const currentSearch = search?.key === searchKey ? search : null;
   const nextCursor = currentSearch?.nextCursor ?? null;
 
@@ -94,14 +104,14 @@ export function BoardSearch() {
   }, []);
 
   useEffect(() => {
-    if (!open || !activeBoardId) return;
+    if (!open || !canSearch) return;
 
     let cancelled = false;
     const timeout = setTimeout(
       async () => {
         try {
           const result = await searchTasksAction(
-            activeBoardId,
+            boardId,
             normalizedQuery,
             null,
             TASKS_PAGE_SIZE,
@@ -134,7 +144,7 @@ export function BoardSearch() {
       cancelled = true;
       clearTimeout(timeout);
     };
-  }, [activeBoardId, normalizedQuery, open, retry, searchKey]);
+  }, [boardId, canSearch, normalizedQuery, open, retry, searchKey]);
 
   const handleOpenChange = useCallback((isOpen: boolean) => {
     setOpen(isOpen);
@@ -158,19 +168,25 @@ export function BoardSearch() {
       setSelectedTask(clientTask);
       setOpen(false);
       setQuery("");
-      setTimeout(() => openModal("task", `search-task-${task.id}`), 0);
+      setSearch(null);
+
+      if (scope === "workspace") {
+        router.push(`/dashboard/${task.board.slug}?task=${task.id}`);
+      } else {
+        setTimeout(() => openModal("task", `search-task-${task.id}`), 0);
+      }
     },
-    [openModal],
+    [openModal, router, scope],
   );
 
   const handleLoadMore = useCallback(async () => {
-    if (!activeBoardId || !nextCursor || isLoadingMore) return;
+    if (!canSearch || !nextCursor || isLoadingMore) return;
 
     setIsLoadingMore(true);
     const requestedKey = searchKey;
     try {
       const result = await searchTasksAction(
-        activeBoardId,
+        boardId,
         normalizedQuery,
         nextCursor,
         TASKS_PAGE_SIZE,
@@ -207,7 +223,7 @@ export function BoardSearch() {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [activeBoardId, isLoadingMore, nextCursor, normalizedQuery, searchKey]);
+  }, [boardId, canSearch, isLoadingMore, nextCursor, normalizedQuery, searchKey]);
 
   useEffect(() => {
     const target = loadMoreRef.current;
@@ -229,19 +245,21 @@ export function BoardSearch() {
     return () => observer.disconnect();
   }, [currentSearch?.error, handleLoadMore, isLoadingMore, nextCursor]);
 
-  const isPending = Boolean(open && activeBoardId && !currentSearch);
+  const isPending = Boolean(open && canSearch && !currentSearch);
   const results = currentSearch?.items ?? [];
 
   return (
     <>
       <Button
         variant="outline"
-        className="text-muted-foreground h-9 min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal sm:w-50 md:w-62.5"
+        className={`text-muted-foreground h-9 min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "w-full" : "sm:w-50 md:w-62.5"}`}
         onClick={() => setOpen(true)}
       >
         <Search size={14} aria-hidden="true" />
         <span className="min-w-0 flex-1 truncate text-left">
-          Search tasks...
+          {scope === "workspace"
+            ? "Search tasks across your workspace..."
+            : "Search tasks..."}
         </span>
         <kbd className="bg-muted pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none md:inline-flex">
           Ctrl/Cmd K
@@ -251,7 +269,9 @@ export function BoardSearch() {
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-xl md:p-0">
           <DialogHeader className="sr-only">
-            <DialogTitle>Search tasks</DialogTitle>
+            <DialogTitle>
+              {scope === "workspace" ? "Search workspace tasks" : "Search tasks"}
+            </DialogTitle>
             <DialogDescription>
               Search for tasks by title or description
             </DialogDescription>
@@ -304,11 +324,11 @@ export function BoardSearch() {
                   title="No tasks to search"
                   description="Create a task, then use search to find it quickly."
                   action={
-                    activeBoardId ? (
+                    boardId ? (
                       <TaskModal
                         mode="create"
-                        boardId={activeBoardId}
-                        modalId={`search-new-task-board-${activeBoardId}`}
+                        boardId={boardId}
+                        modalId={`search-new-task-board-${boardId}`}
                         trigger={
                           <Button
                             variant="outline"
@@ -346,7 +366,9 @@ export function BoardSearch() {
                       ? nextCursor
                         ? "Search results"
                         : `${results.length} result${results.length === 1 ? "" : "s"}`
-                      : "Tasks on this board"
+                      : scope === "workspace"
+                        ? "Tasks across your workspace"
+                        : "Tasks on this board"
                   }
                 >
                   {results.map((task) => (
@@ -354,6 +376,7 @@ export function BoardSearch() {
                       key={task.id}
                       task={task}
                       onSelect={handleSelect}
+                      showBoard={scope === "workspace"}
                     />
                   ))}
                   {nextCursor && (
@@ -398,7 +421,7 @@ export function BoardSearch() {
         </DialogContent>
       </Dialog>
 
-      {selectedTask && (
+      {scope === "board" && selectedTask && (
         <TaskModal
           mode="edit"
           task={selectedTask}

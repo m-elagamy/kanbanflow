@@ -1,8 +1,13 @@
 import { withOwnership, withUserId } from "@/utils/auth-wrappers";
 import db from "../db";
 import { Task, type Priority } from "@prisma/client";
-import type { TaskPage, TaskSearchPage } from "@/lib/types";
+import type {
+  DashboardFocusTask,
+  TaskPage,
+  TaskSearchPage,
+} from "@/lib/types";
 import { generateKeyBetween } from "fractional-indexing";
+import { TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 
 const resolveColumnOwnerId = async (columnId: string) => {
   const column = await db.column.findUnique({
@@ -85,6 +90,38 @@ export const getTaskForRename = withOwnership(
         dueDate: true,
       },
     });
+  },
+  resolveTaskOwnerId,
+);
+
+export const getTaskDetails = withOwnership(
+  async (userId: string, taskId: string) => {
+    const task = await db.task.findUnique({
+      where: { id: taskId },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        priority: true,
+        order: true,
+        columnId: true,
+        dueDate: true,
+        column: { select: { board: { select: { slug: true } } } },
+      },
+    });
+
+    if (!task) return null;
+
+    return {
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      priority: task.priority,
+      order: task.order,
+      columnId: task.columnId,
+      dueDate: task.dueDate?.toISOString() ?? null,
+      boardSlug: task.column.board.slug,
+    };
   },
   resolveTaskOwnerId,
 );
@@ -194,7 +231,7 @@ export const updateTaskPosition = withOwnership(
 export const searchTasks = withUserId(
   async (
     userId: string,
-    boardId: string,
+    boardId: string | null,
     query: string,
     cursor: string | null,
     limit: number,
@@ -202,7 +239,12 @@ export const searchTasks = withUserId(
     const normalizedQuery = query.trim();
     const tasks = await db.task.findMany({
       where: {
-        column: { board: { id: boardId, userId } },
+        column: {
+          board: {
+            userId,
+            ...(boardId && { id: boardId }),
+          },
+        },
         ...(normalizedQuery && {
           OR: [
             { title: { contains: normalizedQuery, mode: "insensitive" } },
@@ -226,7 +268,12 @@ export const searchTasks = withUserId(
         order: true,
         columnId: true,
         dueDate: true,
-        column: { select: { status: true } },
+        column: {
+          select: {
+            status: true,
+            board: { select: { title: true, slug: true } },
+          },
+        },
       },
       orderBy: [{ column: { order: "asc" } }, { order: "asc" }, { id: "asc" }],
     });
@@ -237,10 +284,86 @@ export const searchTasks = withUserId(
     return {
       items: page.map((task) => ({
         ...task,
+        board: task.column.board,
+        column: { status: task.column.status },
         dueDate: task.dueDate?.toISOString() ?? null,
       })),
       nextCursor: hasMore ? (page.at(-1)?.id ?? null) : null,
     };
+  },
+);
+
+export const getDashboardFocusTasks = withUserId(
+  async (userId: string): Promise<DashboardFocusTask[]> => {
+    const limit = 5;
+    const now = new Date();
+    const overdue = await db.task.findMany({
+      where: {
+        dueDate: { lt: now },
+        column: {
+          status: { notIn: TERMINAL_COLUMN_STATUSES },
+          board: { userId },
+        },
+      },
+      orderBy: [{ dueDate: "asc" }, { id: "asc" }],
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        priority: true,
+        order: true,
+        columnId: true,
+        dueDate: true,
+        column: {
+          select: {
+            status: true,
+            board: { select: { title: true, slug: true } },
+          },
+        },
+      },
+    });
+
+    const remaining = limit - overdue.length;
+    const highPriority = remaining
+      ? await db.task.findMany({
+          where: {
+            priority: "high",
+            id: { notIn: overdue.map((task) => task.id) },
+            column: {
+              status: { notIn: TERMINAL_COLUMN_STATUSES },
+              board: { userId },
+            },
+          },
+          orderBy: [
+            { dueDate: { sort: "asc", nulls: "last" } },
+            { id: "asc" },
+          ],
+          take: remaining,
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            priority: true,
+            order: true,
+            columnId: true,
+            dueDate: true,
+            column: {
+              select: {
+                status: true,
+                board: { select: { title: true, slug: true } },
+              },
+            },
+          },
+        })
+      : [];
+
+    return [...overdue, ...highPriority].map((task) => ({
+      ...task,
+      board: task.column.board,
+      column: { status: task.column.status },
+      dueDate: task.dueDate?.toISOString() ?? null,
+    }));
   },
 );
 

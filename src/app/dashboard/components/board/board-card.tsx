@@ -35,22 +35,25 @@ export default function BoardCard({ board, index }: BoardCardProps) {
             </h2>
           </div>
 
-          <ArrowUpRight className="text-muted-foreground group-hover:text-primary h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          <ArrowUpRight
+            className="text-muted-foreground group-hover:text-primary h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            aria-hidden="true"
+          />
         </div>
 
         <p className="text-muted-foreground line-clamp-2 min-h-10 text-sm leading-6">
           {board.description?.trim() ||
-            "No description yet. Add a short note about what this board is for."}
+            "No description provided."}
         </p>
 
         <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
           <span className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs">
-            <Layers className="h-3.5 w-3.5" />
+            <Layers className="h-3.5 w-3.5" aria-hidden="true" />
             {board._count.columns}{" "}
             {board._count.columns === 1 ? "column" : "columns"}
           </span>
           <span className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs">
-            <ListTodo className="h-3.5 w-3.5" />
+            <ListTodo className="h-3.5 w-3.5" aria-hidden="true" />
             {board._count.tasks} {board._count.tasks === 1 ? "task" : "tasks"}
           </span>
         </div>
