@@ -17,7 +17,7 @@ type TaskFormProps = {
   modalId: string;
 };
 
-type TaskSchemaWithId = TaskSchema & { id: string; columnId?: string };
+type TaskSchemaWithId = TaskSchema & { id: string };
 
 const TaskForm = ({
   formMode,

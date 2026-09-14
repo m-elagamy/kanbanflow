@@ -22,7 +22,7 @@ export default function TaskDueDate({ date }: { date: string }) {
     <div
       className={`flex items-center gap-1 text-xs ${due?.overdue ? "text-destructive font-medium" : "text-muted-foreground"}`}
     >
-      <Flag size={12} />
+      <Flag size={12} aria-hidden="true" />
       <time dateTime={date.slice(0, 10)}>
         {due?.label ?? date.slice(0, 10)}
       </time>

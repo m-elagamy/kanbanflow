@@ -33,11 +33,11 @@ export default function ColumnHeader({
 
   return (
     <CardHeader className="sticky top-0 z-5 flex flex-row items-center justify-between border-b p-4 pb-3!">
-      <CardTitle className="flex items-center gap-2 text-sm text-ellipsis whitespace-nowrap">
+      <CardTitle className="flex min-w-0 items-center gap-2 text-sm text-ellipsis whitespace-nowrap">
         {dragHandleProps && (
           <button
             type="button"
-            className="text-muted-foreground/50 hover:text-muted-foreground -ml-1 touch-none rounded p-0.5 active:cursor-grabbing"
+            className="text-muted-foreground/50 hover:text-muted-foreground focus-visible:ring-ring -ml-2 flex size-7 touch-none items-center justify-center rounded outline-none focus-visible:ring-2 active:cursor-grabbing"
             aria-label="Drag to reorder column"
             {...dragHandleProps.attributes}
             {...dragHandleProps.listeners}
@@ -45,7 +45,7 @@ export default function ColumnHeader({
             <GripVertical size={14} />
           </button>
         )}
-        {<Icon size={16} color={color} />}
+        <Icon size={16} color={color} aria-hidden="true" />
         <span
           className={clsx(
             columnStatus.length > 21 && "necessary-ellipsis max-w-[152px]",
@@ -58,6 +58,7 @@ export default function ColumnHeader({
           <Badge
             variant="outline"
             className="h-5 rounded-md px-[7px] text-[0.690rem]"
+            aria-label={`${tasksCount} ${tasksCount === 1 ? "task" : "tasks"}`}
           >
             {tasksCount}
           </Badge>

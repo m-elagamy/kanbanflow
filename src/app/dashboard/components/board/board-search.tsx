@@ -52,7 +52,7 @@ function SearchResultItem({
           </p>
         )}
       </div>
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2 max-sm:flex-col max-sm:items-end max-sm:gap-1">
         <span className="text-muted-foreground max-w-24 truncate text-xs">
           {task.column.status}
         </span>

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const taskSchema = z.object({
+  columnId: z.string().min(1, "Please select a column."),
   title: z
     .string()
     .trim()

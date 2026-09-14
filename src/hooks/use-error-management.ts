@@ -22,6 +22,10 @@ export default function useErrorManagement<T>() {
     });
   };
 
+  const setValidationErrors = (nextErrors: FormErrors<T>) => {
+    setErrors(nextErrors);
+  };
+
   const clearFieldError = (field: keyof T) => {
     if (errors?.[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }) as FormErrors<T>);
@@ -38,6 +42,7 @@ export default function useErrorManagement<T>() {
     errors,
     setSpecificError,
     setGenericError,
+    setValidationErrors,
     clearFieldError,
     clearGenericError,
   };

@@ -23,7 +23,10 @@ export function TaskPriorityFilter() {
       value={priorityFilter}
       onValueChange={(value) => setPriorityFilter(value as PriorityFilterValue)}
     >
-      <SelectTrigger className="hover:bg-muted-foreground/5">
+      <SelectTrigger
+        className="hover:bg-muted-foreground/5"
+        aria-label="Filter tasks by priority"
+      >
         <Filter size={14} className="text-muted-foreground" />
         <SelectValue placeholder="Filter" />
       </SelectTrigger>

@@ -5,6 +5,7 @@ import hasDuplicateTitle from "@/app/dashboard/utils/check-for-duplicates";
 import useAutoFocusOnError from "./use-auto-focus-on-error";
 import useErrorManagement from "./use-error-management";
 import useFormValues from "./use-form-values";
+import type { FormErrors } from "@/lib/types";
 
 const useForm = <
   T extends Record<string, unknown>,
@@ -17,6 +18,7 @@ const useForm = <
     errors,
     setSpecificError,
     setGenericError,
+    setValidationErrors,
     clearFieldError,
     clearGenericError,
   } = useErrorManagement<T>();
@@ -44,14 +46,20 @@ const useForm = <
     if (!success) {
       console.error("Validation error:", error);
 
-      const issue = error.issues[0];
-      const field = issue?.path[0];
+      const validationErrors: Record<string, string> = {};
 
-      if (typeof field === "string") {
-        setSpecificError(field as keyof T, issue.message);
-      } else {
-        setGenericError(issue?.message ?? "Please check the form fields.");
+      for (const issue of error.issues) {
+        const field = issue.path[0];
+        if (typeof field === "string") {
+          if (!validationErrors[field]) {
+            validationErrors[field] = issue.message;
+          }
+        } else if (!validationErrors.generic) {
+          validationErrors.generic = issue.message;
+        }
       }
+
+      setValidationErrors(validationErrors as FormErrors<T>);
       return { success: false };
     }
 

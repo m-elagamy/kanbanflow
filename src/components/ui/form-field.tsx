@@ -101,7 +101,6 @@ const FormField = ({
           defaultValue={defaultValue}
           name={name}
           onValueChange={onChange}
-          required={required}
         >
           <SelectTrigger
             id={name}

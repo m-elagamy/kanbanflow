@@ -33,7 +33,11 @@ const BoardHeader = ({ board }: BoardHeaderProps) => {
                 {board.title?.replace(/-/g, " ")}
               </h1>
               {board.description && (
-                <p className="text-muted-foreground mt-1 max-w-md truncate text-sm">
+                <p
+                  className="text-muted-foreground mt-1 max-w-md truncate text-sm"
+                  title={board.description}
+                  dir="auto"
+                >
                   {board.description}
                 </p>
               )}

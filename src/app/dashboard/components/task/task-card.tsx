@@ -57,7 +57,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
             <button
               type="button"
               disabled={isUpdating}
-              className="text-muted-foreground/50 hover:text-muted-foreground -ml-1 touch-none rounded p-0.5 active:cursor-grabbing"
+              className="text-muted-foreground/50 hover:text-muted-foreground focus-visible:ring-ring -ml-2 flex size-7 touch-none items-center justify-center rounded outline-none focus-visible:ring-2 active:cursor-grabbing"
               style={{ cursor: isDragging ? "grabbing" : "grab" }}
               aria-label="Drag to reorder task"
               {...attributes}
@@ -68,7 +68,7 @@ const TaskCard = ({ task, columnId, isDragging = false }: TaskCardProps) => {
             <Badge
               className={`${getBadgeStyle(task.priority)} flex h-5 shrink-0 items-center gap-1 px-2 py-0.5 text-[0.625rem] font-medium uppercase`}
             >
-              <PriorityIcon size={10} />
+              <PriorityIcon size={10} aria-hidden="true" />
               {task.priority}
             </Badge>
           </div>

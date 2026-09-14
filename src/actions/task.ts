@@ -41,13 +41,12 @@ export const createTaskAction = async (
   }
 
   const {
+    columnId,
     title,
     description,
     priority = "medium",
     dueDate,
   } = validatedData.data;
-
-  const columnId = formData.get("columnId") as string;
 
   const result = await createTask(
     columnId,
@@ -93,7 +92,8 @@ export async function updateTaskAction(
     };
   }
 
-  const { title, description, priority, dueDate } = validatedData.data;
+  const { columnId, title, description, priority, dueDate } =
+    validatedData.data;
   const taskId = formData.get("taskId") as string;
 
   const existingTask = await getTaskForRename(taskId);
@@ -143,7 +143,13 @@ export async function updateTaskAction(
   return {
     success: true,
     message: "Task updated successfully.",
-    fields: { title, description: description ?? "", priority, dueDate },
+    fields: {
+      columnId,
+      title,
+      description: description ?? "",
+      priority,
+      dueDate,
+    },
   };
 }
 

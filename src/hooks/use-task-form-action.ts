@@ -51,15 +51,6 @@ export function useTaskFormAction({
   );
 
   const handleFormAction = async (formData: FormData) => {
-    // Get columnId from formData if not provided as prop (when creating from board header)
-    const formColumnId = formData.get("columnId") as string;
-    const finalColumnId = columnId || formColumnId;
-
-    if (!finalColumnId) {
-      console.error("Column ID is required");
-      return;
-    }
-
     const { success, data: validatedData } = validateBeforeSubmit(
       formData,
       isEditMode,
@@ -69,6 +60,8 @@ export function useTaskFormAction({
     );
 
     if (!success || !validatedData) return;
+
+    const finalColumnId = columnId || validatedData.columnId;
 
     const {
       title,
