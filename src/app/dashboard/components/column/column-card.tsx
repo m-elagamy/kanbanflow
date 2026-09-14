@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   SortableContext,
   useSortable,
@@ -6,6 +7,8 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useShallow } from "zustand/react/shallow";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import { useTaskStore } from "@/stores/task";
 import { useTaskFilterStore } from "@/stores/task-filter";
@@ -13,12 +16,18 @@ import ColumnHeader from "./column-header";
 import NoTasksMessage from "../task/no-tasks-message";
 import NoMatchingTasksMessage from "../task/no-matching-tasks-message";
 import TaskCard from "../task/task-card";
+import { getColumnTasksPageAction } from "@/actions/task";
+import { TASKS_PAGE_SIZE } from "@/lib/constants";
 
 type ColumnCardProps = {
   column: SimplifiedColumn;
 };
 
+const EMPTY_TASK_IDS: string[] = [];
+
 const ColumnCard = ({ column }: ColumnCardProps) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   const {
     attributes,
     listeners,
@@ -38,17 +47,125 @@ const ColumnCard = ({ column }: ColumnCardProps) => {
     opacity: isDragging ? 0.4 : 1,
   };
 
-  const tasks = useTaskStore(
-    useShallow((state) => state.getColumnTasks(column.id)),
+  const {
+    taskIds: loadedTaskIds,
+    tasksById,
+    page,
+    replaceColumnTaskPage,
+    appendColumnTaskPage,
+    setColumnPageLoading,
+    setColumnPageError,
+  } = useTaskStore(
+    useShallow((state) => ({
+      taskIds: state.columnTaskIds[column.id] ?? EMPTY_TASK_IDS,
+      tasksById: state.tasks,
+      page: state.columnPages[column.id],
+      replaceColumnTaskPage: state.replaceColumnTaskPage,
+      appendColumnTaskPage: state.appendColumnTaskPage,
+      setColumnPageLoading: state.setColumnPageLoading,
+      setColumnPageError: state.setColumnPageError,
+    })),
+  );
+  const tasks = useMemo(
+    () => loadedTaskIds.map((id) => tasksById[id]).filter(Boolean),
+    [loadedTaskIds, tasksById],
   );
   const priorityFilter = useTaskFilterStore((state) => state.priorityFilter);
+  const activePriority = priorityFilter === "all" ? null : priorityFilter;
+  const isCurrentPage = page?.filter === priorityFilter;
+  const visibleTasks = isCurrentPage ? tasks : [];
+  const nextCursor = isCurrentPage ? page.nextCursor : null;
 
-  const visibleTasks =
-    priorityFilter === "all"
-      ? tasks
-      : tasks.filter((task) => task.priority === priorityFilter);
+  const loadFirstPage = useCallback(async () => {
+    setColumnPageLoading(column.id, true);
+    try {
+      const result = await getColumnTasksPageAction(
+        column.id,
+        null,
+        TASKS_PAGE_SIZE,
+        activePriority,
+      );
+      if (!result.success || !result.fields) {
+        replaceColumnTaskPage(column.id, [], null, priorityFilter);
+        setColumnPageError(column.id, result.message);
+        return;
+      }
+      replaceColumnTaskPage(
+        column.id,
+        result.fields.items,
+        result.fields.nextCursor,
+        priorityFilter,
+      );
+    } catch {
+      replaceColumnTaskPage(column.id, [], null, priorityFilter);
+      setColumnPageError(column.id, "Failed to load tasks.");
+    }
+  }, [
+    activePriority,
+    column.id,
+    priorityFilter,
+    replaceColumnTaskPage,
+    setColumnPageError,
+    setColumnPageLoading,
+  ]);
+
+  useEffect(() => {
+    if (isCurrentPage) return;
+    void loadFirstPage();
+  }, [isCurrentPage, loadFirstPage]);
+
+  const loadMore = useCallback(async () => {
+    if (!nextCursor || page?.isLoading) return;
+    setColumnPageLoading(column.id, true);
+
+    try {
+      const result = await getColumnTasksPageAction(
+        column.id,
+        nextCursor,
+        TASKS_PAGE_SIZE,
+        activePriority,
+      );
+      if (!result.success || !result.fields) {
+        setColumnPageError(column.id, result.message);
+        return;
+      }
+      appendColumnTaskPage(
+        column.id,
+        result.fields.items,
+        result.fields.nextCursor,
+      );
+    } catch {
+      setColumnPageError(column.id, "Failed to load more tasks.");
+    }
+  }, [
+    activePriority,
+    appendColumnTaskPage,
+    column.id,
+    nextCursor,
+    page?.isLoading,
+    setColumnPageError,
+    setColumnPageLoading,
+  ]);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !nextCursor || page?.isLoading || page?.error) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        void loadMore();
+      },
+      { root: scrollContainerRef.current, rootMargin: "120px" },
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [loadMore, nextCursor, page?.error, page?.isLoading]);
 
   const taskIds = visibleTasks.map((task) => task.id);
+  const isInitialLoading = !isCurrentPage || (page.isLoading && !tasks.length);
 
   return (
     <Card
@@ -67,12 +184,32 @@ const ColumnCard = ({ column }: ColumnCardProps) => {
 
       <ColumnHeader
         column={column}
-        tasksCount={tasks.length}
+        tasksCount={page?.totalCount ?? tasks.length}
         dragHandleProps={{ attributes, listeners }}
       />
 
-      <CardContent className="scrollbar-thumb-border flex-1 scrollbar-thin scrollbar-track-transparent space-y-3 overflow-y-auto p-4 pt-3">
-        {tasks.length === 0 ? (
+      <CardContent
+        ref={scrollContainerRef}
+        className="scrollbar-thumb-border flex-1 scrollbar-thin scrollbar-track-transparent space-y-3 overflow-y-auto p-4 pt-3"
+      >
+        {isInitialLoading ? (
+          <div className="space-y-3" aria-label="Loading tasks">
+            {[0, 1, 2].map((item) => (
+              <Skeleton key={item} className="h-24 w-full rounded-lg" />
+            ))}
+          </div>
+        ) : page.error && visibleTasks.length === 0 ? (
+          <div className="space-y-2 py-8 text-center text-sm">
+            <p className="text-muted-foreground">{page.error}</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => void loadFirstPage()}
+            >
+              Retry
+            </Button>
+          </div>
+        ) : page.totalCount === 0 ? (
           <NoTasksMessage columnId={column.id} />
         ) : visibleTasks.length === 0 ? (
           <NoMatchingTasksMessage />
@@ -85,6 +222,27 @@ const ColumnCard = ({ column }: ColumnCardProps) => {
               {visibleTasks.map((task) => (
                 <TaskCard key={task.id} task={task} columnId={column.id} />
               ))}
+              {nextCursor && !page.error && (
+                <div
+                  ref={loadMoreRef}
+                  className="text-muted-foreground flex min-h-8 items-center justify-center text-xs"
+                  aria-live="polite"
+                >
+                  {page.isLoading ? "Loading more…" : null}
+                </div>
+              )}
+              {nextCursor && page.error && (
+                <div className="space-y-1 text-center">
+                  <p className="text-destructive text-xs">{page.error}</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => void loadMore()}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              )}
             </div>
           </SortableContext>
         )}

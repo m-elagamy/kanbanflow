@@ -9,7 +9,11 @@ import type { SimplifiedBoard } from "@/lib/types/stores/board";
 import type { ClientTask } from "@/lib/types";
 
 type BoardWithColumnsAndTasks = SimplifiedBoard & {
-  columns: (SimplifiedColumn & { tasks: ClientTask[] })[];
+  columns: (SimplifiedColumn & {
+    tasks: ClientTask[];
+    totalCount: number;
+    nextCursor: string | null;
+  })[];
 };
 
 export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
@@ -21,7 +25,9 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
     })),
   );
   const setBoardColumns = useColumnStore((state) => state.setColumns);
-  const setTasks = useTaskStore((state) => state.setTasks);
+  const initializeTaskPages = useTaskStore(
+    (state) => state.initializeTaskPages,
+  );
   const setPriorityFilter = useTaskFilterStore(
     (state) => state.setPriorityFilter,
   );
@@ -43,16 +49,19 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
 
     setBoardColumns(initialBoard.id, columnsWithoutTasks);
 
-    const allTasks = columns.flatMap((column) => column.tasks);
-
-    if (allTasks.length > 0) {
-      setTasks(allTasks);
-    }
+    initializeTaskPages(
+      columns.map((column) => ({
+        columnId: column.id,
+        tasks: column.tasks,
+        totalCount: column.totalCount,
+        nextCursor: column.nextCursor,
+      })),
+    );
   }, [
     initialBoard,
     setBoards,
     setBoardColumns,
-    setTasks,
+    initializeTaskPages,
     setActiveBoardId,
     setPriorityFilter,
   ]);

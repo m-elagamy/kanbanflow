@@ -1,13 +1,12 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { subscribeWithSelector } from "zustand/middleware";
-import isEqual from "fast-deep-equal";
 import type { TaskState, TaskStore } from "@/lib/types/stores/task";
-import type { ClientTask } from "@/lib/types";
 
 const initialState: TaskState = {
   tasks: {},
   columnTaskIds: {},
+  columnPages: {},
   activeTaskId: null,
   previousState: null,
 };
@@ -20,6 +19,12 @@ const snapshotState = (state: TaskState) => ({
       [...taskIds],
     ]),
   ),
+  columnPages: Object.fromEntries(
+    Object.entries(state.columnPages).map(([columnId, page]) => [
+      columnId,
+      { ...page },
+    ]),
+  ),
 });
 
 export const useTaskStore = create<TaskStore>()(
@@ -27,34 +32,81 @@ export const useTaskStore = create<TaskStore>()(
     immer((set, get) => ({
       ...initialState,
 
-      setTasks: (tasks) => {
+      initializeTaskPages: (pages) => {
         set((state) => {
-          const newTasks = tasks.reduce(
-            (acc, task) => {
-              acc[task.id] = task;
-              return acc;
-            },
-            {} as Record<string, ClientTask>,
-          );
+          state.tasks = {};
+          state.columnTaskIds = {};
+          state.columnPages = {};
 
-          const newColumnTaskIds = tasks.reduce(
-            (acc, task) => {
-              if (!acc[task.columnId]) acc[task.columnId] = [];
-              acc[task.columnId].push(task.id);
-              return acc;
-            },
-            {} as Record<string, string[]>,
-          );
-
-          if (
-            isEqual(state.tasks, newTasks) &&
-            isEqual(state.columnTaskIds, newColumnTaskIds)
-          ) {
-            return;
+          for (const page of pages) {
+            state.columnTaskIds[page.columnId] = page.tasks.map(
+              (task) => task.id,
+            );
+            state.columnPages[page.columnId] = {
+              nextCursor: page.nextCursor,
+              totalCount: page.totalCount,
+              isLoading: false,
+              error: null,
+              filter: "all",
+            };
+            for (const task of page.tasks) {
+              state.tasks[task.id] = task;
+            }
           }
+        });
+      },
 
-          state.tasks = newTasks;
-          state.columnTaskIds = newColumnTaskIds;
+      replaceColumnTaskPage: (columnId, tasks, nextCursor, filter) => {
+        set((state) => {
+          state.columnTaskIds[columnId] = tasks.map((task) => task.id);
+          for (const task of tasks) state.tasks[task.id] = task;
+
+          const current = state.columnPages[columnId];
+          state.columnPages[columnId] = {
+            nextCursor,
+            totalCount: current?.totalCount ?? tasks.length,
+            isLoading: false,
+            error: null,
+            filter,
+          };
+        });
+      },
+
+      appendColumnTaskPage: (columnId, tasks, nextCursor) => {
+        set((state) => {
+          const ids = state.columnTaskIds[columnId] ?? [];
+          const existingIds = new Set(ids);
+          for (const task of tasks) {
+            state.tasks[task.id] = task;
+            if (!existingIds.has(task.id)) {
+              ids.push(task.id);
+              existingIds.add(task.id);
+            }
+          }
+          state.columnTaskIds[columnId] = ids;
+
+          if (state.columnPages[columnId]) {
+            state.columnPages[columnId].nextCursor = nextCursor;
+            state.columnPages[columnId].isLoading = false;
+            state.columnPages[columnId].error = null;
+          }
+        });
+      },
+
+      setColumnPageLoading: (columnId, isLoading) => {
+        set((state) => {
+          if (state.columnPages[columnId]) {
+            state.columnPages[columnId].isLoading = isLoading;
+          }
+        });
+      },
+
+      setColumnPageError: (columnId, error) => {
+        set((state) => {
+          if (state.columnPages[columnId]) {
+            state.columnPages[columnId].error = error;
+            state.columnPages[columnId].isLoading = false;
+          }
         });
       },
 
@@ -78,7 +130,15 @@ export const useTaskStore = create<TaskStore>()(
             state.columnTaskIds[columnId] = [];
           }
 
-          state.columnTaskIds[columnId].push(task.id);
+          const page = state.columnPages[columnId];
+          if (page) {
+            page.totalCount += 1;
+            if (page.filter === "all" || page.filter === task.priority) {
+              state.columnTaskIds[columnId].push(task.id);
+            }
+          } else {
+            state.columnTaskIds[columnId].push(task.id);
+          }
         });
       },
 
@@ -92,6 +152,14 @@ export const useTaskStore = create<TaskStore>()(
             ...state.tasks[taskId],
             ...updates,
           };
+
+          const task = state.tasks[taskId];
+          const page = state.columnPages[task.columnId];
+          if (page && page.filter !== "all" && page.filter !== task.priority) {
+            state.columnTaskIds[task.columnId] = (
+              state.columnTaskIds[task.columnId] ?? []
+            ).filter((id) => id !== taskId);
+          }
         });
       },
 
@@ -110,6 +178,9 @@ export const useTaskStore = create<TaskStore>()(
               delete state.columnTaskIds[columnId];
             }
           }
+
+          const page = state.columnPages[columnId];
+          if (page) page.totalCount = Math.max(0, page.totalCount - 1);
 
           if (state.activeTaskId === taskId) {
             state.activeTaskId = null;
@@ -168,6 +239,7 @@ export const useTaskStore = create<TaskStore>()(
         fromColumnId,
         toColumnId,
         targetTaskId,
+        includeInDestination = true,
       ) => {
         set((state) => {
           const fromColumn = state.columnTaskIds[fromColumnId];
@@ -186,13 +258,24 @@ export const useTaskStore = create<TaskStore>()(
 
           fromColumn.splice(fromIndex, 1);
 
-          let toIndex = targetTaskId
-            ? toColumn.indexOf(targetTaskId)
-            : toColumn.length;
+          if (includeInDestination) {
+            let toIndex = targetTaskId
+              ? toColumn.indexOf(targetTaskId)
+              : toColumn.length;
 
-          if (toIndex === -1) toIndex = toColumn.length;
+            if (toIndex === -1) toIndex = toColumn.length;
 
-          toColumn.splice(toIndex, 0, taskId);
+            toColumn.splice(toIndex, 0, taskId);
+          }
+
+          if (fromColumnId !== toColumnId) {
+            const sourcePage = state.columnPages[fromColumnId];
+            const targetPage = state.columnPages[toColumnId];
+            if (sourcePage) {
+              sourcePage.totalCount = Math.max(0, sourcePage.totalCount - 1);
+            }
+            if (targetPage) targetPage.totalCount += 1;
+          }
         });
       },
 
@@ -212,6 +295,7 @@ export const useTaskStore = create<TaskStore>()(
 
           state.tasks = state.previousState.tasks;
           state.columnTaskIds = state.previousState.columnTaskIds;
+          state.columnPages = state.previousState.columnPages;
           state.previousState = null;
         });
       },

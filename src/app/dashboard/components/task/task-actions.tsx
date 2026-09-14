@@ -95,7 +95,16 @@ export default function TaskActions({
         return;
       }
       if (useBoardStore.getState().activeBoardId === boardId) {
-        store.moveTaskBetweenColumns(task.id, columnId, destinationId);
+        const destinationHasMore = Boolean(
+          store.columnPages[destinationId]?.nextCursor,
+        );
+        store.moveTaskBetweenColumns(
+          task.id,
+          columnId,
+          destinationId,
+          undefined,
+          !destinationHasMore,
+        );
         if (result.fields) store.updateTask(task.id, result.fields);
       }
       toast.success(result.message);

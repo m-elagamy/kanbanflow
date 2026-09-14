@@ -250,21 +250,14 @@ export const getColumnTasksPage = withOwnership(
     columnId: string,
     cursor: string | null,
     limit: number,
+    priority: Priority | null,
   ): Promise<TaskPage> => {
-    if (cursor) {
-      const cursorTask = await db.task.findUnique({
-        where: { id: cursor },
-        select: { columnId: true },
-      });
-      if (cursorTask?.columnId !== columnId) {
-        throw new Error("Invalid task cursor.");
-      }
-    }
-
     const tasks = await db.task.findMany({
-      where: { columnId },
-      cursor: cursor ? { id: cursor } : undefined,
-      skip: cursor ? 1 : 0,
+      where: {
+        columnId,
+        ...(priority && { priority }),
+        ...(cursor && { order: { gt: cursor } }),
+      },
       take: limit + 1,
       orderBy: [{ order: "asc" }, { id: "asc" }],
       select: {
@@ -286,7 +279,7 @@ export const getColumnTasksPage = withOwnership(
         ...task,
         dueDate: task.dueDate?.toISOString() ?? null,
       })),
-      nextCursor: hasMore ? (page.at(-1)?.id ?? null) : null,
+      nextCursor: hasMore ? (page.at(-1)?.order ?? null) : null,
     };
   },
   resolveColumnOwnerId,

@@ -5,6 +5,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { withUserId, withOwnership } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
+import { TASKS_PAGE_SIZE } from "@/lib/constants";
 
 const resolveBoardOwnerId = async (boardId: string) => {
   const board = await db.board.findUnique({
@@ -223,8 +224,10 @@ const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
           id: true,
           status: true,
           order: true,
+          _count: { select: { tasks: true } },
           tasks: {
-            orderBy: { order: "asc" },
+            orderBy: [{ order: "asc" }, { id: "asc" }],
+            take: TASKS_PAGE_SIZE + 1,
             select: {
               id: true,
               title: true,
@@ -244,13 +247,24 @@ const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
 
   return {
     ...board,
-    columns: board.columns.map((column) => ({
-      ...column,
-      tasks: column.tasks.map((task) => ({
-        ...task,
-        dueDate: task.dueDate ? task.dueDate.toISOString() : null,
-      })),
-    })),
+    columns: board.columns.map((column) => {
+      const hasMore = column.tasks.length > TASKS_PAGE_SIZE;
+      const page = hasMore
+        ? column.tasks.slice(0, TASKS_PAGE_SIZE)
+        : column.tasks;
+
+      return {
+        id: column.id,
+        status: column.status,
+        order: column.order,
+        totalCount: column._count.tasks,
+        nextCursor: hasMore ? (page.at(-1)?.order ?? null) : null,
+        tasks: page.map((task) => ({
+          ...task,
+          dueDate: task.dueDate ? task.dueDate.toISOString() : null,
+        })),
+      };
+    }),
   };
 });
 

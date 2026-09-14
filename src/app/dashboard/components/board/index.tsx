@@ -11,7 +11,11 @@ import BoardContainer from "./board-container";
 
 type BoardLayoutProps = {
   initialBoard: SimplifiedBoard & {
-    columns: (SimplifiedColumn & { tasks: ClientTask[] })[];
+    columns: (SimplifiedColumn & {
+      tasks: ClientTask[];
+      totalCount: number;
+      nextCursor: string | null;
+    })[];
   };
 };
 
