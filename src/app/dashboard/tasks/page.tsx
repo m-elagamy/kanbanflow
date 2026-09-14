@@ -76,10 +76,18 @@ export default async function TasksPage({
   const totalPages = Math.max(1, Math.ceil(totalCount / TASKS_PAGE_SIZE));
   if (page > totalPages) redirect(tasksHref(filter, totalPages));
   const pageItems = paginationItems(page, totalPages);
+  const activeFilter = filters.find(({ value }) => value === filter)!;
 
   return (
-    <main className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-hidden px-4 py-6 sm:px-6 sm:py-8 md:px-10">
-      <div className="mb-6 flex shrink-0 items-start justify-between gap-3">
+    <main className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-hidden px-4 py-4 sm:px-6 sm:py-6 md:px-10 md:py-8">
+      <div className="mb-4 shrink-0 sm:mb-6">
+        <Link
+          href="/dashboard"
+          className="text-muted-foreground hover:text-foreground mb-3 inline-flex items-center gap-1 text-sm transition-colors"
+        >
+          <ChevronLeft className="size-4" aria-hidden="true" />
+          Back to dashboard
+        </Link>
         <div>
           <p className="text-muted-foreground text-xs font-semibold tracking-[0.25em] uppercase">
             Your workspace
@@ -89,24 +97,18 @@ export default async function TasksPage({
             Review work across all of your boards.
           </p>
         </div>
-        <Link
-          href="/dashboard"
-          className="text-muted-foreground hover:text-foreground shrink-0 text-sm transition-colors"
-        >
-          Back to dashboard
-        </Link>
       </div>
 
       <nav
         aria-label="Filter tasks"
-        className="mb-6 flex shrink-0 flex-wrap gap-2"
+        className="scrollbar-hide mb-4 flex shrink-0 gap-2 overflow-x-auto sm:mb-6"
       >
         {filters.map(({ value, label }) => (
           <Link
             key={value}
             href={tasksHref(value)}
             aria-current={filter === value ? "page" : undefined}
-            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${filter === value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:bg-muted"}`}
+            className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${filter === value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:bg-muted"}`}
           >
             {label}
           </Link>
@@ -115,7 +117,8 @@ export default async function TasksPage({
 
       <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
         <p className="text-sm font-medium">
-          {totalCount} {totalCount === 1 ? "task" : "tasks"}
+          {activeFilter.label} · {totalCount}{" "}
+          {totalCount === 1 ? "task" : "tasks"}
         </p>
         {totalPages > 1 && (
           <p className="text-muted-foreground text-xs">
@@ -128,7 +131,9 @@ export default async function TasksPage({
         <div className="border-border/80 bg-background/80 flex min-h-0 flex-1 flex-col items-center justify-center rounded-xl border px-4 py-12 text-center shadow-sm">
           <p className="text-sm font-medium">No matching tasks</p>
           <p className="text-muted-foreground mt-1 text-xs">
-            Try another attention filter.
+            {filter === "all"
+              ? "Create a task on one of your boards to see it here."
+              : "Try another filter or return when priorities change."}
           </p>
         </div>
       ) : (

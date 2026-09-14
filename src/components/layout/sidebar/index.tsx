@@ -13,12 +13,14 @@ import SidebarActions from "./sidebar-actions";
 import { UserProfile } from "./user-profile";
 import BoardsSection from "./boards-section";
 import BoardsSkeleton from "./boards-skeleton";
+import WorkspaceNavigation from "./workspace-navigation";
 
 export default function DashboardSidebar() {
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarTitle />
       <SidebarContent>
+        <WorkspaceNavigation />
         <SidebarGroup>
           <Suspense
             fallback={
@@ -27,7 +29,7 @@ export default function DashboardSidebar() {
                   <Skeleton className="h-3 w-14" />
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
-                  <BoardsSkeleton skeletonsLength={5} />
+                  <BoardsSkeleton skeletonsLength={6} />
                 </SidebarGroupContent>
               </>
             }

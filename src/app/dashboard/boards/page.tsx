@@ -35,7 +35,14 @@ export default async function BoardsPage({
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 md:px-10">
-      <div className="mb-6 flex items-start justify-between gap-3">
+      <div className="mb-6">
+        <Link
+          href="/dashboard"
+          className="text-muted-foreground hover:text-foreground mb-3 inline-flex items-center gap-1 text-sm transition-colors"
+        >
+          <ChevronLeft className="size-4" aria-hidden="true" />
+          Back to dashboard
+        </Link>
         <div>
           <p className="text-muted-foreground text-xs font-semibold tracking-[0.25em] uppercase">
             All boards
@@ -44,12 +51,6 @@ export default async function BoardsPage({
             {totalCount} {totalCount === 1 ? "board" : "boards"}
           </h1>
         </div>
-        <Link
-          href="/dashboard"
-          className="text-muted-foreground hover:text-foreground shrink-0 text-sm transition-colors"
-        >
-          Back to dashboard
-        </Link>
       </div>
 
       {boards.length === 0 ? (

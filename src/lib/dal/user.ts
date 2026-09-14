@@ -48,7 +48,9 @@ const toBoardWithStats = (board: BoardRowWithStats): BoardWithStats => ({
 });
 
 // Expects a server-authenticated profile; safe to call inside after().
-export async function prepareUserRecord(data: Omit<User, "hasCreatedBoardOnce">) {
+export async function prepareUserRecord(
+  data: Omit<User, "hasCreatedBoardOnce">,
+) {
   return db.user.upsert({
     where: { id: data.id },
     create: data,
@@ -91,19 +93,24 @@ export const getUserOnboardingState = withUserId(async (userId: string) => {
 export const getAllUserBoards = withUserId(async (userId: string) => {
   const getCachedBoards = unstable_cache(
     async (uid: string) => {
-      return db.board.findMany({
-        where: { userId: uid },
-        orderBy: { order: "asc" },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          description: true,
-        },
-        take: BOARDS_LIST_LIMIT,
-      });
+      const [boards, totalCount] = await Promise.all([
+        db.board.findMany({
+          where: { userId: uid },
+          orderBy: { order: "asc" },
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            description: true,
+          },
+          take: BOARDS_LIST_LIMIT,
+        }),
+        db.board.count({ where: { userId: uid } }),
+      ]);
+
+      return { boards, totalCount };
     },
-    [`boards-list`],
+    [`boards-list-v2`],
     { tags: [`user-boards-${userId}`] },
   );
 

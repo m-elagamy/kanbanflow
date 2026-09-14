@@ -3,12 +3,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function BoardsPageLoading() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 md:px-10">
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-6 space-y-2">
+        <Skeleton className="mb-3 h-4 w-32" />
         <div className="space-y-2">
           <Skeleton className="h-3 w-20" />
           <Skeleton className="h-8 w-32" />
         </div>
-        <Skeleton className="h-4 w-28" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -42,7 +42,7 @@ export async function insertUserAction(
 }
 
 export async function getAllUserBoardsAction(): Promise<
-  ServerActionResult<SimplifiedBoard[]>
+  ServerActionResult<{ boards: SimplifiedBoard[]; totalCount: number }>
 > {
   const result = await getAllUserBoards();
 
@@ -81,7 +81,9 @@ export async function getUserBoardsWithStatsAction(): Promise<
 
 export async function getUserBoardsPageAction(
   page: number,
-): Promise<ServerActionResult<{ boards: BoardWithStats[]; totalCount: number }>> {
+): Promise<
+  ServerActionResult<{ boards: BoardWithStats[]; totalCount: number }>
+> {
   const result = await getUserBoardsPage(page);
 
   if (!result.success || !result.data) {

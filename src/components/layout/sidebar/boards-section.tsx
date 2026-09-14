@@ -4,13 +4,15 @@ import SidebarLabel from "./sidebar-label";
 import { BoardsList } from "./boards-list";
 
 export default async function BoardsSection() {
-  const userBoards = (await getAllUserBoardsAction()).fields;
+  const result = (await getAllUserBoardsAction()).fields;
 
   return (
     <>
-      <SidebarLabel boardsCount={userBoards?.length} />
+      <SidebarLabel boardsCount={result?.totalCount} />
       <SidebarGroupContent>
-        {userBoards && <BoardsList boards={userBoards} />}
+        {result && (
+          <BoardsList boards={result.boards} totalCount={result.totalCount} />
+        )}
       </SidebarGroupContent>
     </>
   );
