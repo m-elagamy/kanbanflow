@@ -39,10 +39,11 @@ export function BoardsList({ boards }: BoardsListProps) {
 
       {boards.length === BOARDS_LIST_LIMIT && (
         <SidebarMenuSubButton
+          asChild
           className="text-muted-foreground group/link hover:text-foreground mt-2 w-fit cursor-pointer gap-[2px] hover:bg-transparent hover:underline hover:underline-offset-2"
           size="sm"
         >
-          <Link href="/boards" className="flex items-center gap-1">
+          <Link href="/dashboard/boards" className="flex items-center gap-1">
             View All
             <ChevronRight className="group-hover/link:text-foreground !size-[14px] transition-all group-hover/link:translate-x-[2px]" />
           </Link>
