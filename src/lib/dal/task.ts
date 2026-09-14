@@ -228,7 +228,7 @@ export const updateTaskPosition = withOwnership(
   resolveTaskOwnerId,
 );
 
-export const searchTasks = withUserId(
+export const getTasksPage = withUserId(
   async (
     userId: string,
     boardId: string | null,

@@ -22,7 +22,10 @@ import {
 } from "@/components/ui/command";
 import { EmptyState } from "@/components/ui/empty-state";
 import EmptyResultsIllustration from "@/components/ui/empty-results-illustration";
-import { searchTasksAction } from "@/actions/task";
+import {
+  getBoardTasksPageAction,
+  getWorkspaceTasksPageAction,
+} from "@/actions/task";
 import useBoardStore from "@/stores/board";
 import { useModalStore } from "@/stores/modal";
 import type { ClientTask, TaskSearchPage, TaskSearchResult } from "@/lib/types";
@@ -110,12 +113,19 @@ export function BoardSearch({
     const timeout = setTimeout(
       async () => {
         try {
-          const result = await searchTasksAction(
-            boardId,
-            normalizedQuery,
-            null,
-            TASKS_PAGE_SIZE,
-          );
+          const result =
+            scope === "workspace"
+              ? await getWorkspaceTasksPageAction(
+                  normalizedQuery,
+                  null,
+                  TASKS_PAGE_SIZE,
+                )
+              : await getBoardTasksPageAction(
+                  boardId!,
+                  normalizedQuery,
+                  null,
+                  TASKS_PAGE_SIZE,
+                );
           if (cancelled) return;
 
           setSearch({
@@ -144,7 +154,7 @@ export function BoardSearch({
       cancelled = true;
       clearTimeout(timeout);
     };
-  }, [boardId, canSearch, normalizedQuery, open, retry, searchKey]);
+  }, [boardId, canSearch, normalizedQuery, open, retry, scope, searchKey]);
 
   const handleOpenChange = useCallback((isOpen: boolean) => {
     setOpen(isOpen);
@@ -185,12 +195,19 @@ export function BoardSearch({
     setIsLoadingMore(true);
     const requestedKey = searchKey;
     try {
-      const result = await searchTasksAction(
-        boardId,
-        normalizedQuery,
-        nextCursor,
-        TASKS_PAGE_SIZE,
-      );
+      const result =
+        scope === "workspace"
+          ? await getWorkspaceTasksPageAction(
+              normalizedQuery,
+              nextCursor,
+              TASKS_PAGE_SIZE,
+            )
+          : await getBoardTasksPageAction(
+              boardId!,
+              normalizedQuery,
+              nextCursor,
+              TASKS_PAGE_SIZE,
+            );
       if (!result.success || !result.fields) {
         setSearch((current) =>
           current?.key === requestedKey
@@ -223,7 +240,15 @@ export function BoardSearch({
     } finally {
       setIsLoadingMore(false);
     }
-  }, [boardId, canSearch, isLoadingMore, nextCursor, normalizedQuery, searchKey]);
+  }, [
+    boardId,
+    canSearch,
+    isLoadingMore,
+    nextCursor,
+    normalizedQuery,
+    scope,
+    searchKey,
+  ]);
 
   useEffect(() => {
     const target = loadMoreRef.current;

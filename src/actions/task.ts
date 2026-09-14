@@ -21,7 +21,7 @@ import {
   deleteTask,
   getColumnTasksPage,
   getDashboardFocusTasks,
-  searchTasks,
+  getTasksPage,
   getTaskForRename,
   getTaskDetails,
   updateTaskPosition,
@@ -177,7 +177,7 @@ export async function deleteTaskAction(
   };
 }
 
-export async function searchTasksAction(
+async function loadTasksPage(
   boardId: string | null,
   query: string,
   cursor: string | null = null,
@@ -193,7 +193,7 @@ export async function searchTasksAction(
     return { success: false, message: "Invalid search parameters." };
   }
 
-  const result = await searchTasks(
+  const result = await getTasksPage(
     validated.data.boardId,
     validated.data.query,
     validated.data.cursor,
@@ -201,10 +201,27 @@ export async function searchTasksAction(
   );
 
   if (!result.success || !result.data) {
-    return { success: false, message: "Search failed. Please try again." };
+    return { success: false, message: "Failed to load tasks." };
   }
 
   return { success: true, message: "", fields: result.data };
+}
+
+export async function getBoardTasksPageAction(
+  boardId: string,
+  query: string,
+  cursor: string | null = null,
+  limit = TASKS_PAGE_SIZE,
+): Promise<ServerActionResult<TaskSearchPage>> {
+  return loadTasksPage(boardId, query, cursor, limit);
+}
+
+export async function getWorkspaceTasksPageAction(
+  query: string,
+  cursor: string | null = null,
+  limit = TASKS_PAGE_SIZE,
+): Promise<ServerActionResult<TaskSearchPage>> {
+  return loadTasksPage(null, query, cursor, limit);
 }
 
 export async function getDashboardFocusTasksAction(): Promise<
