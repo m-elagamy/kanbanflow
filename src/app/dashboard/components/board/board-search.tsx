@@ -25,6 +25,7 @@ import { searchTasksAction } from "@/actions/task";
 import useBoardStore from "@/stores/board";
 import { useModalStore } from "@/stores/modal";
 import type { ClientTask, TaskSearchPage, TaskSearchResult } from "@/lib/types";
+import { TASKS_PAGE_SIZE } from "@/lib/constants";
 import getBadgeStyle from "../../utils/get-badge-style";
 import TaskModal from "../task/task-modal";
 
@@ -103,7 +104,7 @@ export function BoardSearch() {
             activeBoardId,
             normalizedQuery,
             null,
-            20,
+            TASKS_PAGE_SIZE,
           );
           if (cancelled) return;
 
@@ -137,7 +138,10 @@ export function BoardSearch() {
 
   const handleOpenChange = useCallback((isOpen: boolean) => {
     setOpen(isOpen);
-    if (!isOpen) setQuery("");
+    if (!isOpen) {
+      setQuery("");
+      setSearch(null);
+    }
   }, []);
 
   const handleSelect = useCallback(
@@ -169,7 +173,7 @@ export function BoardSearch() {
         activeBoardId,
         normalizedQuery,
         nextCursor,
-        20,
+        TASKS_PAGE_SIZE,
       );
       if (!result.success || !result.fields) {
         setSearch((current) =>
@@ -207,7 +211,7 @@ export function BoardSearch() {
 
   useEffect(() => {
     const target = loadMoreRef.current;
-    if (!target || !nextCursor || isLoadingMore) return;
+    if (!target || !nextCursor || isLoadingMore || currentSearch?.error) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -223,7 +227,7 @@ export function BoardSearch() {
 
     observer.observe(target);
     return () => observer.disconnect();
-  }, [handleLoadMore, isLoadingMore, nextCursor]);
+  }, [currentSearch?.error, handleLoadMore, isLoadingMore, nextCursor]);
 
   const isPending = Boolean(open && activeBoardId && !currentSearch);
   const results = currentSearch?.items ?? [];
@@ -240,7 +244,7 @@ export function BoardSearch() {
           Search tasks...
         </span>
         <kbd className="bg-muted pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none md:inline-flex">
-          Ctrl/⌘ K
+          Ctrl/Cmd K
         </kbd>
       </Button>
 
@@ -254,7 +258,7 @@ export function BoardSearch() {
           </DialogHeader>
           <Command shouldFilter={false} className="rounded-none">
             <CommandInput
-              placeholder="Search by title or description…"
+              placeholder="Search by title or description..."
               className="pr-8"
               value={query}
               onValueChange={setQuery}
@@ -275,7 +279,7 @@ export function BoardSearch() {
                     </div>
                   ))}
                 </div>
-              ) : currentSearch?.error ? (
+              ) : currentSearch?.error && results.length === 0 ? (
                 <div
                   role="alert"
                   className="space-y-2 py-6 text-center text-sm"
@@ -339,7 +343,9 @@ export function BoardSearch() {
                 <CommandGroup
                   heading={
                     normalizedQuery
-                      ? `${results.length} result${results.length === 1 ? "" : "s"}`
+                      ? nextCursor
+                        ? "Search results"
+                        : `${results.length} result${results.length === 1 ? "" : "s"}`
                       : "Tasks on this board"
                   }
                 >
@@ -356,14 +362,33 @@ export function BoardSearch() {
                       className="text-muted-foreground flex min-h-8 items-center justify-center py-1 text-xs"
                       aria-live="polite"
                     >
-                      {isLoadingMore ? "Loading more…" : null}
+                      {isLoadingMore ? "Loading more..." : null}
+                    </div>
+                  )}
+                  {currentSearch?.error && (
+                    <div className="space-y-1 py-2 text-center">
+                      <p className="text-destructive text-xs">
+                        {currentSearch.error}
+                      </p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSearch((current) =>
+                            current ? { ...current, error: null } : current,
+                          );
+                          void handleLoadMore();
+                        }}
+                      >
+                        Retry
+                      </Button>
                     </div>
                   )}
                 </CommandGroup>
               )}
             </CommandList>
             <div className="text-muted-foreground flex items-center justify-end gap-4 border-t px-3 py-2 text-[0.625rem]">
-              <span>↑↓ Navigate</span>
+              <span>Up/Down Navigate</span>
               <span className="flex items-center gap-1">
                 <CornerDownLeft className="size-3" aria-hidden="true" /> Open
               </span>
