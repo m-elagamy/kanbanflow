@@ -1,37 +1,54 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, Plus, Search, X } from "lucide-react";
 import { getUserBoardsPageAction } from "@/actions/user";
+import { Button } from "@/components/ui/button";
+import EmptyBoardsIllustration from "@/components/ui/empty-boards-illustration";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
 import { BOARDS_PAGE_SIZE } from "@/lib/constants";
 import BoardCard from "../components/board/board-card";
+import BoardModal from "../components/board/board-modal";
+import Pagination from "../components/pagination";
 
-type SearchParams = Promise<{ page?: string }>;
+type SearchParams = Promise<{ page?: string; q?: string }>;
+
+function boardsHref(page: number, query = "") {
+  const params = new URLSearchParams();
+  if (query) params.set("q", query);
+  if (page > 1) params.set("page", String(page));
+  const search = params.toString();
+  return `/dashboard/boards${search ? `?${search}` : ""}`;
+}
 
 export default async function BoardsPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, q: queryParam = "" } = await searchParams;
+  const query = queryParam.trim().slice(0, 100);
   const page = Number(pageParam ?? "1");
+  if (query !== queryParam) redirect(boardsHref(1, query));
   if (
     !Number.isSafeInteger(page) ||
     page < 1 ||
     page > 2147483647 / BOARDS_PAGE_SIZE
   ) {
-    redirect("/dashboard/boards?page=1");
+    redirect(boardsHref(1, query));
   }
 
-  const result = await getUserBoardsPageAction(page);
+  const result = await getUserBoardsPageAction(page, query);
   if (!result.success || !result.fields) {
     throw new Error("Failed to load boards. Please try again.");
   }
   const { boards, totalCount } = result.fields;
   const totalPages = Math.max(1, Math.ceil(totalCount / BOARDS_PAGE_SIZE));
   if (page > totalPages) {
-    redirect(`/dashboard/boards?page=${totalPages}`);
+    redirect(boardsHref(totalPages, query));
   }
+  const hasQuery = query.length > 0;
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 md:px-10">
@@ -43,20 +60,113 @@ export default async function BoardsPage({
           <ChevronLeft className="size-4" aria-hidden="true" />
           Back to dashboard
         </Link>
-        <div>
-          <p className="text-muted-foreground text-xs font-semibold tracking-[0.25em] uppercase">
-            All boards
-          </p>
-          <h1 className="text-2xl font-semibold md:text-3xl">
-            {totalCount} {totalCount === 1 ? "board" : "boards"}
-          </h1>
+        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-muted-foreground text-xs font-semibold tracking-[0.25em] uppercase">
+              Your workspace
+            </p>
+            <h1 className="text-2xl font-semibold md:text-3xl">All boards</h1>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Choose a board to view and manage its tasks.
+            </p>
+          </div>
+          {(hasQuery || totalCount > 0) && (
+            <BoardModal
+              mode="create"
+              modalId="all-boards-new-board"
+              trigger={
+                <button>
+                  <Plus aria-hidden="true" />
+                  New board
+                </button>
+              }
+            />
+          )}
         </div>
       </div>
 
-      {boards.length === 0 ? (
-        <p className="text-muted-foreground py-16 text-center text-sm">
-          No boards yet.
+      <form action="/dashboard/boards" className="mb-6 flex items-center gap-2">
+        <div className="relative min-w-0 flex-1">
+          <label htmlFor="boards-search" className="sr-only">
+            Search boards
+          </label>
+          <Search
+            className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
+            aria-hidden="true"
+          />
+          <Input
+            id="boards-search"
+            name="q"
+            type="search"
+            defaultValue={query}
+            maxLength={100}
+            placeholder="Search boards by name or description"
+            className="pl-9"
+          />
+        </div>
+        <Button type="submit" variant="outline">
+          Search
+        </Button>
+        {hasQuery && (
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/dashboard/boards" aria-label="Clear board search">
+              <X aria-hidden="true" />
+            </Link>
+          </Button>
+        )}
+      </form>
+
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <p className="text-sm font-medium" aria-live="polite">
+          {hasQuery ? "Search results" : "All boards"} · {totalCount}{" "}
+          {totalCount === 1 ? "board" : "boards"}
         </p>
+        {totalPages > 1 && (
+          <p className="text-muted-foreground text-xs">
+            Page {page} of {totalPages}
+          </p>
+        )}
+      </div>
+
+      {boards.length === 0 ? (
+        <div className="border-border/80 bg-background/80 rounded-xl border shadow-sm">
+          {hasQuery ? (
+            <EmptyState
+              size="compact"
+              illustration={
+                <Search
+                  className="text-muted-foreground size-8"
+                  aria-hidden="true"
+                />
+              }
+              title="No matching boards"
+              description={`No boards match “${query}”. Try another name or description.`}
+              action={
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/dashboard/boards">Clear search</Link>
+                </Button>
+              }
+            />
+          ) : (
+            <EmptyState
+              illustration={<EmptyBoardsIllustration />}
+              title="No boards yet"
+              description="Create a board to start organizing your tasks and projects."
+              action={
+                <BoardModal
+                  mode="create"
+                  modalId="all-boards-empty-new-board"
+                  trigger={
+                    <button>
+                      <Plus aria-hidden="true" />
+                      Create a board
+                    </button>
+                  }
+                />
+              }
+            />
+          )}
+        </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {boards.map((board, index) => (
@@ -65,39 +175,12 @@ export default async function BoardsPage({
         </div>
       )}
 
-      {totalPages > 1 && (
-        <div className="mt-8 flex items-center justify-center gap-4">
-          <Link
-            href={`/dashboard/boards?page=${page - 1}`}
-            aria-disabled={page <= 1}
-            tabIndex={page <= 1 ? -1 : undefined}
-            className={`flex items-center gap-1 text-sm ${
-              page <= 1
-                ? "text-muted-foreground/40 pointer-events-none"
-                : "text-muted-foreground hover:text-foreground transition-colors"
-            }`}
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Previous
-          </Link>
-          <span className="text-muted-foreground text-xs">
-            Page {page} of {totalPages}
-          </span>
-          <Link
-            href={`/dashboard/boards?page=${page + 1}`}
-            aria-disabled={page >= totalPages}
-            tabIndex={page >= totalPages ? -1 : undefined}
-            className={`flex items-center gap-1 text-sm ${
-              page >= totalPages
-                ? "text-muted-foreground/40 pointer-events-none"
-                : "text-muted-foreground hover:text-foreground transition-colors"
-            }`}
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Link>
-        </div>
-      )}
+      <Pagination
+        ariaLabel="Boards pagination"
+        currentPage={page}
+        totalPages={totalPages}
+        hrefForPage={(pageNumber) => boardsHref(pageNumber, query)}
+      />
     </main>
   );
 }

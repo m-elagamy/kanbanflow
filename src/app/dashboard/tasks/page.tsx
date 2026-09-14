@@ -14,6 +14,7 @@ import { TASKS_PAGE_SIZE } from "@/lib/constants";
 import type { TasksFilter } from "@/lib/types";
 import TaskDueDate from "../components/task/task-due-date";
 import getBadgeStyle from "../utils/get-badge-style";
+import Pagination from "../components/pagination";
 
 type SearchParams = Promise<{ attention?: string; page?: string }>;
 
@@ -28,26 +29,6 @@ const filterValues = new Set<TasksFilter>(filters.map(({ value }) => value));
 function tasksHref(filter: TasksFilter, page = 1) {
   const attention = filter === "all" ? "" : `attention=${filter}&`;
   return `/dashboard/tasks?${attention}page=${page}`;
-}
-
-function paginationItems(currentPage: number, totalPages: number) {
-  const pages = new Set([
-    1,
-    totalPages,
-    currentPage - 1,
-    currentPage,
-    currentPage + 1,
-  ]);
-  const visiblePages = [...pages]
-    .filter((page) => page >= 1 && page <= totalPages)
-    .sort((a, b) => a - b);
-
-  return visiblePages.flatMap<number | string>((page, index) => {
-    const previousPage = visiblePages[index - 1];
-    return previousPage && page - previousPage > 1
-      ? [`ellipsis-${previousPage}`, page]
-      : [page];
-  });
 }
 
 export default async function TasksPage({
@@ -75,7 +56,6 @@ export default async function TasksPage({
   const { items, totalCount } = result.fields;
   const totalPages = Math.max(1, Math.ceil(totalCount / TASKS_PAGE_SIZE));
   if (page > totalPages) redirect(tasksHref(filter, totalPages));
-  const pageItems = paginationItems(page, totalPages);
   const activeFilter = filters.find(({ value }) => value === filter)!;
 
   return (
@@ -186,52 +166,12 @@ export default async function TasksPage({
         </div>
       )}
 
-      {totalPages > 1 && (
-        <nav
-          aria-label="Tasks pagination"
-          className="mt-5 flex shrink-0 items-center justify-center gap-1"
-        >
-          <Link
-            href={tasksHref(filter, page - 1)}
-            aria-disabled={page <= 1}
-            tabIndex={page <= 1 ? -1 : undefined}
-            className={`mr-1 flex size-8 items-center justify-center rounded-md ${page <= 1 ? "text-muted-foreground/40 pointer-events-none" : "text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"}`}
-            aria-label="Previous page"
-          >
-            <ChevronLeft className="size-4" />
-          </Link>
-          {pageItems.map((item) =>
-            typeof item === "number" ? (
-              <Link
-                key={item}
-                href={tasksHref(filter, item)}
-                aria-current={item === page ? "page" : undefined}
-                aria-label={`Page ${item}`}
-                className={`flex size-8 items-center justify-center rounded-md text-sm transition-colors ${item === page ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-              >
-                {item}
-              </Link>
-            ) : (
-              <span
-                key={item}
-                aria-hidden="true"
-                className="text-muted-foreground flex size-8 items-center justify-center text-sm"
-              >
-                …
-              </span>
-            ),
-          )}
-          <Link
-            href={tasksHref(filter, page + 1)}
-            aria-disabled={page >= totalPages}
-            tabIndex={page >= totalPages ? -1 : undefined}
-            className={`ml-1 flex size-8 items-center justify-center rounded-md ${page >= totalPages ? "text-muted-foreground/40 pointer-events-none" : "text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"}`}
-            aria-label="Next page"
-          >
-            <ChevronRight className="size-4" />
-          </Link>
-        </nav>
-      )}
+      <Pagination
+        ariaLabel="Tasks pagination"
+        currentPage={page}
+        totalPages={totalPages}
+        hrefForPage={(pageNumber) => tasksHref(filter, pageNumber)}
+      />
     </main>
   );
 }

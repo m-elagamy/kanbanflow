@@ -164,7 +164,32 @@ export const getUserBoardsPage = withUserId(
   async (
     userId: string,
     page: number,
+    query: string,
   ): Promise<{ boards: BoardWithStats[]; totalCount: number }> => {
+    const normalizedQuery = query.trim();
+
+    if (normalizedQuery) {
+      const where: Prisma.BoardWhereInput = {
+        userId,
+        OR: [
+          { title: { contains: normalizedQuery, mode: "insensitive" } },
+          { description: { contains: normalizedQuery, mode: "insensitive" } },
+        ],
+      };
+      const [boards, totalCount] = await Promise.all([
+        db.board.findMany({
+          where,
+          orderBy: { order: "asc" },
+          select: boardWithStatsSelect,
+          skip: (page - 1) * BOARDS_PAGE_SIZE,
+          take: BOARDS_PAGE_SIZE,
+        }),
+        db.board.count({ where }),
+      ]);
+
+      return { boards: boards.map(toBoardWithStats), totalCount };
+    }
+
     const getCachedPage = unstable_cache(
       async (uid: string, pageNumber: number) => {
         const [boards, totalCount] = await Promise.all([

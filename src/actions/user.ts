@@ -81,10 +81,11 @@ export async function getUserBoardsWithStatsAction(): Promise<
 
 export async function getUserBoardsPageAction(
   page: number,
+  query = "",
 ): Promise<
   ServerActionResult<{ boards: BoardWithStats[]; totalCount: number }>
 > {
-  const result = await getUserBoardsPage(page);
+  const result = await getUserBoardsPage(page, query);
 
   if (!result.success || !result.data) {
     return {
