@@ -60,7 +60,6 @@ export function useBoardRetry() {
       resetError();
       toast.success(`Board "${title}" is ready.`);
       router.push(`/dashboard/${slug}`);
-      router.refresh();
       return true;
     } catch (error) {
       setError(true, attempt);

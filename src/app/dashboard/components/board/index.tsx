@@ -29,7 +29,8 @@ export default function BoardLayout({
   linkedTask,
   focusedTaskId,
 }: BoardLayoutProps) {
-  const { activeBoard } = useInitializeBoardData(initialBoard);
+  const { activeBoard, hasInitializedTaskPages } =
+    useInitializeBoardData(initialBoard);
   const openModal = useModalStore((state) => state.openModal);
   const closeModal = useModalStore((state) => state.closeModal);
 
@@ -42,7 +43,7 @@ export default function BoardLayout({
     return () => closeModal("task", modalId);
   }, [activeBoard?.id, closeModal, linkedTask, openModal]);
 
-  if (!activeBoard?.id) {
+  if (!activeBoard?.id || !hasInitializedTaskPages) {
     return (
       <BoardSkeleton
         columnsNumber={initialBoard.columns.length + 1}

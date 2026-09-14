@@ -25,8 +25,11 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
     })),
   );
   const setBoardColumns = useColumnStore((state) => state.setColumns);
-  const initializeTaskPages = useTaskStore(
-    (state) => state.initializeTaskPages,
+  const { columnPages, initializeTaskPages } = useTaskStore(
+    useShallow((state) => ({
+      columnPages: state.columnPages,
+      initializeTaskPages: state.initializeTaskPages,
+    })),
   );
   const setPriorityFilter = useTaskFilterStore(
     (state) => state.setPriorityFilter,
@@ -67,6 +70,9 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
   ]);
 
   const activeBoard = boards[initialBoard?.id] ?? null;
+  const hasInitializedTaskPages = initialBoard.columns.every(
+    (column) => columnPages[column.id]?.filter === "all",
+  );
 
-  return { activeBoard };
+  return { activeBoard, hasInitializedTaskPages };
 }
