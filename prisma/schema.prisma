@@ -45,12 +45,12 @@ model Task {
   title       String
   description String?   @default("")
   priority    Priority  @default(medium)
-  order       Int
+  order       String    @db.Text
   columnId    String
   dueDate     DateTime?
   column      Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
 
-  @@index([columnId, order])
+  @@unique([columnId, order])
 }
 
 enum Priority {

@@ -83,13 +83,12 @@ export default function TaskActions({
     if (isMoving || isLoading) return;
     setIsLoading("task", "updating", true, task.id);
     const store = useTaskStore.getState();
-    const order = [...(store.columnTaskIds[destinationId] ?? []), task.id];
     try {
       const result = await updateTaskPositionAction(
         task.id,
-        columnId,
         destinationId,
-        order,
+        null,
+        null,
       );
       if (!result.success) {
         handleOnError(result.message, "Failed to move task");
@@ -97,10 +96,7 @@ export default function TaskActions({
       }
       if (useBoardStore.getState().activeBoardId === boardId) {
         store.moveTaskBetweenColumns(task.id, columnId, destinationId);
-        store.updateTask(task.id, {
-          columnId: destinationId,
-          order: order.length - 1,
-        });
+        if (result.fields) store.updateTask(task.id, result.fields);
       }
       toast.success(result.message);
     } catch (error) {

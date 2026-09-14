@@ -82,20 +82,26 @@ const useDndHandlers = () => {
     }
 
     if (isEnd) {
-      const updatedTaskOrder = columnTaskIds[toColumnId] || [];
+      const updatedTaskOrder =
+        useTaskStore.getState().columnTaskIds[toColumnId] || [];
       if (
         hasTaskPositionChanged(getTasksByColumnId(), fromColumnId, toColumnId)
       ) {
+        const taskIndex = updatedTaskOrder.indexOf(activeId);
+        const previousTaskId = updatedTaskOrder[taskIndex - 1] ?? null;
+        const nextTaskId = updatedTaskOrder[taskIndex + 1] ?? null;
         updateTaskPositionAction(
           activeId,
-          fromColumnId,
           toColumnId,
-          updatedTaskOrder,
+          previousTaskId,
+          nextTaskId,
         )
           .then((result) => {
             if (!result.success) {
               handleOnError(result.message, "Failed to move task");
               rollback();
+            } else if (result.fields) {
+              useTaskStore.getState().updateTask(activeId, result.fields);
             }
           })
           .catch((error) => {

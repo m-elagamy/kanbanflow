@@ -2,12 +2,14 @@
 
 import {
   taskSchema,
+  taskPageSchema,
   taskSearchSchema,
   taskPositionSchema,
   type TaskSchema,
 } from "@/schemas/task";
 import {
   ServerActionResult,
+  type TaskPage,
   type TaskSearchPage,
   type TaskSummary,
 } from "@/lib/types";
@@ -15,12 +17,14 @@ import {
   createTask,
   updateTask,
   deleteTask,
+  getColumnTasksPage,
   searchTasks,
   getTaskForRename,
   updateTaskPosition,
 } from "@/lib/dal/task";
 import handlePrismaError from "@/utils/prisma-error-handler";
 import { revalidateUserBoards } from "@/utils/revalidate-user-boards";
+import { TASKS_PAGE_SIZE } from "@/lib/constants";
 
 export const createTaskAction = async (
   formData: FormData,
@@ -70,6 +74,7 @@ export const createTaskAction = async (
       title,
       description: description ?? "",
       priority,
+      order: result.data.order,
     },
   };
 };
@@ -192,17 +197,39 @@ export async function searchTasksAction(
   return { success: true, message: "", fields: result.data };
 }
 
+export async function getColumnTasksPageAction(
+  columnId: string,
+  cursor: string | null = null,
+  limit = TASKS_PAGE_SIZE,
+): Promise<ServerActionResult<TaskPage>> {
+  const validated = taskPageSchema.safeParse({ columnId, cursor, limit });
+  if (!validated.success) {
+    return { success: false, message: "Invalid pagination parameters." };
+  }
+
+  const result = await getColumnTasksPage(
+    validated.data.columnId,
+    validated.data.cursor,
+    validated.data.limit,
+  );
+  if (!result.success || !result.data) {
+    return { success: false, message: "Failed to load tasks." };
+  }
+
+  return { success: true, message: "", fields: result.data };
+}
+
 export async function updateTaskPositionAction(
   taskId: string,
-  oldColumnId: string,
   newColumnId: string,
-  newTaskOrder: string[],
-): Promise<ServerActionResult<null>> {
+  previousTaskId: string | null,
+  nextTaskId: string | null,
+): Promise<ServerActionResult<{ columnId: string; order: string }>> {
   const validatedData = taskPositionSchema.safeParse({
     taskId,
-    oldColumnId,
     newColumnId,
-    newTaskOrder,
+    previousTaskId,
+    nextTaskId,
   });
 
   if (!validatedData.success) {
@@ -212,16 +239,20 @@ export async function updateTaskPositionAction(
   try {
     const result = await updateTaskPosition(
       validatedData.data.taskId,
-      validatedData.data.oldColumnId,
       validatedData.data.newColumnId,
-      validatedData.data.newTaskOrder,
+      validatedData.data.previousTaskId,
+      validatedData.data.nextTaskId,
     );
 
     if (!result.success) {
       return { success: false, message: "Failed to move task." };
     }
 
-    return { success: true, message: "Task moved successfully." };
+    return {
+      success: true,
+      message: "Task moved successfully.",
+      fields: result.data,
+    };
   } catch (error) {
     return { success: false, message: handlePrismaError(error) };
   }

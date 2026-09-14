@@ -63,7 +63,7 @@ export type BoardSummary = Pick<Board, "id" | "title" | "description" | "slug">;
 
 export type TaskSummary = Pick<
   Task,
-  "id" | "title" | "description" | "priority"
+  "id" | "title" | "description" | "priority" | "order"
 >;
 
 export type ClientTask = {
@@ -71,7 +71,7 @@ export type ClientTask = {
   title: string;
   description: string | null;
   priority: "low" | "medium" | "high";
-  order: number;
+  order: string;
   columnId: string;
   dueDate: string | null;
 };
@@ -82,5 +82,10 @@ export type TaskSearchResult = ClientTask & {
 
 export type TaskSearchPage = {
   items: TaskSearchResult[];
+  nextCursor: string | null;
+};
+
+export type TaskPage = {
+  items: ClientTask[];
   nextCursor: string | null;
 };

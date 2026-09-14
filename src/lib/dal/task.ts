@@ -1,7 +1,8 @@
 import { withOwnership, withUserId } from "@/utils/auth-wrappers";
 import db from "../db";
 import { Task, type Priority } from "@prisma/client";
-import type { TaskSearchPage } from "@/lib/types";
+import type { TaskPage, TaskSearchPage } from "@/lib/types";
+import { generateKeyBetween } from "fractional-indexing";
 
 const resolveColumnOwnerId = async (columnId: string) => {
   const column = await db.column.findUnique({
@@ -34,7 +35,7 @@ export const createTask = withOwnership(
       select: { order: true },
     });
 
-    const newOrder = highestOrderTask ? highestOrderTask.order + 1 : 0;
+    const newOrder = generateKeyBetween(highestOrderTask?.order ?? null, null);
 
     return db.task.create({
       data: {
@@ -92,47 +93,99 @@ export const updateTaskPosition = withOwnership(
   async (
     userId: string,
     taskId: string,
-    _oldColumnId: string,
     newColumnId: string,
-    newTaskOrder: string[],
-  ): Promise<void> => {
-    const newColumnOwnerId = await resolveColumnOwnerId(newColumnId);
-    if (newColumnOwnerId !== userId) {
+    previousTaskId: string | null,
+    nextTaskId: string | null,
+  ): Promise<Pick<Task, "columnId" | "order">> => {
+    if (previousTaskId === taskId || nextTaskId === taskId) {
+      throw new Error("Invalid task position.");
+    }
+
+    const [sourceTask, targetColumn] = await Promise.all([
+      db.task.findUnique({
+        where: { id: taskId },
+        select: { column: { select: { boardId: true } } },
+      }),
+      db.column.findUnique({
+        where: { id: newColumnId },
+        select: { boardId: true, board: { select: { userId: true } } },
+      }),
+    ]);
+
+    if (
+      !sourceTask ||
+      !targetColumn ||
+      targetColumn.board.userId !== userId ||
+      sourceTask.column.boardId !== targetColumn.boardId
+    ) {
       throw new Error("Target column not found.");
     }
 
-    await db.$transaction(async (tx) => {
-      const newColumnTasks = await tx.task.findMany({
-        where: { columnId: newColumnId },
+    return db.$transaction(async (tx) => {
+      const anchorIds = [previousTaskId, nextTaskId].filter(
+        (id): id is string => Boolean(id),
+      );
+      const anchors = await tx.task.findMany({
+        where: { id: { in: anchorIds }, columnId: newColumnId },
         select: { id: true, order: true },
       });
-
-      const currentOrders = new Map(
-        newColumnTasks.map((task) => [task.id, task.order]),
+      const anchorOrders = new Map(
+        anchors.map((task) => [task.id, task.order]),
       );
 
-      const tasksNeedingUpdate = newTaskOrder
-        .map((id, index) => ({
-          id,
-          newOrder: index,
-          currentOrder: currentOrders.get(id),
-        }))
-        .filter(({ newOrder, currentOrder }) => newOrder !== currentOrder);
+      if (
+        (previousTaskId && !anchorOrders.has(previousTaskId)) ||
+        (nextTaskId && !anchorOrders.has(nextTaskId))
+      ) {
+        throw new Error("Task position is out of date. Please try again.");
+      }
 
-      await tx.task.update({
+      let previousOrder = previousTaskId
+        ? anchorOrders.get(previousTaskId)!
+        : null;
+      const nextOrder = nextTaskId ? anchorOrders.get(nextTaskId)! : null;
+
+      if (!previousTaskId && !nextTaskId) {
+        const lastTask = await tx.task.findFirst({
+          where: { columnId: newColumnId, id: { not: taskId } },
+          orderBy: { order: "desc" },
+          select: { order: true },
+        });
+        previousOrder = lastTask?.order ?? null;
+      }
+
+      const followingTask =
+        previousOrder && !nextOrder
+          ? await tx.task.findFirst({
+              where: {
+                columnId: newColumnId,
+                id: { not: taskId },
+                order: { gt: previousOrder },
+              },
+              orderBy: { order: "asc" },
+              select: { order: true },
+            })
+          : null;
+      const resolvedNextOrder = nextOrder ?? followingTask?.order ?? null;
+
+      if (
+        previousOrder &&
+        resolvedNextOrder &&
+        previousOrder >= resolvedNextOrder
+      ) {
+        throw new Error("Invalid task position.");
+      }
+
+      const order = generateKeyBetween(previousOrder, resolvedNextOrder);
+
+      return tx.task.update({
         where: { id: taskId },
-        data: {
-          columnId: newColumnId,
-          order: newTaskOrder.indexOf(taskId),
+        data: { columnId: newColumnId, order },
+        select: {
+          columnId: true,
+          order: true,
         },
       });
-
-      for (const { id, newOrder } of tasksNeedingUpdate) {
-        await tx.task.update({
-          where: { id },
-          data: { order: newOrder },
-        });
-      }
     });
   },
   resolveTaskOwnerId,
@@ -189,4 +242,52 @@ export const searchTasks = withUserId(
       nextCursor: hasMore ? (page.at(-1)?.id ?? null) : null,
     };
   },
+);
+
+export const getColumnTasksPage = withOwnership(
+  async (
+    _userId: string,
+    columnId: string,
+    cursor: string | null,
+    limit: number,
+  ): Promise<TaskPage> => {
+    if (cursor) {
+      const cursorTask = await db.task.findUnique({
+        where: { id: cursor },
+        select: { columnId: true },
+      });
+      if (cursorTask?.columnId !== columnId) {
+        throw new Error("Invalid task cursor.");
+      }
+    }
+
+    const tasks = await db.task.findMany({
+      where: { columnId },
+      cursor: cursor ? { id: cursor } : undefined,
+      skip: cursor ? 1 : 0,
+      take: limit + 1,
+      orderBy: [{ order: "asc" }, { id: "asc" }],
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        priority: true,
+        order: true,
+        columnId: true,
+        dueDate: true,
+      },
+    });
+
+    const hasMore = tasks.length > limit;
+    const page = hasMore ? tasks.slice(0, limit) : tasks;
+
+    return {
+      items: page.map((task) => ({
+        ...task,
+        dueDate: task.dueDate?.toISOString() ?? null,
+      })),
+      nextCursor: hasMore ? (page.at(-1)?.id ?? null) : null,
+    };
+  },
+  resolveColumnOwnerId,
 );

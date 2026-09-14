@@ -25,11 +25,19 @@ export const taskSearchSchema = z.object({
 
 export type TaskSearchSchema = z.infer<typeof taskSearchSchema>;
 
+export const taskPageSchema = z.object({
+  columnId: z.string().min(1),
+  cursor: z.string().min(1).nullable(),
+  limit: z.number().int().min(1).max(50),
+});
+
+export type TaskPageSchema = z.infer<typeof taskPageSchema>;
+
 export const taskPositionSchema = z.object({
   taskId: z.string().min(1),
-  oldColumnId: z.string().min(1),
   newColumnId: z.string().min(1),
-  newTaskOrder: z.array(z.string().min(1)).min(1),
+  previousTaskId: z.string().min(1).nullable(),
+  nextTaskId: z.string().min(1).nullable(),
 });
 
 export type TaskPositionSchema = z.infer<typeof taskPositionSchema>;

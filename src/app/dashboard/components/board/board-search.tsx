@@ -103,7 +103,7 @@ export function BoardSearch() {
             activeBoardId,
             normalizedQuery,
             null,
-            normalizedQuery ? 20 : 5,
+            20,
           );
           if (cancelled) return;
 
@@ -207,7 +207,7 @@ export function BoardSearch() {
 
   useEffect(() => {
     const target = loadMoreRef.current;
-    if (!target || !normalizedQuery || !nextCursor || isLoadingMore) return;
+    if (!target || !nextCursor || isLoadingMore) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -223,7 +223,7 @@ export function BoardSearch() {
 
     observer.observe(target);
     return () => observer.disconnect();
-  }, [handleLoadMore, isLoadingMore, nextCursor, normalizedQuery]);
+  }, [handleLoadMore, isLoadingMore, nextCursor]);
 
   const isPending = Boolean(open && activeBoardId && !currentSearch);
   const results = currentSearch?.items ?? [];
@@ -350,7 +350,7 @@ export function BoardSearch() {
                       onSelect={handleSelect}
                     />
                   ))}
-                  {normalizedQuery && nextCursor && (
+                  {nextCursor && (
                     <div
                       ref={loadMoreRef}
                       className="text-muted-foreground flex min-h-8 items-center justify-center py-1 text-xs"

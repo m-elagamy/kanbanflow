@@ -83,7 +83,7 @@ export function useTaskFormAction({
       title,
       description,
       priority,
-      order: 0,
+      order: "",
       dueDate,
     };
 
@@ -112,6 +112,9 @@ export function useTaskFormAction({
           handleOnError(res.message, "Failed to create task");
           rollback();
         } else {
+          if (res.fields.order) {
+            updateTask(optimisticTask.id, { order: res.fields.order });
+          }
           updateTaskId(optimisticTask.id, res.fields.id);
           toast.success(res.message);
         }

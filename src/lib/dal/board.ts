@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { currentUser } from "@clerk/nextjs/server";
 import { withUserId, withOwnership } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
+import { generateKeyBetween } from "fractional-indexing";
 
 const resolveBoardOwnerId = async (boardId: string) => {
   const board = await db.board.findUnique({
@@ -56,15 +57,18 @@ const seedSampleTasks = async (
   columns: Column[],
 ) => {
   const orderedColumns = [...columns].sort((a, b) => a.order - b.order);
-  const orderByColumn = new Map<string, number>();
+  const lastOrderByColumn = new Map<string, string>();
 
   const data = SAMPLE_TASKS.map((task, index) => {
     const column =
       orderedColumns[
         Math.floor((index * orderedColumns.length) / SAMPLE_TASKS.length)
       ];
-    const order = orderByColumn.get(column.id) ?? 0;
-    orderByColumn.set(column.id, order + 1);
+    const order = generateKeyBetween(
+      lastOrderByColumn.get(column.id) ?? null,
+      null,
+    );
+    lastOrderByColumn.set(column.id, order);
 
     return {
       title: task.title,
@@ -106,7 +110,9 @@ const createBoard = withUserId(
       const profile = await currentUser();
       const email = profile?.primaryEmailAddress?.emailAddress;
       if (!profile || profile.id !== userId || !email) {
-        throw new Error("Unable to prepare your account. Please sign in again.");
+        throw new Error(
+          "Unable to prepare your account. Please sign in again.",
+        );
       }
       account = { id: userId, name: profile.fullName, email };
     }
