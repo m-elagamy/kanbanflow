@@ -21,6 +21,7 @@ const boardWithStatsSelect = {
   _count: { select: { columns: true } },
   columns: {
     select: {
+      status: true,
       _count: { select: { tasks: true } },
     },
   },
@@ -37,7 +38,13 @@ const toBoardWithStats = (board: BoardRowWithStats): BoardWithStats => ({
   description: board.description,
   _count: {
     columns: board._count.columns,
-    tasks: board.columns.reduce((sum, col) => sum + col._count.tasks, 0),
+    openTasks: board.columns.reduce(
+      (sum, col) =>
+        TERMINAL_COLUMN_STATUSES.includes(col.status)
+          ? sum
+          : sum + col._count.tasks,
+      0,
+    ),
   },
 });
 
@@ -150,7 +157,7 @@ export const getUserBoardsWithStats = withUserId(async (userId: string) => {
 
       return boards.map(toBoardWithStats);
     },
-    [`dashboard-boards-with-stats-v2`],
+    [`dashboard-boards-with-stats-v3`],
     { tags: [`user-boards-${userId}`] },
   );
 
@@ -177,7 +184,7 @@ export const getUserBoardsPage = withUserId(
 
         return { boards: boards.map(toBoardWithStats), totalCount };
       },
-      [`boards-with-stats-paginated`],
+      [`boards-with-stats-paginated-v2`],
       { tags: [`user-boards-${userId}`] },
     );
 

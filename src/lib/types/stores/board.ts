@@ -6,7 +6,7 @@ export type SimplifiedBoard = Omit<Board, "userId" | "order">;
 export type BoardWithStats = SimplifiedBoard & {
   _count: {
     columns: number;
-    tasks: number;
+    openTasks: number;
   };
 };
 

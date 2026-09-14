@@ -84,7 +84,7 @@ export default function BoardsGrid({
                   Your boards
                 </h2>
                 <p className="text-muted-foreground text-sm">
-                  Open a board to continue where you left off.
+                  Choose a board to view and manage its tasks.
                 </p>
               </div>
               {hasMoreBoards && (

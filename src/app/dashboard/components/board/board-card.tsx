@@ -54,7 +54,8 @@ export default function BoardCard({ board, index }: BoardCardProps) {
           </span>
           <span className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs">
             <ListTodo className="h-3.5 w-3.5" aria-hidden="true" />
-            {board._count.tasks} {board._count.tasks === 1 ? "task" : "tasks"}
+            {board._count.openTasks} open{" "}
+            {board._count.openTasks === 1 ? "task" : "tasks"}
           </span>
         </div>
       </Link>
