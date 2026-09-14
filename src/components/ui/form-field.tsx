@@ -101,8 +101,14 @@ const FormField = ({
           defaultValue={defaultValue}
           name={name}
           onValueChange={onChange}
+          required={required}
         >
-          <SelectTrigger id={name} className="w-full">
+          <SelectTrigger
+            id={name}
+            className="w-full"
+            aria-invalid={!!error}
+            aria-describedby={error ? `${name}-error` : undefined}
+          >
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
           <SelectContent>

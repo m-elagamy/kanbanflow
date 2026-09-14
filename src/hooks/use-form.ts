@@ -44,7 +44,14 @@ const useForm = <
     if (!success) {
       console.error("Validation error:", error);
 
-      setSpecificError("title", error.issues[0]?.message);
+      const issue = error.issues[0];
+      const field = issue?.path[0];
+
+      if (typeof field === "string") {
+        setSpecificError(field as keyof T, issue.message);
+      } else {
+        setGenericError(issue?.message ?? "Please check the form fields.");
+      }
       return { success: false };
     }
 

@@ -58,7 +58,7 @@ const GenericForm = ({
 
       <FormActions
         isPending={isLoading}
-        isFormInvalid={hasErrors(errors) ?? !hasAvailableStatuses}
+        isFormInvalid={hasErrors(errors) || hasAvailableStatuses === false}
         formMode={formMode}
       />
     </Form>

@@ -79,6 +79,7 @@ const TaskForm = ({
       errors={errors}
       formMode={formMode}
       isLoading={isLoading}
+      hasAvailableStatuses={!showColumnSelector || columnOptions.length > 0}
     >
       <FormField
         type="text"
@@ -120,6 +121,7 @@ const TaskForm = ({
         label="What needs to be done?"
         defaultValue={taskFormData.description}
         onChange={(value) => handleOnChange("description", value)}
+        error={errors?.description}
         placeholder="e.g., Design a modern, mobile-friendly layout for the homepage"
       />
 
@@ -129,6 +131,7 @@ const TaskForm = ({
         label="How urgent is this?"
         defaultValue={taskFormData.priority}
         onChange={(value) => handleOnChange("priority", value)}
+        error={errors?.priority}
         options={taskPriorities}
         helperText="Select a priority level to manage urgency."
         placeholder="Select a Priority"
