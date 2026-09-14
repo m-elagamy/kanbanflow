@@ -46,6 +46,8 @@ type TaskActions = {
   setColumnPageLoading: (columnId: string, isLoading: boolean) => void;
   setColumnPageError: (columnId: string, error: string | null) => void;
   setActiveTask: (task: ClientTask | null) => void;
+  captureSnapshot: () => void;
+  clearSnapshot: () => void;
 
   addTask: (columnId: string, task: ClientTask) => void;
   updateTask: (taskId: string, updates: Partial<ClientTask>) => void;

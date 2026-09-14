@@ -22,6 +22,8 @@ const useDndHandlers = () => {
     setActiveTask,
     getColumnTasks,
     rollback,
+    captureSnapshot,
+    clearSnapshot,
   } = useTaskStore(
     useShallow((state) => ({
       columnTaskIds: state.columnTaskIds,
@@ -32,6 +34,8 @@ const useDndHandlers = () => {
       setActiveTask: state.setActiveTask,
       getColumnTasks: state.getColumnTasks,
       rollback: state.rollback,
+      captureSnapshot: state.captureSnapshot,
+      clearSnapshot: state.clearSnapshot,
     })),
   );
 
@@ -54,6 +58,7 @@ const useDndHandlers = () => {
 
     if (!task) return;
 
+    captureSnapshot();
     setActiveTask(task);
     captureInitialPosition(getTasksByColumnId());
   };
@@ -73,11 +78,15 @@ const useDndHandlers = () => {
     if (fromColumnId === toColumnId && isOverTask) {
       reorderTaskWithinColumn(fromColumnId, activeId, overId);
     } else {
+      const destinationHasMore = Boolean(
+        useTaskStore.getState().columnPages[toColumnId]?.nextCursor,
+      );
       moveTaskBetweenColumns(
         activeId,
         fromColumnId,
         toColumnId,
         isOverTask ? overId : undefined,
+        isOverTask || !destinationHasMore,
       );
     }
 
@@ -100,14 +109,22 @@ const useDndHandlers = () => {
             if (!result.success) {
               handleOnError(result.message, "Failed to move task");
               rollback();
-            } else if (result.fields) {
-              useTaskStore.getState().updateTask(activeId, result.fields);
+            } else {
+              if (result.fields) {
+                useTaskStore.getState().updateTask(activeId, result.fields);
+              }
+              useTaskStore.getState().clearSnapshot();
             }
           })
           .catch((error) => {
             handleOnError(error, "Failed to move task");
             rollback();
           });
+      }
+      if (
+        !hasTaskPositionChanged(getTasksByColumnId(), fromColumnId, toColumnId)
+      ) {
+        clearSnapshot();
       }
       setActiveTask(null);
     }
@@ -133,7 +150,10 @@ const useDndHandlers = () => {
     handleDragStart,
     handleDragOver,
     handleDragEnd,
-    handleDragCancel: () => setActiveTask(null),
+    handleDragCancel: () => {
+      rollback();
+      setActiveTask(null);
+    },
   };
 };
 

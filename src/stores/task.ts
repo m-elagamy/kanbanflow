@@ -120,9 +120,23 @@ export const useTaskStore = create<TaskStore>()(
         });
       },
 
-      addTask: (columnId, task) => {
+      captureSnapshot: () => {
         set((state) => {
           state.previousState = snapshotState(state);
+        });
+      },
+
+      clearSnapshot: () => {
+        set((state) => {
+          state.previousState = null;
+        });
+      },
+
+      addTask: (columnId, task) => {
+        set((state) => {
+          if (!state.activeTaskId) {
+            state.previousState = snapshotState(state);
+          }
 
           state.tasks[task.id] = task;
 
@@ -133,7 +147,10 @@ export const useTaskStore = create<TaskStore>()(
           const page = state.columnPages[columnId];
           if (page) {
             page.totalCount += 1;
-            if (page.filter === "all" || page.filter === task.priority) {
+            const matchesFilter =
+              page.filter === "all" || page.filter === task.priority;
+
+            if (matchesFilter && !page.nextCursor) {
               state.columnTaskIds[columnId].push(task.id);
             }
           } else {
@@ -146,7 +163,9 @@ export const useTaskStore = create<TaskStore>()(
         set((state) => {
           if (!state.tasks[taskId]) return;
 
-          state.previousState = snapshotState(state);
+          if (!state.activeTaskId) {
+            state.previousState = snapshotState(state);
+          }
 
           state.tasks[taskId] = {
             ...state.tasks[taskId],
@@ -227,7 +246,9 @@ export const useTaskStore = create<TaskStore>()(
 
           if (oldIndex === -1 || newIndex === -1) return;
 
-          state.previousState = snapshotState(state);
+          if (!state.activeTaskId) {
+            state.previousState = snapshotState(state);
+          }
 
           column.splice(oldIndex, 1);
           column.splice(newIndex, 0, activeTaskId);
@@ -245,7 +266,9 @@ export const useTaskStore = create<TaskStore>()(
           const fromColumn = state.columnTaskIds[fromColumnId];
           if (!fromColumn) return;
 
-          state.previousState = snapshotState(state);
+          if (!state.activeTaskId) {
+            state.previousState = snapshotState(state);
+          }
 
           if (!state.columnTaskIds[toColumnId]) {
             state.columnTaskIds[toColumnId] = [];

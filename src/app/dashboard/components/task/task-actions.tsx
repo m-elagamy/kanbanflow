@@ -42,10 +42,11 @@ export default function TaskActions({
   const destinations = Object.values(columns ?? {})
     .filter((column) => column.id !== columnId)
     .sort((a, b) => a.order - b.order);
-  const { deleteTask, rollback } = useTaskStore(
+  const { deleteTask, rollback, clearSnapshot } = useTaskStore(
     useShallow((state) => ({
       deleteTask: state.deleteTask,
       rollback: state.rollback,
+      clearSnapshot: state.clearSnapshot,
     })),
   );
   const { isLoading, isMoving, setIsLoading } = useLoadingStore(
@@ -106,6 +107,7 @@ export default function TaskActions({
           !destinationHasMore,
         );
         if (result.fields) store.updateTask(task.id, result.fields);
+        clearSnapshot();
       }
       toast.success(result.message);
     } catch (error) {
