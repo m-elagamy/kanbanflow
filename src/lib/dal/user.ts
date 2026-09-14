@@ -205,7 +205,7 @@ export const getUserBoardsPage = withUserId(
 
         return { boards: boards.map(toBoardWithStats), totalCount };
       },
-      [`boards-with-stats-paginated-v2`],
+      [`boards-with-stats-paginated-v3`],
       { tags: [`user-boards-${userId}`] },
     );
 

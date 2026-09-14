@@ -15,10 +15,7 @@ export default function BoardsPageLoading() {
         </div>
       </div>
 
-      <div className="mb-6 flex gap-2">
-        <Skeleton className="h-9 flex-1 rounded-md" />
-        <Skeleton className="h-9 w-20 rounded-md" />
-      </div>
+      <Skeleton className="mb-6 h-9 w-full rounded-md" />
 
       <Skeleton className="mb-4 h-4 w-24" />
 

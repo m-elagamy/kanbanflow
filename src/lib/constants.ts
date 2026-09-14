@@ -4,7 +4,7 @@ export const BOARDS_LIST_LIMIT = 12;
 
 export const DASHBOARD_BOARDS_LIMIT = 6;
 
-export const BOARDS_PAGE_SIZE = 24;
+export const BOARDS_PAGE_SIZE = 12;
 
 export const TASKS_PAGE_SIZE = 20;
 

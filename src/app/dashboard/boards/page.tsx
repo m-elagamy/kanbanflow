@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ChevronLeft, Plus, Search, X } from "lucide-react";
+import { ChevronLeft, Plus, Search } from "lucide-react";
 import { getUserBoardsPageAction } from "@/actions/user";
 import { Button } from "@/components/ui/button";
 import EmptyBoardsIllustration from "@/components/ui/empty-boards-illustration";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Input } from "@/components/ui/input";
 import { BOARDS_PAGE_SIZE } from "@/lib/constants";
 import BoardCard from "../components/board/board-card";
 import BoardModal from "../components/board/board-modal";
 import Pagination from "../components/pagination";
+import BoardsSearch from "./boards-search";
 
 type SearchParams = Promise<{ page?: string; q?: string }>;
 
@@ -85,36 +85,7 @@ export default async function BoardsPage({
         </div>
       </div>
 
-      <form action="/dashboard/boards" className="mb-6 flex items-center gap-2">
-        <div className="relative min-w-0 flex-1">
-          <label htmlFor="boards-search" className="sr-only">
-            Search boards
-          </label>
-          <Search
-            className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
-            aria-hidden="true"
-          />
-          <Input
-            id="boards-search"
-            name="q"
-            type="search"
-            defaultValue={query}
-            maxLength={100}
-            placeholder="Search boards by name or description"
-            className="pl-9"
-          />
-        </div>
-        <Button type="submit" variant="outline">
-          Search
-        </Button>
-        {hasQuery && (
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/dashboard/boards" aria-label="Clear board search">
-              <X aria-hidden="true" />
-            </Link>
-          </Button>
-        )}
-      </form>
+      <BoardsSearch initialQuery={query} />
 
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="text-sm font-medium" aria-live="polite">
