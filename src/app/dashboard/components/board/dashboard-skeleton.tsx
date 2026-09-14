@@ -32,8 +32,8 @@ export default function DashboardSkeleton() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
-        {Array.from({ length: 3 }).map((_, index) => (
+      <div className="grid grid-cols-2 gap-2 sm:gap-4">
+        {Array.from({ length: 2 }).map((_, index) => (
           <div
             key={index}
             className="border-border/60 bg-background/80 flex flex-col gap-3 rounded-xl border p-3 sm:flex-row sm:items-center sm:p-4"

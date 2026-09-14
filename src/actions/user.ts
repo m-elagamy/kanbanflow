@@ -102,7 +102,6 @@ export async function getDashboardStatsAction(): Promise<
   ServerActionResult<{
     totalBoards: number;
     openTasks: number;
-    needsAttentionTasks: number;
   }>
 > {
   const result = await getDashboardStats();

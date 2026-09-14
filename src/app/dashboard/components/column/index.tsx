@@ -9,9 +9,10 @@ import ColumnCard from "./column-card";
 import ColumnModal from "./column-modal";
 type ColumnsWrapperProps = {
   boardId: string;
+  focusedTaskId?: string;
 };
 
-const ColumnsWrapper = ({ boardId }: ColumnsWrapperProps) => {
+const ColumnsWrapper = ({ boardId, focusedTaskId }: ColumnsWrapperProps) => {
   const columns = useColumnStore(
     useShallow((state) => state.columnsByBoard[boardId] || {}),
   );
@@ -34,7 +35,11 @@ const ColumnsWrapper = ({ boardId }: ColumnsWrapperProps) => {
           strategy={horizontalListSortingStrategy}
         >
           {sortedColumns?.map((column) => (
-            <ColumnCard key={column.id} column={column} />
+            <ColumnCard
+              key={column.id}
+              column={column}
+              focusedTaskId={focusedTaskId}
+            />
           ))}
         </SortableContext>
       </DndProvider>

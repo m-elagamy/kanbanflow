@@ -21,20 +21,26 @@ type BoardLayoutProps = {
     })[];
   };
   linkedTask?: ClientTask | null;
+  focusedTaskId?: string;
 };
 
 export default function BoardLayout({
   initialBoard,
   linkedTask,
+  focusedTaskId,
 }: BoardLayoutProps) {
   const { activeBoard } = useInitializeBoardData(initialBoard);
   const openModal = useModalStore((state) => state.openModal);
+  const closeModal = useModalStore((state) => state.closeModal);
 
   useEffect(() => {
-    if (linkedTask) {
-      openModal("task", `linked-task-${linkedTask.id}`);
-    }
-  }, [linkedTask, openModal]);
+    if (!linkedTask || !activeBoard?.id) return;
+
+    const modalId = `linked-task-${linkedTask.id}`;
+    openModal("task", modalId);
+
+    return () => closeModal("task", modalId);
+  }, [activeBoard?.id, closeModal, linkedTask, openModal]);
 
   if (!activeBoard?.id) {
     return (
@@ -50,7 +56,10 @@ export default function BoardLayout({
   return (
     <BoardContainer>
       <BoardHeader board={activeBoard} />
-      <ColumnsWrapper boardId={activeBoard.id} />
+      <ColumnsWrapper
+        boardId={activeBoard.id}
+        focusedTaskId={focusedTaskId}
+      />
       {linkedTask && (
         <TaskModal
           mode="edit"

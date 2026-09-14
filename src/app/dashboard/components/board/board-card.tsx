@@ -21,7 +21,7 @@ export default function BoardCard({ board, index }: BoardCardProps) {
         ease: "easeOut",
         delay: Math.min(index * 0.06, 0.3),
       }}
-      className="border-border/60 bg-background/80 hover:border-primary/30 hover:bg-background group relative overflow-hidden rounded-xl border shadow-sm backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+      className="border-border/80 bg-background/80 hover:border-primary/30 hover:bg-background group relative overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="via-primary/50 pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
       <Link
@@ -43,7 +43,7 @@ export default function BoardCard({ board, index }: BoardCardProps) {
 
         <p className="text-muted-foreground line-clamp-2 min-h-10 text-sm leading-6">
           {board.description?.trim() ||
-            "No description provided."}
+            "Open this board to view and manage its tasks."}
         </p>
 
         <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">

@@ -1,17 +1,11 @@
 "use client";
 
 import { motion } from "motion/react";
-import {
-  LayoutDashboard,
-  ListTodo,
-  AlertCircle,
-  CircleCheck,
-} from "lucide-react";
+import { LayoutDashboard, ListTodo } from "lucide-react";
 
 interface DashboardStatsProps {
   totalBoards: number;
   openTasks: number;
-  needsAttentionTasks: number;
 }
 
 const stats = (values: DashboardStatsProps) => [
@@ -31,26 +25,13 @@ const stats = (values: DashboardStatsProps) => [
     color: "text-blue-500",
     bg: "bg-blue-500/10",
   },
-  {
-    label: "Needs Attention",
-    value: values.needsAttentionTasks,
-    description:
-      values.needsAttentionTasks > 0 ? "Overdue or high priority" : "Nothing urgent",
-    icon: values.needsAttentionTasks > 0 ? AlertCircle : CircleCheck,
-    color:
-      values.needsAttentionTasks > 0 ? "text-destructive" : "text-emerald-600",
-    bg:
-      values.needsAttentionTasks > 0
-        ? "bg-destructive/10"
-        : "bg-emerald-500/10",
-  },
 ];
 
 export default function DashboardStats(props: DashboardStatsProps) {
   return (
     <section
       aria-label="Workspace overview"
-      className="grid grid-cols-3 gap-2 sm:gap-4"
+      className="grid grid-cols-2 gap-2 sm:gap-4"
     >
       {stats(props).map(
         ({ label, value, description, icon: Icon, color, bg }, index) => (
@@ -63,7 +44,7 @@ export default function DashboardStats(props: DashboardStatsProps) {
               ease: "easeOut",
               delay: 0.1 + index * 0.07,
             }}
-            className="border-border/60 bg-background/80 flex min-w-0 flex-col gap-3 rounded-xl border p-3 shadow-sm backdrop-blur sm:flex-row sm:items-center sm:p-4"
+            className="border-border/80 bg-background/80 flex min-w-0 flex-col gap-3 rounded-xl border p-3 shadow-sm sm:flex-row sm:items-center sm:p-4"
           >
             <span
               className={`${bg} ${color} flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10`}
@@ -77,7 +58,7 @@ export default function DashboardStats(props: DashboardStatsProps) {
               <p className="text-muted-foreground mt-1 text-xs leading-tight sm:text-sm">
                 {label}
               </p>
-              <p className="text-muted-foreground/70 mt-1 hidden text-xs md:block">
+              <p className="text-muted-foreground mt-1 hidden text-xs md:block">
                 {description}
               </p>
             </div>

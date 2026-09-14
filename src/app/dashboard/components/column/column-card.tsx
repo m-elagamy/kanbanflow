@@ -21,11 +21,12 @@ import { TASKS_PAGE_SIZE } from "@/lib/constants";
 
 type ColumnCardProps = {
   column: SimplifiedColumn;
+  focusedTaskId?: string;
 };
 
 const EMPTY_TASK_IDS: string[] = [];
 
-const ColumnCard = ({ column }: ColumnCardProps) => {
+const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const {
@@ -220,7 +221,12 @@ const ColumnCard = ({ column }: ColumnCardProps) => {
           >
             <div className="space-y-3">
               {visibleTasks.map((task) => (
-                <TaskCard key={task.id} task={task} columnId={column.id} />
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  columnId={column.id}
+                  isFocused={task.id === focusedTaskId}
+                />
               ))}
               {nextCursor && !page.error && (
                 <div

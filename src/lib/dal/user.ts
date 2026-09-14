@@ -11,7 +11,6 @@ import {
   TERMINAL_COLUMN_STATUSES,
 } from "../constants";
 import type { BoardWithStats } from "../types/stores/board";
-import { getStartOfTodayUtc } from "@/utils/due-date-boundary";
 
 const boardWithStatsSelect = {
   id: true,
@@ -114,8 +113,7 @@ export const getAllUserBoards = withUserId(async (userId: string) => {
 export const getDashboardStats = withUserId(async (userId: string) => {
   const getCachedStats = unstable_cache(
     async (uid: string) => {
-      const startOfToday = getStartOfTodayUtc();
-      const [totalBoards, openTasks, needsAttentionTasks] = await Promise.all([
+      const [totalBoards, openTasks] = await Promise.all([
         db.board.count({ where: { userId: uid } }),
         db.task.count({
           where: {
@@ -125,21 +123,12 @@ export const getDashboardStats = withUserId(async (userId: string) => {
             },
           },
         }),
-        db.task.count({
-          where: {
-            OR: [{ priority: "high" }, { dueDate: { lt: startOfToday } }],
-            column: {
-              status: { notIn: TERMINAL_COLUMN_STATUSES },
-              board: { userId: uid },
-            },
-          },
-        }),
       ]);
 
-      return { totalBoards, openTasks, needsAttentionTasks };
+      return { totalBoards, openTasks };
     },
-    [`dashboard-stats-v3`],
-    { tags: [`user-boards-${userId}`], revalidate: 60 },
+    [`dashboard-stats-v4`],
+    { tags: [`user-boards-${userId}`] },
   );
 
   return getCachedStats(userId);

@@ -18,7 +18,6 @@ interface BoardsGridProps {
   stats: {
     totalBoards: number;
     openTasks: number;
-    needsAttentionTasks: number;
   };
   focusTasks: DashboardFocusTask[] | null;
 }
@@ -39,20 +38,26 @@ export default function BoardsGrid({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
-        className="flex items-end justify-between gap-4"
+        className="flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between"
       >
-        <div>
-          <p className="text-muted-foreground mb-1 text-xs font-semibold tracking-[0.25em] uppercase">
-            Your workspace
-          </p>
-          <h1 className="text-gradient text-2xl font-semibold md:text-3xl">
-            {greeting}
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {hasBoards
-              ? "Search your tasks or choose a board to keep things moving."
-              : "Your workspace is ready when you are."}
-          </p>
+        <div className="relative">
+          <div
+            aria-hidden="true"
+            className="dashboard-welcome-glow pointer-events-none absolute -inset-x-12 -inset-y-8"
+          />
+          <div className="relative">
+            <p className="text-muted-foreground mb-1 text-xs font-semibold tracking-[0.25em] uppercase">
+              Your workspace
+            </p>
+            <h1 className="text-gradient text-2xl font-semibold md:text-3xl">
+              {greeting}
+            </h1>
+            <p className="text-muted-foreground mt-1 text-sm">
+              {hasBoards
+                ? "Search your tasks or choose a board to keep things moving."
+                : "Your workspace is ready when you are."}
+            </p>
+          </div>
         </div>
 
         {hasBoards && (
@@ -90,7 +95,7 @@ export default function BoardsGrid({
               {hasMoreBoards && (
                 <Link
                   href="/dashboard/boards"
-                  className="text-muted-foreground hover:text-foreground group flex items-center gap-1 text-sm transition-colors"
+                  className="text-foreground/70 hover:text-foreground group flex items-center gap-1 text-sm transition-colors"
                 >
                   View all {stats.totalBoards}
                   <ChevronRight

@@ -7,7 +7,7 @@ import OptimisticBoardLayout from "../components/board/optimistic-board";
 import { getTaskDetailsAction } from "@/actions/task";
 
 type Params = Promise<{ board: string }>;
-type SearchParams = Promise<{ new?: string; task?: string }>;
+type SearchParams = Promise<{ new?: string; task?: string; focus?: string }>;
 
 export default async function BoardPage({
   params,
@@ -17,11 +17,18 @@ export default async function BoardPage({
   searchParams: SearchParams;
 }) {
   const boardSlug = decodeURIComponent((await params).board);
-  const { new: isFreshlyCreated, task: taskId } = await searchParams;
+  const {
+    new: isFreshlyCreated,
+    task: taskId,
+    focus: focusedTaskId,
+  } = await searchParams;
+  const requestedTaskId = taskId ?? focusedTaskId;
 
   const [{ board: currentBoard }, taskResult] = await Promise.all([
     getBoardBySlugAction(boardSlug),
-    taskId ? getTaskDetailsAction(taskId) : Promise.resolve(null),
+    requestedTaskId
+      ? getTaskDetailsAction(requestedTaskId)
+      : Promise.resolve(null),
   ]);
 
   if (!currentBoard) {
@@ -29,12 +36,38 @@ export default async function BoardPage({
     notFound();
   }
 
-  const linkedTask =
+  const requestedTask =
     taskResult?.success && taskResult.fields?.boardSlug === boardSlug
       ? taskResult.fields
       : null;
+  const linkedTask = taskId ? requestedTask : null;
+  const focusedTask = focusedTaskId ? requestedTask : null;
 
-  return <BoardLayout initialBoard={currentBoard} linkedTask={linkedTask} />;
+  const initialBoard = focusedTask
+    ? {
+        ...currentBoard,
+        columns: currentBoard.columns.map((column) =>
+          column.id === focusedTask.columnId &&
+          !column.tasks.some((task) => task.id === focusedTask.id)
+            ? {
+                ...column,
+                tasks: [...column.tasks, focusedTask].sort((a, b) =>
+                  a.order.localeCompare(b.order),
+                ),
+              }
+            : column,
+        ),
+      }
+    : currentBoard;
+
+  return (
+    <BoardLayout
+      key={`${boardSlug}:${taskId ?? focusedTaskId ?? ""}`}
+      initialBoard={initialBoard}
+      linkedTask={linkedTask}
+      focusedTaskId={focusedTask?.id}
+    />
+  );
 }
 
 export async function generateMetadata({

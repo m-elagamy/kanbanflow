@@ -5,12 +5,13 @@ import {
   CircleCheck,
   CircleAlert,
   ChevronRight,
-  TriangleAlert,
+  Flag,
 } from "lucide-react";
 import type { DashboardFocusTask } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import TaskDueDate from "../task/task-due-date";
 import getBadgeStyle from "../../utils/get-badge-style";
+import { DASHBOARD_FOCUS_LIMIT } from "@/lib/constants";
 
 export default function DashboardFocus({
   tasks,
@@ -31,12 +32,12 @@ export default function DashboardFocus({
       {tasks === null ? (
         <div
           role="status"
-          className="border-border/60 bg-background/80 text-muted-foreground rounded-xl border p-4 text-sm shadow-sm"
+          className="border-border/80 bg-background/80 text-muted-foreground rounded-xl border p-4 text-sm shadow-sm"
         >
           Attention items are temporarily unavailable.
         </div>
       ) : tasks.length === 0 ? (
-        <div className="border-border/60 bg-background/80 flex items-center gap-3 rounded-xl border p-4 shadow-sm">
+        <div className="border-border/80 bg-background/80 flex items-center gap-3 rounded-xl border p-4 shadow-sm">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
             <CircleCheck className="size-5" aria-hidden="true" />
           </span>
@@ -48,15 +49,15 @@ export default function DashboardFocus({
           </div>
         </div>
       ) : (
-        <div className="border-border/60 bg-background/80 divide-border/60 overflow-hidden rounded-xl border shadow-sm">
+        <div className="border-border/80 bg-background/80 divide-border/80 overflow-hidden rounded-xl border shadow-sm">
           {tasks.map((task) => {
             const isOverdue = task.attentionReason === "overdue";
-            const AttentionIcon = isOverdue ? CircleAlert : TriangleAlert;
+            const AttentionIcon = isOverdue ? CircleAlert : Flag;
 
             return (
               <Link
                 key={task.id}
-                href={`/dashboard/${task.board.slug}?task=${task.id}`}
+                href={`/dashboard/${task.board.slug}?focus=${task.id}`}
                 className="hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-ring group flex min-w-0 items-center gap-3 border-b p-3 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-4"
                 aria-label={`Open ${task.title} in ${task.board.title}`}
               >
@@ -86,6 +87,12 @@ export default function DashboardFocus({
               </Link>
             );
           })}
+          {tasks.length === DASHBOARD_FOCUS_LIMIT && (
+            <p className="text-muted-foreground bg-muted/20 px-4 py-2.5 text-center text-xs">
+              Showing up to {DASHBOARD_FOCUS_LIMIT} overdue or high-priority
+              tasks.
+            </p>
+          )}
         </div>
       )}
     </section>

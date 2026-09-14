@@ -19,6 +19,15 @@ export function BoardsList({ boards }: BoardsListProps) {
     return decodeURIComponent(pathname) === `/dashboard/${boardSlug}`;
   };
 
+  const collapsedBoards = new Set(boards.slice(0, 6).map((board) => board.id));
+  const activeBoard = boards.find((board) => isActiveBoard(board.slug));
+
+  if (activeBoard && !collapsedBoards.has(activeBoard.id)) {
+    const lastVisibleBoard = boards[5];
+    if (lastVisibleBoard) collapsedBoards.delete(lastVisibleBoard.id);
+    collapsedBoards.add(activeBoard.id);
+  }
+
   return (
     <>
       <SidebarMenu>
@@ -32,6 +41,7 @@ export function BoardsList({ boards }: BoardsListProps) {
               board={board}
               isActive={isActive}
               href={href}
+              hideWhenCollapsed={!collapsedBoards.has(board.id)}
             />
           );
         })}

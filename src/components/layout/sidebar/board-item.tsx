@@ -8,11 +8,20 @@ type BoardItemProps = {
   board: SimplifiedBoard;
   isActive: boolean;
   href: string;
+  hideWhenCollapsed?: boolean;
 };
 
-export default function BoardItem({ board, isActive, href }: BoardItemProps) {
+export default function BoardItem({
+  board,
+  isActive,
+  href,
+  hideWhenCollapsed,
+}: BoardItemProps) {
   return (
-    <SidebarMenuItem key={board.id} className="flex">
+    <SidebarMenuItem
+      key={board.id}
+      className={`flex ${hideWhenCollapsed ? "group-data-[collapsible=icon]:hidden" : ""}`}
+    >
       <SidebarMenuButton tooltip={board.title} isActive={isActive} asChild>
         <Link href={href} aria-label={`Go to board ${board.title}`}>
           <Clipboard size={24} />

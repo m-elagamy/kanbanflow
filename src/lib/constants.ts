@@ -8,6 +8,8 @@ export const BOARDS_PAGE_SIZE = 24;
 
 export const TASKS_PAGE_SIZE = 20;
 
+export const DASHBOARD_FOCUS_LIMIT = 5;
+
 export const TERMINAL_COLUMN_STATUSES = ["Done", "Deployed", "Cancelled"];
 
 export const RESERVED_BOARD_SLUGS = ["boards"];

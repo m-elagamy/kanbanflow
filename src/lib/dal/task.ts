@@ -7,7 +7,10 @@ import type {
   TaskSearchPage,
 } from "@/lib/types";
 import { generateKeyBetween } from "fractional-indexing";
-import { TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
+import {
+  DASHBOARD_FOCUS_LIMIT,
+  TERMINAL_COLUMN_STATUSES,
+} from "@/lib/constants";
 import { getStartOfTodayUtc } from "@/utils/due-date-boundary";
 
 const resolveColumnOwnerId = async (columnId: string) => {
@@ -296,7 +299,6 @@ export const getTasksPage = withUserId(
 
 export const getDashboardFocusTasks = withUserId(
   async (userId: string): Promise<DashboardFocusTask[]> => {
-    const limit = 5;
     const startOfToday = getStartOfTodayUtc();
     const overdue = await db.task.findMany({
       where: {
@@ -307,7 +309,7 @@ export const getDashboardFocusTasks = withUserId(
         },
       },
       orderBy: [{ dueDate: "asc" }, { id: "asc" }],
-      take: limit,
+      take: DASHBOARD_FOCUS_LIMIT,
       select: {
         id: true,
         title: true,
@@ -325,7 +327,7 @@ export const getDashboardFocusTasks = withUserId(
       },
     });
 
-    const remaining = limit - overdue.length;
+    const remaining = DASHBOARD_FOCUS_LIMIT - overdue.length;
     const highPriority = remaining
       ? await db.task.findMany({
           where: {
