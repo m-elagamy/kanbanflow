@@ -17,8 +17,8 @@ interface BoardsGridProps {
   userName: string | null;
   stats: {
     totalBoards: number;
-    totalTasks: number;
-    highPriorityTasks: number;
+    openTasks: number;
+    needsAttentionTasks: number;
   };
   focusTasks: DashboardFocusTask[] | null;
 }

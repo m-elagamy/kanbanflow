@@ -106,14 +106,19 @@ export const getAllUserBoards = withUserId(async (userId: string) => {
 export const getDashboardStats = withUserId(async (userId: string) => {
   const getCachedStats = unstable_cache(
     async (uid: string) => {
-      const [totalBoards, totalTasks, highPriorityTasks] = await Promise.all([
+      const [totalBoards, openTasks, needsAttentionTasks] = await Promise.all([
         db.board.count({ where: { userId: uid } }),
         db.task.count({
-          where: { column: { board: { userId: uid } } },
+          where: {
+            column: {
+              status: { notIn: TERMINAL_COLUMN_STATUSES },
+              board: { userId: uid },
+            },
+          },
         }),
         db.task.count({
           where: {
-            priority: "high",
+            OR: [{ priority: "high" }, { dueDate: { lt: new Date() } }],
             column: {
               status: { notIn: TERMINAL_COLUMN_STATUSES },
               board: { userId: uid },
@@ -122,10 +127,10 @@ export const getDashboardStats = withUserId(async (userId: string) => {
         }),
       ]);
 
-      return { totalBoards, totalTasks, highPriorityTasks };
+      return { totalBoards, openTasks, needsAttentionTasks };
     },
-    [`dashboard-stats-v2`],
-    { tags: [`user-boards-${userId}`] },
+    [`dashboard-stats-v3`],
+    { tags: [`user-boards-${userId}`], revalidate: 60 },
   );
 
   return getCachedStats(userId);

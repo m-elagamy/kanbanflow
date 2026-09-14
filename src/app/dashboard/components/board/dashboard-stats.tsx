@@ -10,37 +10,37 @@ import {
 
 interface DashboardStatsProps {
   totalBoards: number;
-  totalTasks: number;
-  highPriorityTasks: number;
+  openTasks: number;
+  needsAttentionTasks: number;
 }
 
 const stats = (values: DashboardStatsProps) => [
   {
-    label: "Total Boards",
+    label: "Boards",
     value: values.totalBoards,
-    description: "In your workspace",
+    description: "Across your workspace",
     icon: LayoutDashboard,
     color: "text-primary",
     bg: "bg-primary/10",
   },
   {
-    label: "Total Tasks",
-    value: values.totalTasks,
-    description: "Across all boards",
+    label: "Open Tasks",
+    value: values.openTasks,
+    description: "Still in progress",
     icon: ListTodo,
     color: "text-blue-500",
     bg: "bg-blue-500/10",
   },
   {
-    label: "High Priority",
-    value: values.highPriorityTasks,
+    label: "Needs Attention",
+    value: values.needsAttentionTasks,
     description:
-      values.highPriorityTasks > 0 ? "Ready for attention" : "Nothing urgent",
-    icon: values.highPriorityTasks > 0 ? AlertCircle : CircleCheck,
+      values.needsAttentionTasks > 0 ? "Overdue or high priority" : "Nothing urgent",
+    icon: values.needsAttentionTasks > 0 ? AlertCircle : CircleCheck,
     color:
-      values.highPriorityTasks > 0 ? "text-destructive" : "text-emerald-600",
+      values.needsAttentionTasks > 0 ? "text-destructive" : "text-emerald-600",
     bg:
-      values.highPriorityTasks > 0
+      values.needsAttentionTasks > 0
         ? "bg-destructive/10"
         : "bg-emerald-500/10",
   },
