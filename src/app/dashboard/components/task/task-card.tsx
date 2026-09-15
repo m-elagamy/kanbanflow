@@ -6,7 +6,6 @@ import { CSS } from "@dnd-kit/utilities";
 import type { ClientTask } from "@/lib/types";
 import TaskActions from "./task-actions";
 import useLoadingStore from "@/stores/loading";
-import { useTaskFilterStore } from "@/stores/task-filter";
 import { useModalStore } from "@/stores/modal";
 import PriorityIndicator from "./priority-indicator";
 import TaskColumnAge from "./task-column-age";
@@ -31,7 +30,6 @@ const TaskCard = ({
   const isUpdating = useLoadingStore((state) =>
     state.isLoading("task", "updating"),
   );
-  const priorityFilter = useTaskFilterStore((state) => state.priorityFilter);
   const openModal = useModalStore((state) => state.openModal);
   const modalId = `task-${task.id}`;
 
@@ -49,7 +47,7 @@ const TaskCard = ({
     isOver,
   } = useSortable({
     id: task.id,
-    disabled: isUpdating || priorityFilter !== "all",
+    disabled: isUpdating,
     data: { type: "task" },
   });
 
@@ -110,14 +108,12 @@ const TaskCard = ({
             <h3
               className={`text-foreground flex-1 text-sm font-medium ${task.title.length > 30 ? "line-clamp-2" : ""}`}
               title={task.title}
-              dir="auto"
             >
               {task.title}
             </h3>
             {task.description && (
               <p
                 className="text-muted-foreground line-clamp-2 text-xs"
-                dir="auto"
               >
                 {task.description}
               </p>

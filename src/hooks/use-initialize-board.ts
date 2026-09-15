@@ -71,7 +71,7 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
 
   const activeBoard = boards[initialBoard?.id] ?? null;
   const hasInitializedTaskPages = initialBoard.columns.every(
-    (column) => columnPages[column.id]?.filter === "all",
+    (column) => Boolean(columnPages[column.id]),
   );
 
   return { activeBoard, hasInitializedTaskPages };
