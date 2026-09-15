@@ -28,8 +28,7 @@ const Shortcut = ({ label, keys }: { label: string; keys: string }) => (
 export default function KeyboardShortcuts() {
   const pathname = usePathname();
   const isDashboardHome = pathname === "/dashboard";
-  const isBoardPage =
-    pathname.startsWith("/dashboard/") && pathname !== "/dashboard/boards";
+  const isBoardPage = /^\/dashboard\/(?!boards$|tasks$)[^/]+$/.test(pathname);
   const hasTaskSearch = isDashboardHome || isBoardPage;
 
   return (

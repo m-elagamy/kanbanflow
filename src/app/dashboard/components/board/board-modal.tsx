@@ -16,7 +16,7 @@ import { getModalDescription } from "../../utils/get-modal-description";
 type BoardModalProps = {
   mode: FormMode;
   modalId: string;
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   board?: BoardSummary;
   variant?: ButtonVariants;
   defaultTemplate?: Templates;
@@ -40,15 +40,17 @@ const BoardModal = ({
 
   return (
     <>
-      <Button
-        variant={variant}
-        className="group"
-        onClick={handleOnClick}
-        size={size}
-        asChild
-      >
-        {trigger}
-      </Button>
+      {trigger && (
+        <Button
+          variant={variant}
+          className="group"
+          onClick={handleOnClick}
+          size={size}
+          asChild
+        >
+          {trigger}
+        </Button>
+      )}
       <Modal
         title={getModalTitle("board", mode)}
         description={getModalDescription("board", mode)}

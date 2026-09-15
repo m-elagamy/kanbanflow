@@ -8,6 +8,7 @@ import GenericForm from "@/components/ui/generic-form";
 import FormField from "@/components/ui/form-field";
 import { useTaskFormAction } from "@/hooks/use-task-form-action";
 import taskPriorities from "../../data/task-priorities";
+import columnStatusOptions from "../../data/column-status-options";
 
 type TaskFormProps = {
   formMode: FormMode;
@@ -38,10 +39,19 @@ const TaskForm = ({
   }, [columns]);
 
   const columnOptions = useMemo(() => {
-    return sortedColumns.map((column) => ({
-      id: column.id,
-      label: column.status,
-    }));
+    return sortedColumns.map((column) => {
+      const statusOption =
+        columnStatusOptions[
+          column.status as keyof typeof columnStatusOptions
+        ];
+
+      return {
+        id: column.id,
+        label: column.status,
+        icon: statusOption?.icon,
+        iconColor: statusOption?.color,
+      };
+    });
   }, [sortedColumns]);
 
   const {
@@ -56,7 +66,7 @@ const TaskForm = ({
       title: task?.title ?? "",
       description: task?.description ?? "",
       priority: task?.priority ?? "medium",
-      columnId: columnId ?? "",
+      columnId: columnId ?? sortedColumns[0]?.id ?? "",
     },
     taskSchema,
   );
@@ -96,13 +106,11 @@ const TaskForm = ({
           type="select"
           name="columnId"
           label="Which column?"
-          defaultValue={taskFormData.columnId || ""}
+          defaultValue={taskFormData.columnId || columnOptions[0]?.id || ""}
           onChange={(value) => handleOnChange("columnId", value)}
           options={columnOptions}
           error={errors?.columnId}
-          required
           placeholder="Select a column"
-          helperText="Choose the column where this task should be added."
         />
       ) : (
         columnId && (

@@ -24,6 +24,8 @@ import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
 import { useTaskStore } from "@/stores/task";
 import useLoadingStore from "@/stores/loading";
 import handleOnError from "@/utils/handle-on-error";
+import columnStatusOptions from "../../data/column-status-options";
+import { useModalStore } from "@/stores/modal";
 
 type TaskActionsProps = {
   task: ClientTask;
@@ -35,6 +37,8 @@ export default function TaskActions({
   columnId,
 }: Readonly<TaskActionsProps>) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const openModal = useModalStore((state) => state.openModal);
+  const editModalId = `task-${task.id}`;
   const boardId = useBoardStore((state) => state.activeBoardId);
   const columns = useColumnStore((state) =>
     boardId ? state.columnsByBoard[boardId] : undefined,
@@ -133,38 +137,50 @@ export default function TaskActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuLabel>Task Actions:</DropdownMenuLabel>
-          <DropdownMenuItem asChild>
-            <TaskModal
-              mode="edit"
-              columnId={columnId}
-              task={task}
-              trigger={
-                <DropdownMenuLabel className="h-7 w-full cursor-default justify-start rounded-lg p-2">
-                  <Settings2 size={16} /> Edit
-                </DropdownMenuLabel>
-              }
-            />
+          <DropdownMenuItem
+            className="h-8 gap-2 px-2 py-1.5"
+            onSelect={() => openModal("task", editModalId)}
+          >
+            <Settings2 size={16} /> Edit
           </DropdownMenuItem>
 
           <DropdownMenuSub>
             <DropdownMenuSubTrigger
+              className="h-8 gap-2 px-2 py-1.5"
               disabled={isMoving || isLoading || destinations.length === 0}
             >
               <ArrowRight size={16} /> Move to column
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
-              {destinations.map((column) => (
-                <DropdownMenuItem
-                  key={column.id}
-                  onSelect={() => void handleMove(column.id)}
-                >
-                  {column.status}
-                </DropdownMenuItem>
-              ))}
+              {destinations.map((column) => {
+                const statusOption =
+                  columnStatusOptions[
+                    column.status as keyof typeof columnStatusOptions
+                  ];
+                const StatusIcon = statusOption?.icon;
+
+                return (
+                  <DropdownMenuItem
+                    key={column.id}
+                    className="h-8 gap-2 px-2 py-1.5"
+                    onSelect={() => void handleMove(column.id)}
+                  >
+                    {StatusIcon && (
+                      <StatusIcon
+                        size={16}
+                        color={statusOption.color}
+                        aria-hidden="true"
+                      />
+                    )}
+                    {column.status}
+                  </DropdownMenuItem>
+                );
+              })}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
           <DropdownMenuItem
-            className="text-destructive hover:bg-accent hover:text-destructive focus:text-destructive flex h-7 w-full cursor-default items-center justify-start gap-2 rounded-lg p-2"
+            variant="destructive"
+            className="h-8 gap-2 px-2 py-1.5"
             onSelect={() => setConfirmDelete(true)}
             disabled={isLoading || isMoving}
           >
@@ -173,6 +189,12 @@ export default function TaskActions({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <TaskModal
+        mode="edit"
+        columnId={columnId}
+        task={task}
+        modalId={editModalId}
+      />
       <AlertConfirmation
         open={confirmDelete}
         setOpen={setConfirmDelete}

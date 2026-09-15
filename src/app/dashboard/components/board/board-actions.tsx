@@ -21,6 +21,7 @@ import BoardModal from "./board-modal";
 import useLoadingStore from "@/stores/loading";
 import type { BoardSummary } from "@/lib/types";
 import handleOnError from "@/utils/handle-on-error";
+import { useModalStore } from "@/stores/modal";
 
 const AlertConfirmation = dynamic(
   () => import("@/components/ui/alert-confirmation"),
@@ -42,6 +43,8 @@ export default function BoardActions({
   const params = useParams();
   const { isMobile } = useSidebar();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const openModal = useModalStore((state) => state.openModal);
+  const editModalId = `edit-board-${board.id}`;
 
   const { isDeleting, setIsDeleting } = useLoadingStore(
     useShallow((state) => ({
@@ -108,24 +111,25 @@ export default function BoardActions({
         align={isSidebarTrigger ? "start" : "end"}
       >
         <DropdownMenuLabel>Board Actions:</DropdownMenuLabel>
-        <BoardModal
-          mode="edit"
-          variant="ghost"
-          trigger={
-            <DropdownMenuLabel className="w-full cursor-default justify-start rounded-lg p-2">
-              <SquarePen size={16} /> Edit
-            </DropdownMenuLabel>
-          }
-          board={board}
-          modalId={`edit-board-${board.id}`}
-        />
         <DropdownMenuItem
-          className="text-destructive focus:text-destructive h-[30px] p-2 py-1!"
-          onClick={() => setIsAlertOpen(true)}
+          className="h-8 gap-2 px-2 py-1.5"
+          onSelect={() => openModal("board", editModalId)}
+        >
+          <SquarePen size={16} /> Edit
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          variant="destructive"
+          className="h-8 gap-2 px-2 py-1.5"
+          onSelect={() => setIsAlertOpen(true)}
         >
           <TrashIcon /> Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
+      <BoardModal
+        mode="edit"
+        board={board}
+        modalId={editModalId}
+      />
       {isAlertOpen && (
         <AlertConfirmation
           open={isAlertOpen}

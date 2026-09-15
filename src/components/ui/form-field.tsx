@@ -30,6 +30,7 @@ interface FormFieldProps {
     id: string;
     label: string;
     icon?: LucideIcon;
+    iconColor?: string;
     status?: string[];
   }[];
 }
@@ -111,13 +112,17 @@ const FormField = ({
           </SelectTrigger>
           <SelectContent>
             {options.map((option) => {
-              const { id, label, icon: Icon } = option;
+              const { id, label, icon: Icon, iconColor } = option;
 
               return (
                 <SelectItem key={id} value={id}>
                   <div className="flex items-center gap-2">
                     {Icon ? (
-                      <Icon className={`size-4 ${getPriorityIconColor(id)}`} />
+                      <Icon
+                        className={`size-4 ${iconColor ? "" : getPriorityIconColor(id)}`}
+                        style={iconColor ? { color: iconColor } : undefined}
+                        aria-hidden="true"
+                      />
                     ) : (
                       <span className="bg-muted-foreground/50 size-2 rounded-full" />
                     )}
