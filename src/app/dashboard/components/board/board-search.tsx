@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CornerDownLeft, Plus, Search } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -30,8 +29,8 @@ import useBoardStore from "@/stores/board";
 import { useModalStore } from "@/stores/modal";
 import type { ClientTask, TaskSearchPage, TaskSearchResult } from "@/lib/types";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
-import getBadgeStyle from "../../utils/get-badge-style";
 import TaskModal from "../task/task-modal";
+import PriorityIndicator from "../task/priority-indicator";
 
 type SearchState = TaskSearchPage & { key: string; error: string | null };
 
@@ -62,11 +61,7 @@ function SearchResultItem({
         <span className="text-muted-foreground max-w-24 truncate text-xs">
           {showBoard ? task.board.title : task.column.status}
         </span>
-        <Badge
-          className={`${getBadgeStyle(task.priority)} h-5 px-2 text-[0.625rem] font-medium uppercase`}
-        >
-          {task.priority}
-        </Badge>
+        <PriorityIndicator priority={task.priority} />
       </div>
     </CommandItem>
   );
@@ -277,7 +272,7 @@ export function BoardSearch({
     <>
       <Button
         variant="outline"
-        className={`text-muted-foreground h-10 min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "w-full" : "sm:w-50 md:w-62.5"}`}
+        className={`text-muted-foreground h-9 min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "w-full" : "sm:w-50 md:w-62.5"}`}
         onClick={() => setOpen(true)}
       >
         <Search size={14} aria-hidden="true" />
@@ -295,7 +290,9 @@ export function BoardSearch({
         <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-xl md:p-0">
           <DialogHeader className="sr-only">
             <DialogTitle>
-              {scope === "workspace" ? "Search workspace tasks" : "Search tasks"}
+              {scope === "workspace"
+                ? "Search workspace tasks"
+                : "Search tasks"}
             </DialogTitle>
             <DialogDescription>
               Search for tasks by title or description

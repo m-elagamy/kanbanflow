@@ -10,7 +10,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import getBadgeStyle from "@/app/dashboard/utils/get-badge-style";
 import getPriorityIconColor from "@/app/dashboard/utils/get-priority-icon-color";
 import RequiredFieldSymbol from "./required-field-symbol";
 import { MotionInput } from "./motion-input";
@@ -120,9 +119,7 @@ const FormField = ({
                     {Icon ? (
                       <Icon className={`size-4 ${getPriorityIconColor(id)}`} />
                     ) : (
-                      <span
-                        className={`size-2 rounded-full ${getBadgeStyle(id)}`}
-                      />
+                      <span className="bg-muted-foreground/50 size-2 rounded-full" />
                     )}
                     <h2>{label}</h2>
                   </div>

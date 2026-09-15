@@ -1,6 +1,6 @@
 "use client";
 
-import { Filter } from "lucide-react";
+import { ListFilter } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -14,6 +14,8 @@ import {
   useTaskFilterStore,
   type PriorityFilterValue,
 } from "@/stores/task-filter";
+import taskPriorities from "../../data/task-priorities";
+import getPriorityIconColor from "../../utils/get-priority-icon-color";
 
 export function TaskPriorityFilter() {
   const { priorityFilter, setPriorityFilter } = useTaskFilterStore();
@@ -24,41 +26,41 @@ export function TaskPriorityFilter() {
       onValueChange={(value) => setPriorityFilter(value as PriorityFilterValue)}
     >
       <SelectTrigger
-        className="hover:bg-muted-foreground/5"
+        className="hover:bg-muted-foreground/5 min-w-34"
         aria-label="Filter tasks by priority"
       >
-        <Filter size={14} className="text-muted-foreground" />
-        <SelectValue placeholder="Filter" />
+        <SelectValue placeholder="All priorities" />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectLabel className="text-xs text-muted-foreground">
-            Tasks Priority
+          <SelectLabel className="text-muted-foreground text-xs">
+            Priority
           </SelectLabel>
           <SelectItem value="all">
             <div className="flex items-center gap-2">
-              <div className="size-2 rounded-full bg-foreground" />
-              All Tasks
+              <ListFilter
+                size={14}
+                className="text-muted-foreground"
+                aria-hidden="true"
+              />
+              All priorities
             </div>
           </SelectItem>
-          <SelectItem value="high">
-            <div className="flex items-center gap-2">
-              <div className="size-2 rounded-full bg-red-500" />
-              High
-            </div>
-          </SelectItem>
-          <SelectItem value="medium">
-            <div className="flex items-center gap-2">
-              <div className="size-2 rounded-full bg-yellow-500" />
-              Medium
-            </div>
-          </SelectItem>
-          <SelectItem value="low">
-            <div className="flex items-center gap-2">
-              <div className="size-2 rounded-full bg-green-500" />
-              Low
-            </div>
-          </SelectItem>
+          {taskPriorities
+            .slice()
+            .reverse()
+            .map(({ id, label, icon: Icon }) => (
+              <SelectItem key={id} value={id}>
+                <div className="flex items-center gap-2">
+                  <Icon
+                    size={14}
+                    className={getPriorityIconColor(id)}
+                    aria-hidden="true"
+                  />
+                  {label}
+                </div>
+              </SelectItem>
+            ))}
         </SelectGroup>
       </SelectContent>
     </Select>

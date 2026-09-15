@@ -17,7 +17,10 @@ const getColumnStatus = (columnId: string | undefined): string | null => {
   if (!columnId) return null;
   const boardId = useBoardStore.getState().activeBoardId;
   if (!boardId) return null;
-  return useColumnStore.getState().columnsByBoard[boardId]?.[columnId]?.status ?? null;
+  return (
+    useColumnStore.getState().columnsByBoard[boardId]?.[columnId]?.status ??
+    null
+  );
 };
 
 const getPositionInColumn = (
@@ -76,10 +79,10 @@ const isColumnDrag = (active: { data: { current?: unknown } }) =>
 
 export const screenReaderInstructions: ScreenReaderInstructions = {
   draggable: `
-    To pick up a task or column, press space or enter.
+    To pick up a task or column, press space.
     While dragging a task, use the arrow keys to move it over another task or column.
     While dragging a column, use the arrow keys to move it over another column to reorder it.
-    Press space or enter again to drop it in its new position, or press escape to cancel.
+    Press space again to drop it in its new position, or press escape to cancel.
   `,
 };
 
@@ -101,7 +104,8 @@ export const dndAnnouncements: Announcements = {
     if (isColumnDrag(active)) {
       return `${describeColumnDrop(String(active.id))} was dropped.`;
     }
-    if (!over) return `${describeDrop(String(active.id), undefined)} was dropped.`;
+    if (!over)
+      return `${describeDrop(String(active.id), undefined)} was dropped.`;
     return `${describeDrop(String(active.id), String(over.id))} was dropped.`;
   },
   onDragCancel({ active }) {

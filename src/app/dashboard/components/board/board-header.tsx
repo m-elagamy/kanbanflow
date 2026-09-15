@@ -21,9 +21,8 @@ const BoardHeader = ({ board }: BoardHeaderProps) => {
 
   return (
     <section className="border-border/50 bg-background/95 supports-backdrop-filter:bg-background/60 mb-4 shrink-0 border-b backdrop-blur">
-      <div className="p-4 sm:p-6 sm:pb-4">
-        {/* Top Row: Title/Description and Board Actions */}
-        <div className="mb-4 flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex min-w-0 items-start gap-3 lg:flex-1">
           <div className="flex min-w-0 flex-1 items-start gap-3">
             <span className="bg-primary/10 text-primary ring-primary/15 flex size-11 shrink-0 items-center justify-center rounded-xl shadow-sm ring-1 md:size-12">
               <FolderKanban className="size-5 md:size-6" aria-hidden="true" />
@@ -43,29 +42,25 @@ const BoardHeader = ({ board }: BoardHeaderProps) => {
               )}
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            {activeBoardId && (
-              <TaskModal
-                mode="create"
-                boardId={activeBoardId}
-                trigger={
-                  <Button>
-                    <Plus size={16} />
-                    <span className="hidden sm:inline">Create New Task</span>
-                    <span className="sm:hidden">Task</span>
-                  </Button>
-                }
-                variant="default"
-              />
-            )}
-            <BoardActions board={board} />
-          </div>
         </div>
 
-        {/* Bottom Row: Quick Actions Bar */}
-        <div className="grid grid-cols-[auto_1fr] items-center gap-2 sm:flex sm:justify-end sm:gap-3">
+        <div className="grid grid-cols-[auto_1fr] items-center gap-2 sm:flex sm:justify-end">
           <TaskPriorityFilter />
           <BoardSearch />
+          {activeBoardId && (
+            <TaskModal
+              mode="create"
+              boardId={activeBoardId}
+              trigger={
+                <Button>
+                  <Plus size={16} />
+                  <span>Add task</span>
+                </Button>
+              }
+              variant="default"
+            />
+          )}
+          <BoardActions board={board} />
         </div>
       </div>
     </section>

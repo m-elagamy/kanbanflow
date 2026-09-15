@@ -24,7 +24,7 @@ const ColumnsWrapper = ({ boardId, focusedTaskId }: ColumnsWrapperProps) => {
 
   return (
     <div
-      className="scrollbar-hide focus-visible:ring-ring flex h-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-3 pb-4 outline-none focus-visible:ring-2 focus-visible:ring-inset sm:gap-4 sm:px-4 md:justify-start"
+      className="scrollbar-thumb-border focus-visible:ring-ring flex h-full snap-x snap-proximity gap-3 overflow-x-auto scroll-smooth px-3 pb-4 outline-none focus-visible:ring-2 focus-visible:ring-inset sm:gap-4 sm:px-4 md:justify-start"
       role="region"
       aria-label="Board columns"
       tabIndex={0}

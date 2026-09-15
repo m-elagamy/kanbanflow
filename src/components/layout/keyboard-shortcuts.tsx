@@ -59,7 +59,7 @@ export default function KeyboardShortcuts() {
           <>
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Board controls</DropdownMenuLabel>
-            <Shortcut label="Pick up or drop" keys="Space / Enter" />
+            <Shortcut label="Pick up or drop" keys="Space" />
             <Shortcut label="Move item" keys="Arrow keys" />
             <Shortcut label="Cancel drag" keys="Esc" />
           </>

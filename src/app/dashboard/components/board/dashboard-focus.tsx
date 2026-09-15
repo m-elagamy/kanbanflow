@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { CircleAlert, CircleCheck, ChevronRight, Flag } from "lucide-react";
 import type { DashboardFocusPreview } from "@/lib/types";
-import { Badge } from "@/components/ui/badge";
 import TaskDueDate from "../task/task-due-date";
-import getBadgeStyle from "../../utils/get-badge-style";
+import PriorityIndicator from "../task/priority-indicator";
 
 export default function DashboardFocus({
   tasks,
@@ -69,11 +68,7 @@ export default function DashboardFocus({
                 </div>
                 <div className="flex shrink-0 items-end gap-2 max-sm:flex-col">
                   {task.dueDate && <TaskDueDate date={task.dueDate} />}
-                  <Badge
-                    className={`${getBadgeStyle(task.priority)} h-5 px-2 text-[0.625rem] font-medium uppercase`}
-                  >
-                    {task.priority}
-                  </Badge>
+                  <PriorityIndicator priority={task.priority} />
                 </div>
                 <ChevronRight
                   className="text-muted-foreground size-4 shrink-0 transition-transform group-hover:translate-x-0.5"

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { updateTaskPositionAction } from "@/actions/task";
 import type {
@@ -6,33 +7,31 @@ import type {
   DragEndEvent,
 } from "@dnd-kit/core";
 import type { ClientTask } from "@/lib/types";
-import { debounce } from "@/utils/debounce";
 import { useTaskStore } from "@/stores/task";
 import { findColumnIdByTaskId } from "@/utils/task-helpers";
 import useTaskStateComparison from "./use-task-position-comparison";
 import handleOnError from "@/utils/handle-on-error";
+import useLoadingStore from "@/stores/loading";
 
 const useDndHandlers = () => {
+  const pendingDragOverRef = useRef<DragOverEvent | null>(null);
+  const dragFrameRef = useRef<number | null>(null);
   const {
-    columnTaskIds,
     getTask,
     moveTaskBetweenColumns,
     reorderTaskWithinColumn,
     activeTaskId,
     setActiveTask,
-    getColumnTasks,
     rollback,
     captureSnapshot,
     clearSnapshot,
   } = useTaskStore(
     useShallow((state) => ({
-      columnTaskIds: state.columnTaskIds,
       getTask: state.getTask,
       moveTaskBetweenColumns: state.moveTaskBetweenColumns,
       reorderTaskWithinColumn: state.reorderTaskWithinColumn,
       activeTaskId: state.activeTaskId,
       setActiveTask: state.setActiveTask,
-      getColumnTasks: state.getColumnTasks,
       rollback: state.rollback,
       captureSnapshot: state.captureSnapshot,
       clearSnapshot: state.clearSnapshot,
@@ -40,17 +39,20 @@ const useDndHandlers = () => {
   );
 
   const activeTask = activeTaskId ? getTask(activeTaskId) : null;
+  const setIsLoading = useLoadingStore((state) => state.setIsLoading);
   const { captureInitialPosition, hasTaskPositionChanged } =
     useTaskStateComparison();
 
-  const getTasksByColumnId = () =>
-    Object.keys(columnTaskIds).reduce(
+  const getTasksByColumnId = () => {
+    const taskStore = useTaskStore.getState();
+    return Object.keys(taskStore.columnTaskIds).reduce(
       (acc, columnId) => {
-        acc[columnId] = getColumnTasks(columnId);
+        acc[columnId] = taskStore.getColumnTasks(columnId);
         return acc;
       },
       {} as Record<string, ClientTask[]>,
     );
+  };
 
   const handleDragStart = ({ active }: DragStartEvent) => {
     if (!active?.id) return;
@@ -68,8 +70,10 @@ const useDndHandlers = () => {
     overId: string,
     isEnd = false,
   ) => {
+    const taskStore = useTaskStore.getState();
+    const { columnTaskIds } = taskStore;
     const fromColumnId = findColumnIdByTaskId(columnTaskIds, activeId);
-    const isOverTask = !!getTask(overId);
+    const isOverTask = !!taskStore.getTask(overId);
     const toColumnId = isOverTask
       ? findColumnIdByTaskId(columnTaskIds, overId)
       : overId;
@@ -78,15 +82,12 @@ const useDndHandlers = () => {
     if (fromColumnId === toColumnId && isOverTask) {
       reorderTaskWithinColumn(fromColumnId, activeId, overId);
     } else {
-      const destinationHasMore = Boolean(
-        useTaskStore.getState().columnPages[toColumnId]?.nextCursor,
-      );
       moveTaskBetweenColumns(
         activeId,
         fromColumnId,
         toColumnId,
         isOverTask ? overId : undefined,
-        isOverTask || !destinationHasMore,
+        true,
       );
     }
 
@@ -99,6 +100,7 @@ const useDndHandlers = () => {
         const taskIndex = updatedTaskOrder.indexOf(activeId);
         const previousTaskId = updatedTaskOrder[taskIndex - 1] ?? null;
         const nextTaskId = updatedTaskOrder[taskIndex + 1] ?? null;
+        setIsLoading("task", "updating", true, activeId);
         updateTaskPositionAction(
           activeId,
           toColumnId,
@@ -119,6 +121,9 @@ const useDndHandlers = () => {
           .catch((error) => {
             handleOnError(error, "Failed to move task");
             rollback();
+          })
+          .finally(() => {
+            setIsLoading("task", "updating", false, activeId);
           });
       }
       if (
@@ -130,14 +135,37 @@ const useDndHandlers = () => {
     }
   };
 
-  const handleDragOver = debounce(({ active, over }: DragOverEvent) => {
-    if (!active?.id || !over?.id) return;
+  const cancelPendingDragOver = () => {
+    pendingDragOverRef.current = null;
+    if (dragFrameRef.current !== null) {
+      cancelAnimationFrame(dragFrameRef.current);
+      dragFrameRef.current = null;
+    }
+  };
 
-    processDragEvent(String(active.id), String(over.id));
-  }, 100);
+  useEffect(() => cancelPendingDragOver, []);
+
+  const handleDragOver = (event: DragOverEvent) => {
+    pendingDragOverRef.current = event;
+    if (dragFrameRef.current !== null) return;
+
+    dragFrameRef.current = requestAnimationFrame(() => {
+      dragFrameRef.current = null;
+      const pendingEvent = pendingDragOverRef.current;
+      pendingDragOverRef.current = null;
+      if (!pendingEvent?.active.id || !pendingEvent.over?.id) return;
+
+      processDragEvent(
+        String(pendingEvent.active.id),
+        String(pendingEvent.over.id),
+      );
+    });
+  };
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    cancelPendingDragOver();
     if (!active?.id || !over?.id) {
+      rollback();
       setActiveTask(null);
       return;
     }
@@ -151,6 +179,7 @@ const useDndHandlers = () => {
     handleDragOver,
     handleDragEnd,
     handleDragCancel: () => {
+      cancelPendingDragOver();
       rollback();
       setActiveTask(null);
     },

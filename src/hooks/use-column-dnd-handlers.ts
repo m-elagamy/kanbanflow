@@ -5,11 +5,13 @@ import { useColumnStore } from "@/stores/column";
 import { updateColumnPositionAction } from "@/actions/column";
 import handleOnError from "@/utils/handle-on-error";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
+import useLoadingStore from "@/stores/loading";
 
 const useColumnDndHandlers = (boardId: string) => {
   const [activeColumn, setActiveColumn] = useState<SimplifiedColumn | null>(
     null,
   );
+  const setIsLoading = useLoadingStore((state) => state.setIsLoading);
 
   const { columnsByBoard, reorderColumns, rollbackReorder } = useColumnStore(
     useShallow((state) => ({
@@ -47,6 +49,7 @@ const useColumnDndHandlers = (boardId: string) => {
     const newColumnOrder = reordered.map((column) => column.id);
 
     reorderColumns(boardId, activeId, overId);
+    setIsLoading("column", "updating", true, activeId);
 
     updateColumnPositionAction(boardId, newColumnOrder)
       .then((result) => {
@@ -58,6 +61,9 @@ const useColumnDndHandlers = (boardId: string) => {
       .catch((error) => {
         handleOnError(error, "Failed to reorder columns");
         rollbackReorder();
+      })
+      .finally(() => {
+        setIsLoading("column", "updating", false, activeId);
       });
   };
 

@@ -1,16 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { GripVertical } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { ClientTask } from "@/lib/types";
-import { Badge } from "@/components/ui/badge";
 import TaskDueDate from "./task-due-date";
-import getBadgeStyle from "../../utils/get-badge-style";
 import TaskActions from "./task-actions";
-import taskPriorities from "../../data/task-priorities";
 import useLoadingStore from "@/stores/loading";
+import { useTaskFilterStore } from "@/stores/task-filter";
+import { useModalStore } from "@/stores/modal";
+import PriorityIndicator from "./priority-indicator";
 
 type TaskCardProps = {
   task: ClientTask;
@@ -28,8 +27,16 @@ const TaskCard = ({
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [showFocus, setShowFocus] = useState(isFocused);
   const isUpdating = useLoadingStore((state) =>
-    state.isLoading("task", "updating", task.id),
+    state.isLoading("task", "updating"),
   );
+  const priorityFilter = useTaskFilterStore((state) => state.priorityFilter);
+  const openModal = useModalStore((state) => state.openModal);
+  const modalId = `task-${task.id}`;
+
+  const openTask = () => {
+    if (!columnId || isDragging) return;
+    openModal("task", modalId);
+  };
   const {
     attributes,
     listeners,
@@ -37,9 +44,10 @@ const TaskCard = ({
     transform,
     transition,
     isDragging: isSortableDragging,
+    isOver,
   } = useSortable({
     id: task.id,
-    disabled: isUpdating,
+    disabled: isUpdating || priorityFilter !== "all",
     data: { type: "task" },
   });
 
@@ -49,9 +57,6 @@ const TaskCard = ({
     opacity: isSortableDragging ? "0.5" : "1",
     scale: isSortableDragging ? "0.95" : "1",
   };
-
-  const priorityOption = taskPriorities.find((p) => p.id === task.priority);
-  const PriorityIcon = priorityOption?.icon || taskPriorities[1].icon; // Default to medium
 
   const setCardRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -75,58 +80,67 @@ const TaskCard = ({
     return () => window.clearTimeout(timeout);
   }, [isFocused]);
 
+  const handleCardKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      openTask();
+      return;
+    }
+
+    listeners?.onKeyDown?.(event);
+  };
+
   return (
     <div
-      className={`group border-border/70 bg-card/80 dark:bg-card/5 hover:border-border hover:bg-card/95 dark:hover:bg-card/70 relative touch-manipulation rounded-lg border p-4 shadow-md backdrop-blur-md transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-b before:from-white/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-200 hover:shadow-lg hover:before:opacity-100 dark:before:from-white/[0.02] ${isDragging ? "border-primary/50 bg-card dark:bg-card/80 ring-primary/20 z-50 scale-105 rotate-2 shadow-2xl ring-2" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 ring-2 shadow-lg dark:bg-primary/10" : ""}`}
+      className={`group/task border-border/80 bg-card hover:border-border focus-visible:ring-ring relative touch-manipulation rounded-lg border p-3 shadow-xs transition-[border-color,box-shadow,transform] duration-200 outline-none hover:shadow-sm focus-visible:ring-2 ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : priorityFilter === "all" ? "cursor-grab" : "cursor-pointer"} ${isOver && !isSortableDragging ? "after:bg-primary after:absolute after:-top-2 after:right-1 after:left-1 after:h-0.5 after:rounded-full" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
       ref={setCardRef}
       style={style}
+      {...attributes}
+      {...listeners}
+      tabIndex={columnId ? 0 : -1}
+      aria-label={columnId ? `${task.title}. Press Enter to open.` : undefined}
+      onClick={openTask}
+      onKeyDown={handleCardKeyDown}
     >
-      <div className="relative z-10 space-y-3">
-        {/* Header: Drag Handle, Priority Badge and Actions */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              disabled={isUpdating}
-              className="text-muted-foreground/50 hover:text-muted-foreground focus-visible:ring-ring -ml-2 flex size-7 touch-none items-center justify-center rounded outline-none focus-visible:ring-2 active:cursor-grabbing"
-              style={{ cursor: isDragging ? "grabbing" : "grab" }}
-              aria-label="Drag to reorder task"
-              {...attributes}
-              {...listeners}
-            >
-              <GripVertical size={14} />
-            </button>
-            <Badge
-              className={`${getBadgeStyle(task.priority)} flex h-5 shrink-0 items-center gap-1 px-2 py-0.5 text-[0.625rem] font-medium uppercase`}
-            >
-              <PriorityIcon size={10} aria-hidden="true" />
-              {task.priority}
-            </Badge>
-          </div>
-          {columnId && <TaskActions task={task} columnId={columnId} />}
-        </div>
-
-        {/* Title and Description */}
-        <div className="space-y-1">
-          <h3
-            className={`text-foreground flex-1 text-sm font-medium ${task.title.length > 30 ? "line-clamp-2" : ""}`}
-            title={task.title}
-            dir="auto"
-          >
-            {task.title}
-          </h3>
-          {task.description && (
-            <p
-              className="text-muted-foreground line-clamp-2 text-xs"
+      <div className="relative z-10 space-y-2.5">
+        <div className="flex items-start gap-2">
+          <div className="min-w-0 flex-1 space-y-1">
+            <h3
+              className={`text-foreground flex-1 text-sm font-medium ${task.title.length > 30 ? "line-clamp-2" : ""}`}
+              title={task.title}
               dir="auto"
             >
-              {task.description}
-            </p>
+              {task.title}
+            </h3>
+            {task.description && (
+              <p
+                className="text-muted-foreground line-clamp-2 text-xs"
+                dir="auto"
+              >
+                {task.description}
+              </p>
+            )}
+          </div>
+          {columnId && (
+            <div
+              className="shrink-0 md:opacity-0 md:transition-opacity md:group-focus-within/task:opacity-100 md:group-hover/task:opacity-100"
+              onClick={(event) => event.stopPropagation()}
+              onPointerDown={(event) => event.stopPropagation()}
+              onKeyDown={(event) => event.stopPropagation()}
+            >
+              <TaskActions task={task} columnId={columnId} />
+            </div>
           )}
         </div>
 
-        {/* Due Date */}
-        {task.dueDate && <TaskDueDate date={task.dueDate} />}
+        <div className="text-muted-foreground flex min-h-5 items-center justify-between gap-3 text-xs">
+          {task.dueDate && <TaskDueDate date={task.dueDate} />}
+          <PriorityIndicator
+            priority={task.priority}
+            showLabel={false}
+            className="ml-auto"
+          />
+        </div>
       </div>
     </div>
   );

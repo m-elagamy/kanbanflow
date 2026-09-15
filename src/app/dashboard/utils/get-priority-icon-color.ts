@@ -1,14 +1,10 @@
 const getPriorityIconColor = (priority: string) => {
   const classes = {
-    high: "text-orange-600 dark:text-orange-400",
-    medium: "text-purple-600 dark:text-purple-400",
-    low: "text-blue-600 dark:text-blue-400",
+    high: "text-[var(--priority-high-icon)]",
+    medium: "text-[var(--priority-medium-icon)]",
+    low: "text-[var(--priority-low-icon)]",
   };
-  return (
-    classes[priority as keyof typeof classes] ||
-    "text-muted-foreground"
-  );
+  return classes[priority as keyof typeof classes] || "text-muted-foreground";
 };
 
 export default getPriorityIconColor;
-

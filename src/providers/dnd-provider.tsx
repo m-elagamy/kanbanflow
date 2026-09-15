@@ -58,11 +58,16 @@ export const DndProvider = ({ children, boardId }: DndProviderProps) => {
     useSensor(TouchSensor, {
       activationConstraint: {
         delay: 250,
-        tolerance: 5,
+        tolerance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
+      keyboardCodes: {
+        start: ["Space"],
+        end: ["Space"],
+        cancel: ["Escape"],
+      },
     }),
   );
 

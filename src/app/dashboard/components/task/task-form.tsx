@@ -128,13 +128,12 @@ const TaskForm = ({
       <FormField
         type="select"
         name="priority"
-        label="How urgent is this?"
+        label="Priority"
         defaultValue={taskFormData.priority}
         onChange={(value) => handleOnChange("priority", value)}
         error={errors?.priority}
         options={taskPriorities}
-        helperText="Select a priority level to manage urgency."
-        placeholder="Select a Priority"
+        placeholder="Select priority"
       />
 
       <FormField

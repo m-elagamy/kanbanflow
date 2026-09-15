@@ -245,6 +245,7 @@ export const useTaskStore = create<TaskStore>()(
           const newIndex = column.indexOf(overId);
 
           if (oldIndex === -1 || newIndex === -1) return;
+          if (oldIndex === newIndex) return;
 
           if (!state.activeTaskId) {
             state.previousState = snapshotState(state);
@@ -278,6 +279,13 @@ export const useTaskStore = create<TaskStore>()(
           const fromIndex = fromColumn.indexOf(taskId);
 
           if (fromIndex === -1) return;
+          if (
+            fromColumnId === toColumnId &&
+            !targetTaskId &&
+            fromIndex === toColumn.length - 1
+          ) {
+            return;
+          }
 
           fromColumn.splice(fromIndex, 1);
 

@@ -9,12 +9,11 @@ import {
   ListTodo,
 } from "lucide-react";
 import { getWorkspaceTasksOverviewPageAction } from "@/actions/task";
-import { Badge } from "@/components/ui/badge";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
 import type { TasksFilter } from "@/lib/types";
 import TaskDueDate from "../components/task/task-due-date";
-import getBadgeStyle from "../utils/get-badge-style";
 import Pagination from "../components/pagination";
+import PriorityIndicator from "../components/task/priority-indicator";
 
 type SearchParams = Promise<{ attention?: string; page?: string }>;
 
@@ -150,11 +149,7 @@ export default async function TasksPage({
                 </div>
                 <div className="flex shrink-0 items-end gap-2 max-sm:flex-col">
                   {task.dueDate && <TaskDueDate date={task.dueDate} />}
-                  <Badge
-                    className={`${getBadgeStyle(task.priority)} h-5 px-2 text-[0.625rem] font-medium uppercase`}
-                  >
-                    {task.priority}
-                  </Badge>
+                  <PriorityIndicator priority={task.priority} />
                 </div>
                 <ChevronRight
                   className="text-muted-foreground size-4 shrink-0 transition-transform group-hover:translate-x-0.5"

@@ -18,6 +18,7 @@ import NoMatchingTasksMessage from "../task/no-matching-tasks-message";
 import TaskCard from "../task/task-card";
 import { getColumnTasksPageAction } from "@/actions/task";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
+import useLoadingStore from "@/stores/loading";
 
 type ColumnCardProps = {
   column: SimplifiedColumn;
@@ -29,6 +30,9 @@ const EMPTY_TASK_IDS: string[] = [];
 const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const isReordering = useLoadingStore((state) =>
+    state.isLoading("column", "updating"),
+  );
   const {
     attributes,
     listeners,
@@ -39,6 +43,7 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
     isDragging,
   } = useSortable({
     id: column.id,
+    disabled: isReordering,
     data: { type: "column" },
   });
 
@@ -170,19 +175,14 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
 
   return (
     <Card
-      className={`group border-border/70 bg-accent/25 dark:bg-accent/30 hover:border-border hover:bg-accent/70 dark:hover:bg-accent/40 relative max-h-[calc(100dvh-82px)] w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-lg backdrop-blur-md transition-all duration-300 hover:shadow-xl md:w-84 md:max-w-none ${
+      className={`group border-border/80 bg-muted/45 dark:bg-muted/35 hover:border-border relative max-h-[calc(100dvh-82px)] w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:shadow-md md:w-84 md:max-w-none ${
         isOver
-          ? "ring-primary/20 border-primary/30 bg-primary/5 scale-[1.02] shadow-lg ring-2"
+          ? "ring-primary/20 border-primary/40 bg-primary/[0.03] shadow-md ring-2"
           : ""
       }`}
       ref={setNodeRef}
       style={style}
     >
-      {/* Drop zone indicator */}
-      {isOver && (
-        <div className="from-primary/10 absolute inset-0 animate-pulse rounded-xl bg-gradient-to-b to-transparent" />
-      )}
-
       <ColumnHeader
         column={column}
         tasksCount={page?.totalCount ?? tasks.length}
@@ -191,7 +191,7 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
 
       <CardContent
         ref={scrollContainerRef}
-        className="scrollbar-thumb-border flex-1 scrollbar-thin scrollbar-track-transparent space-y-3 overflow-y-auto p-4 pt-3"
+        className="scrollbar-thumb-border flex-1 scrollbar-thin scrollbar-track-transparent space-y-2.5 overflow-y-auto p-3"
       >
         {isInitialLoading ? (
           <div className="space-y-3" aria-label="Loading tasks">
@@ -219,7 +219,7 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
             items={taskIds}
             strategy={verticalListSortingStrategy}
           >
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {visibleTasks.map((task) => (
                 <TaskCard
                   key={task.id}
@@ -234,7 +234,7 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
                   className="text-muted-foreground flex min-h-8 items-center justify-center text-xs"
                   aria-live="polite"
                 >
-                  {page.isLoading ? "Loading more…" : null}
+                  {page.isLoading ? "Loading more..." : null}
                 </div>
               )}
               {nextCursor && page.error && (
