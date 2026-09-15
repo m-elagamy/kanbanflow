@@ -7,7 +7,7 @@ import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import type { ClientTask } from "@/lib/types";
 import BoardHeader from "./board-header";
 import ColumnsWrapper from "../column";
-import BoardSkeleton from "./board-skeleton";
+import ColumnSkeleton from "../column/column-skeleton";
 import BoardContainer from "./board-container";
 import TaskModal from "../task/task-modal";
 import { useModalStore } from "@/stores/modal";
@@ -44,14 +44,16 @@ export default function BoardLayout({
   }, [activeBoard?.id, closeModal, linkedTask, openModal]);
 
   if (!activeBoard?.id || !hasInitializedTaskPages) {
+    const { columns, ...board } = initialBoard;
+
     return (
-      <BoardSkeleton
-        columnsNumber={initialBoard.columns.length}
-        hasDescription={Boolean(initialBoard.description)}
-        tasksPerColumn={initialBoard.columns.map(
-          (column) => column.tasks.length,
-        )}
-      />
+      <BoardContainer>
+        <BoardHeader board={board} />
+        <ColumnSkeleton
+          columnsNumber={columns.length}
+          tasksPerColumn={columns.map((column) => column.tasks.length)}
+        />
+      </BoardContainer>
     );
   }
 

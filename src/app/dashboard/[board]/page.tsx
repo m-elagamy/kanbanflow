@@ -22,6 +22,9 @@ export default async function BoardPage({
     task: taskId,
     focus: focusedTaskId,
   } = await searchParams;
+
+  if (isFreshlyCreated) return <OptimisticBoardLayout />;
+
   const requestedTaskId = taskId ?? focusedTaskId;
 
   const [{ board: currentBoard }, taskResult] = await Promise.all([
@@ -32,7 +35,6 @@ export default async function BoardPage({
   ]);
 
   if (!currentBoard) {
-    if (isFreshlyCreated) return <OptimisticBoardLayout />;
     notFound();
   }
 

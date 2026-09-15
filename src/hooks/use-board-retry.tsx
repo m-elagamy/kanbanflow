@@ -6,9 +6,11 @@ import { useShallow } from "zustand/react/shallow";
 import { toast } from "sonner";
 import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
+import { useTaskStore } from "@/stores/task";
 import useLoadingStore from "@/stores/loading";
 import { createBoardAction } from "@/actions/board";
 import type { BoardFormValues } from "@/lib/types";
+import { slugify } from "@/utils/slugify";
 
 export function useBoardRetry() {
   const router = useRouter();
@@ -31,6 +33,9 @@ export function useBoardRetry() {
     })),
   );
   const setColumns = useColumnStore((state) => state.setColumns);
+  const initializeTaskPages = useTaskStore(
+    (state) => state.initializeTaskPages,
+  );
   const isCreating = useLoadingStore((state) =>
     state.isLoading("board", "creating"),
   );
@@ -44,6 +49,7 @@ export function useBoardRetry() {
       return false;
     inFlight.current = true;
     setIsLoading("board", "creating", true, attempt.id);
+    router.prefetch(`/dashboard/${slugify(attempt.title)}?new=1`);
 
     try {
       const result = await createBoardAction(attempt, attempt.id);
@@ -57,9 +63,17 @@ export function useBoardRetry() {
       deleteBoard(attempt.id);
       createBoard({ id, title, slug, description });
       setColumns(id, columns);
+      initializeTaskPages(
+        columns.map((column) => ({
+          columnId: column.id,
+          tasks: [],
+          totalCount: 0,
+          nextCursor: null,
+        })),
+      );
       resetError();
       toast.success(`Board "${title}" is ready.`);
-      router.push(`/dashboard/${slug}`);
+      router.push(`/dashboard/${slug}?new=1`);
       return true;
     } catch (error) {
       setError(true, attempt);

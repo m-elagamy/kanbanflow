@@ -1,11 +1,13 @@
 import { PlusCircle } from "lucide-react";
 
-const AddColumnCard = ({ onClick }: { onClick: () => void }) => {
+const AddColumnCard = ({ onClick }: { onClick?: () => void }) => {
   return (
     <button
       type="button"
       className="group bg-background/50 text-muted-foreground hover:border-primary/40 hover:bg-accent/20 hover:text-foreground focus-visible:ring-ring flex h-14 w-64 min-w-64 snap-start items-center justify-center gap-2 rounded-xl border border-dashed px-4 text-sm font-medium transition-colors outline-none focus-visible:ring-2 md:w-84 md:min-w-84"
       onClick={onClick}
+      aria-disabled={!onClick}
+      tabIndex={onClick ? 0 : -1}
     >
       <PlusCircle className="group-hover:text-primary size-4 transition-colors" />
       Add another column

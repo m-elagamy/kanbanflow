@@ -19,6 +19,9 @@ import getPriorityIconColor from "../../utils/get-priority-icon-color";
 
 export function TaskPriorityFilter() {
   const { priorityFilter, setPriorityFilter } = useTaskFilterStore();
+  const selectedPriority = taskPriorities.find(
+    ({ id }) => id === priorityFilter,
+  );
 
   return (
     <Select
@@ -26,10 +29,30 @@ export function TaskPriorityFilter() {
       onValueChange={(value) => setPriorityFilter(value as PriorityFilterValue)}
     >
       <SelectTrigger
-        className="hover:bg-muted-foreground/5 min-w-34"
+        className="hover:bg-muted-foreground/5 min-w-34 shrink-0"
         aria-label="Filter tasks by priority"
       >
-        <SelectValue placeholder="All priorities" />
+        <SelectValue>
+          {selectedPriority ? (
+            <span className="flex items-center gap-2">
+              <selectedPriority.icon
+                size={14}
+                className={getPriorityIconColor(selectedPriority.id)}
+                aria-hidden="true"
+              />
+              {selectedPriority.label}
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <ListFilter
+                size={14}
+                className="text-muted-foreground"
+                aria-hidden="true"
+              />
+              All priorities
+            </span>
+          )}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>

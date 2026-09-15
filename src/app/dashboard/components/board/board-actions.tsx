@@ -35,6 +35,25 @@ type BoardActionsProps = {
   isSidebarTrigger?: boolean;
 };
 
+export function BoardActionsTrigger({
+  interactive = true,
+}: {
+  interactive?: boolean;
+}) {
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="size-8"
+      aria-disabled={!interactive || undefined}
+      tabIndex={interactive ? undefined : -1}
+    >
+      <Ellipsis />
+      <span className="sr-only">Open menu</span>
+    </Button>
+  );
+}
+
 export default function BoardActions({
   board,
   isSidebarTrigger,

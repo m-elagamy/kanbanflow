@@ -1,24 +1,18 @@
 "use client";
 
 import { FolderKanban, Plus } from "lucide-react";
-import { useShallow } from "zustand/react/shallow";
 import type { BoardSummary } from "@/lib/types";
 import BoardActions from "./board-actions";
 import { TaskPriorityFilter } from "../task/tasks-filter";
 import { BoardSearch } from "./board-search";
 import TaskModal from "../task/task-modal";
 import { Button } from "@/components/ui/button";
-import useBoardStore from "@/stores/board";
 
 type BoardHeaderProps = {
   board: BoardSummary;
 };
 
 const BoardHeader = ({ board }: BoardHeaderProps) => {
-  const activeBoardId = useBoardStore(
-    useShallow((state) => state.activeBoardId),
-  );
-
   return (
     <section className="border-border/50 bg-background/95 supports-backdrop-filter:bg-background/60 mb-4 shrink-0 border-b backdrop-blur">
       <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
@@ -46,18 +40,17 @@ const BoardHeader = ({ board }: BoardHeaderProps) => {
 
         <div className="grid grid-cols-[auto_1fr] items-center gap-2 sm:flex sm:justify-end">
           <TaskPriorityFilter />
-          <BoardSearch />
-          {activeBoardId && (
+          <BoardSearch boardId={board.id} />
+          {board.id && (
             <TaskModal
               mode="create"
-              boardId={activeBoardId}
+              boardId={board.id}
               trigger={
-                <Button>
+                <Button className="shrink-0">
                   <Plus size={16} />
                   <span>Add task</span>
                 </Button>
               }
-              variant="default"
             />
           )}
           <BoardActions board={board} />

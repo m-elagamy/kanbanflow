@@ -112,8 +112,10 @@ function SearchResultItem({
 
 export function BoardSearch({
   scope = "board",
+  boardId: providedBoardId,
 }: {
   scope?: "board" | "workspace";
+  boardId?: string | null;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -128,7 +130,8 @@ export function BoardSearch({
 
   const activeBoardId = useBoardStore((state) => state.activeBoardId);
   const openModal = useModalStore((state) => state.openModal);
-  const boardId = scope === "board" ? activeBoardId : null;
+  const boardId =
+    scope === "board" ? (providedBoardId ?? activeBoardId) : null;
   const canSearch = scope === "workspace" || Boolean(boardId);
   const normalizedQuery = query.trim();
   const taskSearchKey = `${scope}:${boardId ?? "all"}:${normalizedQuery}`;

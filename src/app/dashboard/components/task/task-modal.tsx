@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
+import { Slot } from "@radix-ui/react-slot";
 import Modal from "@/components/ui/modal";
 import { useModalStore } from "@/stores/modal";
-import type { FormMode, ButtonVariants, ClientTask } from "@/lib/types";
+import type { FormMode, ClientTask } from "@/lib/types";
 import TaskForm from "./task-form";
 import { getModalTitle } from "../../utils/get-modal-title";
 import { getModalDescription } from "../../utils/get-modal-description";
@@ -12,7 +12,6 @@ type TaskModalProps = {
   trigger?: React.ReactNode;
   task?: ClientTask;
   mode: FormMode;
-  variant?: ButtonVariants;
   modalId?: string;
 };
 
@@ -22,7 +21,6 @@ const TaskModal = ({
   trigger,
   task,
   mode,
-  variant = "ghost",
   modalId: providedModalId,
 }: TaskModalProps) => {
   const openModal = useModalStore((state) => state.openModal);
@@ -40,15 +38,9 @@ const TaskModal = ({
   return (
     <>
       {trigger && (
-        <Button
-          className=""
-          variant={variant}
-          onClick={handleOnClick}
-          size="lg"
-          asChild
-        >
+        <Slot onClick={handleOnClick}>
           {trigger}
-        </Button>
+        </Slot>
       )}
       <Modal
         title={getModalTitle("task", mode)}

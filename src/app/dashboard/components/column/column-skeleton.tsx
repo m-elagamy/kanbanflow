@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import AddColumnCard from "./add-column-card";
 
 type ColumnSkeletonProps = {
   columnsNumber: number;
@@ -64,14 +65,10 @@ export default function ColumnSkeleton({
                 </Card>
               ),
             )}
-            <Skeleton className="h-8 w-full rounded-md" />
           </div>
         </Card>
       ))}
-      <div className="bg-background/50 flex h-14 w-64 min-w-64 shrink-0 snap-start items-center justify-center gap-2 rounded-xl border border-dashed px-4 md:w-84 md:min-w-84">
-        <Skeleton className="size-4 rounded-full" />
-        <Skeleton className="h-4 w-28" />
-      </div>
+      <AddColumnCard />
     </div>
   );
 }

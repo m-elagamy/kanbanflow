@@ -265,7 +265,7 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
             onClose={() => setIsQuickAddOpen(false)}
           />
         )}
-        {!isQuickAddOpen && page.totalCount > 0 && (
+        {!isInitialLoading && !isQuickAddOpen && page.totalCount > 0 && (
           <Button
             type="button"
             variant="ghost"
