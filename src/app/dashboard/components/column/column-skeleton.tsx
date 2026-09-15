@@ -21,7 +21,7 @@ export default function ColumnSkeleton({
       {Array.from({ length: visibleColumns }).map((_, columnIndex) => (
         <Card
           key={columnIndex}
-          className="border-border/80 bg-muted/45 dark:bg-muted/35 relative h-[500px] w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-sm md:w-84 md:max-w-none"
+          className="border-border/80 bg-muted/45 dark:bg-muted/35 relative h-full min-h-0 max-h-[calc(100dvh-82px)] w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-sm md:w-84 md:max-w-none"
         >
           <div className="flex min-h-14 items-center justify-between border-b p-4 pb-3">
             <div className="flex items-center gap-2">

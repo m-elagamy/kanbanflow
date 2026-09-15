@@ -1,26 +1,25 @@
 import ColumnSkeleton from "../column/column-skeleton";
+import BoardContainer from "./board-container";
 import BoardHeaderSkeleton from "./board-header-skeleton";
 
 type BoardSkeletonProps = {
   columnsNumber: number;
   tasksPerColumn: number[];
+  hasDescription?: boolean;
 };
 
 export default function BoardSkeleton({
   columnsNumber,
   tasksPerColumn,
+  hasDescription = false,
 }: BoardSkeletonProps) {
   return (
-    <div
-      className="flex h-full min-w-0 flex-col overflow-hidden"
-      aria-label="Loading board"
-      aria-busy="true"
-    >
-      <BoardHeaderSkeleton />
+    <BoardContainer>
+      <BoardHeaderSkeleton hasDescription={hasDescription} />
       <ColumnSkeleton
         columnsNumber={columnsNumber}
         tasksPerColumn={tasksPerColumn}
       />
-    </div>
+    </BoardContainer>
   );
 }

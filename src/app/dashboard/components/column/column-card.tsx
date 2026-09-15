@@ -178,7 +178,7 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
 
   return (
     <Card
-      className={`group/column border-border/80 bg-muted/45 dark:bg-muted/35 hover:border-border relative max-h-[calc(100dvh-82px)] w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:shadow-md md:w-84 md:max-w-none ${
+      className={`group/column border-border/80 bg-muted/45 dark:bg-muted/35 hover:border-border relative h-full min-h-0 max-h-[calc(100dvh-82px)] w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:shadow-md md:w-84 md:max-w-none ${
         isOver
           ? "ring-primary/20 border-primary/40 bg-primary/[0.03] shadow-md ring-2"
           : ""

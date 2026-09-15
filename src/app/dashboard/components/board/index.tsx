@@ -47,6 +47,7 @@ export default function BoardLayout({
     return (
       <BoardSkeleton
         columnsNumber={initialBoard.columns.length}
+        hasDescription={Boolean(initialBoard.description)}
         tasksPerColumn={initialBoard.columns.map(
           (column) => column.tasks.length,
         )}
