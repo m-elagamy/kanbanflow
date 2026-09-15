@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint .",
     "type-check": "next typegen && tsc --noEmit",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate && prisma migrate deploy",
     "prepare": "husky"
   },
   "dependencies": {
