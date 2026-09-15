@@ -51,7 +51,12 @@ export default function KeyboardShortcuts() {
 
       <DropdownMenuContent align="end" className="w-72 p-2">
         <DropdownMenuLabel>Keyboard shortcuts</DropdownMenuLabel>
-        {hasTaskSearch && <Shortcut label="Search tasks" keys="Ctrl/Cmd K" />}
+        {hasTaskSearch && (
+          <Shortcut
+            label={isDashboardHome ? "Search workspace" : "Search tasks"}
+            keys="Ctrl/Cmd K"
+          />
+        )}
         <Shortcut label="Toggle sidebar" keys="Ctrl/Cmd B" />
 
         {isBoardPage && (

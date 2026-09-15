@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CornerDownLeft, Plus, Search } from "lucide-react";
+import { CornerDownLeft, LayoutDashboard, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -21,18 +21,61 @@ import {
 } from "@/components/ui/command";
 import { EmptyState } from "@/components/ui/empty-state";
 import EmptyResultsIllustration from "@/components/ui/empty-results-illustration";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   getBoardTasksPageAction,
   getWorkspaceTasksPageAction,
 } from "@/actions/task";
+import { getUserBoardsPageAction } from "@/actions/user";
 import useBoardStore from "@/stores/board";
 import { useModalStore } from "@/stores/modal";
 import type { ClientTask, TaskSearchPage, TaskSearchResult } from "@/lib/types";
+import type { BoardWithStats } from "@/lib/types/stores/board";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
 import TaskModal from "../task/task-modal";
 import PriorityIndicator from "../task/priority-indicator";
 
-type SearchState = TaskSearchPage & { key: string; error: string | null };
+type TaskSearchState = TaskSearchPage & {
+  key: string;
+  error: string | null;
+};
+
+type BoardSearchState = {
+  key: string;
+  items: BoardWithStats[];
+  page: number;
+  totalCount: number;
+  error: string | null;
+};
+
+function BoardSearchResultItem({
+  board,
+  onSelect,
+}: {
+  board: BoardWithStats;
+  onSelect: (board: BoardWithStats) => void;
+}) {
+  return (
+    <CommandItem
+      value={`board-${board.id}`}
+      onSelect={() => onSelect(board)}
+      className="flex items-center gap-3 px-3 py-3"
+    >
+      <LayoutDashboard
+        className="text-muted-foreground size-4 shrink-0"
+        aria-hidden="true"
+      />
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium">{board.title}</p>
+        {board.description && (
+          <p className="text-muted-foreground mt-0.5 truncate text-xs">
+            {board.description}
+          </p>
+        )}
+      </div>
+    </CommandItem>
+  );
+}
 
 function SearchResultItem({
   task,
@@ -75,7 +118,9 @@ export function BoardSearch({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [search, setSearch] = useState<SearchState | null>(null);
+  const [activeTab, setActiveTab] = useState<"tasks" | "boards">("boards");
+  const [taskSearch, setTaskSearch] = useState<TaskSearchState | null>(null);
+  const [boardSearch, setBoardSearch] = useState<BoardSearchState | null>(null);
   const [retry, setRetry] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ClientTask | null>(null);
@@ -86,9 +131,18 @@ export function BoardSearch({
   const boardId = scope === "board" ? activeBoardId : null;
   const canSearch = scope === "workspace" || Boolean(boardId);
   const normalizedQuery = query.trim();
-  const searchKey = `${scope}:${boardId ?? "all"}:${normalizedQuery}`;
-  const currentSearch = search?.key === searchKey ? search : null;
-  const nextCursor = currentSearch?.nextCursor ?? null;
+  const taskSearchKey = `${scope}:${boardId ?? "all"}:${normalizedQuery}`;
+  const boardSearchKey = `workspace:${normalizedQuery}`;
+  const currentTaskSearch =
+    taskSearch?.key === taskSearchKey ? taskSearch : null;
+  const currentBoardSearch =
+    boardSearch?.key === boardSearchKey ? boardSearch : null;
+  const isBoardTab = scope === "workspace" && activeTab === "boards";
+  const nextCursor = currentTaskSearch?.nextCursor ?? null;
+  const hasMoreBoards = Boolean(
+    currentBoardSearch &&
+    currentBoardSearch.items.length < currentBoardSearch.totalCount,
+  );
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
@@ -108,33 +162,68 @@ export function BoardSearch({
     const timeout = setTimeout(
       async () => {
         try {
-          const result =
-            scope === "workspace"
-              ? await getWorkspaceTasksPageAction(
-                  normalizedQuery,
-                  null,
-                  TASKS_PAGE_SIZE,
-                )
-              : await getBoardTasksPageAction(
-                  boardId!,
-                  normalizedQuery,
-                  null,
-                  TASKS_PAGE_SIZE,
-                );
-          if (cancelled) return;
+          if (scope === "workspace") {
+            const [boardsResult, tasksResult] = await Promise.all([
+              getUserBoardsPageAction(1, normalizedQuery),
+              getWorkspaceTasksPageAction(
+                normalizedQuery,
+                null,
+                TASKS_PAGE_SIZE,
+              ),
+            ]);
+            if (cancelled) return;
 
-          setSearch({
-            key: searchKey,
-            items: result.success ? (result.fields?.items ?? []) : [],
-            nextCursor: result.success
-              ? (result.fields?.nextCursor ?? null)
-              : null,
-            error: result.success ? null : result.message,
-          });
+            setBoardSearch({
+              key: boardSearchKey,
+              items: boardsResult.success
+                ? (boardsResult.fields?.boards ?? [])
+                : [],
+              page: 1,
+              totalCount: boardsResult.success
+                ? (boardsResult.fields?.totalCount ?? 0)
+                : 0,
+              error: boardsResult.success ? null : boardsResult.message,
+            });
+            setTaskSearch({
+              key: taskSearchKey,
+              items: tasksResult.success
+                ? (tasksResult.fields?.items ?? [])
+                : [],
+              nextCursor: tasksResult.success
+                ? (tasksResult.fields?.nextCursor ?? null)
+                : null,
+              error: tasksResult.success ? null : tasksResult.message,
+            });
+          } else {
+            const result = await getBoardTasksPageAction(
+              boardId!,
+              normalizedQuery,
+              null,
+              TASKS_PAGE_SIZE,
+            );
+            if (cancelled) return;
+            setTaskSearch({
+              key: taskSearchKey,
+              items: result.success ? (result.fields?.items ?? []) : [],
+              nextCursor: result.success
+                ? (result.fields?.nextCursor ?? null)
+                : null,
+              error: result.success ? null : result.message,
+            });
+          }
         } catch {
           if (!cancelled) {
-            setSearch({
-              key: searchKey,
+            if (scope === "workspace") {
+              setBoardSearch({
+                key: boardSearchKey,
+                items: [],
+                page: 1,
+                totalCount: 0,
+                error: "Search failed. Please try again.",
+              });
+            }
+            setTaskSearch({
+              key: taskSearchKey,
               items: [],
               nextCursor: null,
               error: "Search failed. Please try again.",
@@ -149,13 +238,24 @@ export function BoardSearch({
       cancelled = true;
       clearTimeout(timeout);
     };
-  }, [boardId, canSearch, normalizedQuery, open, retry, scope, searchKey]);
+  }, [
+    boardId,
+    boardSearchKey,
+    canSearch,
+    normalizedQuery,
+    open,
+    retry,
+    scope,
+    taskSearchKey,
+  ]);
 
   const handleOpenChange = useCallback((isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen) {
       setQuery("");
-      setSearch(null);
+      setActiveTab("boards");
+      setTaskSearch(null);
+      setBoardSearch(null);
     }
   }, []);
 
@@ -173,7 +273,8 @@ export function BoardSearch({
       setSelectedTask(clientTask);
       setOpen(false);
       setQuery("");
-      setSearch(null);
+      setTaskSearch(null);
+      setBoardSearch(null);
 
       if (scope === "workspace") {
         router.push(`/dashboard/${task.board.slug}?task=${task.id}`);
@@ -184,12 +285,58 @@ export function BoardSearch({
     [openModal, router, scope],
   );
 
+  const handleBoardSelect = useCallback(
+    (board: BoardWithStats) => {
+      setOpen(false);
+      setQuery("");
+      setBoardSearch(null);
+      setTaskSearch(null);
+      router.push(`/dashboard/${board.slug}`);
+    },
+    [router],
+  );
+
   const handleLoadMore = useCallback(async () => {
-    if (!canSearch || !nextCursor || isLoadingMore) return;
+    if (
+      !canSearch ||
+      isLoadingMore ||
+      (isBoardTab ? !hasMoreBoards : !nextCursor)
+    )
+      return;
 
     setIsLoadingMore(true);
-    const requestedKey = searchKey;
+    const requestedKey = isBoardTab ? boardSearchKey : taskSearchKey;
     try {
+      if (isBoardTab) {
+        const nextPage = (currentBoardSearch?.page ?? 1) + 1;
+        const result = await getUserBoardsPageAction(nextPage, normalizedQuery);
+        if (!result.success || !result.fields) {
+          setBoardSearch((current) =>
+            current?.key === requestedKey
+              ? { ...current, error: result.message }
+              : current,
+          );
+          return;
+        }
+        const page = result.fields;
+
+        setBoardSearch((current) => {
+          if (current?.key !== requestedKey) return current;
+          const existingIds = new Set(current.items.map((board) => board.id));
+          return {
+            ...current,
+            items: [
+              ...current.items,
+              ...page.boards.filter((board) => !existingIds.has(board.id)),
+            ],
+            page: nextPage,
+            totalCount: page.totalCount,
+            error: null,
+          };
+        });
+        return;
+      }
+
       const result =
         scope === "workspace"
           ? await getWorkspaceTasksPageAction(
@@ -204,7 +351,7 @@ export function BoardSearch({
               TASKS_PAGE_SIZE,
             );
       if (!result.success || !result.fields) {
-        setSearch((current) =>
+        setTaskSearch((current) =>
           current?.key === requestedKey
             ? { ...current, error: result.message }
             : current,
@@ -213,7 +360,7 @@ export function BoardSearch({
       }
       const page = result.fields;
 
-      setSearch((current) => {
+      setTaskSearch((current) => {
         if (current?.key !== requestedKey) return current;
         const existingIds = new Set(current.items.map((task) => task.id));
         return {
@@ -227,27 +374,43 @@ export function BoardSearch({
         };
       });
     } catch {
-      setSearch((current) =>
-        current?.key === requestedKey
-          ? { ...current, error: "Search failed. Please try again." }
-          : current,
-      );
+      if (isBoardTab) {
+        setBoardSearch((current) =>
+          current?.key === requestedKey
+            ? { ...current, error: "Search failed. Please try again." }
+            : current,
+        );
+      } else {
+        setTaskSearch((current) =>
+          current?.key === requestedKey
+            ? { ...current, error: "Search failed. Please try again." }
+            : current,
+        );
+      }
     } finally {
       setIsLoadingMore(false);
     }
   }, [
     boardId,
+    boardSearchKey,
     canSearch,
+    currentBoardSearch,
+    hasMoreBoards,
+    isBoardTab,
     isLoadingMore,
     nextCursor,
     normalizedQuery,
     scope,
-    searchKey,
+    taskSearchKey,
   ]);
 
   useEffect(() => {
     const target = loadMoreRef.current;
-    if (!target || !nextCursor || isLoadingMore || currentSearch?.error) return;
+    const error = isBoardTab
+      ? currentBoardSearch?.error
+      : currentTaskSearch?.error;
+    const hasMore = isBoardTab ? hasMoreBoards : Boolean(nextCursor);
+    if (!target || !hasMore || isLoadingMore || error) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -263,10 +426,21 @@ export function BoardSearch({
 
     observer.observe(target);
     return () => observer.disconnect();
-  }, [currentSearch?.error, handleLoadMore, isLoadingMore, nextCursor]);
+  }, [
+    currentBoardSearch?.error,
+    currentTaskSearch?.error,
+    handleLoadMore,
+    hasMoreBoards,
+    isBoardTab,
+    isLoadingMore,
+    nextCursor,
+  ]);
 
+  const currentSearch = isBoardTab ? currentBoardSearch : currentTaskSearch;
   const isPending = Boolean(open && canSearch && !currentSearch);
-  const results = currentSearch?.items ?? [];
+  const taskResults = currentTaskSearch?.items ?? [];
+  const boardResults = currentBoardSearch?.items ?? [];
+  const results = isBoardTab ? boardResults : taskResults;
 
   return (
     <>
@@ -277,9 +451,7 @@ export function BoardSearch({
       >
         <Search size={14} aria-hidden="true" />
         <span className="min-w-0 flex-1 truncate text-left">
-          {scope === "workspace"
-            ? "Search tasks across your workspace..."
-            : "Search tasks..."}
+          {scope === "workspace" ? "Search workspace..." : "Search tasks..."}
         </span>
         <kbd className="bg-muted pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none md:inline-flex">
           Ctrl/Cmd K
@@ -290,148 +462,182 @@ export function BoardSearch({
         <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-xl md:p-0">
           <DialogHeader className="sr-only">
             <DialogTitle>
-              {scope === "workspace"
-                ? "Search workspace tasks"
-                : "Search tasks"}
+              {scope === "workspace" ? "Search workspace" : "Search tasks"}
             </DialogTitle>
             <DialogDescription>
-              Search for tasks by title or description
+              {scope === "workspace"
+                ? "Search for boards and tasks by title or description"
+                : "Search for tasks by title or description"}
             </DialogDescription>
           </DialogHeader>
           <Command shouldFilter={false} className="rounded-none">
-            <CommandInput
-              placeholder="Search by title or description..."
-              className="pr-8"
-              value={query}
-              onValueChange={setQuery}
-            />
-            <CommandList>
-              {isPending ? (
-                <div className="space-y-2 p-3" aria-label="Searching tasks">
-                  {[0, 1, 2].map((item) => (
-                    <div
-                      key={item}
-                      className="flex items-center gap-3 rounded-md p-2"
-                    >
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-2/3" />
-                        <Skeleton className="h-3 w-1/3" />
-                      </div>
-                      <Skeleton className="h-5 w-14 rounded-md" />
-                    </div>
-                  ))}
-                </div>
-              ) : currentSearch?.error && results.length === 0 ? (
-                <div
-                  role="alert"
-                  className="space-y-2 py-6 text-center text-sm"
-                >
-                  <p>{currentSearch.error}</p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSearch(null);
-                      setRetry((value) => value + 1);
-                    }}
+            <Tabs
+              value={scope === "workspace" ? activeTab : "tasks"}
+              onValueChange={(value) =>
+                setActiveTab(value as "tasks" | "boards")
+              }
+              className="gap-0"
+            >
+              <CommandInput
+                placeholder={
+                  isBoardTab
+                    ? "Search boards..."
+                    : "Search tasks by title or description..."
+                }
+                className="pr-8"
+                value={query}
+                onValueChange={setQuery}
+              />
+              {scope === "workspace" && (
+                <TabsList className="mx-3 mt-3 grid w-auto grid-cols-2">
+                  <TabsTrigger value="boards">Boards</TabsTrigger>
+                  <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                </TabsList>
+              )}
+              <CommandList>
+                {isPending ? (
+                  <div
+                    className="space-y-2 p-3"
+                    aria-label={`Searching ${isBoardTab ? "boards" : "tasks"}`}
                   >
-                    Retry
-                  </Button>
-                </div>
-              ) : results.length === 0 && !normalizedQuery ? (
-                <EmptyState
-                  size="compact"
-                  className="min-h-56 py-6"
-                  illustration={<EmptyResultsIllustration />}
-                  title="No tasks to search"
-                  description="Create a task, then use search to find it quickly."
-                  action={
-                    boardId ? (
-                      <TaskModal
-                        mode="create"
-                        boardId={boardId}
-                        modalId={`search-new-task-board-${boardId}`}
-                        trigger={
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setOpen(false)}
-                          >
-                            <Plus aria-hidden="true" /> Add task
-                          </Button>
-                        }
-                      />
-                    ) : undefined
-                  }
-                />
-              ) : results.length === 0 ? (
-                <EmptyState
-                  size="compact"
-                  className="min-h-44 py-6"
-                  illustration={<EmptyResultsIllustration />}
-                  title="No matching tasks"
-                  description="Try a different title, keyword, or description."
-                  action={
+                    {[0, 1, 2].map((item) => (
+                      <div
+                        key={item}
+                        className="flex items-center gap-3 rounded-md p-2"
+                      >
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-2/3" />
+                          <Skeleton className="h-3 w-1/3" />
+                        </div>
+                        <Skeleton className="h-5 w-14 rounded-md" />
+                      </div>
+                    ))}
+                  </div>
+                ) : currentSearch?.error && results.length === 0 ? (
+                  <div
+                    role="alert"
+                    className="space-y-2 py-6 text-center text-sm"
+                  >
+                    <p>{currentSearch.error}</p>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setQuery("")}
+                      onClick={() => {
+                        if (isBoardTab) setBoardSearch(null);
+                        else setTaskSearch(null);
+                        setRetry((value) => value + 1);
+                      }}
                     >
-                      Clear search
+                      Retry
                     </Button>
-                  }
-                />
-              ) : (
-                <CommandGroup
-                  heading={
-                    normalizedQuery
-                      ? nextCursor
-                        ? "Search results"
-                        : `${results.length} result${results.length === 1 ? "" : "s"}`
-                      : scope === "workspace"
-                        ? "Tasks across your workspace"
-                        : "Tasks on this board"
-                  }
-                >
-                  {results.map((task) => (
-                    <SearchResultItem
-                      key={task.id}
-                      task={task}
-                      onSelect={handleSelect}
-                      showBoard={scope === "workspace"}
-                    />
-                  ))}
-                  {nextCursor && (
-                    <div
-                      ref={loadMoreRef}
-                      className="text-muted-foreground flex min-h-8 items-center justify-center py-1 text-xs"
-                      aria-live="polite"
-                    >
-                      {isLoadingMore ? "Loading more..." : null}
-                    </div>
-                  )}
-                  {currentSearch?.error && (
-                    <div className="space-y-1 py-2 text-center">
-                      <p className="text-destructive text-xs">
-                        {currentSearch.error}
-                      </p>
+                  </div>
+                ) : results.length === 0 && !normalizedQuery ? (
+                  <EmptyState
+                    size="compact"
+                    className="min-h-56 py-6"
+                    illustration={<EmptyResultsIllustration />}
+                    title={
+                      isBoardTab ? "No boards to search" : "No tasks to search"
+                    }
+                    description={
+                      isBoardTab
+                        ? "Create a board, then use search to find it quickly."
+                        : "Create a task, then use search to find it quickly."
+                    }
+                    action={
+                      boardId ? (
+                        <TaskModal
+                          mode="create"
+                          boardId={boardId}
+                          modalId={`search-new-task-board-${boardId}`}
+                          trigger={
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setOpen(false)}
+                            >
+                              <Plus aria-hidden="true" /> Add task
+                            </Button>
+                          }
+                        />
+                      ) : undefined
+                    }
+                  />
+                ) : results.length === 0 ? (
+                  <EmptyState
+                    size="compact"
+                    className="min-h-44 py-6"
+                    illustration={<EmptyResultsIllustration />}
+                    title={
+                      isBoardTab ? "No matching boards" : "No matching tasks"
+                    }
+                    description="Try a different title, keyword, or description."
+                    action={
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
-                          setSearch((current) =>
-                            current ? { ...current, error: null } : current,
-                          );
-                          void handleLoadMore();
-                        }}
+                        onClick={() => setQuery("")}
                       >
-                        Retry
+                        Clear search
                       </Button>
-                    </div>
-                  )}
-                </CommandGroup>
-              )}
-            </CommandList>
+                    }
+                  />
+                ) : (
+                  <CommandGroup heading={isBoardTab ? "Boards" : "Tasks"}>
+                    {isBoardTab
+                      ? boardResults.map((board) => (
+                          <BoardSearchResultItem
+                            key={board.id}
+                            board={board}
+                            onSelect={handleBoardSelect}
+                          />
+                        ))
+                      : taskResults.map((task) => (
+                          <SearchResultItem
+                            key={task.id}
+                            task={task}
+                            onSelect={handleSelect}
+                            showBoard={scope === "workspace"}
+                          />
+                        ))}
+                    {(isBoardTab ? hasMoreBoards : Boolean(nextCursor)) && (
+                      <div
+                        ref={loadMoreRef}
+                        className="text-muted-foreground flex min-h-8 items-center justify-center py-1 text-xs"
+                        aria-live="polite"
+                      >
+                        {isLoadingMore ? "Loading more..." : null}
+                      </div>
+                    )}
+                    {currentSearch?.error && (
+                      <div className="space-y-1 py-2 text-center">
+                        <p className="text-destructive text-xs">
+                          {currentSearch.error}
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (isBoardTab) {
+                              setBoardSearch((current) =>
+                                current ? { ...current, error: null } : current,
+                              );
+                            } else {
+                              setTaskSearch((current) =>
+                                current ? { ...current, error: null } : current,
+                              );
+                            }
+                            void handleLoadMore();
+                          }}
+                        >
+                          Retry
+                        </Button>
+                      </div>
+                    )}
+                  </CommandGroup>
+                )}
+              </CommandList>
+            </Tabs>
             <div className="text-muted-foreground flex items-center justify-end gap-4 border-t px-3 py-2 text-[0.625rem]">
               <span>Up/Down Navigate</span>
               <span className="flex items-center gap-1">
