@@ -10,7 +10,6 @@ const isPublicRoute = createRouteMatcher([
   "/robots.txt",
   "/sitemap.xml",
   "/opengraph-image",
-  "/icon",
 ]);
 
 export default proxy(async (auth, request) => {
