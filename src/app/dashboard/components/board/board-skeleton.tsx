@@ -11,7 +11,11 @@ export default function BoardSkeleton({
   tasksPerColumn,
 }: BoardSkeletonProps) {
   return (
-    <div className="container relative right-3 flex h-full flex-col overflow-hidden p-0 pb-8 md:right-0 md:px-4">
+    <div
+      className="flex h-full min-w-0 flex-col overflow-hidden"
+      aria-label="Loading board"
+      aria-busy="true"
+    >
       <BoardHeaderSkeleton />
       <ColumnSkeleton
         columnsNumber={columnsNumber}

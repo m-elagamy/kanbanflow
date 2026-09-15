@@ -46,7 +46,7 @@ export default function BoardLayout({
   if (!activeBoard?.id || !hasInitializedTaskPages) {
     return (
       <BoardSkeleton
-        columnsNumber={initialBoard.columns.length + 1}
+        columnsNumber={initialBoard.columns.length}
         tasksPerColumn={initialBoard.columns.map(
           (column) => column.tasks.length,
         )}
