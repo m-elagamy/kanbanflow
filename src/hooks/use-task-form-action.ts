@@ -55,7 +55,7 @@ export function useTaskFormAction({
       formData,
       isEditMode,
       [],
-      ["title", "description", "priority", "dueDate"],
+      ["title", "description", "priority"],
       "task",
     );
 
@@ -63,12 +63,7 @@ export function useTaskFormAction({
 
     const finalColumnId = columnId || validatedData.columnId;
 
-    const {
-      title,
-      description = "",
-      priority = "medium",
-      dueDate = null,
-    } = validatedData;
+    const { title, description = "", priority = "medium" } = validatedData;
 
     const optimisticTask = {
       id: generateUUID(),
@@ -77,14 +72,14 @@ export function useTaskFormAction({
       description,
       priority,
       order: "",
-      dueDate,
+      columnEnteredAt: new Date().toISOString(),
     };
 
     try {
       if (isEditMode && task) {
         setIsLoading("task", "updating", true, task.id);
 
-        updateTask(task.id, { title, description, priority, dueDate });
+        updateTask(task.id, { title, description, priority });
         closeModal("task", modalId);
 
         const result = await updateTaskAction(formData);

@@ -17,7 +17,6 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { deleteColumnAction, updateColumnAction } from "@/actions/column";
 import { useColumnStore } from "@/stores/column";
-import TaskModal from "../task/task-modal";
 import useLoadingStore from "@/stores/loading";
 import useBoardStore from "@/stores/board";
 import handleOnError from "@/utils/handle-on-error";
@@ -45,13 +44,13 @@ const ColumnStatusSelect = dynamic(() => import("./column-status-select"), {
 type ColumnActionsProps = {
   columnId: string;
   columnStatus: string;
-  tasksCount: number;
+  onQuickAdd: () => void;
 };
 
 const ColumnActions = ({
   columnId,
   columnStatus,
-  tasksCount,
+  onQuickAdd,
 }: ColumnActionsProps) => {
   const isMobile = useIsMobile();
   const [isMainDropdownOpen, setIsMainDropdownOpen] = useState(false);
@@ -125,18 +124,15 @@ const ColumnActions = ({
 
   return (
     <div className="flex items-center gap-1">
-      {tasksCount >= 1 && (
-        <TaskModal
-          mode="create"
-          columnId={columnId}
-          trigger={
-            <Button variant="ghost" size="icon" className="size-8">
-              <PlusIcon />
-              <span className="sr-only">New Task</span>
-            </Button>
-          }
-        />
-      )}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-8"
+        onClick={onQuickAdd}
+      >
+        <PlusIcon />
+        <span className="sr-only">Quick add task</span>
+      </Button>
       <DropdownMenu
         open={isMainDropdownOpen}
         onOpenChange={setIsMainDropdownOpen}

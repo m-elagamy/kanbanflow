@@ -9,10 +9,6 @@ export const taskSchema = z.object({
     .max(50, "Task name must be less than 50 characters."),
   description: z.string().trim().max(2000, "Description too long.").optional(),
   priority: z.enum(["low", "medium", "high"]).default("medium").optional(),
-  dueDate: z
-    .union([z.iso.date("Invalid date."), z.literal("")])
-    .optional()
-    .transform((value) => value || null),
 });
 
 export type TaskSchema = z.infer<typeof taskSchema>;
@@ -27,7 +23,7 @@ export const taskSearchSchema = z.object({
 export type TaskSearchSchema = z.infer<typeof taskSearchSchema>;
 
 export const workspaceTasksPageSchema = z.object({
-  filter: z.enum(["all", "needs-attention", "overdue", "high-priority"]),
+  filter: z.enum(["all", "needs-attention", "stale", "high-priority"]),
   page: z.number().int().min(1).max(2147483647),
   limit: z.number().int().min(1).max(50),
 });

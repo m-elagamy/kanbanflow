@@ -19,12 +19,14 @@ type ColumnHeaderProps = {
     attributes: DraggableAttributes;
     listeners: DraggableSyntheticListeners;
   };
+  onQuickAdd: () => void;
 };
 
 export default function ColumnHeader({
   tasksCount,
   column,
   dragHandleProps,
+  onQuickAdd,
 }: ColumnHeaderProps) {
   const { id: columnId, status: columnStatus } = column;
 
@@ -67,7 +69,7 @@ export default function ColumnHeader({
       <ColumnActions
         columnId={columnId}
         columnStatus={columnStatus}
-        tasksCount={tasksCount}
+        onQuickAdd={onQuickAdd}
       />
     </CardHeader>
   );

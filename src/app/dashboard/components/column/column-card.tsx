@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   SortableContext,
   useSortable,
@@ -8,6 +8,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useShallow } from "zustand/react/shallow";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import { useTaskStore } from "@/stores/task";
@@ -17,8 +18,9 @@ import NoTasksMessage from "../task/no-tasks-message";
 import NoMatchingTasksMessage from "../task/no-matching-tasks-message";
 import TaskCard from "../task/task-card";
 import { getColumnTasksPageAction } from "@/actions/task";
-import { TASKS_PAGE_SIZE } from "@/lib/constants";
+import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import useLoadingStore from "@/stores/loading";
+import QuickAddTask from "../task/quick-add-task";
 
 type ColumnCardProps = {
   column: SimplifiedColumn;
@@ -28,6 +30,7 @@ type ColumnCardProps = {
 const EMPTY_TASK_IDS: string[] = [];
 
 const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const isReordering = useLoadingStore((state) =>
@@ -175,7 +178,7 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
 
   return (
     <Card
-      className={`group border-border/80 bg-muted/45 dark:bg-muted/35 hover:border-border relative max-h-[calc(100dvh-82px)] w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:shadow-md md:w-84 md:max-w-none ${
+      className={`group/column border-border/80 bg-muted/45 dark:bg-muted/35 hover:border-border relative max-h-[calc(100dvh-82px)] w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:shadow-md md:w-84 md:max-w-none ${
         isOver
           ? "ring-primary/20 border-primary/40 bg-primary/[0.03] shadow-md ring-2"
           : ""
@@ -187,6 +190,7 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
         column={column}
         tasksCount={page?.totalCount ?? tasks.length}
         dragHandleProps={{ attributes, listeners }}
+        onQuickAdd={() => setIsQuickAddOpen(true)}
       />
 
       <CardContent
@@ -211,7 +215,9 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
             </Button>
           </div>
         ) : page.totalCount === 0 ? (
-          <NoTasksMessage columnId={column.id} />
+          !isQuickAddOpen && (
+            <NoTasksMessage onQuickAdd={() => setIsQuickAddOpen(true)} />
+          )
         ) : visibleTasks.length === 0 ? (
           <NoMatchingTasksMessage />
         ) : (
@@ -226,6 +232,7 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
                   task={task}
                   columnId={column.id}
                   isFocused={task.id === focusedTaskId}
+                  showColumnAge={!TERMINAL_COLUMN_STATUSES.includes(column.status)}
                 />
               ))}
               {nextCursor && !page.error && (
@@ -251,6 +258,24 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
               )}
             </div>
           </SortableContext>
+        )}
+        {isQuickAddOpen && (
+          <QuickAddTask
+            columnId={column.id}
+            onClose={() => setIsQuickAddOpen(false)}
+          />
+        )}
+        {!isQuickAddOpen && page.totalCount > 0 && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-foreground h-8 w-full justify-start opacity-100 transition-opacity md:opacity-0 md:group-focus-within/column:opacity-100 md:group-hover/column:opacity-100"
+            onClick={() => setIsQuickAddOpen(true)}
+          >
+            <Plus aria-hidden="true" />
+            Create
+          </Button>
         )}
       </CardContent>
 

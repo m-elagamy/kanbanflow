@@ -12,9 +12,12 @@ import type {
 import { generateKeyBetween } from "fractional-indexing";
 import {
   DASHBOARD_FOCUS_PREVIEW_SIZE,
+  STALE_TASK_DAYS,
   TERMINAL_COLUMN_STATUSES,
 } from "@/lib/constants";
-import { getStartOfTodayUtc } from "@/utils/due-date-boundary";
+
+const getStaleTaskBoundary = (now = new Date()) =>
+  new Date(now.getTime() - STALE_TASK_DAYS * 24 * 60 * 60 * 1000);
 
 const resolveColumnOwnerId = async (columnId: string) => {
   const column = await db.column.findUnique({
@@ -39,7 +42,6 @@ export const createTask = withOwnership(
     title: string,
     description?: string,
     priority?: Priority,
-    dueDate?: Date | null,
   ): Promise<Task> => {
     const highestOrderTask = await db.task.findFirst({
       where: { columnId },
@@ -56,7 +58,6 @@ export const createTask = withOwnership(
         priority,
         columnId,
         order: newOrder,
-        dueDate,
       },
     });
   },
@@ -94,7 +95,6 @@ export const getTaskForRename = withOwnership(
         title: true,
         description: true,
         priority: true,
-        dueDate: true,
       },
     });
   },
@@ -112,7 +112,7 @@ export const getTaskDetails = withOwnership(
         priority: true,
         order: true,
         columnId: true,
-        dueDate: true,
+        columnEnteredAt: true,
         column: { select: { board: { select: { slug: true } } } },
       },
     });
@@ -126,7 +126,7 @@ export const getTaskDetails = withOwnership(
       priority: task.priority,
       order: task.order,
       columnId: task.columnId,
-      dueDate: task.dueDate?.toISOString() ?? null,
+      columnEnteredAt: task.columnEnteredAt.toISOString(),
       boardSlug: task.column.board.slug,
     };
   },
@@ -140,7 +140,7 @@ export const updateTaskPosition = withOwnership(
     newColumnId: string,
     previousTaskId: string | null,
     nextTaskId: string | null,
-  ): Promise<Pick<Task, "columnId" | "order">> => {
+  ): Promise<Pick<Task, "columnId" | "order" | "columnEnteredAt">> => {
     if (previousTaskId === taskId || nextTaskId === taskId) {
       throw new Error("Invalid task position.");
     }
@@ -148,7 +148,7 @@ export const updateTaskPosition = withOwnership(
     const [sourceTask, targetColumn] = await Promise.all([
       db.task.findUnique({
         where: { id: taskId },
-        select: { column: { select: { boardId: true } } },
+        select: { columnId: true, column: { select: { boardId: true } } },
       }),
       db.column.findUnique({
         where: { id: newColumnId },
@@ -224,10 +224,17 @@ export const updateTaskPosition = withOwnership(
 
       return tx.task.update({
         where: { id: taskId },
-        data: { columnId: newColumnId, order },
+        data: {
+          columnId: newColumnId,
+          order,
+          ...(sourceTask.columnId !== newColumnId && {
+            columnEnteredAt: new Date(),
+          }),
+        },
         select: {
           columnId: true,
           order: true,
+          columnEnteredAt: true,
         },
       });
     });
@@ -274,7 +281,7 @@ export const getTasksPage = withUserId(
         priority: true,
         order: true,
         columnId: true,
-        dueDate: true,
+        columnEnteredAt: true,
         column: {
           select: {
             status: true,
@@ -293,7 +300,7 @@ export const getTasksPage = withUserId(
         ...task,
         board: task.column.board,
         column: { status: task.column.status },
-        dueDate: task.dueDate?.toISOString() ?? null,
+        columnEnteredAt: task.columnEnteredAt.toISOString(),
       })),
       nextCursor: hasMore ? (page.at(-1)?.id ?? null) : null,
     };
@@ -307,7 +314,7 @@ const workspaceTaskSelect = {
   priority: true,
   order: true,
   columnId: true,
-  dueDate: true,
+  columnEnteredAt: true,
   column: {
     select: {
       status: true,
@@ -318,21 +325,21 @@ const workspaceTaskSelect = {
 
 const toWorkspaceTask = <
   T extends {
-    dueDate: Date | null;
+    columnEnteredAt: Date;
     priority: Priority;
     column: { status: string; board: { title: string; slug: string } };
   },
 >(
   task: T,
-  startOfToday: Date,
+  staleBoundary: Date,
 ) => ({
   ...task,
   board: task.column.board,
   column: { status: task.column.status },
-  dueDate: task.dueDate?.toISOString() ?? null,
+  columnEnteredAt: task.columnEnteredAt.toISOString(),
   attentionReason:
-    task.dueDate && task.dueDate < startOfToday
-      ? ("overdue" as const)
+    task.columnEnteredAt <= staleBoundary
+      ? ("stale" as const)
       : task.priority === "high"
         ? ("high-priority" as const)
         : null,
@@ -340,16 +347,19 @@ const toWorkspaceTask = <
 
 export const getDashboardFocusTasks = withUserId(
   async (userId: string): Promise<DashboardFocusPreview> => {
-    const startOfToday = getStartOfTodayUtc();
+    const staleBoundary = getStaleTaskBoundary();
     const tasks = await db.task.findMany({
       where: {
-        OR: [{ dueDate: { lt: startOfToday } }, { priority: "high" }],
+        OR: [
+          { columnEnteredAt: { lte: staleBoundary } },
+          { priority: "high" },
+        ],
         column: {
           status: { notIn: TERMINAL_COLUMN_STATUSES },
           board: { userId },
         },
       },
-      orderBy: [{ dueDate: { sort: "asc", nulls: "last" } }, { id: "asc" }],
+      orderBy: [{ columnEnteredAt: "asc" }, { id: "asc" }],
       take: DASHBOARD_FOCUS_PREVIEW_SIZE + 1,
       select: workspaceTaskSelect,
     });
@@ -358,7 +368,7 @@ export const getDashboardFocusTasks = withUserId(
       items: tasks
         .slice(0, DASHBOARD_FOCUS_PREVIEW_SIZE)
         .map(
-          (task) => toWorkspaceTask(task, startOfToday) as DashboardFocusTask,
+          (task) => toWorkspaceTask(task, staleBoundary) as DashboardFocusTask,
         ),
       hasMore: tasks.length > DASHBOARD_FOCUS_PREVIEW_SIZE,
     };
@@ -372,16 +382,22 @@ export const getWorkspaceTasksOverviewPage = withUserId(
     page: number,
     limit: number,
   ): Promise<WorkspaceTasksPage> => {
-    const startOfToday = getStartOfTodayUtc();
+    const staleBoundary = getStaleTaskBoundary();
     const activeColumn = { status: { notIn: TERMINAL_COLUMN_STATUSES } };
     const filterWhere: Prisma.TaskWhereInput =
       filter === "needs-attention"
         ? {
-            OR: [{ dueDate: { lt: startOfToday } }, { priority: "high" }],
+            OR: [
+              { columnEnteredAt: { lte: staleBoundary } },
+              { priority: "high" },
+            ],
             column: activeColumn,
           }
-        : filter === "overdue"
-          ? { dueDate: { lt: startOfToday }, column: activeColumn }
+        : filter === "stale"
+          ? {
+              columnEnteredAt: { lte: staleBoundary },
+              column: activeColumn,
+            }
           : filter === "high-priority"
             ? { priority: "high", column: activeColumn }
             : {};
@@ -396,7 +412,7 @@ export const getWorkspaceTasksOverviewPage = withUserId(
             { order: "asc" },
             { id: "asc" },
           ]
-        : [{ dueDate: { sort: "asc", nulls: "last" } }, { id: "asc" }];
+        : [{ columnEnteredAt: "asc" }, { id: "asc" }];
 
     const [tasks, totalCount] = await Promise.all([
       db.task.findMany({
@@ -410,7 +426,7 @@ export const getWorkspaceTasksOverviewPage = withUserId(
     ]);
 
     return {
-      items: tasks.map((task) => toWorkspaceTask(task, startOfToday)),
+      items: tasks.map((task) => toWorkspaceTask(task, staleBoundary)),
       totalCount,
     };
   },
@@ -439,7 +455,7 @@ export const getColumnTasksPage = withOwnership(
         priority: true,
         order: true,
         columnId: true,
-        dueDate: true,
+        columnEnteredAt: true,
       },
     });
 
@@ -449,7 +465,7 @@ export const getColumnTasksPage = withOwnership(
     return {
       items: page.map((task) => ({
         ...task,
-        dueDate: task.dueDate?.toISOString() ?? null,
+        columnEnteredAt: task.columnEnteredAt.toISOString(),
       })),
       nextCursor: hasMore ? (page.at(-1)?.order ?? null) : null,
     };

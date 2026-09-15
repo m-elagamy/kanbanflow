@@ -56,7 +56,6 @@ const TaskForm = ({
       title: task?.title ?? "",
       description: task?.description ?? "",
       priority: task?.priority ?? "medium",
-      dueDate: task?.dueDate ? task.dueDate.slice(0, 10) : null,
       columnId: columnId ?? "",
     },
     taskSchema,
@@ -136,15 +135,6 @@ const TaskForm = ({
         placeholder="Select priority"
       />
 
-      <FormField
-        type="date"
-        name="dueDate"
-        label="Due date"
-        defaultValue={taskFormData.dueDate ?? ""}
-        onChange={(value) => handleOnChange("dueDate", value)}
-        error={errors?.dueDate}
-        helperText="Optional. Leave blank if there's no deadline."
-      />
     </GenericForm>
   );
 };

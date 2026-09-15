@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { CircleAlert, CircleCheck, ChevronRight, Flag } from "lucide-react";
+import { Clock3, CircleCheck, ChevronRight, Flag } from "lucide-react";
 import type { DashboardFocusPreview } from "@/lib/types";
-import TaskDueDate from "../task/task-due-date";
 import PriorityIndicator from "../task/priority-indicator";
+import TaskColumnAge from "../task/task-column-age";
 
 export default function DashboardFocus({
   tasks,
@@ -18,7 +18,7 @@ export default function DashboardFocus({
         <div>
           <p className="text-sm font-medium">You’re all caught up</p>
           <p className="text-muted-foreground text-xs">
-            No overdue or high-priority tasks.
+            No stale or high-priority tasks.
           </p>
         </div>
       </div>
@@ -32,7 +32,7 @@ export default function DashboardFocus({
           Needs attention
         </h2>
         <p className="text-muted-foreground text-sm">
-          Overdue work and high-priority tasks across your boards.
+          Stale work and high-priority tasks across your boards.
         </p>
       </div>
 
@@ -46,8 +46,8 @@ export default function DashboardFocus({
       ) : (
         <div className="border-border/80 bg-background/80 divide-border/80 overflow-hidden rounded-xl border shadow-sm">
           {tasks.items.map((task) => {
-            const isOverdue = task.attentionReason === "overdue";
-            const AttentionIcon = isOverdue ? CircleAlert : Flag;
+            const isStale = task.attentionReason === "stale";
+            const AttentionIcon = isStale ? Clock3 : Flag;
             return (
               <Link
                 key={task.id}
@@ -56,7 +56,7 @@ export default function DashboardFocus({
                 aria-label={`Focus ${task.title} in ${task.board.title}`}
               >
                 <span
-                  className={`${isOverdue ? "bg-destructive/10 text-destructive" : "bg-orange-500/10 text-orange-600 dark:text-orange-400"} flex size-9 shrink-0 items-center justify-center rounded-lg`}
+                  className={`${isStale ? "bg-amber-500/10 text-amber-600 dark:text-amber-400" : "bg-orange-500/10 text-orange-600 dark:text-orange-400"} flex size-9 shrink-0 items-center justify-center rounded-lg`}
                 >
                   <AttentionIcon className="size-4" aria-hidden="true" />
                 </span>
@@ -67,7 +67,10 @@ export default function DashboardFocus({
                   </p>
                 </div>
                 <div className="flex shrink-0 items-end gap-2 max-sm:flex-col">
-                  {task.dueDate && <TaskDueDate date={task.dueDate} />}
+                  <TaskColumnAge
+                    columnEnteredAt={task.columnEnteredAt}
+                    compact={false}
+                  />
                   <PriorityIndicator priority={task.priority} />
                 </div>
                 <ChevronRight

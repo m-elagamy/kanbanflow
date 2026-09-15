@@ -168,7 +168,7 @@ export function BoardSearch({
         priority: task.priority,
         order: task.order,
         columnId: task.columnId,
-        dueDate: task.dueDate,
+        columnEnteredAt: task.columnEnteredAt,
       };
       setSelectedTask(clientTask);
       setOpen(false);

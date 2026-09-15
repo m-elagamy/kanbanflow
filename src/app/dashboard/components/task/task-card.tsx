@@ -4,18 +4,19 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { ClientTask } from "@/lib/types";
-import TaskDueDate from "./task-due-date";
 import TaskActions from "./task-actions";
 import useLoadingStore from "@/stores/loading";
 import { useTaskFilterStore } from "@/stores/task-filter";
 import { useModalStore } from "@/stores/modal";
 import PriorityIndicator from "./priority-indicator";
+import TaskColumnAge from "./task-column-age";
 
 type TaskCardProps = {
   task: ClientTask;
   columnId?: string | null;
   isDragging?: boolean;
   isFocused?: boolean;
+  showColumnAge?: boolean;
 };
 
 const TaskCard = ({
@@ -23,6 +24,7 @@ const TaskCard = ({
   columnId,
   isDragging = false,
   isFocused = false,
+  showColumnAge = true,
 }: TaskCardProps) => {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [showFocus, setShowFocus] = useState(isFocused);
@@ -134,7 +136,9 @@ const TaskCard = ({
         </div>
 
         <div className="text-muted-foreground flex min-h-5 items-center justify-between gap-3 text-xs">
-          {task.dueDate && <TaskDueDate date={task.dueDate} />}
+          {showColumnAge && (
+            <TaskColumnAge columnEnteredAt={task.columnEnteredAt} />
+          )}
           <PriorityIndicator
             priority={task.priority}
             showLabel={false}

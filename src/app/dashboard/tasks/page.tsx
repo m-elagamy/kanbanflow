@@ -4,23 +4,23 @@ import { redirect } from "next/navigation";
 import {
   ChevronLeft,
   ChevronRight,
-  CircleAlert,
+  Clock3,
   Flag,
   ListTodo,
 } from "lucide-react";
 import { getWorkspaceTasksOverviewPageAction } from "@/actions/task";
-import { TASKS_PAGE_SIZE } from "@/lib/constants";
+import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import type { TasksFilter } from "@/lib/types";
-import TaskDueDate from "../components/task/task-due-date";
 import Pagination from "../components/pagination";
 import PriorityIndicator from "../components/task/priority-indicator";
+import TaskColumnAge from "../components/task/task-column-age";
 
 type SearchParams = Promise<{ attention?: string; page?: string }>;
 
 const filters: { value: TasksFilter; label: string }[] = [
   { value: "all", label: "All tasks" },
   { value: "needs-attention", label: "Needs attention" },
-  { value: "overdue", label: "Overdue" },
+  { value: "stale", label: "Stale" },
   { value: "high-priority", label: "High priority" },
 ];
 const filterValues = new Set<TasksFilter>(filters.map(({ value }) => value));
@@ -112,20 +112,20 @@ export default async function TasksPage({
           <p className="text-muted-foreground mt-1 text-xs">
             {filter === "all"
               ? "Create a task on one of your boards to see it here."
-              : "Try another filter or return when priorities change."}
+              : "Try another filter or return when your workflow changes."}
           </p>
         </div>
       ) : (
         <div className="border-border/80 bg-background/80 divide-border/80 min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-xl border shadow-sm">
           {items.map((task) => {
-            const isOverdue = task.attentionReason === "overdue";
-            const AttentionIcon = isOverdue
-              ? CircleAlert
+            const isStale = task.attentionReason === "stale";
+            const AttentionIcon = isStale
+              ? Clock3
               : task.attentionReason === "high-priority"
                 ? Flag
                 : ListTodo;
-            const iconStyle = isOverdue
-              ? "bg-destructive/10 text-destructive"
+            const iconStyle = isStale
+              ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
               : task.attentionReason === "high-priority"
                 ? "bg-orange-500/10 text-orange-600 dark:text-orange-400"
                 : "bg-muted text-muted-foreground";
@@ -148,7 +148,12 @@ export default async function TasksPage({
                   </p>
                 </div>
                 <div className="flex shrink-0 items-end gap-2 max-sm:flex-col">
-                  {task.dueDate && <TaskDueDate date={task.dueDate} />}
+                  {!TERMINAL_COLUMN_STATUSES.includes(task.column.status) && (
+                    <TaskColumnAge
+                      columnEnteredAt={task.columnEnteredAt}
+                      compact={false}
+                    />
+                  )}
                   <PriorityIndicator priority={task.priority} />
                 </div>
                 <ChevronRight

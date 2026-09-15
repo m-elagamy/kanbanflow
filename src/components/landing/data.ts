@@ -59,7 +59,7 @@ const steps = [
     number: "02",
     title: "Add Your Tasks",
     description:
-      "Create tasks with descriptions, priorities, and due dates. Organize them into columns.",
+      "Create tasks with descriptions and priorities. Organize them into columns and keep work moving.",
     icon: CheckCircle,
   },
   {

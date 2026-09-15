@@ -28,7 +28,7 @@ const PrivacyPolicy = () => (
               <ul className="list-disc space-y-2 pl-5 text-sm">
                 <li>User account information</li>
                 <li>Board names and content</li>
-                <li>Task details, priorities, and due dates</li>
+                <li>Task details, priorities, and workflow activity</li>
               </ul>
             </AccordionContent>
           </AccordionItem>

@@ -10,6 +10,8 @@ export const TASKS_PAGE_SIZE = 20;
 
 export const DASHBOARD_FOCUS_PREVIEW_SIZE = 3;
 
+export const STALE_TASK_DAYS = 2;
+
 export const TERMINAL_COLUMN_STATUSES = ["Done", "Deployed", "Cancelled"];
 
 export const RESERVED_BOARD_SLUGS = ["boards", "tasks"];

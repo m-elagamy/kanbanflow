@@ -48,20 +48,14 @@ export const createTaskAction = async (
     };
   }
 
-  const {
-    columnId,
-    title,
-    description,
-    priority = "medium",
-    dueDate,
-  } = validatedData.data;
+  const { columnId, title, description, priority = "medium" } =
+    validatedData.data;
 
   const result = await createTask(
     columnId,
     title,
     description,
     priority,
-    dueDate ? new Date(dueDate) : null,
   );
 
   if (!result.success || !result.data) {
@@ -100,8 +94,7 @@ export async function updateTaskAction(
     };
   }
 
-  const { columnId, title, description, priority, dueDate } =
-    validatedData.data;
+  const { columnId, title, description, priority } = validatedData.data;
   const taskId = formData.get("taskId") as string;
 
   const existingTask = await getTaskForRename(taskId);
@@ -110,21 +103,10 @@ export async function updateTaskAction(
     return { success: false, message: "Task not found." };
   }
 
-  const existingDueDate = existingTask.data.dueDate
-    ? existingTask.data.dueDate.toISOString().slice(0, 10)
-    : null;
-
   const titleChanged = existingTask.data.title !== title;
   const descriptionChanged = existingTask.data.description !== description;
   const priorityChanged = existingTask.data.priority !== priority;
-  const dueDateChanged = existingDueDate !== dueDate;
-
-  if (
-    !titleChanged &&
-    !descriptionChanged &&
-    !priorityChanged &&
-    !dueDateChanged
-  ) {
+  if (!titleChanged && !descriptionChanged && !priorityChanged) {
     return {
       success: false,
       message:
@@ -137,7 +119,6 @@ export async function updateTaskAction(
     ...(titleChanged && { title }),
     ...(descriptionChanged && { description }),
     ...(priorityChanged && { priority }),
-    ...(dueDateChanged && { dueDate: dueDate ? new Date(dueDate) : null }),
   });
 
   if (!updatedTask.success) {
@@ -156,7 +137,6 @@ export async function updateTaskAction(
       title,
       description: description ?? "",
       priority,
-      dueDate,
     },
   };
 }
@@ -308,7 +288,13 @@ export async function updateTaskPositionAction(
   newColumnId: string,
   previousTaskId: string | null,
   nextTaskId: string | null,
-): Promise<ServerActionResult<{ columnId: string; order: string }>> {
+): Promise<
+  ServerActionResult<{
+    columnId: string;
+    order: string;
+    columnEnteredAt: string;
+  }>
+> {
   const validatedData = taskPositionSchema.safeParse({
     taskId,
     newColumnId,
@@ -328,7 +314,7 @@ export async function updateTaskPositionAction(
       validatedData.data.nextTaskId,
     );
 
-    if (!result.success) {
+    if (!result.success || !result.data) {
       return { success: false, message: "Failed to move task." };
     }
 
@@ -337,7 +323,11 @@ export async function updateTaskPositionAction(
     return {
       success: true,
       message: "Task moved successfully.",
-      fields: result.data,
+      fields: {
+        columnId: result.data.columnId,
+        order: result.data.order,
+        columnEnteredAt: result.data.columnEnteredAt.toISOString(),
+      },
     };
   } catch (error) {
     return { success: false, message: handlePrismaError(error) };

@@ -73,7 +73,7 @@ export type ClientTask = {
   priority: "low" | "medium" | "high";
   order: string;
   columnId: string;
-  dueDate: string | null;
+  columnEnteredAt: string;
 };
 
 export type TaskSearchResult = ClientTask & {
@@ -94,7 +94,7 @@ export type TaskPage = {
 export type DashboardFocusTask = ClientTask & {
   column: { status: string };
   board: { title: string; slug: string };
-  attentionReason: "overdue" | "high-priority";
+  attentionReason: "stale" | "high-priority";
 };
 
 export type DashboardFocusPreview = {
@@ -103,7 +103,7 @@ export type DashboardFocusPreview = {
 };
 
 export type TasksFilter =
-  "all" | "needs-attention" | "overdue" | "high-priority";
+  "all" | "needs-attention" | "stale" | "high-priority";
 
 export type WorkspaceTask = TaskSearchResult & {
   attentionReason: DashboardFocusTask["attentionReason"] | null;

@@ -19,7 +19,6 @@ const SAMPLE_TASKS: {
   title: string;
   description: string;
   priority: Priority;
-  dueInDays?: number;
 }[] = [
   {
     title: "Explore your board",
@@ -28,11 +27,10 @@ const SAMPLE_TASKS: {
     priority: "low",
   },
   {
-    title: "Set a due date",
+    title: "Keep work moving",
     description:
-      "Open this task and add a deadline. Overdue tasks are easy to spot at a glance.",
+      "Tasks that stay in one column for too long are highlighted automatically.",
     priority: "medium",
-    dueInDays: 3,
   },
   {
     title: "Filter by priority",
@@ -77,9 +75,6 @@ const seedSampleTasks = async (
       priority: task.priority,
       columnId: column.id,
       order,
-      dueDate: task.dueInDays
-        ? new Date(Date.now() + task.dueInDays * 24 * 60 * 60 * 1000)
-        : null,
     };
   });
 
@@ -235,7 +230,7 @@ const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
               priority: true,
               description: true,
               columnId: true,
-              dueDate: true,
+              columnEnteredAt: true,
             },
           },
         },
@@ -261,7 +256,7 @@ const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
         nextCursor: hasMore ? (page.at(-1)?.order ?? null) : null,
         tasks: page.map((task) => ({
           ...task,
-          dueDate: task.dueDate ? task.dueDate.toISOString() : null,
+          columnEnteredAt: task.columnEnteredAt.toISOString(),
         })),
       };
     }),
