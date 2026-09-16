@@ -2,18 +2,10 @@ import db from "../db";
 import { Board, type Column, type Priority, type Prisma } from "@prisma/client";
 import { createHash } from "node:crypto";
 import { currentUser } from "@clerk/nextjs/server";
-import { withUserId, withOwnership } from "@/utils/auth-wrappers";
+import { withUserId } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
-
-const resolveBoardOwnerId = async (boardId: string) => {
-  const board = await db.board.findUnique({
-    where: { id: boardId },
-    select: { userId: true },
-  });
-  return board?.userId;
-};
 
 const SAMPLE_TASKS: {
   title: string;
@@ -166,43 +158,48 @@ const createBoard = withUserId(
   },
 );
 
-const updateBoard = withOwnership(
+const updateBoard = withUserId(
   async (
     userId: string,
     boardId: string,
     data: Partial<Omit<Board, "id" | "userId" | "order">>,
   ) => {
-    return db.board.update({
+    const existing = await db.board.findFirst({
       where: { id: boardId, userId },
+      select: { id: true },
+    });
+    if (!existing) return null;
+
+    return db.board.update({
+      where: { id: boardId },
       data,
     });
   },
-  resolveBoardOwnerId,
 );
 
-const deleteBoard = withOwnership(async (userId: string, boardId: string) => {
-  return db.board.delete({
+const deleteBoard = withUserId(async (userId: string, boardId: string) => {
+  const result = await db.board.deleteMany({
     where: { id: boardId, userId },
   });
-}, resolveBoardOwnerId);
+  if (result.count === 0) return null;
+  return { id: boardId };
+});
 
-const getBoardForRename = withOwnership(
+const getBoardForRename = withUserId(
   async (userId: string, boardId: string) => {
-    return db.board.findUnique({
+    return db.board.findFirst({
       where: { id: boardId, userId },
       select: { title: true, description: true },
     });
   },
-  resolveBoardOwnerId,
 );
 
-const countBoardsBySlug = withOwnership(
+const countBoardsBySlug = withUserId(
   async (userId: string, boardId: string, slug: string) => {
     return db.board.count({
       where: { userId, slug, NOT: { id: boardId } },
     });
   },
-  resolveBoardOwnerId,
 );
 
 const getBoardBySlug = withUserId(async (userId: string, slug: string) => {

@@ -16,7 +16,7 @@ const BoardHeader = ({ board }: BoardHeaderProps) => {
   return (
     <section className="border-border/50 bg-background/95 supports-backdrop-filter:bg-background/60 mb-4 shrink-0 border-b backdrop-blur">
       <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex min-w-0 items-start gap-3 lg:flex-1">
+        <div className="flex h-14 min-w-0 items-start gap-3 lg:flex-1">
           <div className="flex min-w-0 flex-1 items-start gap-3">
             <span className="bg-primary/10 text-primary ring-primary/15 flex size-11 shrink-0 items-center justify-center rounded-xl shadow-sm ring-1 md:size-12">
               <FolderKanban className="size-5 md:size-6" aria-hidden="true" />

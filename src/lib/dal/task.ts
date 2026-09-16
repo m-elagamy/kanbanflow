@@ -1,4 +1,4 @@
-import { withOwnership, withUserId } from "@/utils/auth-wrappers";
+import { withUserId } from "@/utils/auth-wrappers";
 import db from "../db";
 import { Task, type Prisma, type Priority } from "@prisma/client";
 import type {
@@ -19,23 +19,7 @@ import {
 const getStaleTaskBoundary = (now = new Date()) =>
   new Date(now.getTime() - STALE_TASK_DAYS * 24 * 60 * 60 * 1000);
 
-const resolveColumnOwnerId = async (columnId: string) => {
-  const column = await db.column.findUnique({
-    where: { id: columnId },
-    select: { board: { select: { userId: true } } },
-  });
-  return column?.board.userId;
-};
-
-const resolveTaskOwnerId = async (taskId: string) => {
-  const task = await db.task.findUnique({
-    where: { id: taskId },
-    select: { column: { select: { board: { select: { userId: true } } } } },
-  });
-  return task?.column.board.userId;
-};
-
-export const createTask = withOwnership(
+export const createTask = withUserId(
   async (
     userId: string,
     columnId: string,
@@ -43,6 +27,12 @@ export const createTask = withOwnership(
     description?: string,
     priority?: Priority,
   ): Promise<Task> => {
+    const column = await db.column.findFirst({
+      where: { id: columnId, board: { userId } },
+      select: { id: true },
+    });
+    if (!column) throw new Error("Column not found.");
+
     const highestOrderTask = await db.task.findFirst({
       where: { columnId },
       orderBy: { order: "desc" },
@@ -61,36 +51,39 @@ export const createTask = withOwnership(
       },
     });
   },
-  resolveColumnOwnerId,
 );
 
-export const updateTask = withOwnership(
+export const updateTask = withUserId(
   async (
     userId: string,
     taskId: string,
     data: Omit<Partial<Task>, "id" | "order">,
   ): Promise<Task> => {
+    const existing = await db.task.findFirst({
+      where: { id: taskId, column: { board: { userId } } },
+      select: { id: true },
+    });
+    if (!existing) throw new Error("Task not found.");
+
     return db.task.update({
       where: { id: taskId },
       data,
     });
   },
-  resolveTaskOwnerId,
 );
 
-export const deleteTask = withOwnership(
-  async (userId: string, taskId: string): Promise<Task> => {
-    return db.task.delete({
-      where: { id: taskId },
-    });
-  },
-  resolveTaskOwnerId,
-);
+export const deleteTask = withUserId(async (userId: string, taskId: string) => {
+  const result = await db.task.deleteMany({
+    where: { id: taskId, column: { board: { userId } } },
+  });
+  if (result.count === 0) return null;
+  return { id: taskId };
+});
 
-export const getTaskForRename = withOwnership(
+export const getTaskForRename = withUserId(
   async (userId: string, taskId: string) => {
-    return db.task.findUnique({
-      where: { id: taskId },
+    return db.task.findFirst({
+      where: { id: taskId, column: { board: { userId } } },
       select: {
         title: true,
         description: true,
@@ -98,13 +91,12 @@ export const getTaskForRename = withOwnership(
       },
     });
   },
-  resolveTaskOwnerId,
 );
 
-export const getTaskDetails = withOwnership(
+export const getTaskDetails = withUserId(
   async (userId: string, taskId: string) => {
-    const task = await db.task.findUnique({
-      where: { id: taskId },
+    const task = await db.task.findFirst({
+      where: { id: taskId, column: { board: { userId } } },
       select: {
         id: true,
         title: true,
@@ -130,17 +122,20 @@ export const getTaskDetails = withOwnership(
       boardSlug: task.column.board.slug,
     };
   },
-  resolveTaskOwnerId,
 );
 
-export const updateTaskPosition = withOwnership(
+export const updateTaskPosition = withUserId(
   async (
     userId: string,
     taskId: string,
     newColumnId: string,
     previousTaskId: string | null,
     nextTaskId: string | null,
-  ): Promise<Pick<Task, "columnId" | "order" | "columnEnteredAt">> => {
+  ): Promise<
+    Pick<Task, "columnId" | "order" | "columnEnteredAt"> & {
+      movedBetweenColumns: boolean;
+    }
+  > => {
     if (previousTaskId === taskId || nextTaskId === taskId) {
       throw new Error("Invalid task position.");
     }
@@ -222,7 +217,7 @@ export const updateTaskPosition = withOwnership(
 
       const order = generateKeyBetween(previousOrder, resolvedNextOrder);
 
-      return tx.task.update({
+      const updatedTask = await tx.task.update({
         where: { id: taskId },
         data: {
           columnId: newColumnId,
@@ -237,9 +232,13 @@ export const updateTaskPosition = withOwnership(
           columnEnteredAt: true,
         },
       });
+
+      return {
+        ...updatedTask,
+        movedBetweenColumns: sourceTask.columnId !== newColumnId,
+      };
     });
   },
-  resolveTaskOwnerId,
 );
 
 export const getTasksPage = withUserId(
@@ -350,10 +349,7 @@ export const getDashboardFocusTasks = withUserId(
     const staleBoundary = getStaleTaskBoundary();
     const tasks = await db.task.findMany({
       where: {
-        OR: [
-          { columnEnteredAt: { lte: staleBoundary } },
-          { priority: "high" },
-        ],
+        OR: [{ columnEnteredAt: { lte: staleBoundary } }, { priority: "high" }],
         column: {
           status: { notIn: TERMINAL_COLUMN_STATUSES },
           board: { userId },
@@ -432,9 +428,9 @@ export const getWorkspaceTasksOverviewPage = withUserId(
   },
 );
 
-export const getColumnTasksPage = withOwnership(
+export const getColumnTasksPage = withUserId(
   async (
-    _userId: string,
+    userId: string,
     columnId: string,
     cursor: string | null,
     limit: number,
@@ -443,6 +439,7 @@ export const getColumnTasksPage = withOwnership(
     const tasks = await db.task.findMany({
       where: {
         columnId,
+        column: { board: { userId } },
         ...(priority && { priority }),
         ...(cursor && { order: { gt: cursor } }),
       },
@@ -470,5 +467,4 @@ export const getColumnTasksPage = withOwnership(
       nextCursor: hasMore ? (page.at(-1)?.order ?? null) : null,
     };
   },
-  resolveColumnOwnerId,
 );

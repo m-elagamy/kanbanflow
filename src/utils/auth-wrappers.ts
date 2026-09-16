@@ -11,6 +11,9 @@ export function withUserId<T extends unknown[], R>(
     const { userId } = await auth();
     if (!userId) unauthorized();
     const result = await fn(userId, ...args);
+    if (result === null) {
+      return { success: false, message: "Not found" };
+    }
     return { success: true, message: "Authenticated", data: result };
   };
 }
@@ -22,24 +25,6 @@ export function ensureAuthenticated<T extends unknown[], R>(
     const { userId } = await auth();
     if (!userId) unauthorized();
     const result = await fn(...args);
-    return { success: true, message: "Authenticated", data: result };
-  };
-}
-
-export function withOwnership<T extends unknown[], R>(
-  fn: DALFunction<[userId: string, ...args: T], R>,
-  resolveOwnerId: (...args: T) => Promise<string | null | undefined>,
-): DALFunction<T, DALResult<R>> {
-  return async (...args: T) => {
-    const { userId } = await auth();
-    if (!userId) unauthorized();
-
-    const ownerId = await resolveOwnerId(...args);
-    if (!ownerId || ownerId !== userId) {
-      return { success: false, message: "Not found" };
-    }
-
-    const result = await fn(userId, ...args);
     return { success: true, message: "Authenticated", data: result };
   };
 }

@@ -14,9 +14,18 @@ const Dashboard = async () => {
 
   if (!userId) unauthorized();
 
-  const [user, onboardingState] = await Promise.all([
+  const [
+    user,
+    onboardingState,
+    boardsResult,
+    statsResult,
+    focusTasksResult,
+  ] = await Promise.all([
     currentUser(),
     getUserOnboardingStateAction(),
+    getUserBoardsWithStatsAction(),
+    getDashboardStatsAction(),
+    getDashboardFocusTasksAction(),
   ]);
 
   if (!user) unauthorized();
@@ -26,12 +35,6 @@ const Dashboard = async () => {
   const boardsCount = onboardingState.fields?.boardsCount ?? 0;
 
   if (boardsCount === 0 && !hasCreatedBoardOnce) redirect("/welcome");
-
-  const [boardsResult, statsResult, focusTasksResult] = await Promise.all([
-    getUserBoardsWithStatsAction(),
-    getDashboardStatsAction(),
-    getDashboardFocusTasksAction(),
-  ]);
 
   if (
     !boardsResult.success ||

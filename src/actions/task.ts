@@ -8,6 +8,7 @@ import {
   taskPositionSchema,
   type TaskSchema,
 } from "@/schemas/task";
+import { z } from "zod";
 import {
   ServerActionResult,
   type TaskPage,
@@ -48,15 +49,14 @@ export const createTaskAction = async (
     };
   }
 
-  const { columnId, title, description, priority = "medium" } =
-    validatedData.data;
-
-  const result = await createTask(
+  const {
     columnId,
     title,
     description,
-    priority,
-  );
+    priority = "medium",
+  } = validatedData.data;
+
+  const result = await createTask(columnId, title, description, priority);
 
   if (!result.success || !result.data) {
     return {
@@ -85,8 +85,10 @@ export async function updateTaskAction(
 ): Promise<ServerActionResult<TaskSchema>> {
   const data = Object.fromEntries(formData.entries());
   const validatedData = taskSchema.safeParse(data);
+  const rawTaskId = formData.get("taskId");
+  const validatedTaskId = z.string().min(1).safeParse(rawTaskId);
 
-  if (!validatedData.success) {
+  if (!validatedData.success || !validatedTaskId.success) {
     return {
       success: false,
       message: "Invalid input",
@@ -95,7 +97,7 @@ export async function updateTaskAction(
   }
 
   const { columnId, title, description, priority } = validatedData.data;
-  const taskId = formData.get("taskId") as string;
+  const taskId = validatedTaskId.data;
 
   const existingTask = await getTaskForRename(taskId);
 
@@ -144,9 +146,14 @@ export async function updateTaskAction(
 export async function deleteTaskAction(
   taskId: string,
 ): Promise<ServerActionResult<TaskSchema>> {
-  const result = await deleteTask(taskId);
+  const validatedTaskId = z.string().min(1).safeParse(taskId);
+  if (!validatedTaskId.success) {
+    return { success: false, message: "Invalid Task ID." };
+  }
 
-  if (!result.success) {
+  const result = await deleteTask(validatedTaskId.data);
+
+  if (!result.success || !result.data) {
     return {
       success: false,
       message: "Failed to delete the task.",
@@ -318,7 +325,9 @@ export async function updateTaskPositionAction(
       return { success: false, message: "Failed to move task." };
     }
 
-    await revalidateUserBoards();
+    if (result.data.movedBetweenColumns) {
+      await revalidateUserBoards();
+    }
 
     return {
       success: true,

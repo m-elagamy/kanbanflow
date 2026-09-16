@@ -15,19 +15,22 @@ import type { ServerActionResult } from "@/lib/types";
 import handlePrismaError from "@/utils/prisma-error-handler";
 import { revalidateUserBoards } from "@/utils/revalidate-user-boards";
 
+import { z } from "zod";
+
 export async function createColumnAction(
   boardId: string,
   columnStatus: ColumnStatus,
 ): Promise<ServerActionResult<Column>> {
+  const validatedBoardId = z.string().min(1).safeParse(boardId);
   const validatedData = columnStatusSchema.safeParse({ status: columnStatus });
 
-  if (!validatedData.success) {
+  if (!validatedBoardId.success || !validatedData.success) {
     return { success: false, message: "Invalid column status." };
   }
 
   try {
     const createdColumn = await createColumn(
-      boardId,
+      validatedBoardId.data,
       validatedData.data.status,
     );
 
@@ -54,14 +57,18 @@ export async function updateColumnAction(
   columnId: string,
   data: Partial<Pick<Column, "status">>,
 ): Promise<ServerActionResult<Column>> {
+  const validatedColumnId = z.string().min(1).safeParse(columnId);
   const validatedData = columnStatusSchema.partial().safeParse(data);
 
-  if (!validatedData.success) {
+  if (!validatedColumnId.success || !validatedData.success) {
     return { success: false, message: "Invalid column status." };
   }
 
   try {
-    const updatedColumn = await updateColumn(columnId, validatedData.data);
+    const updatedColumn = await updateColumn(
+      validatedColumnId.data,
+      validatedData.data,
+    );
 
     if (!updatedColumn.success || !updatedColumn.data) {
       return {
@@ -83,10 +90,15 @@ export async function updateColumnAction(
 export async function deleteColumnAction(
   columnId: string,
 ): Promise<ServerActionResult<Column>> {
-  try {
-    const result = await deleteColumn(columnId);
+  const validatedColumnId = z.string().min(1).safeParse(columnId);
+  if (!validatedColumnId.success) {
+    return { success: false, message: "Invalid column ID." };
+  }
 
-    if (!result.success) {
+  try {
+    const result = await deleteColumn(validatedColumnId.data);
+
+    if (!result.success || !result.data) {
       return {
         success: false,
         message: "Failed to delete column",

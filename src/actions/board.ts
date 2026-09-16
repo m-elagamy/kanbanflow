@@ -69,8 +69,10 @@ export const updateBoardAction = async (
 > => {
   const data = Object.fromEntries(formData.entries());
   const validatedData = boardSchema.omit({ template: true }).safeParse(data);
+  const rawBoardId = formData.get("boardId");
+  const validatedBoardId = z.string().min(1).safeParse(rawBoardId);
 
-  if (!validatedData.success) {
+  if (!validatedData.success || !validatedBoardId.success) {
     return {
       success: false,
       message: "Validation Errors",
@@ -78,7 +80,7 @@ export const updateBoardAction = async (
   }
 
   const { title, description } = validatedData.data;
-  const boardId = formData.get("boardId") as string;
+  const boardId = validatedBoardId.data;
 
   const existingBoard = await getBoardForRename(boardId);
 
@@ -139,9 +141,14 @@ export const updateBoardAction = async (
 export async function deleteBoardAction(
   boardId: string,
 ): Promise<ServerActionResult<{ boardId: string }>> {
-  const result = await deleteBoard(boardId);
+  const validatedId = z.string().min(1).safeParse(boardId);
+  if (!validatedId.success) {
+    return { success: false, message: "Invalid Board ID" };
+  }
 
-  if (!result.success) {
+  const result = await deleteBoard(validatedId.data);
+
+  if (!result.success || !result.data) {
     return { success: false, message: "Failed to delete board" };
   }
 
@@ -154,7 +161,12 @@ export async function deleteBoardAction(
 }
 
 export async function getBoardBySlugAction(slug: string) {
-  const result = await getBoardBySlug(slug);
+  const validatedSlug = z.string().min(1).safeParse(slug);
+  if (!validatedSlug.success) {
+    return { success: false, message: "Board not found" };
+  }
+
+  const result = await getBoardBySlug(validatedSlug.data);
 
   if (!result.success) {
     return {

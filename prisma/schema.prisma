@@ -51,6 +51,8 @@ model Task {
   column          Column   @relation(fields: [columnId], references: [id], onDelete: Cascade)
 
   @@unique([columnId, order])
+  @@index([columnEnteredAt])
+  @@index([priority])
 }
 
 enum Priority {

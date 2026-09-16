@@ -13,7 +13,6 @@ import useBoardStore from "@/stores/board";
 import columnsTemplates from "../../data/columns-templates";
 import { boardSchema, BoardFormSchema } from "@/schemas/board";
 import BoardErrorCard from "@/components/ui/board-error-card";
-import { handleOnBlur } from "@/utils/board-helpers";
 
 type BoardFormProps = Readonly<{
   formMode: FormMode;
@@ -54,7 +53,6 @@ export default function BoardForm({
   const {
     handleFormAction,
     isEditMode,
-    router,
     isLoading,
     hasCreationError,
     retryCreation,
@@ -93,7 +91,6 @@ export default function BoardForm({
         placeholder="e.g., Personal Tasks"
         required
         onChange={(value) => handleOnChange("title", value)}
-        // onBlur={isEditMode ? undefined : (value) => handleOnBlur(router, value)}
         error={errors?.title}
         helperText="Choose a clear and descriptive name for your board."
       />

@@ -11,7 +11,7 @@ type BoardSkeletonProps = {
 export default function BoardSkeleton({
   columnsNumber,
   tasksPerColumn,
-  hasDescription = false,
+  hasDescription = true,
 }: BoardSkeletonProps) {
   return (
     <BoardContainer>

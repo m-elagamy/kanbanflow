@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
@@ -35,7 +35,7 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
     (state) => state.setPriorityFilter,
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!initialBoard?.id) return;
 
     const { columns, ...boardData } = initialBoard;
@@ -69,10 +69,10 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
     setPriorityFilter,
   ]);
 
-  const activeBoard = boards[initialBoard?.id] ?? null;
-  const hasInitializedTaskPages = initialBoard.columns.every(
-    (column) => Boolean(columnPages[column.id]),
-  );
+  const activeBoard = boards[initialBoard.id] ?? null;
+  const hasInitializedTaskPages =
+    Boolean(activeBoard) &&
+    initialBoard.columns.every((column) => Boolean(columnPages[column.id]));
 
   return { activeBoard, hasInitializedTaskPages };
 }
