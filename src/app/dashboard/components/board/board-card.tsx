@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { ArrowUpRight, Layers, ListTodo } from "lucide-react";
+import { ArrowUpRight, Layers, ListTodo, Sparkles } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import BoardActions from "./board-actions";
 
@@ -12,6 +12,8 @@ interface BoardCardProps {
 }
 
 export default function BoardCard({ board, index }: BoardCardProps) {
+  const isPrimaryActive = index === 0 && board._count.openTasks > 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -30,9 +32,17 @@ export default function BoardCard({ board, index }: BoardCardProps) {
       >
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0">
-            <h2 className="group-hover:text-primary truncate text-base leading-snug font-semibold transition-colors duration-200">
-              {board.title}
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="group-hover:text-primary truncate text-base leading-snug font-semibold transition-colors duration-200">
+                {board.title}
+              </h2>
+              {isPrimaryActive && (
+                <span className="border-primary/20 bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium">
+                  <Sparkles className="size-2.5" />
+                  Active
+                </span>
+              )}
+            </div>
           </div>
 
           <ArrowUpRight
@@ -42,17 +52,16 @@ export default function BoardCard({ board, index }: BoardCardProps) {
         </div>
 
         <p className="text-muted-foreground line-clamp-2 min-h-10 text-sm leading-6">
-          {board.description?.trim() ||
-            "No description"}
+          {board.description?.trim() || "No description"}
         </p>
 
         <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
-          <span className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs">
+          <span className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium">
             <Layers className="h-3.5 w-3.5" aria-hidden="true" />
             {board._count.columns}{" "}
             {board._count.columns === 1 ? "column" : "columns"}
           </span>
-          <span className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs">
+          <span className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium">
             <ListTodo className="h-3.5 w-3.5" aria-hidden="true" />
             {board._count.openTasks} open{" "}
             {board._count.openTasks === 1 ? "task" : "tasks"}

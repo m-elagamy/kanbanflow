@@ -11,17 +11,27 @@ export default function DashboardFocus({
 }) {
   if (tasks?.items.length === 0) {
     return (
-      <div className="border-border/80 bg-background/80 flex items-center gap-3 rounded-xl border p-4 shadow-sm">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
-          <CircleCheck className="size-5" aria-hidden="true" />
-        </span>
+      <section aria-labelledby="focus-heading" className="space-y-4">
         <div>
-          <p className="text-sm font-medium">You’re all caught up</p>
-          <p className="text-muted-foreground text-xs">
-            No stale or high-priority tasks.
+          <h2 id="focus-heading" className="text-lg font-semibold">
+            Needs attention
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            Stale work and high-priority tasks across your boards.
           </p>
         </div>
-      </div>
+        <div className="border-border/80 bg-background/80 flex items-center gap-3 rounded-xl border p-4 shadow-sm">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
+            <CircleCheck className="size-5" aria-hidden="true" />
+          </span>
+          <div>
+            <p className="text-sm font-medium">You’re all caught up</p>
+            <p className="text-muted-foreground text-xs">
+              No stale or high-priority tasks.
+            </p>
+          </div>
+        </div>
+      </section>
     );
   }
 
