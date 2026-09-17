@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "motion/react";
+// Removed motion import to use Tailwind CSS animation
 import { ArrowUpRight, Layers, ListTodo, Sparkles } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import BoardActions from "./board-actions";
@@ -15,15 +15,9 @@ export default function BoardCard({ board, index }: BoardCardProps) {
   const isPrimaryActive = index === 0 && board._count.openTasks > 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.3,
-        ease: "easeOut",
-        delay: Math.min(index * 0.06, 0.3),
-      }}
-      className="border-border/80 bg-background/80 hover:border-primary/30 hover:bg-background group relative overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+    <div
+      className="border-border/80 bg-background/80 hover:border-primary/30 hover:bg-background group relative overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md animate-[fade-up_0.3s_ease-out]"
+      style={{ animationDelay: `${Math.min(index * 0.06, 0.3)}s`, animationFillMode: "both" }}
     >
       <div className="via-primary/50 pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
       <Link
@@ -72,6 +66,6 @@ export default function BoardCard({ board, index }: BoardCardProps) {
       <div className="absolute top-3 right-3 opacity-100 transition-opacity duration-150 md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100">
         <BoardActions board={board} />
       </div>
-    </motion.div>
+    </div>
   );
 }

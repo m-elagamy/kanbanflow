@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import BoardsCardsSkeleton from "./boards-cards-skeleton";
 
 export default function BoardsPageLoading() {
   return (
@@ -17,27 +18,7 @@ export default function BoardsPageLoading() {
 
       <Skeleton className="mb-6 h-9 w-full rounded-md" />
 
-      <Skeleton className="mb-4 h-4 w-24" />
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <div
-            key={index}
-            className="border-border/60 bg-background/80 flex flex-col gap-4 rounded-xl border p-5"
-          >
-            <div className="flex items-start justify-between gap-6">
-              <Skeleton className="h-5 w-3/4" />
-              <Skeleton className="size-4 shrink-0" />
-            </div>
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-2/3" />
-            <div className="mt-auto flex gap-2 pt-1">
-              <Skeleton className="h-6 w-20 rounded-full" />
-              <Skeleton className="h-6 w-16 rounded-full" />
-            </div>
-          </div>
-        ))}
-      </div>
+      <BoardsCardsSkeleton />
     </main>
   );
 }

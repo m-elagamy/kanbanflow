@@ -7,20 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 type BoardsSearchProps = {
-  initialQuery: string;
+  initialQuery?: string;
 };
 
-export default function BoardsSearch({ initialQuery }: BoardsSearchProps) {
+export default function BoardsSearch({ initialQuery = "" }: BoardsSearchProps) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [query, setQuery] = useState(initialQuery);
-  const [urlQuery, setUrlQuery] = useState(initialQuery);
+  const currentUrlQuery = searchParams.get("q") ?? initialQuery;
+  const [query, setQuery] = useState(currentUrlQuery);
+  const [urlQuery, setUrlQuery] = useState(currentUrlQuery);
   const [isPending, startTransition] = useTransition();
 
-  if (initialQuery !== urlQuery) {
-    setUrlQuery(initialQuery);
-    setQuery(initialQuery);
+  if (currentUrlQuery !== urlQuery) {
+    setUrlQuery(currentUrlQuery);
+    setQuery(currentUrlQuery);
   }
 
   useEffect(() => {
