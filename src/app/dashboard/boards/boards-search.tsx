@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LoaderCircle, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,13 +16,19 @@ export default function BoardsSearch({ initialQuery = "" }: BoardsSearchProps) {
   const searchParams = useSearchParams();
   const currentUrlQuery = searchParams.get("q") ?? initialQuery;
   const [query, setQuery] = useState(currentUrlQuery);
-  const [urlQuery, setUrlQuery] = useState(currentUrlQuery);
+  const hasPendingLocalQuery = useRef(false);
   const [isPending, startTransition] = useTransition();
 
-  if (currentUrlQuery !== urlQuery) {
-    setUrlQuery(currentUrlQuery);
+  useEffect(() => {
+    if (hasPendingLocalQuery.current) {
+      if (currentUrlQuery === query.trim()) {
+        hasPendingLocalQuery.current = false;
+      }
+      return;
+    }
+
     setQuery(currentUrlQuery);
-  }
+  }, [currentUrlQuery, query]);
 
   useEffect(() => {
     const normalizedQuery = query.trim();
@@ -47,7 +53,13 @@ export default function BoardsSearch({ initialQuery = "" }: BoardsSearchProps) {
   }, [pathname, query, router, searchParams]);
 
   const clearSearch = () => {
+    hasPendingLocalQuery.current = true;
     setQuery("");
+  };
+
+  const updateQuery = (value: string) => {
+    hasPendingLocalQuery.current = true;
+    setQuery(value);
   };
 
   return (
@@ -74,7 +86,7 @@ export default function BoardsSearch({ initialQuery = "" }: BoardsSearchProps) {
         placeholder="Search boards by name or description"
         className="pr-10 pl-9 [&::-webkit-search-cancel-button]:hidden"
         aria-busy={isPending}
-        onChange={(event) => setQuery(event.target.value)}
+        onChange={(event) => updateQuery(event.target.value)}
       />
       {query && (
         <Button
