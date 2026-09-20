@@ -20,20 +20,31 @@ export default function SignInPage() {
   const { signIn, errors, fetchStatus } = useSignIn();
   const r = useRouter();
   const [e, se] = useState("");
+  const [password, setPassword] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
   const [c, sc] = useState("");
   const [s, ss] = useState<"email" | "code">("email");
   const [p, sp] = useState<"oauth_google" | "oauth_github" | null>(null);
   const loading = fetchStatus === "fetching";
   const msg =
-    (s === "email" ? errors.fields.identifier : errors.fields.code)?.message ??
+    formError ??
+    (s === "email"
+      ? errors.fields.identifier?.message ?? errors.fields.password?.message
+      : errors.fields.code?.message) ??
     errors.global?.[0]?.message;
   const nav = ({ decorateUrl }: { decorateUrl: (x: string) => string }) =>
     r.push(decorateUrl("/welcome"));
   async function email(x: React.FormEvent) {
     x.preventDefault();
-    if ((await signIn.create({ identifier: e })).error) return;
-    if (!(await signIn.emailCode.sendCode()).error) ss("code");
+    setFormError(null);
+    if (!password) {
+      setFormError("Enter your password.");
+      return;
+    }
+    if ((await signIn.password({ emailAddress: e, password })).error || signIn.status !== "complete") return;
+    await signIn.finalize({ navigate: nav });
   }
+  async function sendEmailCode() { if ((await signIn.create({ identifier: e })).error) return; if (!(await signIn.emailCode.sendCode()).error) ss("code"); }
   async function code(x: React.FormEvent) {
     x.preventDefault();
     if (
@@ -60,7 +71,7 @@ export default function SignInPage() {
         </CardTitle>
         <CardDescription>
           {s === "email"
-            ? "Welcome back! Use Google, GitHub, or an email code to sign in."
+            ? "Welcome back! Use Google, GitHub, or your email and password."
             : `Enter the verification code sent to ${e}.`}
         </CardDescription>
       </CardHeader>
@@ -107,7 +118,19 @@ export default function SignInPage() {
                 value={e}
                 onChange={(x) => se(x.target.value)}
               />
+              <Label>Password</Label>
+              <Input type="password" autoComplete="current-password" required value={password} onChange={(x) => setPassword(x.target.value)} />
+              <Button
+                type="button"
+                variant="link"
+                className="h-auto justify-self-end p-0 text-sm"
+                disabled={loading}
+                onClick={() => r.push("/forgot-password")}
+              >
+                Forgot password?
+              </Button>
               <Button disabled={loading}>Continue</Button>
+              <Button type="button" variant="link" disabled={loading || !e} onClick={() => void sendEmailCode()}>Use an email code instead</Button>
             </form>
           </>
         ) : (

@@ -24,13 +24,18 @@ export default function SignUpPage() {
   const { signUp, errors, fetchStatus } = useSignUp();
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [step, setStep] = useState<"email" | "code">("email");
   const [provider, setProvider] = useState<Provider | null>(null);
   const loading = fetchStatus === "fetching";
   const message =
-    (step === "email" ? errors.fields.emailAddress : errors.fields.code)
-      ?.message ?? errors.global?.[0]?.message;
+    formError ??
+    (step === "email"
+      ? errors.fields.emailAddress?.message ?? errors.fields.password?.message
+      : errors.fields.code?.message) ??
+    errors.global?.[0]?.message;
   const navigate = ({
     decorateUrl,
   }: {
@@ -39,7 +44,12 @@ export default function SignUpPage() {
 
   async function startEmail(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if ((await signUp.create({ emailAddress: email })).error) return;
+    setFormError(null);
+    if (password.length < 8) {
+      setFormError("Password must be at least 8 characters.");
+      return;
+    }
+    if ((await signUp.create({ emailAddress: email, password })).error) return;
     if (!(await signUp.verifications.sendEmailCode()).error) setStep("code");
   }
   async function verifyCode(event: React.FormEvent<HTMLFormElement>) {
@@ -69,7 +79,7 @@ export default function SignUpPage() {
         </CardTitle>
         <CardDescription>
           {step === "email"
-            ? "Create your account with Google, GitHub, or an email code. No password needed."
+            ? "Create your account with Google, GitHub, or your email and password."
             : `Enter the verification code sent to ${email}.`}
         </CardDescription>
       </CardHeader>
@@ -123,6 +133,8 @@ export default function SignUpPage() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
               />
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" autoComplete="new-password" required value={password} onChange={(event) => setPassword(event.target.value)} />
               <div id="clerk-captcha" />
               <Button disabled={loading}>
                 {loading ? <Loader className="animate-spin" /> : "Continue"}
