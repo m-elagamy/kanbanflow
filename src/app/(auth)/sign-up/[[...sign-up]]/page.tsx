@@ -1,133 +1,14 @@
 "use client";
 
-import * as Clerk from "@clerk/elements/common";
-import * as SignUp from "@clerk/elements/sign-up";
-import { useSignUp } from "@clerk/nextjs";
-
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import SocialConnectionButtons from "../../components/social-connection-buttons";
-import AuthStrategiesSeparator from "../../components/auth-strategies-separator";
-import EmailInput from "../../components/email-input";
-import { AuthCard } from "../../components/auth-card";
-import KanbanLogo from "@/components/layout/header/kanban-logo";
-import SubmitButton from "../../components/submit-button";
-import AuthModeSwitcher from "../../components/auth-mode-switcher";
-import ResendCodeButton from "../../components/resend-code-button";
+import { SignUp } from "@clerk/nextjs";
 
 export default function SignUpPage() {
-  const { signUp } = useSignUp();
-
   return (
-    <SignUp.Root>
-      <Clerk.Loading>
-        {(isGlobalLoading) => (
-          <>
-            <SignUp.Step name="start">
-              <AuthCard
-                title={<KanbanLogo />}
-                description="Create your account with Google, GitHub, or an email code. No password needed."
-                footer={
-                  <>
-                    <SignUp.Captcha className="empty:hidden" />
-                    <SignUp.Action submit asChild>
-                      <SubmitButton isGlobalLoading={isGlobalLoading} />
-                    </SignUp.Action>
-                    <AuthModeSwitcher
-                      message="Already have an account?"
-                      linkText="Sign in"
-                      linkHref="sign-in"
-                    />
-                  </>
-                }
-              >
-                <SocialConnectionButtons isGlobalLoading={isGlobalLoading} />
-                <AuthStrategiesSeparator />
-                <EmailInput inputName="emailAddress" />
-              </AuthCard>
-            </SignUp.Step>
-
-            <SignUp.Step name="verifications">
-              <SignUp.Strategy name="email_code">
-                <AuthCard
-                  title="Verify your email"
-                  description={
-                    <>
-                      Enter the verification code sent to{" "}
-                      {signUp?.emailAddress ? (
-                        <span className="font-medium break-all">
-                          {signUp.emailAddress}
-                        </span>
-                      ) : (
-                        "your email address"
-                      )}.
-                    </>
-                  }
-                  footer={
-                    <SignUp.Action submit asChild>
-                      <SubmitButton isGlobalLoading={isGlobalLoading} />
-                    </SignUp.Action>
-                  }
-                >
-                  <div className="grid items-center justify-center gap-y-2">
-                    <Clerk.Field name="code" className="space-y-2">
-                      <Clerk.Label className="sr-only">
-                        Email verification code
-                      </Clerk.Label>
-                      <div className="flex justify-center text-center">
-                        <Clerk.Input
-                          type="otp"
-                          className="flex justify-center has-disabled:opacity-50"
-                          autoSubmit
-                          autoFocus
-                          autoComplete="one-time-code"
-                          render={({ value, status }) => {
-                            return (
-                              <div
-                                data-status={status}
-                                className={cn(
-                                  "relative flex size-10 items-center justify-center border-y border-r border-input text-sm transition-all first:rounded-l-md first:border-l last:rounded-r-md",
-                                  {
-                                    "z-10 ring-2 ring-ring ring-offset-background":
-                                      status === "cursor" ||
-                                      status === "selected",
-                                  },
-                                )}
-                              >
-                                {value}
-                                {status === "cursor" && (
-                                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                                    <div className="h-4 w-px animate-caret-blink bg-foreground duration-1000" />
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          }}
-                        />
-                      </div>
-                      <Clerk.FieldError className="block text-center text-sm text-destructive" />
-                    </Clerk.Field>
-                    <ResendCodeButton
-                      mode="sign-up"
-                      isGlobalLoading={isGlobalLoading}
-                    />
-                    <SignUp.Action navigate="start" asChild>
-                      <Button
-                        type="button"
-                        variant="link"
-                        size="sm"
-                        disabled={isGlobalLoading}
-                      >
-                        Change email address
-                      </Button>
-                    </SignUp.Action>
-                  </div>
-                </AuthCard>
-              </SignUp.Strategy>
-            </SignUp.Step>
-          </>
-        )}
-      </Clerk.Loading>
-    </SignUp.Root>
+    <SignUp
+      path="/sign-up"
+      routing="path"
+      signInUrl="/sign-in"
+      fallbackRedirectUrl="/dashboard"
+    />
   );
 }
