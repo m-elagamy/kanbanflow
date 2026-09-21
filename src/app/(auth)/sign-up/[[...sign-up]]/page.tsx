@@ -191,6 +191,7 @@ export default function SignUpPage() {
       <CardFooter className="text-muted-foreground justify-center pt-1 text-sm">
         Already have an account?
         <Button
+        className="ps-1"
           variant="link"
           size="sm"
           onClick={() => router.push("/sign-in")}

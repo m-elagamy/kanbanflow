@@ -100,7 +100,7 @@ export default function SignInPage() {
             <Button className="h-10" disabled={loading}>{loading && <Loader className="animate-spin" />}Continue</Button>
           </form>
       </CardContent>
-      <CardFooter className="text-muted-foreground justify-center pt-1 text-sm">Don&apos;t have an account?<Button variant="link" size="sm" onClick={() => router.push("/sign-up")}>Sign up</Button></CardFooter>
+      <CardFooter className="text-muted-foreground justify-center pt-1 text-sm">Don&apos;t have an account?<Button className="ps-1" variant="link" size="sm" onClick={() => router.push("/sign-up")}>Sign up</Button></CardFooter>
     </Card>
   );
 }
