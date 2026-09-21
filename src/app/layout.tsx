@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { Providers } from "@/providers";
 import { SITE_URL } from "@/lib/constants";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next"
 
 // Google Font
 const geist = Geist({
@@ -54,6 +55,7 @@ export default function RootLayout({
       <body
         className={`${geist.variable} flex min-h-dvh flex-col font-sans antialiased`}
       >
+        <Analytics />
         <Providers>{children}</Providers>
       </body>
     </html>
