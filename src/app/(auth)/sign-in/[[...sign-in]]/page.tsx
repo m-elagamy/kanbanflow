@@ -11,6 +11,16 @@ import { emailPasswordSchema, getFieldErrors, getValidationMessage } from "@/sch
 import { AuthEmailField, AuthPasswordField } from "../../components/auth-fields";
 import { AuthProvider, SocialAuthButtons } from "../../components/social-auth-buttons";
 
+function getClerkErrorMessage(error: unknown) {
+  if (error && typeof error === "object") {
+    const clerkError = error as { message?: string; errors?: Array<{ message?: string; code?: string }> };
+    const detail = clerkError.errors?.find((item) => item.message || item.code);
+    if (detail) return [detail.message, detail.code ? `(${detail.code})` : null].filter(Boolean).join(" ");
+    if (clerkError.message) return clerkError.message;
+  }
+  return "We couldn’t start sign-in with that provider. Please try again.";
+}
+
 export default function SignInPage() {
   const { signIn, errors, fetchStatus } = useSignIn();
   const router = useRouter();
@@ -68,16 +78,23 @@ export default function SignInPage() {
   async function signInWithSso(strategy: AuthProvider) {
     setFormError(null);
     setProvider(strategy);
-    const reset = await signIn.reset();
-    if (reset.error) {
-      setProvider(null);
-      setFormError("Unable to start a new sign-in attempt. Please try again.");
-      return;
-    }
-    const result = await signIn.sso({ strategy, redirectUrl: "/welcome", redirectCallbackUrl: "/sso-callback" });
+    try {
+      const result = await Promise.race([
+        signIn.sso({ strategy, redirectUrl: "/welcome", redirectCallbackUrl: "/sso-callback" }),
+        new Promise<never>((_, reject) => window.setTimeout(() => reject(new Error("Clerk did not respond while starting OAuth. Check the Clerk proxy configuration and try again.")), 15000)),
+      ]);
     if (result.error) {
+      setFormError(getClerkErrorMessage(result.error));
+      return;
       setProvider(null);
       setFormError("We couldn’t start sign-in with that provider. Please try again.");
+    }
+
+    } catch (error) {
+      console.error("Unable to start sign-in with OAuth provider", error);
+      setFormError(getClerkErrorMessage(error));
+    } finally {
+      setProvider(null);
     }
   }
 
