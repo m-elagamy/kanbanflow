@@ -316,6 +316,32 @@
   }
 }
 
+@keyframes auth-light-beam-drift {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+  75% {
+    transform: rotate(-3deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.auth-light-beam {
+  animation: auth-light-beam-drift 11s ease-in-out infinite;
+  animation-delay: 5s;
+  animation-fill-mode: backwards;
+  transform-origin: top center;
+  will-change: transform;
+}
+
 .auth-light-beam__atmosphere,
 .auth-light-beam__diffusion,
 .auth-light-beam__slit {
@@ -362,5 +388,10 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .auth-light-beam {
+    animation: none;
+    transform: none;
   }
 }
