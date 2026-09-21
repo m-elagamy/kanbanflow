@@ -32,7 +32,7 @@ export default function AuthTemplate({
       <div className="absolute top-4 right-4 z-20 sm:top-6 sm:right-6">
         <ThemeSwitcher size="sm" />
       </div>
-      <section className="relative z-10 w-full max-w-[440px]">
+      <section className="relative z-10 w-full max-w-[440px] -translate-y-2 sm:-translate-y-5">
         {children}
         <div className="mt-2 px-4 text-center text-xs leading-5">
           <span className="text-muted-foreground">
