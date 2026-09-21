@@ -1,157 +1,132 @@
 "use client";
+
 import { useSignIn } from "@clerk/nextjs";
+import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Loader } from "lucide-react";
+import KanbanLogo from "@/components/layout/header/kanban-logo";
+import { Icons } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Icons } from "@/components/ui/icons";
-import KanbanLogo from "@/components/layout/header/kanban-logo";
+import { emailPasswordSchema, getFieldErrors, getValidationMessage, verificationCodeSchema } from "@/schemas/auth";
+
+type Provider = "oauth_google" | "oauth_github";
+type Step = "password" | "code";
+
 export default function SignInPage() {
   const { signIn, errors, fetchStatus } = useSignIn();
-  const r = useRouter();
-  const [e, se] = useState("");
+  const router = useRouter();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+  const [step, setStep] = useState<Step>("password");
+  const [provider, setProvider] = useState<Provider | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
-  const [c, sc] = useState("");
-  const [s, ss] = useState<"email" | "code">("email");
-  const [p, sp] = useState<"oauth_google" | "oauth_github" | null>(null);
   const loading = fetchStatus === "fetching";
-  const msg =
-    formError ??
-    (s === "email"
-      ? errors.fields.identifier?.message ?? errors.fields.password?.message
-      : errors.fields.code?.message) ??
-    errors.global?.[0]?.message;
-  const nav = ({ decorateUrl }: { decorateUrl: (x: string) => string }) =>
-    r.push(decorateUrl("/welcome"));
-  async function email(x: React.FormEvent) {
-    x.preventDefault();
-    setFormError(null);
-    if (!password) {
-      setFormError("Enter your password.");
+  const emailError = fieldErrors.email ?? errors.fields.identifier?.message;
+  const passwordError = fieldErrors.password ?? errors.fields.password?.message;
+  const codeError = fieldErrors.code ?? errors.fields.code?.message;
+  const message = formError ?? errors.global?.[0]?.message;
+
+  const navigate = ({ decorateUrl }: { decorateUrl: (url: string) => string }) =>
+    router.push(decorateUrl("/welcome"));
+
+  function clearFieldError(field: string) {
+    setFieldErrors((current) => {
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  }
+
+  function validateField(field: string, value: string, schema: typeof emailPasswordSchema.shape.email) {
+    const message = getValidationMessage(schema, value);
+    if (!message) {
+      clearFieldError(field);
       return;
     }
-    if ((await signIn.password({ emailAddress: e, password })).error || signIn.status !== "complete") return;
-    await signIn.finalize({ navigate: nav });
+    setFieldErrors((current) => ({ ...current, [field]: message }));
   }
-  async function sendEmailCode() { if ((await signIn.create({ identifier: e })).error) return; if (!(await signIn.emailCode.sendCode()).error) ss("code"); }
-  async function code(x: React.FormEvent) {
-    x.preventDefault();
-    if (
-      (await signIn.emailCode.verifyCode({ code: c })).error ||
-      signIn.status !== "complete"
-    )
+
+  async function signInWithPassword(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setFormError(null);
+    const validated = emailPasswordSchema.safeParse({ email, password });
+    if (!validated.success) {
+      setFieldErrors(getFieldErrors(validated.error));
       return;
-    await signIn.finalize({ navigate: nav });
+    }
+
+    setFieldErrors({});
+    const result = await signIn.password({ emailAddress: validated.data.email, password: validated.data.password });
+    if (result.error || signIn.status !== "complete") return;
+    await signIn.finalize({ navigate });
   }
-  async function sso(x: "oauth_google" | "oauth_github") {
-    sp(x);
-    const { error } = await signIn.sso({
-      strategy: x,
-      redirectUrl: "/welcome",
-      redirectCallbackUrl: "/sso-callback",
-    });
-    if (error) sp(null);
+
+  async function sendEmailCode() {
+    setFormError(null);
+    const validated = emailPasswordSchema.shape.email.safeParse(email);
+    if (!validated.success) {
+      setFieldErrors({ email: validated.error.issues[0].message });
+      return;
+    }
+
+    setFieldErrors({});
+    if ((await signIn.create({ identifier: validated.data })).error) return;
+    if (!(await signIn.emailCode.sendCode()).error) setStep("code");
   }
+
+  async function verifyCode(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setFormError(null);
+    const validated = verificationCodeSchema.safeParse({ code });
+    if (!validated.success) {
+      setFieldErrors(getFieldErrors(validated.error));
+      return;
+    }
+
+    setFieldErrors({});
+    const result = await signIn.emailCode.verifyCode(validated.data);
+    if (result.error || signIn.status !== "complete") return;
+    await signIn.finalize({ navigate });
+  }
+
+  async function signInWithSso(strategy: Provider) {
+    setFormError(null);
+    setProvider(strategy);
+    const result = await signIn.sso({ strategy, redirectUrl: "/welcome", redirectCallbackUrl: "/sso-callback" });
+    if (result.error) {
+      setProvider(null);
+      setFormError("We couldn’t start sign-in with that provider. Please try again.");
+    }
+  }
+
   return (
     <Card className="mx-auto w-full sm:w-96 md:w-[420px]">
-      <CardHeader className="text-center">
-        <CardTitle className="mx-auto">
-          <KanbanLogo />
-        </CardTitle>
-        <CardDescription>
-          {s === "email"
-            ? "Welcome back! Use Google, GitHub, or your email and password."
-            : `Enter the verification code sent to ${e}.`}
-        </CardDescription>
-      </CardHeader>
+      <CardHeader className="text-center"><CardTitle className="mx-auto"><KanbanLogo /></CardTitle><CardDescription>{step === "password" ? "Welcome back! Use Google, GitHub, or your email and password." : `Enter the verification code sent to ${email}.`}</CardDescription></CardHeader>
       <CardContent className="grid gap-4">
-        {msg && <p className="text-destructive text-sm">{msg}</p>}
-        {s === "email" ? (
-          <>
-            <div className="grid gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={loading || p !== null}
-                onClick={() => void sso("oauth_google")}
-              >
-                {p === "oauth_google" ? (
-                  <Loader className="animate-spin" />
-                ) : (
-                  <Icons.google />
-                )}
-                Continue with Google
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={loading || p !== null}
-                onClick={() => void sso("oauth_github")}
-              >
-                {p === "oauth_github" ? (
-                  <Loader className="animate-spin" />
-                ) : (
-                  <Icons.gitHub />
-                )}
-                Continue with GitHub
-              </Button>
-            </div>
-            <p className="text-muted-foreground text-center text-sm">
-              or continue with email
-            </p>
-            <form className="grid gap-3" onSubmit={email}>
-              <Label>Email address</Label>
-              <Input
-                type="email"
-                required
-                value={e}
-                onChange={(x) => se(x.target.value)}
-              />
-              <Label>Password</Label>
-              <Input type="password" autoComplete="current-password" required value={password} onChange={(x) => setPassword(x.target.value)} />
-              <Button
-                type="button"
-                variant="link"
-                className="h-auto justify-self-end p-0 text-sm"
-                disabled={loading}
-                onClick={() => r.push("/forgot-password")}
-              >
-                Forgot password?
-              </Button>
-              <Button disabled={loading}>Continue</Button>
-              <Button type="button" variant="link" disabled={loading || !e} onClick={() => void sendEmailCode()}>Use an email code instead</Button>
-            </form>
-          </>
-        ) : (
-          <form className="grid gap-3" onSubmit={code}>
-            <Label>Email verification code</Label>
-            <Input
-              autoFocus
-              required
-              value={c}
-              onChange={(x) => sc(x.target.value)}
-            />
-            <Button disabled={loading}>Verify</Button>
+        {message && <p role="alert" className="text-destructive text-sm">{message}</p>}
+        {step === "password" ? <>
+          <div className="grid gap-3">
+            <Button type="button" variant="outline" disabled={loading || provider !== null} onClick={() => void signInWithSso("oauth_google")}>{provider === "oauth_google" ? <Loader className="animate-spin" /> : <Icons.google />} Continue with Google</Button>
+            <Button type="button" variant="outline" disabled={loading || provider !== null} onClick={() => void signInWithSso("oauth_github")}>{provider === "oauth_github" ? <Loader className="animate-spin" /> : <Icons.gitHub />} Continue with GitHub</Button>
+          </div>
+          <p className="text-muted-foreground text-center text-sm">or continue with email</p>
+          <form className="grid gap-3" noValidate onSubmit={signInWithPassword}>
+            <div className="grid gap-2"><Label htmlFor="sign-in-email">Email address</Label><Input id="sign-in-email" type="email" autoComplete="email" aria-invalid={Boolean(emailError)} aria-describedby={emailError ? "sign-in-email-error" : undefined} value={email} onChange={(event) => { setEmail(event.target.value); validateField("email", event.target.value, emailPasswordSchema.shape.email); }} />{emailError && <p id="sign-in-email-error" className="text-destructive text-sm">{emailError}</p>}</div>
+            <div className="grid gap-2"><Label htmlFor="sign-in-password">Password</Label><Input id="sign-in-password" type="password" autoComplete="current-password" aria-invalid={Boolean(passwordError)} aria-describedby={passwordError ? "sign-in-password-error" : undefined} value={password} onChange={(event) => { setPassword(event.target.value); validateField("password", event.target.value, emailPasswordSchema.shape.password); }} />{passwordError && <p id="sign-in-password-error" className="text-destructive text-sm">{passwordError}</p>}</div>
+            <Button type="button" variant="link" className="h-auto justify-self-end p-0 text-sm" disabled={loading} onClick={() => router.push("/forgot-password")}>Forgot password?</Button>
+            <Button disabled={loading}>{loading && <Loader className="animate-spin" />}Continue</Button>
+            <Button type="button" variant="link" disabled={loading} onClick={() => void sendEmailCode()}>Use an email code instead</Button>
           </form>
-        )}
+        </> : <form className="grid gap-3" noValidate onSubmit={verifyCode}>
+          <Label htmlFor="sign-in-code">Email verification code</Label><Input id="sign-in-code" autoFocus inputMode="numeric" autoComplete="one-time-code" aria-invalid={Boolean(codeError)} aria-describedby={codeError ? "sign-in-code-error" : undefined} value={code} onChange={(event) => { setCode(event.target.value); clearFieldError("code"); }} />{codeError && <p id="sign-in-code-error" className="text-destructive text-sm">{codeError}</p>}<Button disabled={loading}>{loading && <Loader className="animate-spin" />}Verify</Button>
+        </form>}
       </CardContent>
-      <CardFooter className="justify-center">
-        Don&apos;t have an account?
-        <Button variant="link" onClick={() => r.push("/sign-up")}>
-          Sign up
-        </Button>
-      </CardFooter>
+      <CardFooter className="justify-center">Don&apos;t have an account?<Button variant="link" onClick={() => router.push("/sign-up")}>Sign up</Button></CardFooter>
     </Card>
   );
 }

@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/ui/icons";
 import KanbanLogo from "@/components/layout/header/kanban-logo";
+import { emailPasswordSchema, getFieldErrors, getValidationMessage, verificationCodeSchema } from "@/schemas/auth";
 
 type Provider = "oauth_google" | "oauth_github";
 
@@ -26,6 +27,7 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [code, setCode] = useState("");
   const [step, setStep] = useState<"email" | "code">("email");
   const [provider, setProvider] = useState<Provider | null>(null);
@@ -41,21 +43,33 @@ export default function SignUpPage() {
   }: {
     decorateUrl: (url: string) => string;
   }) => router.push(decorateUrl("/welcome"));
+  function validateField(field: string, value: string, schema: typeof emailPasswordSchema.shape.email) {
+    const message = getValidationMessage(schema, value);
+    setFieldErrors((current) => message ? { ...current, [field]: message } : Object.fromEntries(Object.entries(current).filter(([key]) => key !== field)));
+  }
 
   async function startEmail(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
-    if (password.length < 8) {
-      setFormError("Password must be at least 8 characters.");
+    const validated = emailPasswordSchema.safeParse({ email, password });
+    if (!validated.success) {
+      setFieldErrors(getFieldErrors(validated.error));
       return;
     }
-    if ((await signUp.create({ emailAddress: email, password })).error) return;
+    setFieldErrors({});
+    if ((await signUp.create({ emailAddress: validated.data.email, password: validated.data.password })).error) return;
     if (!(await signUp.verifications.sendEmailCode()).error) setStep("code");
   }
   async function verifyCode(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const validated = verificationCodeSchema.safeParse({ code });
+    if (!validated.success) {
+      setFieldErrors(getFieldErrors(validated.error));
+      return;
+    }
+    setFieldErrors({});
     if (
-      (await signUp.verifications.verifyEmailCode({ code })).error ||
+      (await signUp.verifications.verifyEmailCode(validated.data)).error ||
       signUp.status !== "complete"
     )
       return;
@@ -122,19 +136,20 @@ export default function SignUpPage() {
             <p className="text-muted-foreground before:bg-border flex items-center gap-3 text-sm before:h-px before:flex-1 after:h-px after:flex-1">
               or continue with email
             </p>
-            <form className="grid gap-3" onSubmit={startEmail}>
+            <form className="grid gap-3" noValidate onSubmit={startEmail}>
               <Label htmlFor="email">Email address</Label>
               <Input
                 id="email"
                 type="email"
                 autoComplete="email"
                 placeholder="name@example.com"
-                required
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) => { setEmail(event.target.value); validateField("email", event.target.value, emailPasswordSchema.shape.email); }}
               />
+              {fieldErrors.email && <p className="text-destructive text-sm">{fieldErrors.email}</p>}
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" autoComplete="new-password" required value={password} onChange={(event) => setPassword(event.target.value)} />
+              <Input id="password" type="password" autoComplete="new-password" value={password} onChange={(event) => { setPassword(event.target.value); validateField("password", event.target.value, emailPasswordSchema.shape.password); }} />
+              {fieldErrors.password && <p className="text-destructive text-sm">{fieldErrors.password}</p>}
               <div id="clerk-captcha" />
               <Button disabled={loading}>
                 {loading ? <Loader className="animate-spin" /> : "Continue"}
@@ -142,17 +157,17 @@ export default function SignUpPage() {
             </form>
           </>
         ) : (
-          <form className="grid gap-3" onSubmit={verifyCode}>
+          <form className="grid gap-3" noValidate onSubmit={verifyCode}>
             <Label htmlFor="code">Email verification code</Label>
             <Input
               id="code"
               autoFocus
               autoComplete="one-time-code"
               inputMode="numeric"
-              required
               value={code}
-              onChange={(event) => setCode(event.target.value)}
+              onChange={(event) => { setCode(event.target.value); validateField("code", event.target.value, verificationCodeSchema.shape.code); }}
             />
+            {fieldErrors.code && <p className="text-destructive text-sm">{fieldErrors.code}</p>}
             <Button disabled={loading}>
               {loading ? <Loader className="animate-spin" /> : "Verify"}
             </Button>

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { emailPasswordSchema, emailSchemaForAuth, getFieldErrors, getValidationMessage, verificationCodeSchema } from "@/schemas/auth";
 
 type Step = "email" | "code" | "password";
 
@@ -27,6 +28,7 @@ export default function ForgotPasswordPage() {
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState<string | null>(null);
   const loading = fetchStatus === "fetching";
   const clerkMessage =
@@ -39,13 +41,23 @@ export default function ForgotPasswordPage() {
 
   const navigate = ({ decorateUrl }: { decorateUrl: (url: string) => string }) =>
     router.replace(decorateUrl("/welcome"));
+  function validateField(field: string, value: string, schema: typeof emailPasswordSchema.shape.email) {
+    const message = getValidationMessage(schema, value);
+    setFieldErrors((current) => message ? { ...current, [field]: message } : Object.fromEntries(Object.entries(current).filter(([key]) => key !== field)));
+  }
 
   async function sendCode(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
     setNotice(null);
+    const validated = emailSchemaForAuth.safeParse({ email });
+    if (!validated.success) {
+      setFieldErrors(getFieldErrors(validated.error));
+      return;
+    }
+    setFieldErrors({});
 
-    const create = await signIn.create({ identifier: email });
+    const create = await signIn.create({ identifier: validated.data.email });
     if (create.error) {
       setFormError("We couldn’t send a reset code. Check your email and try again.");
       return;
@@ -60,8 +72,14 @@ export default function ForgotPasswordPage() {
     event.preventDefault();
     setFormError(null);
     setNotice(null);
+    const validated = verificationCodeSchema.safeParse({ code });
+    if (!validated.success) {
+      setFieldErrors(getFieldErrors(validated.error));
+      return;
+    }
+    setFieldErrors({});
 
-    const result = await signIn.resetPasswordEmailCode.verifyCode({ code });
+    const result = await signIn.resetPasswordEmailCode.verifyCode(validated.data);
     if (result.error) return;
     if (signIn.status !== "needs_new_password") {
       setFormError("We couldn’t verify that code. Please request a new one.");
@@ -76,13 +94,15 @@ export default function ForgotPasswordPage() {
     setFormError(null);
     setNotice(null);
 
-    if (password.length < 8) {
-      setFormError("Password must be at least 8 characters.");
+    const validated = emailPasswordSchema.shape.password.safeParse(password);
+    if (!validated.success) {
+      setFieldErrors({ password: validated.error.issues[0].message });
       return;
     }
+    setFieldErrors({});
 
     const result = await signIn.resetPasswordEmailCode.submitPassword({
-      password,
+      password: validated.data,
       signOutOfOtherSessions: true,
     });
     if (result.error || signIn.status !== "complete") return;
@@ -118,16 +138,16 @@ export default function ForgotPasswordPage() {
         {notice && <p role="status" className="text-sm text-muted-foreground">{notice}</p>}
 
         {step === "email" && (
-          <form className="grid gap-3" onSubmit={sendCode}>
+          <form className="grid gap-3" noValidate onSubmit={sendCode}>
             <Label htmlFor="reset-email">Email address</Label>
             <Input
               id="reset-email"
               type="email"
               autoComplete="email"
-              required
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => { setEmail(event.target.value); validateField("email", event.target.value, emailSchemaForAuth.shape.email); }}
             />
+            {fieldErrors.email && <p className="text-destructive text-sm">{fieldErrors.email}</p>}
             <Button disabled={loading}>
               {loading && <LoaderCircle className="animate-spin" />}
               Send reset code
@@ -136,17 +156,17 @@ export default function ForgotPasswordPage() {
         )}
 
         {step === "code" && (
-          <form className="grid gap-3" onSubmit={verifyCode}>
+          <form className="grid gap-3" noValidate onSubmit={verifyCode}>
             <Label htmlFor="reset-code">Reset code</Label>
             <Input
               id="reset-code"
               autoFocus
               inputMode="numeric"
               autoComplete="one-time-code"
-              required
               value={code}
-              onChange={(event) => setCode(event.target.value)}
+              onChange={(event) => { setCode(event.target.value); validateField("code", event.target.value, verificationCodeSchema.shape.code); }}
             />
+            {fieldErrors.code && <p className="text-destructive text-sm">{fieldErrors.code}</p>}
             <Button disabled={loading}>
               {loading && <LoaderCircle className="animate-spin" />}
               Verify code
@@ -158,17 +178,16 @@ export default function ForgotPasswordPage() {
         )}
 
         {step === "password" && (
-          <form className="grid gap-3" onSubmit={resetPassword}>
+          <form className="grid gap-3" noValidate onSubmit={resetPassword}>
             <Label htmlFor="new-password">New password</Label>
             <Input
               id="new-password"
               type="password"
               autoComplete="new-password"
-              minLength={8}
-              required
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => { setPassword(event.target.value); validateField("password", event.target.value, emailPasswordSchema.shape.password); }}
             />
+            {fieldErrors.password && <p className="text-destructive text-sm">{fieldErrors.password}</p>}
             <Button disabled={loading}>
               {loading && <LoaderCircle className="animate-spin" />}
               Reset password
