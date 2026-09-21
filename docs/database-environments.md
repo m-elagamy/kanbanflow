@@ -2,6 +2,12 @@
 
 KanbanFlow currently uses one Neon database connection for local development and deployment. Before the public launch, separate development work from production data by using Neon branches.
 
+## Current status
+
+- Local `.env` uses the Neon `development` branch.
+- The existing Neon `main` branch remains the production data branch.
+- Connection strings are kept out of Git. Keep the production connection string only in the hosting provider's Production environment variables.
+
 ## Recommended setup
 
 Use two long-lived branches in the same Neon project:
