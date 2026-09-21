@@ -1,4 +1,4 @@
-export const SITE_URL = "https://kanbanflow-app.vercel.app";
+export const SITE_URL = "https://kanbamy.com";
 
 export const BOARDS_LIST_LIMIT = 12;
 

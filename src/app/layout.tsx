@@ -12,13 +12,12 @@ const geist = Geist({
 
 // Metadata
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
   title: {
-    default: "KanbanFlow | Modern Task Management",
-    template: "%s | KanbanFlow",
+    default: "Kanbamy  | Modern Task Management",
+    template: "%s | Kanbamy ",
   },
   description:
-    "KanbanFlow is a modern Kanban app that helps you manage tasks, organize projects, and boost productivity with ease.",
+    "Kanbamy  is a modern Kanban app that helps you manage tasks, organize projects, and boost productivity with ease.",
   keywords: [
     "kanban",
     "task management",
@@ -32,16 +31,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: SITE_URL,
-    siteName: "KanbanFlow",
-    title: "KanbanFlow | Modern Task Management",
+    siteName: "Kanbamy ",
+    title: "Kanbamy  | Modern Task Management",
     description:
-      "Manage tasks, organize projects, and boost productivity with KanbanFlow - your modern Kanban solution.",
+      "Manage tasks, organize projects, and boost productivity with Kanbamy  - your modern Kanban solution.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "KanbanFlow | Modern Task Management",
+    title: "Kanbamy | Modern Task Management",
     description:
-      "Manage tasks, organize projects, and boost productivity with KanbanFlow - your modern Kanban solution.",
+      "Manage tasks, organize projects, and boost productivity with Kanbamy  - your modern Kanban solution.",
   },
 };
 

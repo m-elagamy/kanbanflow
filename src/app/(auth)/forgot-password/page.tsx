@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { OtpInput } from "@/components/ui/otp-input";
 import { emailPasswordSchema, emailSchemaForAuth, getFieldErrors, getValidationMessage, verificationCodeSchema } from "@/schemas/auth";
 
 type Step = "email" | "code" | "password";
@@ -158,14 +159,7 @@ export default function ForgotPasswordPage() {
         {step === "code" && (
           <form className="grid gap-3" noValidate onSubmit={verifyCode}>
             <Label htmlFor="reset-code">Reset code</Label>
-            <Input
-              id="reset-code"
-              autoFocus
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              value={code}
-              onChange={(event) => { setCode(event.target.value); validateField("code", event.target.value, verificationCodeSchema.shape.code); }}
-            />
+            <OtpInput id="reset-code" disabled={loading} value={code} onChange={(value) => { setCode(value); validateField("code", value, verificationCodeSchema.shape.code); }} />
             {fieldErrors.code && <p className="text-destructive text-sm">{fieldErrors.code}</p>}
             <Button disabled={loading}>
               {loading && <LoaderCircle className="animate-spin" />}

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { OtpInput } from "@/components/ui/otp-input";
 import { emailPasswordSchema, getFieldErrors, getValidationMessage, verificationCodeSchema } from "@/schemas/auth";
 
 type Provider = "oauth_google" | "oauth_github";
@@ -123,7 +124,7 @@ export default function SignInPage() {
             <Button type="button" variant="link" disabled={loading} onClick={() => void sendEmailCode()}>Use an email code instead</Button>
           </form>
         </> : <form className="grid gap-3" noValidate onSubmit={verifyCode}>
-          <Label htmlFor="sign-in-code">Email verification code</Label><Input id="sign-in-code" autoFocus inputMode="numeric" autoComplete="one-time-code" aria-invalid={Boolean(codeError)} aria-describedby={codeError ? "sign-in-code-error" : undefined} value={code} onChange={(event) => { setCode(event.target.value); clearFieldError("code"); }} />{codeError && <p id="sign-in-code-error" className="text-destructive text-sm">{codeError}</p>}<Button disabled={loading}>{loading && <Loader className="animate-spin" />}Verify</Button>
+          <Label htmlFor="sign-in-code">Email verification code</Label><OtpInput id="sign-in-code" disabled={loading} aria-invalid={Boolean(codeError)} aria-describedby={codeError ? "sign-in-code-error" : undefined} value={code} onChange={(value) => { setCode(value); validateField("code", value, verificationCodeSchema.shape.code); }} />{codeError && <p id="sign-in-code-error" className="text-destructive text-sm">{codeError}</p>}<Button disabled={loading}>{loading && <Loader className="animate-spin" />}Verify</Button>
         </form>}
       </CardContent>
       <CardFooter className="justify-center">Don&apos;t have an account?<Button variant="link" onClick={() => router.push("/sign-up")}>Sign up</Button></CardFooter>

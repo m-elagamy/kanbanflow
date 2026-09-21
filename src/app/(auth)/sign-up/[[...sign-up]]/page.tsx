@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { OtpInput } from "@/components/ui/otp-input";
 import { Icons } from "@/components/ui/icons";
 import KanbanLogo from "@/components/layout/header/kanban-logo";
 import { emailPasswordSchema, getFieldErrors, getValidationMessage, verificationCodeSchema } from "@/schemas/auth";
@@ -159,14 +160,7 @@ export default function SignUpPage() {
         ) : (
           <form className="grid gap-3" noValidate onSubmit={verifyCode}>
             <Label htmlFor="code">Email verification code</Label>
-            <Input
-              id="code"
-              autoFocus
-              autoComplete="one-time-code"
-              inputMode="numeric"
-              value={code}
-              onChange={(event) => { setCode(event.target.value); validateField("code", event.target.value, verificationCodeSchema.shape.code); }}
-            />
+            <OtpInput id="code" disabled={loading} value={code} onChange={(value) => { setCode(value); validateField("code", value, verificationCodeSchema.shape.code); }} />
             {fieldErrors.code && <p className="text-destructive text-sm">{fieldErrors.code}</p>}
             <Button disabled={loading}>
               {loading ? <Loader className="animate-spin" /> : "Verify"}
