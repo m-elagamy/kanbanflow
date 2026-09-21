@@ -23,7 +23,7 @@ export default function DashboardPreview({
   return (
     <div className="relative mx-auto max-w-5xl">
       {/* Background glow effect */}
-      <div className="bg-primary/10 absolute inset-0 -z-10 rounded-2xl blur-3xl" />
+      <div className="bg-primary/15 absolute inset-0 -z-10 rounded-2xl blur-3xl" />
 
       {/* Browser mockup frame */}
       <motion.div

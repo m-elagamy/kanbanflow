@@ -316,6 +316,40 @@
   }
 }
 
+.auth-light-beam__atmosphere,
+.auth-light-beam__diffusion,
+.auth-light-beam__slit {
+  pointer-events: none;
+  clip-path: polygon(43% 0, 57% 0, 94% 100%, 6% 100%);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in oklch, var(--primary) 2.5%, transparent) 12%,
+    color-mix(in oklch, var(--primary) 6%, transparent) 32%,
+    color-mix(in oklch, var(--primary) 4%, transparent) 54%,
+    color-mix(in oklch, var(--primary) 1.5%, transparent) 76%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(180deg, transparent 0%, black 12%, black 58%, transparent 100%);
+}
+
+.auth-light-beam__atmosphere {
+  filter: blur(64px);
+  opacity: 0.25;
+}
+
+.auth-light-beam__diffusion {
+  clip-path: polygon(46% 0, 54% 0, 86% 100%, 14% 100%);
+  filter: blur(42px);
+  opacity: 0.2;
+}
+
+.auth-light-beam__slit {
+  clip-path: polygon(48% 0, 52% 0, 74% 100%, 26% 100%);
+  filter: blur(18px);
+  opacity: 0.1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

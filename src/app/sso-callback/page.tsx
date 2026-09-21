@@ -103,7 +103,7 @@ export default function SsoCallbackPage() {
     <main className="relative flex min-h-dvh items-center justify-center overflow-hidden px-4">
       <BackgroundEffect />
       <section className="grid w-full max-w-sm justify-items-center gap-8 text-center [&>div:first-child]:!mx-auto">
-        <KanbanLogo />
+        <KanbanLogo glow="auth" />
         {error ? (
           <div className="grid justify-items-center gap-4">
             <p role="alert" className="text-sm text-destructive">

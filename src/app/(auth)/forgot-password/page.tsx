@@ -123,7 +123,7 @@ export default function ForgotPasswordPage() {
     <Card className="mx-auto w-full border-0 bg-transparent shadow-none sm:w-96 md:w-[420px]">
       <CardHeader className="gap-3 px-6 pt-7 text-center sm:px-8">
         <CardTitle className="mx-auto">
-          <KanbanLogo />
+          <KanbanLogo glow="auth" />
         </CardTitle>
         <CardDescription className="mx-auto max-w-sm leading-6">
           {step === "email" && "Enter your email and we’ll send you a reset code."}
