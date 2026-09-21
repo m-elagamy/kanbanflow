@@ -1,6 +1,6 @@
 "use client";
 
-import { GoogleOneTap, useSignIn } from "@clerk/nextjs";
+import { useSignIn } from "@clerk/nextjs";
 import { Loader } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -109,35 +109,30 @@ export default function SignInPage() {
   }
 
   async function signInWithSso(strategy: AuthProvider) {
+    if (loading || provider !== null) return;
     setFormError(null);
     setProvider(strategy);
     try {
-      const result = await Promise.race([
-        signIn.sso({
-          strategy,
-          redirectUrl: "/welcome",
-          redirectCallbackUrl: "/sso-callback",
-        }),
-        new Promise<never>((_, reject) =>
-          window.setTimeout(
-            () =>
-              reject(
-                new Error(
-                  "Clerk did not respond while starting OAuth. Check the Clerk proxy configuration and try again.",
-                ),
-              ),
-            15000,
-          ),
-        ),
-      ]);
+      // Start a fresh attempt: sso() can reuse an unrelated sign-in and
+      // resolve without a provider redirect (clerk/javascript#9006).
+      const result = await signIn.create({
+        strategy,
+        redirectUrl: new URL("/sso-callback", window.location.origin).href,
+        actionCompleteRedirectUrl: new URL("/welcome", window.location.origin).href,
+      });
       if (result.error) {
         setFormError(getClerkErrorMessage(result.error));
         return;
-        setProvider(null);
-        setFormError(
-          "We couldn’t start sign-in with that provider. Please try again.",
-        );
       }
+
+      const { status, externalVerificationRedirectURL } =
+        signIn.firstFactorVerification;
+      if (status !== "unverified" || !externalVerificationRedirectURL) {
+        setFormError("We couldn't start sign-in with that provider. Please try again.");
+        return;
+      }
+
+      window.location.assign(externalVerificationRedirectURL.toString());
     } catch (error) {
       console.error("Unable to start sign-in with OAuth provider", error);
       setFormError(getClerkErrorMessage(error));
@@ -166,7 +161,7 @@ export default function SignInPage() {
           <SocialAuthButtons
             loading={loading}
             provider={provider}
-            onProvider={(value) => void signInWithSso(value)}
+            onProvider={signInWithSso}
           />
           <p className="text-muted-foreground before:bg-border flex items-center gap-3 text-sm before:h-px before:flex-1 after:h-px after:flex-1">
             or continue with email
@@ -212,7 +207,6 @@ export default function SignInPage() {
           </Button>
         </CardFooter>
       </Card>
-      <GoogleOneTap />
     </>
   );
 }
