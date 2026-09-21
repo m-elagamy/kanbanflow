@@ -1,26 +1,23 @@
 "use client";
 
 import { useSignIn } from "@clerk/nextjs";
-import { Eye, EyeOff, Loader, LockKeyhole, Mail } from "lucide-react";
+import { Loader } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import KanbanLogo from "@/components/layout/header/kanban-logo";
-import { Icons } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { emailPasswordSchema, getFieldErrors, getValidationMessage } from "@/schemas/auth";
+import { AuthEmailField, AuthPasswordField } from "../../components/auth-fields";
+import { AuthProvider, SocialAuthButtons } from "../../components/social-auth-buttons";
 
-type Provider = "oauth_google" | "oauth_github";
 export default function SignInPage() {
   const { signIn, errors, fetchStatus } = useSignIn();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [provider, setProvider] = useState<Provider | null>(null);
+  const [provider, setProvider] = useState<AuthProvider | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const loading = fetchStatus === "fetching";
@@ -68,7 +65,7 @@ export default function SignInPage() {
     await signIn.finalize({ navigate });
   }
 
-  async function signInWithSso(strategy: Provider) {
+  async function signInWithSso(strategy: AuthProvider) {
     setFormError(null);
     setProvider(strategy);
     const reset = await signIn.reset();
@@ -89,14 +86,11 @@ export default function SignInPage() {
       <CardHeader className="gap-3 px-6 pt-7 text-center sm:px-8"><CardTitle className="mx-auto"><KanbanLogo /></CardTitle><CardDescription className="mx-auto max-w-sm leading-6">Welcome back. Sign in to continue to Kanbamy.</CardDescription></CardHeader>
       <CardContent className="grid gap-5">
         {message && <p role="alert" className="text-destructive text-sm">{message}</p>}
-        <div className="grid gap-3">
-            <Button className="border-border bg-background/80 hover:bg-accent/70 h-10 shadow-xs dark:bg-input/50 dark:hover:bg-accent/60" type="button" variant="outline" disabled={loading || provider !== null} onClick={() => void signInWithSso("oauth_google")}>{provider === "oauth_google" ? <Loader className="animate-spin" /> : <Icons.google />} Continue with Google</Button>
-            <Button className="border-border bg-background/80 hover:bg-accent/70 h-10 shadow-xs dark:bg-input/50 dark:hover:bg-accent/60" type="button" variant="outline" disabled={loading || provider !== null} onClick={() => void signInWithSso("oauth_github")}>{provider === "oauth_github" ? <Loader className="animate-spin" /> : <Icons.gitHub />} Continue with GitHub</Button>
-          </div>
+          <SocialAuthButtons loading={loading} provider={provider} onProvider={(value) => void signInWithSso(value)} />
           <p className="text-muted-foreground before:bg-border flex items-center gap-3 text-sm before:h-px before:flex-1 after:h-px after:flex-1">or continue with email</p>
           <form className="grid gap-4" noValidate onSubmit={signInWithPassword}>
-            <div className="grid gap-2"><Label className="flex items-center gap-1.5" htmlFor="sign-in-email"><Mail className="text-muted-foreground size-3.5" />Email address</Label><Input className="border-border bg-background/80 focus-visible:border-primary/60 focus-visible:ring-primary/30 h-10 shadow-xs dark:bg-input/50" id="sign-in-email" type="email" autoComplete="email" placeholder="name@example.com" aria-invalid={Boolean(emailError)} aria-describedby={emailError ? "sign-in-email-error" : undefined} value={email} onChange={(event) => { setEmail(event.target.value); validateField("email", event.target.value, emailPasswordSchema.shape.email); }} />{emailError && <p id="sign-in-email-error" className="text-destructive text-sm">{emailError}</p>}</div>
-            <div className="grid gap-2"><div className="flex items-center justify-between gap-3"><Label className="flex items-center gap-1.5" htmlFor="sign-in-password"><LockKeyhole className="text-muted-foreground size-3.5" />Password</Label><Button type="button" variant="link" className="h-auto p-0 text-sm" disabled={loading} onClick={() => router.push("/forgot-password")}>Forgot password?</Button></div><div className="relative"><Input className="border-border bg-background/80 focus-visible:border-primary/60 focus-visible:ring-primary/30 h-10 pr-10 shadow-xs dark:bg-input/50" id="sign-in-password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="••••••••" aria-invalid={Boolean(passwordError)} aria-describedby={passwordError ? "sign-in-password-error" : undefined} value={password} onChange={(event) => { setPassword(event.target.value); validateField("password", event.target.value, emailPasswordSchema.shape.password); }} /><Button type="button" variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground absolute top-1/2 right-0 size-10 -translate-y-1/2" aria-label={showPassword ? "Hide password" : "Show password"} onClick={() => setShowPassword((current) => !current)}>{showPassword ? <EyeOff /> : <Eye />}</Button></div>{passwordError && <p id="sign-in-password-error" className="text-destructive text-sm">{passwordError}</p>}</div>
+            <AuthEmailField id="sign-in-email" value={email} error={emailError} onChange={(value) => { setEmail(value); validateField("email", value, emailPasswordSchema.shape.email); }} />
+            <AuthPasswordField id="sign-in-password" value={password} error={passwordError} forgotPassword={() => router.push("/forgot-password")} onChange={(value) => { setPassword(value); validateField("password", value, emailPasswordSchema.shape.password); }} />
             <Button className="h-10" disabled={loading}>{loading && <Loader className="animate-spin" />}Continue</Button>
           </form>
       </CardContent>

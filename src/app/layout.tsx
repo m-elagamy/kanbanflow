@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Providers } from "@/providers";
-import { SITE_URL } from "@/lib/constants";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next"
 

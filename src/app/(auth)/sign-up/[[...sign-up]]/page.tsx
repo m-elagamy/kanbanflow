@@ -3,7 +3,6 @@
 import { useSignUp } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Eye, EyeOff, Loader, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,26 +12,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { OtpInput } from "@/components/ui/otp-input";
-import { Icons } from "@/components/ui/icons";
 import KanbanLogo from "@/components/layout/header/kanban-logo";
 import { emailPasswordSchema, getFieldErrors, getValidationMessage, verificationCodeSchema } from "@/schemas/auth";
-
-type Provider = "oauth_google" | "oauth_github";
+import { AuthProvider } from "../../components/social-auth-buttons";
+import { SignUpCredentialsStep } from "../../components/sign-up-credentials-step";
+import { SignUpVerificationStep } from "../../components/sign-up-verification-step";
 
 export default function SignUpPage() {
   const { signUp, errors, fetchStatus } = useSignUp();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [code, setCode] = useState("");
   const [step, setStep] = useState<"email" | "code">("email");
-  const [provider, setProvider] = useState<Provider | null>(null);
+  const [provider, setProvider] = useState<AuthProvider | null>(null);
   const loading = fetchStatus === "fetching";
   const message =
     formError ??
@@ -77,7 +72,7 @@ export default function SignUpPage() {
       return;
     await signUp.finalize({ navigate });
   }
-  async function startSso(strategy: Provider) {
+  async function startSso(strategy: AuthProvider) {
     setProvider(strategy);
     const { error } = await signUp.sso({
       strategy,
@@ -107,85 +102,10 @@ export default function SignUpPage() {
         )}
         {step === "email" ? (
           <>
-            <div className="grid gap-3">
-              <Button
-                className="border-border bg-background/80 hover:bg-accent/70 h-10 shadow-xs dark:bg-input/50 dark:hover:bg-accent/60"
-                type="button"
-                variant="outline"
-                disabled={loading || provider !== null}
-                onClick={() => void startSso("oauth_google")}
-              >
-                {provider === "oauth_google" ? (
-                  <Loader className="animate-spin" />
-                ) : (
-                  <Icons.google />
-                )}{" "}
-                Continue with Google
-              </Button>
-              <Button
-                className="border-border bg-background/80 hover:bg-accent/70 h-10 shadow-xs dark:bg-input/50 dark:hover:bg-accent/60"
-                type="button"
-                variant="outline"
-                disabled={loading || provider !== null}
-                onClick={() => void startSso("oauth_github")}
-              >
-                {provider === "oauth_github" ? (
-                  <Loader className="animate-spin" />
-                ) : (
-                  <Icons.gitHub />
-                )}{" "}
-                Continue with GitHub
-              </Button>
-            </div>
-            <p className="text-muted-foreground before:bg-border flex items-center gap-3 text-sm before:h-px before:flex-1 after:h-px after:flex-1">
-              or continue with email
-            </p>
-            <form className="grid gap-4" noValidate onSubmit={startEmail}>
-              <Label className="flex items-center gap-1.5" htmlFor="email"><Mail className="text-muted-foreground size-3.5" />Email address</Label>
-              <Input
-                className="border-border bg-background/80 h-10 shadow-xs dark:bg-input/50"
-                id="email"
-                type="email"
-                autoComplete="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(event) => { setEmail(event.target.value); validateField("email", event.target.value, emailPasswordSchema.shape.email); }}
-              />
-              {fieldErrors.email && <p className="text-destructive text-sm">{fieldErrors.email}</p>}
-              <Label className="flex items-center gap-1.5" htmlFor="password"><LockKeyhole className="text-muted-foreground size-3.5" />Password</Label>
-              <div className="relative"><Input className="border-border bg-background/80 h-10 pr-10 shadow-xs dark:bg-input/50" id="password" type={showPassword ? "text" : "password"} autoComplete="new-password" placeholder="••••••••" value={password} onChange={(event) => { setPassword(event.target.value); validateField("password", event.target.value, emailPasswordSchema.shape.password); }} /><Button type="button" variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground absolute top-1/2 right-0 size-9 -translate-y-1/2" aria-label={showPassword ? "Hide password" : "Show password"} onClick={() => setShowPassword((current) => !current)}>{showPassword ? <EyeOff /> : <Eye />}</Button></div>
-              {fieldErrors.password && <p className="text-destructive text-sm">{fieldErrors.password}</p>}
-              <div id="clerk-captcha" />
-              <Button disabled={loading}>
-                {loading ? <Loader className="animate-spin" /> : "Continue"}
-              </Button>
-            </form>
+            <SignUpCredentialsStep email={email} password={password} errors={fieldErrors} loading={loading} provider={provider} onEmailChange={setEmail} onPasswordChange={setPassword} onValidate={validateField} onSubmit={startEmail} onProvider={(value) => void startSso(value)} />
           </>
         ) : (
-          <form className="grid gap-3" noValidate onSubmit={verifyCode}>
-            <Label className="flex items-center gap-1.5" htmlFor="code">Email verification code<ShieldCheck className="text-muted-foreground size-3.5" /></Label>
-            <OtpInput id="code" disabled={loading} value={code} onChange={(value) => { setCode(value); validateField("code", value, verificationCodeSchema.shape.code); }} />
-            {fieldErrors.code && <p className="text-destructive text-sm">{fieldErrors.code}</p>}
-            <Button disabled={loading}>
-              {loading ? <Loader className="animate-spin" /> : "Verify"}
-            </Button>
-            <Button
-              type="button"
-              variant="link"
-              disabled={loading}
-              onClick={() => void signUp.verifications.sendEmailCode()}
-            >
-              Resend code
-            </Button>
-            <Button
-              type="button"
-              variant="link"
-              disabled={loading}
-              onClick={() => setStep("email")}
-            >
-              Change email address
-            </Button>
-          </form>
+          <SignUpVerificationStep code={code} error={fieldErrors.code} loading={loading} onCodeChange={setCode} onValidate={validateField} onSubmit={verifyCode} onResend={() => void signUp.verifications.sendEmailCode()} onChangeEmail={() => setStep("email")} />
         )}
       </CardContent>
       <CardFooter className="text-muted-foreground justify-center pt-1 text-sm">
