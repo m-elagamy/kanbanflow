@@ -8,15 +8,15 @@ import {
 } from "@/components/ui/accordion";
 
 const TermsOfService = () => (
-  <section className="space-y-6">
+  <section className="space-y-4">
     <Card>
-      <CardHeader className="pb-3">
+      <CardHeader className="px-4 pt-4 pb-2">
         <CardTitle className="flex items-center text-lg">
           <Layout className="mr-2 h-5 w-5" />
           Kanban Board Usage
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-4">
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="usage">
             <AccordionTrigger>
@@ -56,13 +56,13 @@ const TermsOfService = () => (
     </Card>
 
     <Card>
-      <CardHeader className="pb-3">
+      <CardHeader className="px-4 pt-4 pb-2">
         <CardTitle className="flex items-center text-lg">
           <Database className="mr-2 h-5 w-5" />
           Data Management
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-4">
         <ul className="space-y-3 text-sm">
           <li className="flex items-center">
             <UserCircle className="mr-2 size-5 text-blue-500" />

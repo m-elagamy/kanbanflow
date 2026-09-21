@@ -4,6 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import BackgroundEffect from "./components/background-effect";
 import { Button } from "@/components/ui/button";
+import { ThemeSwitcher } from "@/components/layout/footer/theme-switcher";
 
 const LegalDocumentModal = dynamic(
   () =>
@@ -26,13 +27,16 @@ export default function AuthTemplate({
   };
 
   return (
-    <main className="bg-muted/30 dark:bg-background relative isolate flex min-h-dvh items-center justify-center overflow-hidden px-4 py-8">
+    <main className="bg-muted/30 dark:bg-background relative isolate flex min-h-dvh items-center justify-center overflow-hidden px-4 py-8 sm:px-6">
       <BackgroundEffect />
+      <div className="absolute top-4 right-4 z-20 sm:top-6 sm:right-6">
+        <ThemeSwitcher size="sm" />
+      </div>
       <section className="relative z-10 w-full max-w-[440px]">
         {children}
-        <div className="mt-4 text-center text-sm">
+        <div className="mt-2 px-4 text-center text-xs leading-5">
           <span className="text-muted-foreground">
-            By signing in, you agree to our
+            By continuing, you agree to our
           </span>
           <Button
             variant="link"

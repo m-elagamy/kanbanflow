@@ -3,7 +3,7 @@
 import { useSignUp } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Loader } from "lucide-react";
+import { Eye, EyeOff, Loader, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,6 +27,7 @@ export default function SignUpPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [code, setCode] = useState("");
@@ -87,18 +88,18 @@ export default function SignUpPage() {
   }
 
   return (
-    <Card className="mx-auto w-full sm:w-96 md:w-[420px]">
-      <CardHeader className="text-center">
+    <Card className="mx-auto w-full border-0 bg-transparent shadow-none sm:w-96 md:w-[420px]">
+      <CardHeader className="gap-3 px-6 pt-7 text-center sm:px-8">
         <CardTitle className="mx-auto">
           <KanbanLogo />
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="mx-auto max-w-sm leading-6">
           {step === "email"
             ? "Create your account with Google, GitHub, or your email and password."
             : `Enter the verification code sent to ${email}.`}
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4">
+      <CardContent className="grid gap-5 px-6 sm:px-8">
         {message && (
           <p role="alert" className="text-destructive text-sm">
             {message}
@@ -108,6 +109,7 @@ export default function SignUpPage() {
           <>
             <div className="grid gap-3">
               <Button
+                className="border-border bg-background/80 hover:bg-accent/70 h-10 shadow-xs dark:bg-input/50 dark:hover:bg-accent/60"
                 type="button"
                 variant="outline"
                 disabled={loading || provider !== null}
@@ -121,6 +123,7 @@ export default function SignUpPage() {
                 Continue with Google
               </Button>
               <Button
+                className="border-border bg-background/80 hover:bg-accent/70 h-10 shadow-xs dark:bg-input/50 dark:hover:bg-accent/60"
                 type="button"
                 variant="outline"
                 disabled={loading || provider !== null}
@@ -137,9 +140,10 @@ export default function SignUpPage() {
             <p className="text-muted-foreground before:bg-border flex items-center gap-3 text-sm before:h-px before:flex-1 after:h-px after:flex-1">
               or continue with email
             </p>
-            <form className="grid gap-3" noValidate onSubmit={startEmail}>
-              <Label htmlFor="email">Email address</Label>
+            <form className="grid gap-4" noValidate onSubmit={startEmail}>
+              <Label className="flex items-center gap-1.5" htmlFor="email"><Mail className="text-muted-foreground size-3.5" />Email address</Label>
               <Input
+                className="border-border bg-background/80 h-10 shadow-xs dark:bg-input/50"
                 id="email"
                 type="email"
                 autoComplete="email"
@@ -148,8 +152,8 @@ export default function SignUpPage() {
                 onChange={(event) => { setEmail(event.target.value); validateField("email", event.target.value, emailPasswordSchema.shape.email); }}
               />
               {fieldErrors.email && <p className="text-destructive text-sm">{fieldErrors.email}</p>}
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" autoComplete="new-password" value={password} onChange={(event) => { setPassword(event.target.value); validateField("password", event.target.value, emailPasswordSchema.shape.password); }} />
+              <Label className="flex items-center gap-1.5" htmlFor="password"><LockKeyhole className="text-muted-foreground size-3.5" />Password</Label>
+              <div className="relative"><Input className="border-border bg-background/80 h-10 pr-10 shadow-xs dark:bg-input/50" id="password" type={showPassword ? "text" : "password"} autoComplete="new-password" placeholder="••••••••" value={password} onChange={(event) => { setPassword(event.target.value); validateField("password", event.target.value, emailPasswordSchema.shape.password); }} /><Button type="button" variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground absolute top-1/2 right-0 size-9 -translate-y-1/2" aria-label={showPassword ? "Hide password" : "Show password"} onClick={() => setShowPassword((current) => !current)}>{showPassword ? <EyeOff /> : <Eye />}</Button></div>
               {fieldErrors.password && <p className="text-destructive text-sm">{fieldErrors.password}</p>}
               <div id="clerk-captcha" />
               <Button disabled={loading}>
@@ -159,7 +163,7 @@ export default function SignUpPage() {
           </>
         ) : (
           <form className="grid gap-3" noValidate onSubmit={verifyCode}>
-            <Label htmlFor="code">Email verification code</Label>
+            <Label className="flex items-center gap-1.5" htmlFor="code">Email verification code<ShieldCheck className="text-muted-foreground size-3.5" /></Label>
             <OtpInput id="code" disabled={loading} value={code} onChange={(value) => { setCode(value); validateField("code", value, verificationCodeSchema.shape.code); }} />
             {fieldErrors.code && <p className="text-destructive text-sm">{fieldErrors.code}</p>}
             <Button disabled={loading}>
@@ -184,7 +188,7 @@ export default function SignUpPage() {
           </form>
         )}
       </CardContent>
-      <CardFooter className="text-muted-foreground justify-center text-sm">
+      <CardFooter className="text-muted-foreground justify-center pt-1 text-sm">
         Already have an account?
         <Button
           variant="link"
