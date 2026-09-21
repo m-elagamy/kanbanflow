@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { motion } from "motion/react";
-import { fadeIn } from "@/utils/motion-variants";
 import BackgroundEffect from "./components/background-effect";
 import { Button } from "@/components/ui/button";
 
@@ -28,9 +26,9 @@ export default function AuthTemplate({
   };
 
   return (
-    <main className="relative grid min-h-dvh items-center overflow-hidden px-4 sm:justify-center">
+    <main className="bg-muted/30 dark:bg-background relative isolate flex min-h-dvh items-center justify-center overflow-hidden px-4 py-8">
       <BackgroundEffect />
-      <motion.section variants={fadeIn} initial="initial" animate="animate">
+      <section className="relative z-10 w-full max-w-[440px]">
         {children}
         <div className="mt-4 text-center text-sm">
           <span className="text-muted-foreground">
@@ -51,7 +49,7 @@ export default function AuthTemplate({
           )}
           .
         </div>
-      </motion.section>
+      </section>
     </main>
   );
 }

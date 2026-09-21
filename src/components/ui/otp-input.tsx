@@ -48,7 +48,7 @@ export function OtpInput({ value, onChange, disabled, id, ...props }: OtpInputPr
           autoComplete={index === 0 ? "one-time-code" : "off"}
           maxLength={1}
           disabled={disabled}
-          className={cn("h-12 w-full text-center text-lg font-semibold", props["aria-invalid"] && "border-destructive")}
+          className={cn("border-border/90 bg-muted/45 focus-visible:border-primary/60 focus-visible:ring-primary/30 h-12 w-full text-center text-lg font-semibold dark:bg-input/30", props["aria-invalid"] && "border-destructive")}
           value={digit}
           onChange={(event) => update(index, event.target.value)}
           onKeyDown={(event) => {
