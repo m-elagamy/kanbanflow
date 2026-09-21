@@ -2,7 +2,7 @@
 
 import { useSignIn } from "@clerk/nextjs";
 import { Loader } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import KanbanLogo from "@/components/layout/header/kanban-logo";
 import { Icons } from "@/components/ui/icons";
@@ -19,6 +19,7 @@ type Step = "password" | "code";
 export default function SignInPage() {
   const { signIn, errors, fetchStatus } = useSignIn();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
@@ -30,7 +31,12 @@ export default function SignInPage() {
   const emailError = fieldErrors.email ?? errors.fields.identifier?.message;
   const passwordError = fieldErrors.password ?? errors.fields.password?.message;
   const codeError = fieldErrors.code ?? errors.fields.code?.message;
-  const message = formError ?? errors.global?.[0]?.message;
+  const message =
+    formError ??
+    (searchParams.get("oauth") === "incomplete"
+      ? "Google sign-in was cancelled or not completed. You can try again or use another method."
+      : null) ??
+    errors.global?.[0]?.message;
 
   const navigate = ({ decorateUrl }: { decorateUrl: (url: string) => string }) =>
     router.push(decorateUrl("/welcome"));
@@ -98,6 +104,12 @@ export default function SignInPage() {
   async function signInWithSso(strategy: Provider) {
     setFormError(null);
     setProvider(strategy);
+    const reset = await signIn.reset();
+    if (reset.error) {
+      setProvider(null);
+      setFormError("Unable to start a new sign-in attempt. Please try again.");
+      return;
+    }
     const result = await signIn.sso({ strategy, redirectUrl: "/welcome", redirectCallbackUrl: "/sso-callback" });
     if (result.error) {
       setProvider(null);

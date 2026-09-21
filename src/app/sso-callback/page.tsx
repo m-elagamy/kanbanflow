@@ -7,13 +7,6 @@ import { useEffect, useRef, useState } from "react";
 import BackgroundEffect from "@/app/(auth)/components/background-effect";
 import KanbanLogo from "@/components/layout/header/kanban-logo";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 type NavigateOptions = {
   session?: { currentTask?: unknown };
@@ -99,7 +92,7 @@ export default function SsoCallbackPage() {
           return;
         }
 
-        router.replace("/sign-in");
+        router.replace("/sign-in?oauth=incomplete");
       } catch {
         setError("We couldn’t complete the sign-in. Please try again.");
       }
@@ -107,33 +100,26 @@ export default function SsoCallbackPage() {
   }, [clerk, router, signIn, signUp]);
 
   return (
-    <main className="relative grid min-h-dvh place-items-center overflow-hidden px-4">
+    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden px-4">
       <BackgroundEffect />
-      <Card className="w-full max-w-[420px]">
-        <CardHeader className="items-center text-center">
-          <CardTitle>
-            <KanbanLogo />
-          </CardTitle>
-          <CardDescription>Just a moment</CardDescription>
-        </CardHeader>
-        <CardContent className="grid justify-items-center gap-4 pb-8 text-center">
-          {error ? (
-            <>
-              <p role="alert" className="text-sm text-destructive">
-                {error}
-              </p>
-              <Button onClick={() => router.replace("/sign-in")}>Back to sign in</Button>
-            </>
-          ) : (
-            <>
-              <LoaderCircle className="size-7 animate-spin text-primary" aria-hidden="true" />
-              <p role="status" className="text-sm text-muted-foreground">
-                {message}
-              </p>
-            </>
-          )}
-        </CardContent>
-      </Card>
+      <section className="grid w-full max-w-sm justify-items-center gap-8 text-center [&>div:first-child]:!mx-auto">
+        <KanbanLogo />
+        {error ? (
+          <div className="grid justify-items-center gap-4">
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
+            <Button onClick={() => router.replace("/sign-in")}>Back to sign in</Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 rounded-full border bg-background/70 px-4 py-3 shadow-sm backdrop-blur">
+            <LoaderCircle className="size-4 animate-spin text-primary" aria-hidden="true" />
+            <p role="status" className="text-sm text-muted-foreground">
+              {message}
+            </p>
+          </div>
+        )}
+      </section>
       <div id="clerk-captcha" />
     </main>
   );
