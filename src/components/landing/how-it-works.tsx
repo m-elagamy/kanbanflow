@@ -1,207 +1,240 @@
 "use client";
 
-import { Ellipsis, Flag, GripVertical } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { Check, Ellipsis, Flag, FolderKanban, Plus } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 import columnStatusOptions from "@/app/dashboard/data/column-status-options";
-import { Badge } from "../ui/badge";
 
-const motionTimes = [0, 0.16, 0.42, 0.52, 0.82, 0.9, 1];
+const steps = [
+  ["01", "Start with a board", "Give your work a place to live."],
+  ["02", "Turn ideas into tasks", "Capture what needs doing while it’s fresh."],
+  ["03", "Keep work moving", "See progress happen, one task at a time."],
+] as const;
 
-function StaticTask({ title }: { title: string }) {
+function Column({
+  status,
+  count,
+  children,
+}: {
+  status: "To Do" | "In Progress" | "Done";
+  count: number;
+  children?: ReactNode;
+}) {
+  const option = columnStatusOptions[status];
+  const Icon = option.icon;
   return (
-    <div className="border-border/80 bg-card rounded-lg border p-3 shadow-xs">
-      <div className="flex items-start justify-between gap-2">
-        <p className="truncate text-xs font-medium sm:text-sm">{title}</p>
-        <Ellipsis className="text-muted-foreground size-3.5 shrink-0" />
+    <div className="border-border/70 bg-background/65 min-w-0 overflow-hidden rounded-xl border">
+      <div className="border-border/60 flex items-center justify-between border-b px-3 py-3">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <Icon
+            className="size-3.5 shrink-0"
+            color={option.color}
+            aria-hidden="true"
+          />
+          <span className="truncate text-[11px] font-semibold sm:text-xs">
+            {status}
+          </span>
+          <span className="border-border text-muted-foreground rounded px-1 py-0.5 text-[9px]">
+            {count}
+          </span>
+        </div>
+        <Ellipsis
+          className="text-muted-foreground size-3.5"
+          aria-hidden="true"
+        />
       </div>
-      <div className="text-muted-foreground mt-3 flex items-center justify-between text-[10px] sm:text-xs">
-        <span>Today</span>
-        <Flag className="text-primary size-3" aria-label="Medium priority" />
-      </div>
+      <div className="min-h-36 space-y-2 p-2.5">{children}</div>
     </div>
   );
 }
 
-function ColumnHeader({ status }: { status: "To Do" | "In Progress" }) {
-  const option = columnStatusOptions[status];
-  const Icon = option.icon;
-
+function Task({
+  title,
+  priority = "Medium",
+  complete = false,
+}: {
+  title: string;
+  priority?: string;
+  complete?: boolean;
+}) {
   return (
-    <div className="flex items-center justify-between border-b px-3 py-3 sm:px-4">
-      <div className="flex min-w-0 items-center gap-2">
-        <Icon
-          className="size-3.5 shrink-0"
-          color={option.color}
+    <motion.div
+      layout
+      className="border-border/80 bg-card rounded-lg border p-2.5 text-left shadow-xs"
+    >
+      <div className="flex items-start gap-2">
+        {complete && (
+          <span className="bg-secondary/15 text-secondary mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full">
+            <Check className="size-2.5" strokeWidth={3} />
+          </span>
+        )}
+        <p className="min-w-0 flex-1 truncate text-[11px] font-medium sm:text-xs">
+          {title}
+        </p>
+        <Ellipsis
+          className="text-muted-foreground size-3 shrink-0"
           aria-hidden="true"
         />
-        <span className="truncate text-xs font-semibold sm:text-sm">
-          {status}
+      </div>
+      <div className="text-muted-foreground mt-2 flex items-center justify-between text-[9px]">
+        <span>{complete ? "Done" : "Today"}</span>
+        <span className="inline-flex items-center gap-1">
+          <Flag className="text-primary size-2.5" aria-hidden="true" />
+          {priority}
         </span>
       </div>
-      <Ellipsis className="text-muted-foreground size-3.5 shrink-0" />
+    </motion.div>
+  );
+}
+
+function Stage({ activeStep }: { activeStep: number }) {
+  return (
+    <div
+      className="border-border/70 bg-muted/10 overflow-hidden rounded-2xl border p-3 shadow-[0_24px_70px_-42px_rgba(0,0,0,0.65)] sm:p-4"
+      role="img"
+      aria-label="Kanbamy workflow demonstration"
+    >
+      <div className="border-border/60 bg-background/70 mb-3 flex items-center justify-between rounded-lg border px-3 py-2.5 sm:mb-4 sm:px-4">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="bg-primary/10 text-primary ring-primary/15 flex size-7 shrink-0 items-center justify-center rounded-md ring-1">
+            <FolderKanban className="size-3.5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0 text-left">
+            <p className="truncate text-xs font-semibold sm:text-sm">
+              Website Launch
+            </p>
+            <p className="text-muted-foreground hidden text-[10px] sm:block">
+              {activeStep === 0
+                ? "A focused space for your next project"
+                : "Plan, build, and ship the next release"}
+            </p>
+          </div>
+        </div>
+        {activeStep === 0 ? (
+          <span className="bg-primary text-primary-foreground inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-medium">
+            <Plus className="size-3" aria-hidden="true" /> Create board
+          </span>
+        ) : activeStep === 1 ? (
+          <span className="bg-primary text-primary-foreground inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-medium">
+            <Plus className="size-3" aria-hidden="true" /> Add task
+          </span>
+        ) : null}
+      </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeStep}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.35 }}
+          className="grid min-h-56 grid-cols-3 gap-2.5 sm:min-h-64 sm:gap-3"
+        >
+          {activeStep === 0 ? (
+            <>
+              <Column status="To Do" count={0} />
+              <Column status="In Progress" count={0} />
+              <Column status="Done" count={0} />
+            </>
+          ) : activeStep === 1 ? (
+            <>
+              <Column status="To Do" count={2}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.15 }}
+                >
+                  <Task title="Polish landing page" priority="High" />
+                </motion.div>
+                <Task title="Review launch copy" priority="Low" />
+              </Column>
+              <Column status="In Progress" count={1}>
+                <Task title="Prepare release notes" />
+              </Column>
+              <Column status="Done" count={1}>
+                <Task title="Create project brief" complete priority="Low" />
+              </Column>
+            </>
+          ) : (
+            <>
+              <Column status="To Do" count={1}>
+                <Task title="Review launch copy" priority="Low" />
+              </Column>
+              <Column status="In Progress" count={1}>
+                <div className="border-primary/30 bg-primary/5 rounded-lg border border-dashed p-2.5 text-left">
+                  <p className="text-[11px] font-medium sm:text-xs">
+                    Polish landing page
+                  </p>
+                  <span className="text-muted-foreground mt-2 block text-[9px]">
+                    Moving through the board
+                  </span>
+                </div>
+              </Column>
+              <Column status="Done" count={2}>
+                <Task title="Polish landing page" complete priority="High" />
+                <Task title="Create project brief" complete priority="Low" />
+              </Column>
+            </>
+          )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
 
 export default function HowItWorks() {
-  const shouldReduceMotion = useReducedMotion();
-
+  const reduced = useReducedMotion();
+  const [activeStep, setActiveStep] = useState(0);
+  useEffect(() => {
+    if (reduced) return;
+    const timer = window.setInterval(
+      () => setActiveStep((step) => (step + 1) % steps.length),
+      6500,
+    );
+    return () => window.clearInterval(timer);
+  }, [reduced]);
   return (
-    <section className="border-border/50 border-t py-20 md:py-24">
-      <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,0.6fr)_minmax(0,1.4fr)] lg:gap-14">
-        <div className="max-w-md">
-          <Badge
-            variant="outline"
-            animate={false}
-            className="border-primary/20 bg-primary/[0.06] text-foreground/80 mb-6 shadow-none"
+    <section
+      className="border-border/50 border-t py-20 md:py-24"
+      aria-labelledby="how-it-works-title"
+    >
+      <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1.35fr)] lg:gap-16">
+        <div className="max-w-md lg:sticky lg:top-28">
+          <p className="text-muted-foreground mb-5 text-sm font-medium tracking-wide uppercase">
+            How it works
+          </p>
+          <h2
+            id="how-it-works-title"
+            className="text-gradient text-3xl font-bold tracking-tighter text-balance md:text-4xl lg:text-5xl"
           >
-            Workflow, in action
-          </Badge>
-          <h2 className="text-gradient text-3xl font-bold tracking-tighter text-balance md:text-4xl lg:text-5xl">
-            From next task to done.
+            From idea to done.
           </h2>
           <p className="text-muted-foreground mt-4 max-w-sm text-base leading-7">
-            Move work forward and the board responds with it.
+            Turn what’s on your mind into clear, manageable progress.
           </p>
-        </div>
-
-        <div
-          className="border-border/70 bg-muted/10 overflow-hidden rounded-xl border p-3 shadow-[0_24px_70px_-42px_rgba(0,0,0,0.6)] sm:rounded-2xl sm:p-4"
-          role="img"
-          aria-label="A Kanbamy task moving from To Do to In Progress"
-        >
-          <div className="border-border/60 bg-background/70 mb-3 flex items-center gap-2 rounded-lg border px-3 py-2.5 sm:mb-4 sm:px-4">
-            <span className="bg-primary/10 text-primary ring-primary/15 flex size-7 items-center justify-center rounded-md ring-1">
-              <GripVertical className="size-3.5" aria-hidden="true" />
-            </span>
-            <div>
-              <p className="text-xs font-semibold sm:text-sm">
-                Website refresh
-              </p>
-              <p className="text-muted-foreground text-[10px] sm:text-xs">
-                Move tasks as the work progresses
-              </p>
-            </div>
-          </div>
-
-          <div className="relative grid min-h-56 grid-cols-2 gap-3 sm:min-h-64 sm:gap-4">
-            <div className="border-border/70 bg-background/60 overflow-hidden rounded-xl border">
-              <ColumnHeader status="To Do" />
-              <div className="space-y-2.5 p-2.5">
-                <div
-                  className="h-[4.75rem] sm:h-[5.25rem]"
-                  aria-hidden="true"
-                />
-                <StaticTask title="Review launch copy" />
-              </div>
-            </div>
-
-            <div className="border-border/70 bg-background/60 relative overflow-hidden rounded-xl border">
-              <ColumnHeader status="In Progress" />
-              <div className="space-y-2.5 p-2.5">
-                <div
-                  className="h-[4.75rem] sm:h-[5.25rem]"
-                  aria-hidden="true"
-                />
-                <StaticTask title="Prepare release notes" />
-              </div>
-              <motion.div
-                className="bg-primary absolute inset-x-3 top-12 h-0.5 rounded-full"
-                initial={false}
-                animate={
-                  shouldReduceMotion
-                    ? { opacity: 0.45 }
-                    : { opacity: [0, 0, 0.75, 0, 0, 0] }
-                }
-                transition={{
-                  duration: 7.5,
-                  repeat: Infinity,
-                  times: [0, 0.25, 0.4, 0.56, 0.82, 1],
-                }}
-                aria-hidden="true"
-              />
-              <motion.div
-                className="border-primary/35 ring-primary/10 pointer-events-none absolute inset-0 rounded-xl border ring-1"
-                initial={false}
-                animate={
-                  shouldReduceMotion
-                    ? { opacity: 0 }
-                    : { opacity: [0, 0, 0.7, 0.25, 0, 0] }
-                }
-                transition={{
-                  duration: 7.5,
-                  repeat: Infinity,
-                  times: [0, 0.25, 0.4, 0.58, 0.82, 1],
-                }}
-                aria-hidden="true"
-              />
-            </div>
-
-            <motion.div
-              className="border-border/80 bg-card absolute top-[3.55rem] z-10 rounded-lg border p-3 text-left shadow-md sm:top-[3.8rem]"
-              style={{ width: "calc(50% - 1.25rem)" }}
-              initial={false}
-              animate={
-                shouldReduceMotion
-                  ? { left: "calc(50% + 0.5rem)", y: 0, scale: 1, opacity: 1 }
-                  : {
-                      left: [
-                        "0.65rem",
-                        "0.65rem",
-                        "calc(50% + 0.5rem)",
-                        "calc(50% + 0.5rem)",
-                        "calc(50% + 0.5rem)",
-                        "calc(50% + 0.5rem)",
-                        "0.65rem",
-                      ],
-                      y: [0, -5, -5, 0, 0, 0, 0],
-                      scale: [1, 1.025, 1.025, 1, 1, 1, 1],
-                      opacity: [1, 1, 1, 1, 1, 0, 0],
-                    }
-              }
-              transition={{
-                duration: 7.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-                times: motionTimes,
-              }}
-            >
-              <motion.div
-                className="border-primary/50 ring-primary/20 pointer-events-none absolute inset-0 rounded-lg border ring-2"
-                initial={false}
-                animate={
-                  shouldReduceMotion
-                    ? { opacity: 0 }
-                    : { opacity: [0, 1, 1, 0, 0, 0, 0] }
-                }
-                transition={{
-                  duration: 7.5,
-                  repeat: Infinity,
-                  times: motionTimes,
-                }}
-                aria-hidden="true"
-              />
-              <div className="relative flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-medium sm:text-sm">
-                    Polish responsive states
-                  </p>
-                  <p className="text-muted-foreground mt-1 hidden truncate text-xs sm:block">
-                    Check the board at smaller breakpoints
-                  </p>
-                </div>
-                <Ellipsis className="text-muted-foreground size-3.5 shrink-0" />
-              </div>
-              <div className="text-muted-foreground relative mt-3 flex items-center justify-between text-[10px] sm:text-xs">
-                <span>Today</span>
-                <span className="inline-flex items-center gap-1">
-                  <Flag className="text-primary size-3" aria-hidden="true" />{" "}
-                  High
+          <div className="mt-8 space-y-1">
+            {steps.map(([number, title, description], index) => (
+              <button
+                key={number}
+                type="button"
+                onClick={() => setActiveStep(index)}
+                className={`group flex w-full items-start gap-4 rounded-lg px-3 py-3 text-left transition-colors ${activeStep === index ? "bg-muted/50" : "hover:bg-muted/25"}`}
+              >
+                <span
+                  className={`pt-0.5 text-xs font-semibold ${activeStep === index ? "text-primary" : "text-muted-foreground"}`}
+                >
+                  {number}
                 </span>
-              </div>
-            </motion.div>
+                <span>
+                  <span className="block text-sm font-medium">{title}</span>
+                  <span className="text-muted-foreground mt-1 block text-xs">
+                    {description}
+                  </span>
+                </span>
+              </button>
+            ))}
           </div>
         </div>
+        <Stage activeStep={activeStep} />
       </div>
     </section>
   );

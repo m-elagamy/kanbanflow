@@ -7,8 +7,8 @@ const Landing = () => {
   return (
     <div className="container">
       <Hero />
-      <Features />
       <HowItWorks />
+      <Features />
       <Cta />
     </div>
   );
