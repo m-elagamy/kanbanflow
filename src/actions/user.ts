@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { getAuthenticatedUserId } from "@/utils/dev-auth";
 import { User } from "@prisma/client";
 import type { ServerActionResult } from "@/lib/types";
 import {
@@ -16,7 +16,7 @@ import type { SimplifiedBoard, BoardWithStats } from "@/lib/types/stores/board";
 export async function insertUserAction(
   data: Omit<User, "hasCreatedBoardOnce">,
 ): Promise<ServerActionResult<User>> {
-  const { userId } = await auth();
+  const userId = await getAuthenticatedUserId();
 
   if (!userId || userId !== data.id) {
     return {

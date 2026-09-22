@@ -1,7 +1,7 @@
 import db from "../db";
 import { Board, type Column, type Priority, type Prisma } from "@prisma/client";
 import { createHash } from "node:crypto";
-import { currentUser } from "@clerk/nextjs/server";
+import { getAuthenticatedUser } from "@/utils/dev-auth";
 import { withUserId } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
@@ -95,7 +95,7 @@ const createBoard = withUserId(
       select: { id: true, name: true, email: true },
     });
     if (!account) {
-      const profile = await currentUser();
+      const profile = await getAuthenticatedUser();
       const email = profile?.primaryEmailAddress?.emailAddress;
       if (!profile || profile.id !== userId || !email) {
         throw new Error(

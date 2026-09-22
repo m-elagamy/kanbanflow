@@ -1,5 +1,4 @@
-import { unauthorized } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
+import { getAuthenticatedUserId } from "@/utils/dev-auth";
 
 type DALFunction<T extends unknown[], R> = (...args: T) => Promise<R>;
 type DALResult<R> = { success: boolean; message: string; data?: R };
@@ -8,8 +7,7 @@ export function withUserId<T extends unknown[], R>(
   fn: DALFunction<[userId: string, ...args: T], R>,
 ): DALFunction<T, DALResult<R>> {
   return async (...args: T) => {
-    const { userId } = await auth();
-    if (!userId) unauthorized();
+    const userId = await getAuthenticatedUserId();
     const result = await fn(userId, ...args);
     if (result === null) {
       return { success: false, message: "Not found" };
@@ -22,8 +20,7 @@ export function ensureAuthenticated<T extends unknown[], R>(
   fn: DALFunction<T, R>,
 ): DALFunction<T, DALResult<R>> {
   return async (...args: T) => {
-    const { userId } = await auth();
-    if (!userId) unauthorized();
+    await getAuthenticatedUserId();
     const result = await fn(...args);
     return { success: true, message: "Authenticated", data: result };
   };

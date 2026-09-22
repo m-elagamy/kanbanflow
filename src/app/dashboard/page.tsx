@@ -1,6 +1,6 @@
-import { redirect, unauthorized } from "next/navigation";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { getAuthenticatedUser, getAuthenticatedUserId } from "@/utils/dev-auth";
 import {
   getUserOnboardingStateAction,
   getUserBoardsWithStatsAction,
@@ -10,9 +10,7 @@ import BoardsGrid from "./components/board/boards-grid";
 import { getDashboardFocusTasksAction } from "@/actions/task";
 
 const Dashboard = async () => {
-  const { userId } = await auth();
-
-  if (!userId) unauthorized();
+  await getAuthenticatedUserId();
 
   const [
     user,
@@ -21,14 +19,12 @@ const Dashboard = async () => {
     statsResult,
     focusTasksResult,
   ] = await Promise.all([
-    currentUser(),
+    getAuthenticatedUser(),
     getUserOnboardingStateAction(),
     getUserBoardsWithStatsAction(),
     getDashboardStatsAction(),
     getDashboardFocusTasksAction(),
   ]);
-
-  if (!user) unauthorized();
 
   const hasCreatedBoardOnce =
     onboardingState.fields?.hasCreatedBoardOnce ?? false;

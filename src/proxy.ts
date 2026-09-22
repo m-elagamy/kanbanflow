@@ -2,6 +2,7 @@ import {
   clerkMiddleware as proxy,
   createRouteMatcher,
 } from "@clerk/nextjs/server";
+import { isDevAuthBypass } from "@/utils/dev-auth";
 
 const isPublicRoute = createRouteMatcher([
   "/",
@@ -15,7 +16,7 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default proxy(async (auth, request) => {
-  if (!isPublicRoute(request)) {
+  if (!isDevAuthBypass() && !isPublicRoute(request)) {
     await auth.protect();
   }
 });

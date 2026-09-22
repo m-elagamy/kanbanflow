@@ -1,15 +1,13 @@
-import { redirect, unauthorized } from "next/navigation";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { currentUser } from "@clerk/nextjs/server";
 import { after } from "next/server";
 import WelcomeSetup from "./components/welcome-setup";
 import { getUserOnboardingStateAction } from "@/actions/user";
 import { prepareUserRecord } from "@/lib/dal/user";
+import { getAuthenticatedUser } from "@/utils/dev-auth";
 
 const WelcomePage = async () => {
-  const user = await currentUser();
-
-  if (!user) unauthorized();
+  const user = await getAuthenticatedUser();
 
   const onboardingState = await getUserOnboardingStateAction();
 
