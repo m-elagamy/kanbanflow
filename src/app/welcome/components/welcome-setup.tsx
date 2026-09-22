@@ -249,13 +249,7 @@ export default function WelcomeSetup({
               aria-label="Board preview"
               className="border-border/70 bg-muted/20 flex h-[280px] flex-col overflow-hidden rounded-xl border shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)]"
             >
-              <motion.div
-                key={`preview-meta-${templateId}`}
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.22, ease: "easeOut" }}
-                className="border-border/60 bg-card/55 shrink-0 space-y-1.5 border-b px-5 py-4 sm:px-6"
-              >
+              <div className="border-border/60 bg-card/55 shrink-0 space-y-1.5 border-b px-5 py-4 sm:px-6">
                 <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                   Your board preview
                 </p>
@@ -267,7 +261,7 @@ export default function WelcomeSetup({
                     ? `${template.status.length} columns ready for your tasks`
                     : "A blank board to build your own workflow"}
                 </p>
-              </motion.div>
+              </div>
               <div className="bg-background/45 min-h-0 flex-1 p-3 sm:p-4">
                 <AnimatePresence initial={false} mode="wait">
                   <motion.div
