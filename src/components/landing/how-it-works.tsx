@@ -43,7 +43,9 @@ function Column({
           aria-hidden="true"
         />
       </div>
-      <div className="min-h-36 space-y-2 p-2.5">{children}</div>
+      <div className="min-h-52 flex-1 space-y-3 p-3 sm:min-h-56 sm:p-4">
+        {children}
+      </div>
     </div>
   );
 }
@@ -90,7 +92,7 @@ function Task({
 function Stage({ activeStep }: { activeStep: number }) {
   return (
     <div
-      className="border-border/70 bg-muted/10 overflow-hidden rounded-2xl border p-3 shadow-[0_24px_70px_-42px_rgba(0,0,0,0.65)] sm:p-4"
+      className="border-border/70 bg-muted/10 flex min-h-[34rem] flex-col overflow-hidden rounded-2xl border p-4 shadow-[0_24px_70px_-42px_rgba(0,0,0,0.65)] sm:p-5 lg:min-h-[38rem] lg:p-6"
       role="img"
       aria-label="Kanbamy workflow demonstration"
     >
@@ -127,7 +129,7 @@ function Stage({ activeStep }: { activeStep: number }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.35 }}
-          className="grid min-h-56 grid-cols-3 gap-2.5 sm:min-h-64 sm:gap-3"
+          className="grid min-h-64 flex-1 grid-cols-3 gap-3 sm:min-h-72 sm:gap-4"
         >
           {activeStep === 0 ? (
             <>
