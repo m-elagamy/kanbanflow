@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ArrowRight,
   Check,
@@ -12,7 +13,7 @@ import {
 import columnsTemplates from "@/app/dashboard/data/columns-templates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useBoardRetry } from "@/hooks/use-board-retry";
+import { useBoardCreation } from "@/hooks/use-board-creation";
 import type { Templates } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { boardSchema } from "@/schemas/board";
@@ -53,6 +54,7 @@ export default function WelcomeSetup({
   const [customTitle, setCustomTitle] = useState<string | null>(null);
   const [titleError, setTitleError] = useState<string>();
   const [isOpening, setIsOpening] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
   const submitting = useRef(false);
   const {
     submitBoardCreation,
@@ -60,7 +62,7 @@ export default function WelcomeSetup({
     isCreating,
     hasError,
     failedBoard,
-  } = useBoardRetry();
+  } = useBoardCreation();
   const needsRetry = hasError && !!failedBoard;
   const busy = isCreating || isOpening;
   const locked = busy || needsRetry;
@@ -136,7 +138,7 @@ export default function WelcomeSetup({
                 <label
                   key={id}
                   className={cn(
-                    "focus-within:ring-ring group relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 outline-none transition-[border-color,background-color,box-shadow,transform]  focus-within:ring-offset-0",
+                    "focus-within:ring-ring group relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 outline-none transition-[border-color,background-color,box-shadow,transform] duration-200 motion-reduce:transition-none focus-within:ring-offset-0",
                     active
                       ? "border-primary/35 bg-primary/[0.07] shadow-[0_12px_30px_-24px] shadow-primary/80"
                       : "border-border/70 bg-background/70 hover:-translate-y-0.5 hover:border-primary/25 hover:bg-card/70 hover:shadow-md",
@@ -157,7 +159,7 @@ export default function WelcomeSetup({
                   />
                   <span
                     className={cn(
-                      "flex size-10 shrink-0 items-center justify-center rounded-xl transition-colors",
+                      "flex size-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-200 motion-reduce:transition-none",
                       active
                         ? "bg-primary/15 text-primary"
                         : "bg-muted/70 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
@@ -176,7 +178,7 @@ export default function WelcomeSetup({
                   <span
                     aria-hidden="true"
                     className={cn(
-                      "flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors",
+                      "flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors duration-200 motion-reduce:transition-none",
                       active
                         ? "border-primary/70 bg-primary/15 text-primary"
                         : "border-border/70 text-transparent",
@@ -229,7 +231,7 @@ export default function WelcomeSetup({
                     setCustomTitle(event.target.value);
                     setTitleError(undefined);
                   }}
-                  className="border-border bg-background/80 h-11 rounded-lg px-3 text-base font-medium shadow-xs focus-visible:border-primary/60 focus-visible:ring-primary/30 dark:bg-input/50"
+                  className="border-input bg-background/80 hover:border-primary/40 hover:bg-background h-11 cursor-text rounded-lg px-3 text-base font-medium shadow-xs transition-[color,background-color,border-color,box-shadow] focus-visible:border-primary/70 focus-visible:ring-2 focus-visible:ring-primary/25 dark:bg-input/50 dark:hover:bg-input/70"
                 />
               </div>
               {titleError && (
@@ -247,7 +249,13 @@ export default function WelcomeSetup({
               aria-label="Board preview"
               className="border-border/70 bg-muted/20 flex h-[280px] flex-col overflow-hidden rounded-xl border shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)]"
             >
-              <div className="border-border/60 bg-card/55 shrink-0 space-y-1.5 border-b px-5 py-4 sm:px-6">
+              <motion.div
+                key={`preview-meta-${templateId}`}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, ease: "easeOut" }}
+                className="border-border/60 bg-card/55 shrink-0 space-y-1.5 border-b px-5 py-4 sm:px-6"
+              >
                 <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                   Your board preview
                 </p>
@@ -259,21 +267,29 @@ export default function WelcomeSetup({
                     ? `${template.status.length} columns ready for your tasks`
                     : "A blank board to build your own workflow"}
                 </p>
-              </div>
+              </motion.div>
               <div className="bg-background/45 min-h-0 flex-1 p-3 sm:p-4">
+                <AnimatePresence initial={false} mode="wait">
+                  <motion.div
+                    key={templateId}
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 10, scale: 0.985 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={shouldReduceMotion ? undefined : { opacity: 0, y: -8, scale: 0.99 }}
+                    transition={{ duration: 0.24, ease: "easeOut" }}
+                    className="h-full"
+                  >
                 {template.status.length ? (
-                  <div className="border-border/50 bg-background/45 flex min-h-34 items-stretch rounded-lg border p-2 shadow-inner">
-                    <div className="grid min-h-32 w-full grid-cols-2 gap-2 sm:flex">
-                      {template.status.map((status, index) => (
-                        <div
-                          key={status}
-                          className="border-border/45 bg-card/60 flex min-h-28 min-w-0 flex-1 flex-col rounded-md border px-2.5 py-2 shadow-xs"
-                        >
-                          <div className="flex items-center gap-2 border-b border-border/40 pb-2 text-[11px] font-semibold tracking-wide">
+                  <div className="grid min-h-34 grid-cols-2 gap-2 sm:flex sm:gap-2.5">
+                    {template.status.map((status, index) => (
+                      <div
+                        key={status}
+                        className="border-border/45 bg-card/60 flex min-h-28 min-w-0 flex-1 flex-col rounded-md border px-2.5 py-2.5 shadow-xs"
+                      >
+                        <div className="flex items-center gap-2 text-[11px] font-semibold tracking-wide">
                           <span
                             aria-hidden="true"
                             className={cn(
-                              "mt-1 size-1.5 shrink-0 rounded-full",
+                              "size-1.5 shrink-0 rounded-full",
                               index === template.status.length - 1
                                 ? "bg-emerald-500"
                                 : index === 0
@@ -282,16 +298,15 @@ export default function WelcomeSetup({
                             )}
                           />
                             <span className="truncate">{status}</span>
-                          </div>
-                          <div
-                            aria-hidden="true"
-                            className="border-border/35 text-muted-foreground/40 mt-auto flex items-center justify-center border-t pt-3"
-                          >
-                            <Plus className="size-3.5" />
-                          </div>
                         </div>
-                      ))}
-                    </div>
+                        <div
+                          aria-hidden="true"
+                          className="text-muted-foreground/40 mt-auto flex items-center justify-center pt-3"
+                        >
+                          <Plus className="size-3.5" />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="border-border/70 text-muted-foreground flex min-h-34 w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed px-5 text-center">
@@ -301,6 +316,8 @@ export default function WelcomeSetup({
                     </p>
                   </div>
                 )}
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </section>
 

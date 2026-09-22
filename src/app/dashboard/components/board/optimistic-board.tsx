@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { notFound, usePathname } from "next/navigation";
 import useActiveBoard from "@/hooks/use-active-board";
-import { useBoardRetry } from "@/hooks/use-board-retry";
+import { useBoardCreation } from "@/hooks/use-board-creation";
 import BoardHeader from "./board-header";
 import ColumnsWrapper from "../column";
 import BoardContainer from "./board-container";
@@ -13,7 +13,7 @@ export default function OptimisticBoardLayout() {
   const pathname = usePathname();
   const { activeBoard } = useActiveBoard();
   const { hasError, isCreating, retryBoardCreation, navigateToDashboard } =
-    useBoardRetry();
+    useBoardCreation();
 
   useEffect(() => {
     window.history.replaceState(null, "", pathname);

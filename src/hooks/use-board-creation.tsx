@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
-import { toast } from "sonner";
 import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
 import { useTaskStore } from "@/stores/task";
@@ -12,7 +11,7 @@ import { createBoardAction } from "@/actions/board";
 import type { BoardFormValues } from "@/lib/types";
 import { slugify } from "@/utils/slugify";
 
-export function useBoardRetry() {
+export function useBoardCreation() {
   const router = useRouter();
   const inFlight = useRef(false);
   const {
@@ -72,16 +71,10 @@ export function useBoardRetry() {
         })),
       );
       resetError();
-      toast.success(`Board "${title}" is ready.`);
       router.push(`/dashboard/${slug}?new=1`);
       return true;
-    } catch (error) {
+    } catch {
       setError(true, attempt);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Could not confirm that your board was saved. Please retry.",
-      );
       return false;
     } finally {
       inFlight.current = false;

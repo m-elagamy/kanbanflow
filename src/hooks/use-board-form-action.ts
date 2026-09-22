@@ -5,7 +5,7 @@ import { omit } from "@/utils/object";
 import type { BoardSummary, FormMode } from "@/lib/types";
 import type { BoardFormSchema } from "@/schemas/board";
 import handleOnError from "@/utils/handle-on-error";
-import { useBoardRetry } from "./use-board-retry";
+import { useBoardCreation } from "./use-board-creation";
 import { useBoardFormStore } from "./use-board-form-store";
 import { updateBoardAction } from "@/actions/board";
 
@@ -41,7 +41,7 @@ export function useBoardFormAction({
     submitBoardCreation,
     retryBoardCreation,
     navigateToDashboard,
-  } = useBoardRetry();
+  } = useBoardCreation();
 
   const handleFormAction = async (formData: FormData) => {
     if (isLoading || (!isEditMode && failedBoard)) return;
