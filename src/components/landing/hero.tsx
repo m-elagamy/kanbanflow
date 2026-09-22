@@ -24,12 +24,11 @@ export default function Hero() {
       <div className="relative">
         <FloatingParticlesWrapper />
         <h1 className="text-gradient mb-6 text-4xl font-extrabold tracking-tighter md:text-5xl lg:text-6xl">
-          Streamline Your Workflow
+          Turn plans into progress.
         </h1>
         <p className="text-muted-foreground mx-auto mb-8 max-w-3xl text-base leading-relaxed md:text-lg">
-          Stay organized, manage tasks effortlessly, and boost productivity with
-          real-time updates. Kanbamy helps you achieve more with a seamless and
-          intuitive experience.
+          Organize tasks, move work forward, and keep every project on track from
+          start to done.
         </p>
       </div>
       <div>
