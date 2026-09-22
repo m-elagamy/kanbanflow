@@ -3,6 +3,7 @@ import { z } from "zod";
 const columnStatusSchema = z.object({
   status: z.enum([
     "To Do",
+    "Reported",
     "In Progress",
     "Done",
     "Blocked",

@@ -53,7 +53,6 @@ export default function WelcomeSetup({
   const [selected, setSelected] = useState<Templates>("personal");
   const [customTitle, setCustomTitle] = useState<string | null>(null);
   const [titleError, setTitleError] = useState<string>();
-  const [isOpening, setIsOpening] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const submitting = useRef(false);
   const {
@@ -64,7 +63,7 @@ export default function WelcomeSetup({
     failedBoard,
   } = useBoardCreation();
   const needsRetry = hasError && !!failedBoard;
-  const busy = isCreating || isOpening;
+  const busy = isCreating;
   const locked = busy || needsRetry;
   const templateId = needsRetry ? (failedBoard.template ?? selected) : selected;
   const template = columnsTemplates.find((item) => item.id === templateId)!;
@@ -86,11 +85,10 @@ export default function WelcomeSetup({
     }
     submitting.current = true;
     try {
-      const created = needsRetry
-        ? await retryBoardCreation()
+      await (needsRetry
+        ? retryBoardCreation()
         : result.success &&
-          (await submitBoardCreation({ ...result.data, id: generateUUID() }));
-      if (created) setIsOpening(true);
+          submitBoardCreation({ ...result.data, id: generateUUID() }));
     } finally {
       submitting.current = false;
     }
@@ -328,16 +326,14 @@ export default function WelcomeSetup({
               className="h-10 w-full duration-300 rounded-lg border border-primary/20 bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-none transition hover:bg-primary/90 active:translate-y-px active:shadow-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
               effect="ringHover"
             >
-              {busy ? (
+              {isCreating && (
                 <LoaderCircle className="animate-spin" aria-hidden="true" />
-              ) : null}
-              {isOpening
-                ? "Opening your board…"
-                : isCreating
-                  ? "Creating your board…"
-                  : needsRetry
-                    ? "Retry creating my board"
-                    : "Create my board"}
+              )}
+              {isCreating
+                ? "Creating your board…"
+                : needsRetry
+                  ? "Retry creating my board"
+                  : "Create my board"}
               {!busy && <ArrowRight aria-hidden="true" />}
             </Button>
           </div>

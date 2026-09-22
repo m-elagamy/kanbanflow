@@ -11,10 +11,12 @@ import {
   Archive,
   CircleX,
   ThumbsUp,
+  CircleAlert,
 } from "lucide-react";
 
 const stateOptions = {
   "In Progress": { icon: RefreshCw, color: "#F5A623" },
+  Reported: { icon: CircleAlert, color: "#F97316" },
   "To Do": { icon: SquareCheck, color: "#4A90E2" },
   "Ready for Development": { icon: PlayCircle, color: "#673AB7" },
   Blocked: { icon: Ban, color: "#F44336" },
