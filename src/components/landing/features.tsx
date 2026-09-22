@@ -1,55 +1,209 @@
-import { Sparkles } from "lucide-react";
+import { Ellipsis, Flag, GripVertical, ListFilter, Search } from "lucide-react";
+import columnStatusOptions from "@/app/dashboard/data/column-status-options";
 import { Badge } from "../ui/badge";
-import { Card, CardContent } from "../ui/card";
-import { features } from "./data";
+
+function TaskSnippet({
+  title,
+  priority = "Medium",
+  active = false,
+}: {
+  title: string;
+  priority?: string;
+  active?: boolean;
+}) {
+  return (
+    <div
+      className={`border-border/80 bg-card rounded-lg border p-3 shadow-xs ${active ? "border-primary/45 bg-primary/[0.055] ring-primary/15 shadow-primary/10 shadow-md ring-1" : ""}`}
+    >
+      <div className="flex items-start gap-2">
+        <span className="border-muted-foreground/50 mt-0.5 size-3.5 shrink-0 rounded-full border" />
+        <p className="min-w-0 flex-1 text-xs font-medium sm:text-sm">{title}</p>
+        <Ellipsis className="text-muted-foreground size-3.5 shrink-0" />
+      </div>
+      <div className="text-muted-foreground mt-3 flex items-center justify-between text-[10px] sm:text-xs">
+        <span className="inline-flex items-center gap-1">
+          <Flag className="text-primary size-3" aria-hidden="true" />
+          {priority}
+        </span>
+        <span>Today</span>
+      </div>
+    </div>
+  );
+}
+
+function DragPreview() {
+  const todo = columnStatusOptions["To Do"];
+  const inProgress = columnStatusOptions["In Progress"];
+  const ToDoIcon = todo.icon;
+  const InProgressIcon = inProgress.icon;
+
+  return (
+    <div className="border-border/70 bg-muted/15 relative overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="border-border/70 bg-background/70 rounded-lg border">
+          <div className="flex items-center gap-2 border-b px-3 py-2.5">
+            <ToDoIcon
+              className="size-3.5"
+              color={todo.color}
+              aria-hidden="true"
+            />
+            <span className="text-xs font-semibold">To Do</span>
+          </div>
+          <div className="space-y-2 p-2.5">
+            <TaskSnippet title="Review project scope" priority="Low" />
+            <TaskSnippet title="Polish task states" priority="High" active />
+          </div>
+        </div>
+
+        <div className="border-border/70 bg-background/70 rounded-lg border">
+          <div className="flex items-center gap-2 border-b px-3 py-2.5">
+            <InProgressIcon
+              className="size-3.5"
+              color={inProgress.color}
+              aria-hidden="true"
+            />
+            <span className="text-xs font-semibold">In Progress</span>
+          </div>
+          <div className="space-y-2 p-2.5">
+            <TaskSnippet title="Prepare handoff" priority="Medium" />
+          </div>
+        </div>
+      </div>
+      <div className="text-primary/85 bg-background pointer-events-none absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium shadow-sm sm:flex">
+        <GripVertical className="size-3" aria-hidden="true" /> Move
+      </div>
+    </div>
+  );
+}
+
+function TaskDetailPreview() {
+  return (
+    <div className="border-border/70 bg-muted/15 overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
+      <div className="border-border/70 bg-card rounded-lg border p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-muted-foreground text-[10px] font-medium tracking-[0.14em] uppercase">
+              Task details
+            </p>
+            <h3 className="mt-2 text-sm font-semibold sm:text-base">
+              Polish responsive states
+            </h3>
+          </div>
+          <Ellipsis className="text-muted-foreground size-4" />
+        </div>
+        <p className="text-muted-foreground mt-4 text-xs leading-5 sm:text-sm">
+          Review the board on narrow screens and tighten the interactions that
+          help work stay clear.
+        </p>
+        <div className="border-border/60 mt-5 flex items-center justify-between border-t pt-3">
+          <span className="bg-primary/10 text-primary inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-medium sm:text-xs">
+            <Flag className="size-3" aria-hidden="true" /> High priority
+          </span>
+          <span className="text-muted-foreground text-[10px] sm:text-xs">
+            In Progress
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FocusPreview() {
+  return (
+    <div className="border-border/70 bg-muted/15 overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
+      <div className="border-border/70 bg-card rounded-lg border p-3 sm:p-4">
+        <div className="flex gap-2">
+          <span className="border-border text-muted-foreground flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md border px-2.5 text-[10px] sm:text-xs">
+            <Search className="size-3.5 shrink-0" aria-hidden="true" />
+            <span className="truncate">Search tasks...</span>
+          </span>
+          <span className="border-primary/25 bg-primary/[0.06] text-primary inline-flex h-8 items-center gap-1.5 rounded-md border px-2 text-[10px] font-medium sm:text-xs">
+            <ListFilter className="size-3.5" aria-hidden="true" />
+            High
+          </span>
+        </div>
+        <div className="border-border/60 mt-3 overflow-hidden rounded-md border">
+          <div className="flex items-center justify-between border-b px-3 py-2 text-[10px] sm:text-xs">
+            <span className="font-medium">Polish responsive states</span>
+            <span className="text-primary">In Progress</span>
+          </div>
+          <div className="flex items-center justify-between px-3 py-2 text-[10px] sm:text-xs">
+            <span className="font-medium">Review empty board</span>
+            <span className="text-muted-foreground">To Do</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const highlights = [
+  {
+    number: "01",
+    title: "Move tasks between stages.",
+    description: "Drag, reorder, and keep momentum visible.",
+    visual: DragPreview,
+  },
+  {
+    number: "02",
+    title: "Keep task context close.",
+    description: "Description and priority stay with the work.",
+    visual: TaskDetailPreview,
+  },
+  {
+    number: "03",
+    title: "Find what needs attention.",
+    description: "Search and priority filters cut through the board.",
+    visual: FocusPreview,
+  },
+];
 
 export default function Features() {
   return (
-    <>
-      <div className="mb-6 flex items-center justify-center">
+    <section className="border-border/50 border-t py-20 md:py-24">
+      <div className="mx-auto max-w-2xl text-center">
         <Badge
           variant="outline"
-          className="border-primary/20 bg-primary/5"
-          icon={<Sparkles className="h-3.5 w-3.5" />}
+          animate={false}
+          className="border-primary/20 bg-primary/[0.06] text-foreground/80 mb-6 shadow-none"
         >
-          Features
+          Product highlights
         </Badge>
-      </div>
-      <div className="mb-16 flex flex-col items-center justify-center gap-4 text-center">
-        <h2 className="text-gradient text-3xl font-bold tracking-tighter md:text-4xl lg:text-5xl">
-          What&apos;s in KanbanFlow?
+        <h2 className="text-gradient text-3xl font-bold tracking-tighter text-balance md:text-4xl lg:text-5xl">
+          The board is the workspace.
         </h2>
-        <p className="text-muted-foreground max-w-2xl text-base leading-relaxed md:text-lg">
-          Discover the powerful features that make project management intuitive,
-          and effortlessly efficient.
+        <p className="text-muted-foreground mx-auto mt-4 max-w-xl text-base leading-7 md:text-lg">
+          The essentials for keeping personal work moving.
         </p>
       </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {features.map((feature, index) => {
-          const Icon = feature.icon;
-          return (
-            <Card
-              key={index}
-              className="group bg-card/50 hover:border-primary/20 hover:bg-card hover:shadow-primary/5 relative overflow-hidden p-0 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg"
-            >
-              <div className="to-primary/5 absolute inset-0 bg-linear-to-br from-transparent via-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              <CardContent className="relative p-6">
-                <div className="group-hover:border-primary/30 group-hover:bg-primary/5 border-primary/25 mb-4 w-fit rounded-lg border p-3 shadow-sm transition-all duration-300 group-hover:scale-110">
-                  <Icon className="group-hover:text-primary size-5 transition-colors duration-300" />
-                </div>
-                <h3 className="group-hover:text-primary/90 mb-2 text-lg font-semibold transition-colors duration-300">
-                  {feature.title}
-                </h3>
-                <p className="text-muted-foreground group-hover:text-foreground/70 text-sm leading-relaxed transition-colors duration-300">
-                  {feature.description}
-                </p>
 
-                <div className="from-primary/50 to-secondary/50 absolute bottom-0 left-0 h-0.5 w-0 bg-linear-to-r transition-all duration-500 group-hover:w-full" />
-              </CardContent>
-            </Card>
+      <div className="mt-12 space-y-12 md:mt-16 md:space-y-16">
+        {highlights.map((highlight, index) => {
+          const Visual = highlight.visual;
+
+          return (
+            <article
+              key={highlight.number}
+              className="grid items-center gap-6 lg:grid-cols-2 lg:gap-12"
+            >
+              <div className={index % 2 === 1 ? "lg:order-2" : undefined}>
+                <span className="text-primary/80 text-xs font-semibold tracking-[0.16em]">
+                  {highlight.number}
+                </span>
+                <h3 className="mt-2 max-w-md text-2xl font-semibold tracking-tight text-balance md:text-3xl">
+                  {highlight.title}
+                </h3>
+                <p className="text-muted-foreground mt-2 max-w-md text-sm leading-6 sm:text-base">
+                  {highlight.description}
+                </p>
+              </div>
+              <div className={index % 2 === 1 ? "lg:order-1" : undefined}>
+                <Visual />
+              </div>
+            </article>
           );
         })}
       </div>
-    </>
+    </section>
   );
 }

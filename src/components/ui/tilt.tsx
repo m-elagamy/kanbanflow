@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import React, { useRef } from 'react';
+import React, { useRef } from "react";
 import {
   motion,
   useMotionTemplate,
   useMotionValue,
+  useReducedMotion,
   useSpring,
   useTransform,
   MotionStyle,
   SpringOptions,
-} from 'motion/react';
+} from "motion/react";
 
 export type TiltProps = {
   children: React.ReactNode;
@@ -29,6 +30,7 @@ export function Tilt({
   springOptions,
 }: TiltProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const shouldReduceMotion = useReducedMotion();
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -41,14 +43,14 @@ export function Tilt({
     [-0.5, 0.5],
     isRevese
       ? [rotationFactor, -rotationFactor]
-      : [-rotationFactor, rotationFactor]
+      : [-rotationFactor, rotationFactor],
   );
   const rotateY = useTransform(
     xSpring,
     [-0.5, 0.5],
     isRevese
       ? [-rotationFactor, rotationFactor]
-      : [rotationFactor, -rotationFactor]
+      : [rotationFactor, -rotationFactor],
   );
 
   const transform = useMotionTemplate`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
@@ -79,12 +81,12 @@ export function Tilt({
       ref={ref}
       className={className}
       style={{
-        transformStyle: 'preserve-3d',
+        transformStyle: "preserve-3d",
         ...style,
-        transform,
+        transform: shouldReduceMotion ? "none" : transform,
       }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={shouldReduceMotion ? undefined : handleMouseMove}
+      onMouseLeave={shouldReduceMotion ? undefined : handleMouseLeave}
     >
       {children}
     </motion.div>

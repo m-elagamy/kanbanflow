@@ -64,6 +64,8 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-shimmer: shimmer 1.5s ease-in-out infinite;
+  --animate-shine: shine 3s ease-out infinite;
+  --animate-gradient-flow: gradient-flow 10s ease 0s infinite normal none running;
 
   @keyframes caret-blink {
     0%,
@@ -98,6 +100,26 @@
   @keyframes shimmer {
     100% {
       transform: translateX(100%);
+    }
+  }
+
+  @keyframes shine {
+    0% {
+      background-position: 200% 0;
+    }
+    25%,
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  @keyframes gradient-flow {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
     }
   }
 }

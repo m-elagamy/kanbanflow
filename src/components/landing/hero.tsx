@@ -6,7 +6,7 @@ import CtaButton from "./cta-button";
 
 export default function Hero() {
   return (
-    <div className="my-20 grid min-h-96 text-center md:mt-40">
+    <div className="my-20 grid min-h-96 text-center md:mt-40 md:-translate-y-10 lg:-translate-y-12">
       <div className="mb-4 flex items-center justify-center">
         <Badge
           variant="outline"
@@ -18,7 +18,7 @@ export default function Hero() {
             </span>
           }
         >
-          Introducing KanbanFlow
+          Introducing Kanbamy
         </Badge>
       </div>
       <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both relative duration-500">
@@ -28,8 +28,8 @@ export default function Hero() {
         </h1>
         <p className="text-muted-foreground mx-auto mb-8 max-w-3xl text-base leading-relaxed md:text-lg">
           Stay organized, manage tasks effortlessly, and boost productivity with
-          real-time updates. KanbanFlow helps you achieve more with a seamless
-          and intuitive experience.
+          real-time updates. Kanbamy helps you achieve more with a seamless and
+          intuitive experience.
         </p>
       </div>
       <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500">
