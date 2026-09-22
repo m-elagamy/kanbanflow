@@ -15,6 +15,7 @@ interface CtaButtonProps {
   showIcon?: boolean;
   icon?: "arrow" | "zap" | "none";
   buttonVariant?: VariantProps<typeof buttonVariants>["variant"];
+  effect?: VariantProps<typeof buttonVariants>["effect"];
 }
 
 const variantConfig: Record<
@@ -49,8 +50,9 @@ export default function CtaButton({
   size = "lg",
   className,
   showIcon = true,
-  icon,
-  buttonVariant,
+    icon,
+    buttonVariant,
+    effect,
 }: CtaButtonProps) {
   const { isLoaded, isSignedIn } = useAuth();
   const config = variantConfig[variant];
@@ -58,6 +60,7 @@ export default function CtaButton({
   const label = isSignedIn ? "Go to dashboard" : config.label;
   const displayIcon = icon ?? config.icon;
   const finalButtonVariant = buttonVariant ?? config.buttonVariant ?? "default";
+  const finalEffect = effect ?? (variant === "cta-section" ? "shine" : undefined);
 
   const IconComponent =
     displayIcon === "arrow" ? ArrowRight : displayIcon === "zap" ? Zap : null;
@@ -71,6 +74,7 @@ export default function CtaButton({
     return (
       <Button
         variant={finalButtonVariant}
+        effect={finalEffect}
         className={cn("group", shadowClasses, className)}
         size={size}
         disabled
@@ -84,6 +88,7 @@ export default function CtaButton({
   return (
     <Button
       variant={finalButtonVariant}
+      effect={finalEffect}
       className={cn("group", shadowClasses, className)}
       size={size}
       asChild
