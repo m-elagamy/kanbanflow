@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Check, Ellipsis, Flag, FolderKanban, Plus } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import columnStatusOptions from "@/app/dashboard/data/column-status-options";
+import HowItWorksBackground from "./how-it-works-background";
 
 const steps = [
   ["01", "Start with a board", "Give your work a place to live."],
@@ -196,10 +197,11 @@ export default function HowItWorks() {
   }, [reduced]);
   return (
     <section
-      className="border-border/50 border-t py-20 md:py-24"
+      className="relative isolate py-20 md:py-24"
       aria-labelledby="how-it-works-title"
     >
-      <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1.35fr)] lg:gap-16">
+      <HowItWorksBackground />
+      <div className="relative z-10 grid items-start gap-10 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1.35fr)] lg:gap-16">
         <div className="max-w-md lg:sticky lg:top-28">
           <p className="text-muted-foreground mb-5 text-sm font-medium tracking-wide uppercase">
             How it works

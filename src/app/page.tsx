@@ -6,7 +6,7 @@ const LandingPage = () => {
   return (
     <>
       <Header />
-      <main className="grow">
+      <main className="grow overflow-x-clip">
         <Landing />
       </main>
       <Footer />

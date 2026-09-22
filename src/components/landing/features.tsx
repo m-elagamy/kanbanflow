@@ -38,9 +38,9 @@ function DragPreview() {
   const InProgressIcon = inProgress.icon;
 
   return (
-    <div className="border-border/70 bg-muted/15 relative overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
+    <div className="border-border/80 bg-muted/20 relative overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        <div className="border-border/70 bg-background/70 rounded-lg border">
+        <div className="border-border/80 bg-background/70 rounded-lg border">
           <div className="flex items-center gap-2 border-b px-3 py-2.5">
             <ToDoIcon
               className="size-3.5"
@@ -55,7 +55,7 @@ function DragPreview() {
           </div>
         </div>
 
-        <div className="border-border/70 bg-background/70 rounded-lg border">
+        <div className="border-border/80 bg-background/70 rounded-lg border">
           <div className="flex items-center gap-2 border-b px-3 py-2.5">
             <InProgressIcon
               className="size-3.5"
@@ -78,8 +78,8 @@ function DragPreview() {
 
 function TaskDetailPreview() {
   return (
-    <div className="border-border/70 bg-muted/15 overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
-      <div className="border-border/70 bg-card rounded-lg border p-4 sm:p-5">
+    <div className="border-border/80 bg-muted/20 overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
+      <div className="border-border/80 bg-card rounded-lg border p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-muted-foreground text-[10px] font-medium tracking-[0.14em] uppercase">
@@ -110,8 +110,8 @@ function TaskDetailPreview() {
 
 function FocusPreview() {
   return (
-    <div className="border-border/70 bg-muted/15 overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
-      <div className="border-border/70 bg-card rounded-lg border p-3 sm:p-4">
+    <div className="border-border/80 bg-muted/20 overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
+      <div className="border-border/80 bg-card rounded-lg border p-3 sm:p-4">
         <div className="flex gap-2">
           <span className="border-border text-muted-foreground flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md border px-2.5 text-[10px] sm:text-xs">
             <Search className="size-3.5 shrink-0" aria-hidden="true" />
@@ -160,12 +160,20 @@ const highlights = [
 
 export default function Features() {
   return (
-    <section className="border-border/50 border-t py-20 md:py-24">
+    <section className="py-20 md:py-24">
+      <div
+        aria-hidden="true"
+        className="mx-auto mb-6 flex w-full items-center justify-center gap-2"
+      >
+        <span className="h-px flex-1 bg-linear-to-r from-transparent to-border/90" />
+        <span className="bg-primary/80 size-1 rounded-full" />
+        <span className="h-px flex-1 bg-linear-to-l from-transparent to-border/90" />
+      </div>
       <div className="mx-auto max-w-2xl text-center">
         <Badge
           variant="outline"
           animate={false}
-          className="border-primary/20 bg-primary/[0.06] text-foreground/80 mb-6 shadow-none"
+          className="border-primary/20 bg-primary/[0.06] text-foreground mb-6 shadow-none"
         >
           Product highlights
         </Badge>
@@ -184,9 +192,13 @@ export default function Features() {
           return (
             <article
               key={highlight.number}
-              className="grid items-center gap-6 lg:grid-cols-2 lg:gap-12"
+              className="grid min-w-0 items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12"
             >
-              <div className={index % 2 === 1 ? "lg:order-2" : undefined}>
+              <div
+                className={
+                  index % 2 === 1 ? "min-w-0 lg:order-2" : "min-w-0"
+                }
+              >
                 <span className="text-primary/80 text-xs font-semibold tracking-[0.16em]">
                   {highlight.number}
                 </span>
@@ -197,7 +209,13 @@ export default function Features() {
                   {highlight.description}
                 </p>
               </div>
-              <div className={index % 2 === 1 ? "lg:order-1" : undefined}>
+              <div
+                className={
+                  index % 2 === 1
+                    ? "min-w-0 w-full lg:order-1"
+                    : "min-w-0 w-full"
+                }
+              >
                 <Visual />
               </div>
             </article>

@@ -10,13 +10,13 @@ const currentYear = new Date().getFullYear();
 const Footer = () => {
   return (
     <footer className="border-border bg-card/50 border-t" role="contentinfo">
-      <div className="container py-12">
+      <div className="container py-8">
         {/* Brand Section */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           <KanbanLogo />
           <p className="text-muted-foreground max-w-md text-sm">
-            Streamline your workflow with an intuitive Kanban board. Organize
-            tasks, boost productivity, and achieve more.
+            Turn plans into progress with a simple workspace for organizing
+            tasks and keeping work moving.
           </p>
           <div className="flex items-center gap-2">
             {links.map((link, index) => {
@@ -45,9 +45,9 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-border/50 mt-10 flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
+        <div className="border-border/50 mt-6 flex flex-col items-center justify-between gap-3 border-t pt-5 md:flex-row">
           <p className="text-muted-foreground text-sm">
-            © {currentYear} KanbanFlow. All rights reserved.
+            © {currentYear} Kanbamy. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <ThemeSwitcher />

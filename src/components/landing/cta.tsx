@@ -1,6 +1,5 @@
 "use client";
 
-import { Kanban } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { fadeIn, gridVariants } from "@/utils/motion-variants";
 import { Spotlight } from "../ui/spotlight";
@@ -30,22 +29,32 @@ export default function Cta() {
         {/* Logo/Icon */}
         <div className="mb-8 flex items-center justify-center">
           <div className="bg-foreground shadow-primary/20 flex size-16 items-center justify-center rounded-full shadow-lg transition-transform duration-300 hover:scale-110">
-            <Kanban className="text-background size-8" />
+            <span
+              aria-hidden="true"
+              className="bg-background size-8"
+              style={{
+                WebkitMaskImage: "url('/brand/kanbamy.png')",
+                maskImage: "url('/brand/kanbamy.png')",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+              }}
+            />
           </div>
         </div>
 
-        <h2 className="mb-6 text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-          <span className="text-foreground">Ready to </span>
+        <h2 className="mb-6 text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+          <span className="text-foreground">Ready to turn plans into </span>
           <span className="bg-linear-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">
-            streamline
+            progress?
           </span>
-          <br />
-          <span className="text-foreground">your workflow?</span>
         </h2>
 
         <p className="text-muted-foreground mx-auto mb-10 max-w-2xl text-base leading-relaxed md:text-lg">
-          Experience the power of KanbanFlow for yourself, or explore the code
-          to see how it&apos;s built. Start organizing your tasks today.
+          Create your first board and start moving work forward in minutes.
         </p>
 
         <motion.div
