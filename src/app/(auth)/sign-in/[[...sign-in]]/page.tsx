@@ -1,9 +1,9 @@
 "use client";
 
-import { useSignIn } from "@clerk/nextjs";
+import { useClerk, useSignIn } from "@clerk/nextjs";
 import { Loader } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import KanbanLogo from "@/components/layout/header/kanban-logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,29 +45,39 @@ function getClerkErrorMessage(error: unknown) {
 }
 
 export default function SignInPage() {
+  const clerk = useClerk();
   const { signIn, errors, fetchStatus } = useSignIn();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [provider, setProvider] = useState<AuthProvider | null>(null);
+  const [oauthNotice, setOauthNotice] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const loading = fetchStatus === "fetching";
   const emailError = fieldErrors.email ?? errors.fields.identifier?.message;
   const passwordError = fieldErrors.password ?? errors.fields.password?.message;
-  const message =
-    formError ??
-    (searchParams.get("oauth") === "incomplete"
-      ? `${searchParams.get("provider") === "github" ? "GitHub" : "Social"} sign-in was cancelled or not completed. You can try again or use another method.`
-      : null) ??
-    errors.global?.[0]?.message;
+  const message = formError ?? errors.global?.[0]?.message;
 
   const navigate = ({
     decorateUrl,
   }: {
     decorateUrl: (url: string) => string;
   }) => router.push(decorateUrl("/welcome"));
+
+  useEffect(() => {
+    const provider = window.sessionStorage.getItem("oauth-notice");
+    if (!provider) return;
+
+    window.sessionStorage.removeItem("oauth-notice");
+    const timeout = window.setTimeout(() => {
+      setOauthNotice(
+        `${provider === "github" ? "GitHub" : "Social"} sign-in was cancelled. You can choose another method.`,
+      );
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
+  }, []);
 
   function clearFieldError(field: string) {
     setFieldErrors((current) => {
@@ -113,6 +123,7 @@ export default function SignInPage() {
     setFormError(null);
     setProvider(strategy);
     try {
+      clerk.closeGoogleOneTap();
       const callbackUrl = new URL("/sso-callback", window.location.origin);
       callbackUrl.searchParams.set(
         "provider",
@@ -127,6 +138,7 @@ export default function SignInPage() {
       });
       if (result.error) {
         setFormError(getClerkErrorMessage(result.error));
+        setProvider(null);
         return;
       }
 
@@ -134,6 +146,7 @@ export default function SignInPage() {
         signIn.firstFactorVerification;
       if (status !== "unverified" || !externalVerificationRedirectURL) {
         setFormError("We couldn't start sign-in with that provider. Please try again.");
+        setProvider(null);
         return;
       }
 
@@ -141,7 +154,6 @@ export default function SignInPage() {
     } catch (error) {
       console.error("Unable to start sign-in with OAuth provider", error);
       setFormError(getClerkErrorMessage(error));
-    } finally {
       setProvider(null);
     }
   }
@@ -158,11 +170,18 @@ export default function SignInPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-5">
-          {message && (
+          {message ? (
             <p role="alert" className="text-destructive text-sm">
               {message}
             </p>
-          )}
+          ) : oauthNotice ? (
+            <p
+              role="status"
+              className="rounded-md border bg-muted/50 px-3 py-2 text-sm text-muted-foreground"
+            >
+              {oauthNotice}
+            </p>
+          ) : null}
           <SocialAuthButtons
             loading={loading}
             provider={provider}

@@ -102,9 +102,8 @@ export default function SsoCallbackPage() {
           return;
         }
 
-        router.replace(
-          `/sign-in?oauth=incomplete${provider ? `&provider=${provider}` : ""}`,
-        );
+        window.sessionStorage.setItem("oauth-notice", provider ?? "social");
+        router.replace("/sign-in");
       } catch {
         setError("We couldn’t complete the sign-in. Please try again.");
       }

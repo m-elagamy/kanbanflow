@@ -1,6 +1,6 @@
 "use client";
 
-import { useSignUp } from "@clerk/nextjs";
+import { useClerk, useSignUp } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import { SignUpCredentialsStep } from "../../components/sign-up-credentials-step
 import { SignUpVerificationStep } from "../../components/sign-up-verification-step";
 
 export default function SignUpPage() {
+  const clerk = useClerk();
   const { signUp, errors, fetchStatus } = useSignUp();
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -73,14 +74,23 @@ export default function SignUpPage() {
     await signUp.finalize({ navigate });
   }
   async function startSso(strategy: AuthProvider) {
+    if (loading || provider !== null) return;
+    setFormError(null);
     setProvider(strategy);
-    const provider = strategy === "oauth_github" ? "github" : "google";
-    const { error } = await signUp.sso({
-      strategy,
-      redirectUrl: "/welcome",
-      redirectCallbackUrl: `/sso-callback?provider=${provider}`,
-    });
-    if (error) setProvider(null);
+    const oauthProvider = strategy === "oauth_github" ? "github" : "google";
+    try {
+      clerk.closeGoogleOneTap();
+      const { error } = await signUp.sso({
+        strategy,
+        redirectUrl: "/welcome",
+        redirectCallbackUrl: `/sso-callback?provider=${oauthProvider}`,
+      });
+      if (error) setProvider(null);
+    } catch (error) {
+      console.error("Unable to start sign-up with OAuth provider", error);
+      setFormError("We couldn't start sign-up with that provider. Please try again.");
+      setProvider(null);
+    }
   }
 
   return (

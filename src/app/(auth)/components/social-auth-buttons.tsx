@@ -31,8 +31,16 @@ export function SocialAuthButtons({
           disabled={loading || provider !== null}
           onClick={() => onProvider(value)}
         >
-          {provider === value ? <Loader className="animate-spin" /> : icon}{" "}
-          {label}
+          {provider === value ? (
+            <>
+              <Loader className="animate-spin" />
+              Connecting to {value === "oauth_github" ? "GitHub" : "Google"}...
+            </>
+          ) : (
+            <>
+              {icon} {label}
+            </>
+          )}
         </Button>
       ))}
     </div>
