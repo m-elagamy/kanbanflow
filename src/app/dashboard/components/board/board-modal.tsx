@@ -1,6 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Slot } from "@radix-ui/react-slot";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import Modal from "@/components/ui/modal";
 import { useModalStore } from "@/stores/modal";
 import type {
@@ -16,7 +18,7 @@ import { getModalDescription } from "../../utils/get-modal-description";
 type BoardModalProps = {
   mode: FormMode;
   modalId: string;
-  trigger?: React.ReactNode;
+  trigger?: React.ReactElement;
   board?: BoardSummary;
   variant?: ButtonVariants;
   defaultTemplate?: Templates;
@@ -41,15 +43,12 @@ const BoardModal = ({
   return (
     <>
       {trigger && (
-        <Button
-          variant={variant}
-          className="group"
+        <Slot
+          className={cn(buttonVariants({ variant, size, className: "group" }))}
           onClick={handleOnClick}
-          size={size}
-          asChild
         >
           {trigger}
-        </Button>
+        </Slot>
       )}
       <Modal
         title={getModalTitle("board", mode)}
