@@ -59,7 +59,7 @@ export default function SignInPage() {
   const message =
     formError ??
     (searchParams.get("oauth") === "incomplete"
-      ? "Google sign-in was cancelled or not completed. You can try again or use another method."
+      ? `${searchParams.get("provider") === "github" ? "GitHub" : "Social"} sign-in was cancelled or not completed. You can try again or use another method.`
       : null) ??
     errors.global?.[0]?.message;
 
@@ -113,11 +113,16 @@ export default function SignInPage() {
     setFormError(null);
     setProvider(strategy);
     try {
+      const callbackUrl = new URL("/sso-callback", window.location.origin);
+      callbackUrl.searchParams.set(
+        "provider",
+        strategy === "oauth_github" ? "github" : "google",
+      );
       // Start a fresh attempt: sso() can reuse an unrelated sign-in and
       // resolve without a provider redirect (clerk/javascript#9006).
       const result = await signIn.create({
         strategy,
-        redirectUrl: new URL("/sso-callback", window.location.origin).href,
+        redirectUrl: callbackUrl.href,
         actionCompleteRedirectUrl: new URL("/welcome", window.location.origin).href,
       });
       if (result.error) {

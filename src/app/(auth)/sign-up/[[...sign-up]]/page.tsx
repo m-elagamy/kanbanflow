@@ -74,10 +74,11 @@ export default function SignUpPage() {
   }
   async function startSso(strategy: AuthProvider) {
     setProvider(strategy);
+    const provider = strategy === "oauth_github" ? "github" : "google";
     const { error } = await signUp.sso({
       strategy,
       redirectUrl: "/welcome",
-      redirectCallbackUrl: "/sso-callback",
+      redirectCallbackUrl: `/sso-callback?provider=${provider}`,
     });
     if (error) setProvider(null);
   }

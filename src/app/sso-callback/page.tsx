@@ -2,7 +2,7 @@
 
 import { useClerk, useSignIn, useSignUp } from "@clerk/nextjs";
 import { LoaderCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import BackgroundEffect from "@/app/(auth)/components/background-effect";
 import KanbanLogo from "@/components/layout/header/kanban-logo";
@@ -15,9 +15,10 @@ type NavigateOptions = {
 
 export default function SsoCallbackPage() {
   const clerk = useClerk();
-  const { signIn } = useSignIn();
-  const { signUp } = useSignUp();
+  const { signIn, errors: signInErrors } = useSignIn();
+  const { signUp, errors: signUpErrors } = useSignUp();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const hasRun = useRef(false);
   const [message, setMessage] = useState("Completing your secure sign-in…");
   const [error, setError] = useState<string | null>(null);
@@ -92,12 +93,31 @@ export default function SsoCallbackPage() {
           return;
         }
 
-        router.replace("/sign-in?oauth=incomplete");
+        const provider = searchParams.get("provider");
+        const clerkError =
+          signInErrors.global?.[0]?.message ??
+          signUpErrors.global?.[0]?.message;
+        if (clerkError) {
+          setError(clerkError);
+          return;
+        }
+
+        router.replace(
+          `/sign-in?oauth=incomplete${provider ? `&provider=${provider}` : ""}`,
+        );
       } catch {
         setError("We couldn’t complete the sign-in. Please try again.");
       }
     })();
-  }, [clerk, router, signIn, signUp]);
+  }, [
+    clerk,
+    router,
+    searchParams,
+    signIn,
+    signInErrors.global,
+    signUp,
+    signUpErrors.global,
+  ]);
 
   return (
     <main className="relative flex min-h-dvh items-center justify-center overflow-hidden px-4">
