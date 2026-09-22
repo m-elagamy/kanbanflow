@@ -1,7 +1,14 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
-import { ArrowRight, Check, LoaderCircle, Plus, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  ClipboardList,
+  LoaderCircle,
+  Plus,
+  Sparkles,
+} from "lucide-react";
 import columnsTemplates from "@/app/dashboard/data/columns-templates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -91,10 +98,10 @@ export default function WelcomeSetup({
     <main className="relative flex min-h-dvh items-center justify-center px-5 py-12 sm:px-8 sm:py-16">
       <div className="welcome-gradient pointer-events-none absolute inset-0" />
       <section className="relative mx-auto w-full max-w-5xl">
-        <header className="mb-10 space-y-4">
+        <header className="mb-10 max-w-2xl space-y-4">
           <div className="text-muted-foreground flex items-center gap-3 text-xs tracking-[0.3em] uppercase sm:text-sm">
             <Sparkles className="size-4" aria-hidden="true" />
-            Welcome to KanbanFlow 👋
+            Welcome to Kanbamy 👋
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
             {firstName
@@ -112,7 +119,11 @@ export default function WelcomeSetup({
           aria-busy={busy}
           className="grid items-start gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-12"
         >
-          <fieldset disabled={locked} className="min-w-0 space-y-3">
+          <fieldset
+            disabled={locked}
+            aria-label="Board template"
+            className="min-w-0 space-y-3"
+          >
             <legend className="mb-4 text-sm font-medium">
               What would you like to organize?
             </legend>
@@ -125,11 +136,11 @@ export default function WelcomeSetup({
                 <label
                   key={id}
                   className={cn(
-                    "focus-within:ring-ring relative flex cursor-pointer items-center gap-4 rounded-xl border p-4 transition-colors focus-within:ring-2 focus-within:ring-offset-2",
+                    "focus-within:ring-ring group relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 outline-none transition-[border-color,background-color,box-shadow,transform]  focus-within:ring-offset-0",
                     active
-                      ? "border-primary/60 bg-primary/5"
-                      : "border-border/70 bg-background/70 hover:bg-muted/60",
-                    id === "custom" && "border-dashed",
+                      ? "border-primary/35 bg-primary/[0.07] shadow-[0_12px_30px_-24px] shadow-primary/80"
+                      : "border-border/70 bg-background/70 hover:-translate-y-0.5 hover:border-primary/25 hover:bg-card/70 hover:shadow-md",
+                    id === "custom" && !active && "border-dashed bg-background/70",
                     locked && "cursor-default opacity-70",
                   )}
                 >
@@ -146,10 +157,10 @@ export default function WelcomeSetup({
                   />
                   <span
                     className={cn(
-                      "flex size-10 shrink-0 items-center justify-center rounded-lg",
+                      "flex size-10 shrink-0 items-center justify-center rounded-xl transition-colors",
                       active
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground",
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted/70 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
                     )}
                   >
                     <Icon className="size-5" aria-hidden="true" />
@@ -165,10 +176,10 @@ export default function WelcomeSetup({
                   <span
                     aria-hidden="true"
                     className={cn(
-                      "flex size-5 shrink-0 items-center justify-center rounded-full border",
+                      "flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors",
                       active
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border",
+                        ? "border-primary/70 bg-primary/15 text-primary"
+                        : "border-border/70 text-transparent",
                     )}
                   >
                     {active && <Check className="size-3" />}
@@ -178,47 +189,54 @@ export default function WelcomeSetup({
             })}
           </fieldset>
 
-          <div className="min-w-0 space-y-6">
-            <div className="border-border bg-card space-y-3 rounded-xl border p-4 shadow-sm sm:p-5">
-              <div className="space-y-1">
+          <div className="min-w-0 space-y-5">
+            <div className="border-border/70 bg-card/45 overflow-hidden rounded-xl border shadow-xs">
+              <div className="flex items-start gap-3 px-4 pt-4 sm:px-5 sm:pt-5">
+                <span className="bg-primary/10 text-primary ring-primary/15 flex size-8 shrink-0 items-center justify-center rounded-lg ring-1">
+                  <ClipboardList className="size-4" aria-hidden="true" />
+                </span>
+                <div className="min-w-0 space-y-0.5">
                 <label
                   htmlFor="welcome-board-name"
-                  className="block text-base font-semibold"
+                  className="block text-sm font-semibold"
                 >
                   Name your board
                 </label>
                 <p
                   id="welcome-name-hint"
-                  className="text-muted-foreground text-sm"
+                  className="text-muted-foreground text-xs leading-relaxed"
                 >
                   We’ve suggested a name. You can change it now or anytime
                   later.
                 </p>
+                </div>
               </div>
-              <Input
-                id="welcome-board-name"
-                name="title"
-                value={title}
-                disabled={locked}
-                maxLength={50}
-                required
-                aria-invalid={!!titleError}
-                aria-describedby={
-                  titleError
-                    ? "welcome-name-error welcome-name-hint"
-                    : "welcome-name-hint"
-                }
-                onChange={(event) => {
-                  setCustomTitle(event.target.value);
-                  setTitleError(undefined);
-                }}
-                className="border-foreground/20 bg-background h-12 px-4 text-base font-medium shadow-sm"
-              />
+              <div className="px-4 pt-3.5 pb-4 sm:px-5 sm:pb-5">
+                <Input
+                  id="welcome-board-name"
+                  name="title"
+                  value={title}
+                  disabled={locked}
+                  maxLength={50}
+                  required
+                  aria-invalid={!!titleError}
+                  aria-describedby={
+                    titleError
+                      ? "welcome-name-error welcome-name-hint"
+                      : "welcome-name-hint"
+                  }
+                  onChange={(event) => {
+                    setCustomTitle(event.target.value);
+                    setTitleError(undefined);
+                  }}
+                  className="border-border bg-background/80 h-11 rounded-lg px-3 text-base font-medium shadow-xs focus-visible:border-primary/60 focus-visible:ring-primary/30 dark:bg-input/50"
+                />
+              </div>
               {titleError && (
                 <p
                   id="welcome-name-error"
                   role="alert"
-                  className="text-destructive text-sm"
+                  className="text-destructive px-4 pb-4 text-sm sm:px-5"
                 >
                   {titleError}
                 </p>
@@ -227,9 +245,9 @@ export default function WelcomeSetup({
 
             <section
               aria-label="Board preview"
-              className="border-border/70 bg-background overflow-hidden rounded-2xl border shadow-sm"
+              className="border-border/70 bg-muted/20 flex h-[280px] flex-col overflow-hidden rounded-xl border shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)]"
             >
-              <div className="border-border/60 space-y-2 border-b px-5 py-5">
+              <div className="border-border/60 bg-card/55 shrink-0 space-y-1.5 border-b px-5 py-4 sm:px-6">
                 <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                   Your board preview
                 </p>
@@ -242,15 +260,16 @@ export default function WelcomeSetup({
                     : "A blank board to build your own workflow"}
                 </p>
               </div>
-              <div className="bg-muted/30 p-4 sm:p-5">
+              <div className="bg-background/45 min-h-0 flex-1 p-3 sm:p-4">
                 {template.status.length ? (
-                  <div className="grid min-h-44 grid-cols-2 gap-3 sm:flex">
-                    {template.status.map((status, index) => (
-                      <div
-                        key={status}
-                        className="border-border/50 bg-muted/40 min-w-0 flex-1 rounded-lg border px-3 py-3"
-                      >
-                        <div className="flex items-start gap-2 text-xs font-medium">
+                  <div className="border-border/50 bg-background/45 flex min-h-34 items-stretch rounded-lg border p-2 shadow-inner">
+                    <div className="grid min-h-32 w-full grid-cols-2 gap-2 sm:flex">
+                      {template.status.map((status, index) => (
+                        <div
+                          key={status}
+                          className="border-border/45 bg-card/60 flex min-h-28 min-w-0 flex-1 flex-col rounded-md border px-2.5 py-2 shadow-xs"
+                        >
+                          <div className="flex items-center gap-2 border-b border-border/40 pb-2 text-[11px] font-semibold tracking-wide">
                           <span
                             aria-hidden="true"
                             className={cn(
@@ -262,19 +281,20 @@ export default function WelcomeSetup({
                                   : "bg-primary/70",
                             )}
                           />
-                          <span>{status}</span>
+                            <span className="truncate">{status}</span>
+                          </div>
+                          <div
+                            aria-hidden="true"
+                            className="border-border/35 text-muted-foreground/40 mt-auto flex items-center justify-center border-t pt-3"
+                          >
+                            <Plus className="size-3.5" />
+                          </div>
                         </div>
-                        <div
-                          aria-hidden="true"
-                          className="text-muted-foreground/40 mt-6 flex justify-center"
-                        >
-                          <Plus className="size-4" />
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 ) : (
-                  <div className="border-border text-muted-foreground flex min-h-44 flex-col items-center justify-center gap-3 rounded-lg border border-dashed px-5 text-center">
+                  <div className="border-border/70 text-muted-foreground flex min-h-34 w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed px-5 text-center">
                     <Plus className="size-5" aria-hidden="true" />
                     <p className="text-sm">
                       Add your first column once you’re inside.
@@ -294,7 +314,8 @@ export default function WelcomeSetup({
               type="submit"
               disabled={busy}
               size="lg"
-              className="h-11 w-full rounded-lg"
+              className="h-10 w-full duration-300 rounded-lg border border-primary/20 bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-none transition hover:bg-primary/90 active:translate-y-px active:shadow-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+              effect="ringHover"
             >
               {busy ? (
                 <LoaderCircle className="animate-spin" aria-hidden="true" />

@@ -30,7 +30,7 @@ const WelcomePage = async () => {
     });
   }
 
-  return <WelcomeSetup firstName={user.firstName} />;
+  return <WelcomeSetup firstName={user.firstName?.trim() || null} />;
 };
 
 export const metadata: Metadata = {
