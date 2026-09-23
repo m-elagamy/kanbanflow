@@ -15,7 +15,7 @@ type TaskFormProps = {
   task?: ClientTask;
   columnId?: string;
   boardId?: string;
-  modalId: string;
+  onClose: () => void;
 };
 
 type TaskSchemaWithId = TaskSchema & { id: string };
@@ -23,7 +23,7 @@ type TaskSchemaWithId = TaskSchema & { id: string };
 const TaskForm = ({
   formMode,
   task,
-  modalId,
+  onClose,
   columnId,
   boardId,
 }: TaskFormProps) => {
@@ -75,7 +75,7 @@ const TaskForm = ({
     task,
     formMode,
     columnId,
-    modalId,
+    onClose,
     validateBeforeSubmit,
   });
 

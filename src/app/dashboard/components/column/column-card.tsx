@@ -11,12 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
+import type { PriorityFilterValue } from "@/lib/types/stores/task";
 import type { ClientTask } from "@/lib/types";
 import { useTaskStore } from "@/stores/task";
-import { useTaskFilterStore } from "@/stores/task-filter";
 import ColumnHeader from "./column-header";
 import NoTasksMessage from "../task/no-tasks-message";
-import NoMatchingTasksMessage from "../task/no-matching-tasks-message";
 import TaskCard from "../task/task-card";
 import { getColumnTasksPageAction } from "@/actions/task";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
@@ -28,6 +27,7 @@ type ColumnCardProps = {
   focusedTaskId?: string;
   initialTasks?: ClientTask[];
   hasInitialData?: boolean;
+  priorityFilter: PriorityFilterValue;
 };
 
 const EMPTY_TASK_IDS: string[] = [];
@@ -37,6 +37,7 @@ const ColumnCard = ({
   focusedTaskId,
   initialTasks = [],
   hasInitialData = false,
+  priorityFilter,
 }: ColumnCardProps) => {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -87,7 +88,6 @@ const ColumnCard = ({
     () => loadedTaskIds.map((id) => tasksById[id]).filter(Boolean),
     [loadedTaskIds, tasksById],
   );
-  const priorityFilter = useTaskFilterStore((state) => state.priorityFilter);
   const activePriority = priorityFilter === "all" ? null : priorityFilter;
   const isCurrentPage = page?.filter === priorityFilter;
   const taskPage = page ?? {
@@ -97,7 +97,13 @@ const ColumnCard = ({
     error: null,
     filter: priorityFilter,
   };
-  const visibleTasks = page ? (isCurrentPage ? tasks : []) : initialTasks;
+  const matchesPriority = (task: ClientTask) =>
+    priorityFilter === "all" || task.priority === priorityFilter;
+  const visibleTasks = page
+    ? isCurrentPage
+      ? tasks
+      : tasks.filter(matchesPriority)
+    : initialTasks.filter(matchesPriority);
   const nextCursor = isCurrentPage ? page.nextCursor : null;
 
   const loadFirstPage = useCallback(async () => {
@@ -110,7 +116,7 @@ const ColumnCard = ({
         activePriority,
       );
       if (!result.success || !result.fields) {
-        replaceColumnTaskPage(column.id, [], null, priorityFilter);
+        replaceColumnTaskPage(column.id, [], null, priorityFilter, 0);
         setColumnPageError(column.id, result.message);
         return;
       }
@@ -119,9 +125,10 @@ const ColumnCard = ({
         result.fields.items,
         result.fields.nextCursor,
         priorityFilter,
+        result.fields.totalCount,
       );
     } catch {
-      replaceColumnTaskPage(column.id, [], null, priorityFilter);
+      replaceColumnTaskPage(column.id, [], null, priorityFilter, 0);
       setColumnPageError(column.id, "Failed to load tasks.");
     }
   }, [
@@ -196,7 +203,7 @@ const ColumnCard = ({
 
   return (
     <Card
-      className={`group/column border-border/80 bg-muted/45 dark:bg-muted/35 hover:border-border relative h-full max-h-[calc(100dvh-82px)] min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:shadow-md md:w-84 md:max-w-none ${
+      className={`group/column border-border/80 bg-muted/60 dark:bg-muted/45 hover:border-border relative h-full max-h-[calc(100dvh-82px)] min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:shadow-md md:w-84 md:max-w-none ${
         isOver
           ? "ring-primary/20 border-primary/40 bg-primary/[0.03] shadow-md ring-2"
           : ""
@@ -206,7 +213,11 @@ const ColumnCard = ({
     >
       <ColumnHeader
         column={column}
-        tasksCount={page?.totalCount ?? tasks.length}
+        tasksCount={
+          isCurrentPage
+            ? (page?.totalCount ?? tasks.length)
+            : visibleTasks.length
+        }
         dragHandleProps={{ attributes, listeners }}
         onQuickAdd={() => setIsQuickAddOpen(true)}
       />
@@ -234,10 +245,18 @@ const ColumnCard = ({
           </div>
         ) : taskPage.totalCount === 0 ? (
           !isQuickAddOpen && (
-            <NoTasksMessage onQuickAdd={() => setIsQuickAddOpen(true)} />
+            <NoTasksMessage
+              onQuickAdd={() => setIsQuickAddOpen(true)}
+              isFiltered={priorityFilter !== "all"}
+            />
           )
         ) : visibleTasks.length === 0 ? (
-          <NoMatchingTasksMessage />
+          !isQuickAddOpen && (
+            <NoTasksMessage
+              onQuickAdd={() => setIsQuickAddOpen(true)}
+              isFiltered={priorityFilter !== "all"}
+            />
+          )
         ) : (
           <SortableContext
             items={taskIds}
@@ -283,6 +302,7 @@ const ColumnCard = ({
           <QuickAddTask
             columnId={column.id}
             onClose={() => setIsQuickAddOpen(false)}
+            priorityFilter={priorityFilter}
           />
         )}
         {!isInitialLoading && !isQuickAddOpen && taskPage.totalCount > 0 && (

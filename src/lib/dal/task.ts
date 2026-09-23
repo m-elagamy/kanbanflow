@@ -436,25 +436,31 @@ export const getColumnTasksPage = withUserId(
     limit: number,
     priority: Priority | null,
   ): Promise<TaskPage> => {
-    const tasks = await db.task.findMany({
-      where: {
-        columnId,
-        column: { board: { userId } },
-        ...(priority && { priority }),
-        ...(cursor && { order: { gt: cursor } }),
-      },
-      take: limit + 1,
-      orderBy: [{ order: "asc" }, { id: "asc" }],
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        priority: true,
-        order: true,
-        columnId: true,
-        columnEnteredAt: true,
-      },
-    });
+    const where = {
+      columnId,
+      column: { board: { userId } },
+      ...(priority && { priority }),
+    } satisfies Prisma.TaskWhereInput;
+    const [tasks, totalCount] = await Promise.all([
+      db.task.findMany({
+        where: {
+          ...where,
+          ...(cursor && { order: { gt: cursor } }),
+        },
+        take: limit + 1,
+        orderBy: [{ order: "asc" }, { id: "asc" }],
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          priority: true,
+          order: true,
+          columnId: true,
+          columnEnteredAt: true,
+        },
+      }),
+      db.task.count({ where }),
+    ]);
 
     const hasMore = tasks.length > limit;
     const page = hasMore ? tasks.slice(0, limit) : tasks;
@@ -465,6 +471,7 @@ export const getColumnTasksPage = withUserId(
         columnEnteredAt: task.columnEnteredAt.toISOString(),
       })),
       nextCursor: hasMore ? (page.at(-1)?.order ?? null) : null,
+      totalCount,
     };
   },
 );

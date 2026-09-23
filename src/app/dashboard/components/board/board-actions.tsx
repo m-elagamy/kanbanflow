@@ -21,7 +21,6 @@ import BoardModal from "./board-modal";
 import useLoadingStore from "@/stores/loading";
 import type { BoardSummary } from "@/lib/types";
 import handleOnError from "@/utils/handle-on-error";
-import { useModalStore } from "@/stores/modal";
 
 const AlertConfirmation = dynamic(
   () => import("@/components/ui/alert-confirmation"),
@@ -62,8 +61,7 @@ export default function BoardActions({
   const params = useParams();
   const { isMobile } = useSidebar();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const openModal = useModalStore((state) => state.openModal);
-  const editModalId = `edit-board-${board.id}`;
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const { isDeleting, setIsDeleting } = useLoadingStore(
     useShallow((state) => ({
@@ -132,7 +130,7 @@ export default function BoardActions({
         <DropdownMenuLabel>Board Actions:</DropdownMenuLabel>
         <DropdownMenuItem
           className="h-8 gap-2 px-2 py-1.5"
-          onSelect={() => openModal("board", editModalId)}
+          onSelect={() => setIsEditOpen(true)}
         >
           <SquarePen size={16} /> Edit
         </DropdownMenuItem>
@@ -147,7 +145,8 @@ export default function BoardActions({
       <BoardModal
         mode="edit"
         board={board}
-        modalId={editModalId}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
       />
       {isAlertOpen && (
         <AlertConfirmation

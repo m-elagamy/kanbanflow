@@ -22,7 +22,6 @@ export default function DashboardEmptyState() {
         action={
           <BoardModal
             mode="create"
-            modalId="dashboard-empty-new-board"
             trigger={
               <Button>
                 <Plus aria-hidden="true" />

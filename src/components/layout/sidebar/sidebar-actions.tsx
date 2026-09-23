@@ -33,7 +33,6 @@ const SidebarActions = () => {
               </SidebarMenuButton>
             }
             variant="outline"
-            modalId="sidebar-new-board"
           />
         </SidebarMenuItem>
       </SidebarMenu>

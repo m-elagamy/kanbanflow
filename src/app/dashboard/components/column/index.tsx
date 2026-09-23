@@ -12,11 +12,13 @@ import ColumnCard from "./column-card";
 import ColumnModal from "./column-modal";
 import type { ClientTask } from "@/lib/types";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
+import type { PriorityFilterValue } from "@/lib/types/stores/task";
 type ColumnsWrapperProps = {
   boardId: string;
   focusedTaskId?: string;
   animateEntry?: boolean;
   initialColumns?: (SimplifiedColumn & { tasks: ClientTask[] })[];
+  priorityFilter: PriorityFilterValue;
 };
 
 const ColumnsWrapper = ({
@@ -24,6 +26,7 @@ const ColumnsWrapper = ({
   focusedTaskId,
   animateEntry = false,
   initialColumns = [],
+  priorityFilter,
 }: ColumnsWrapperProps) => {
   const shouldReduceMotion = useReducedMotion();
   const columns = useColumnStore(
@@ -73,6 +76,7 @@ const ColumnsWrapper = ({
                 hasInitialData={initialColumns.some(
                   (item) => item.id === column.id,
                 )}
+                priorityFilter={priorityFilter}
               />
             </motion.div>
           ))}

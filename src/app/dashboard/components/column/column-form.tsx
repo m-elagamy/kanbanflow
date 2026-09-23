@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { createColumnAction } from "@/actions/column";
 import { useColumnStore } from "@/stores/column";
-import { useModalStore } from "@/stores/modal";
 import generateUUID from "@/utils/generate-UUID";
 import columnStatusSchema, { type ColumnStatus } from "@/schemas/column";
 import getAvailableStatusOptions from "@/utils/column-helpers";
@@ -33,15 +32,13 @@ const StatusOptions = dynamic(() => import("./status-options"), {
 
 type ColumnFormProps = {
   boardId: string;
-  modalId: string;
+  onClose: () => void;
 };
 
 const tempId = generateUUID();
 
-export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
+export default function ColumnForm({ boardId, onClose }: ColumnFormProps) {
   const [isContentLoaded, setIsContentLoaded] = useState(false);
-
-  const closeModal = useModalStore((state) => state.closeModal);
 
   const { columns, addColumn, updateColumnId, rollback } = useColumnStore(
     useShallow((state) => ({
@@ -91,7 +88,7 @@ export default function ColumnForm({ boardId, modalId }: ColumnFormProps) {
       order: 0,
     });
 
-    closeModal("column", modalId);
+    onClose();
     setIsLoading("column", "creating", false, tempId);
 
     try {

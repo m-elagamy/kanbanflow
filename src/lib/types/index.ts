@@ -89,6 +89,7 @@ export type TaskSearchPage = {
 export type TaskPage = {
   items: ClientTask[];
   nextCursor: string | null;
+  totalCount: number;
 };
 
 export type DashboardFocusTask = ClientTask & {

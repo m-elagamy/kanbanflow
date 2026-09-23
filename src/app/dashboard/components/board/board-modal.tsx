@@ -1,10 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Modal from "@/components/ui/modal";
-import { useModalStore } from "@/stores/modal";
 import type {
   BoardSummary,
   ButtonVariants,
@@ -17,12 +17,13 @@ import { getModalDescription } from "../../utils/get-modal-description";
 
 type BoardModalProps = {
   mode: FormMode;
-  modalId: string;
   trigger?: React.ReactElement;
   board?: BoardSummary;
   variant?: ButtonVariants;
   defaultTemplate?: Templates;
   size?: "sm" | "default" | "lg" | "icon";
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 const BoardModal = ({
@@ -30,22 +31,21 @@ const BoardModal = ({
   board,
   trigger,
   variant,
-  modalId,
   defaultTemplate,
   size = "default",
+  open: controlledOpen,
+  onOpenChange,
 }: BoardModalProps) => {
-  const openModal = useModalStore((state) => state.openModal);
-
-  const modalIdToUse = modalId ?? `board-${board?.id}`;
-
-  const handleOnClick = () => openModal("board", modalIdToUse);
+  const [localOpen, setLocalOpen] = useState(false);
+  const open = controlledOpen ?? localOpen;
+  const setOpen = onOpenChange ?? setLocalOpen;
 
   return (
     <>
       {trigger && (
         <Slot
           className={cn(buttonVariants({ variant, size, className: "group" }))}
-          onClick={handleOnClick}
+          onClick={() => setOpen(true)}
         >
           {trigger}
         </Slot>
@@ -53,12 +53,12 @@ const BoardModal = ({
       <Modal
         title={getModalTitle("board", mode)}
         description={getModalDescription("board", mode)}
-        modalType="board"
-        modalId={modalIdToUse}
+        open={open}
+        onOpenChange={setOpen}
       >
         <BoardForm
           formMode={mode}
-          modalId={modalIdToUse}
+          onClose={() => setOpen(false)}
           board={board}
           defaultTemplate={defaultTemplate}
         />

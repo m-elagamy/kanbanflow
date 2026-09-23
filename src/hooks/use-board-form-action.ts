@@ -19,7 +19,7 @@ type UseBoardFormAction = {
   ) => { success: boolean; data?: BoardFormSchema; error?: string };
   board?: BoardSummary;
   existingBoards: { id: string; title: string }[];
-  modalId: string;
+  onClose: () => void;
 };
 
 export function useBoardFormAction({
@@ -27,12 +27,12 @@ export function useBoardFormAction({
   validateBeforeSubmit,
   board,
   existingBoards,
-  modalId,
+  onClose,
 }: UseBoardFormAction) {
   const isEditMode = formMode === "edit";
   const router = useRouter();
 
-  const { updateBoard, activeBoardId, closeModal, isLoading, setIsLoading } =
+  const { updateBoard, activeBoardId, isLoading, setIsLoading } =
     useBoardFormStore();
 
   const {
@@ -62,7 +62,7 @@ export function useBoardFormAction({
       setIsLoading("board", "updating", true, board.id);
 
       updateBoard(board.id, omit(optimisticBoard, ["id"]));
-      closeModal("board", modalId);
+      onClose();
 
       try {
         const result = await updateBoardAction(formData);
@@ -94,7 +94,7 @@ export function useBoardFormAction({
       ...validatedData,
       id: optimisticBoard.id,
     });
-    if (created) closeModal("board", modalId);
+    if (created) onClose();
   };
 
   const redirectIfSlugChanged = (
@@ -117,11 +117,11 @@ export function useBoardFormAction({
     isLoading,
     hasCreationError: !isEditMode && hasError && !!failedBoard,
     retryCreation: async () => {
-      if (await retryBoardCreation()) closeModal("board", modalId);
+      if (await retryBoardCreation()) onClose();
     },
     returnToDashboard: () => {
       if (isLoading) return;
-      closeModal("board", modalId);
+      onClose();
       navigateToDashboard();
     },
   };

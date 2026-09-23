@@ -17,14 +17,14 @@ import BoardErrorCard from "@/components/ui/board-error-card";
 type BoardFormProps = Readonly<{
   formMode: FormMode;
   board?: BoardSummary;
-  modalId: string;
+  onClose: () => void;
   defaultTemplate?: Templates;
 }>;
 
 export default function BoardForm({
   formMode,
   board,
-  modalId,
+  onClose,
   defaultTemplate,
 }: BoardFormProps) {
   const boards = useBoardStore((state) => state.boards);
@@ -61,7 +61,7 @@ export default function BoardForm({
     board,
     existingBoards,
     formMode,
-    modalId,
+    onClose,
     validateBeforeSubmit,
   });
 

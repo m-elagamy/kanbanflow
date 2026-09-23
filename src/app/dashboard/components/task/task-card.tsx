@@ -6,7 +6,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type { ClientTask } from "@/lib/types";
 import TaskActions from "./task-actions";
 import useLoadingStore from "@/stores/loading";
-import { useModalStore } from "@/stores/modal";
+import TaskModal from "./task-modal";
 import PriorityIndicator from "./priority-indicator";
 import TaskColumnAge from "./task-column-age";
 
@@ -27,15 +27,13 @@ const TaskCard = ({
 }: TaskCardProps) => {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [showFocus, setShowFocus] = useState(isFocused);
+  const [isTaskOpen, setIsTaskOpen] = useState(false);
   const isUpdating = useLoadingStore((state) =>
     state.isLoading("task", "updating"),
   );
-  const openModal = useModalStore((state) => state.openModal);
-  const modalId = `task-${task.id}`;
-
   const openTask = () => {
     if (!columnId || isDragging) return;
-    openModal("task", modalId);
+    setIsTaskOpen(true);
   };
   const {
     attributes,
@@ -91,58 +89,73 @@ const TaskCard = ({
   };
 
   return (
-    <div
-      className={`group/task border-border/80 bg-card hover:border-border focus-visible:ring-ring relative touch-manipulation rounded-lg border p-3 shadow-xs transition-[border-color,box-shadow,transform] duration-200 outline-none hover:shadow-sm focus-visible:ring-2 ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : "cursor-pointer active:cursor-grabbing"} ${isOver && !isSortableDragging ? "after:bg-primary after:absolute after:-top-2 after:right-1 after:left-1 after:h-0.5 after:rounded-full" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
-      ref={setCardRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      tabIndex={columnId ? 0 : -1}
-      aria-label={columnId ? `${task.title}. Press Enter to open.` : undefined}
-      onClick={openTask}
-      onKeyDown={handleCardKeyDown}
-    >
-      <div className="relative z-10 space-y-2.5">
-        <div className="flex items-start gap-2">
-          <div className="min-w-0 flex-1 space-y-1">
-            <h3
-              className={`text-foreground flex-1 text-sm font-medium ${task.title.length > 30 ? "line-clamp-2" : ""}`}
-              title={task.title}
-            >
-              {task.title}
-            </h3>
-            {task.description && (
-              <p
-                className="text-muted-foreground line-clamp-2 text-xs"
+    <>
+      <div
+        className={`group/task border-border/80 bg-card hover:border-border focus-visible:ring-ring relative touch-manipulation rounded-lg border p-3 shadow-xs transition-[border-color,box-shadow,transform] duration-200 outline-none hover:shadow-sm focus-visible:ring-2 ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : "cursor-pointer active:cursor-grabbing"} ${isOver && !isSortableDragging ? "after:bg-primary after:absolute after:-top-2 after:right-1 after:left-1 after:h-0.5 after:rounded-full" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
+        ref={setCardRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        tabIndex={columnId ? 0 : -1}
+        aria-label={
+          columnId ? `${task.title}. Press Enter to open.` : undefined
+        }
+        onClick={openTask}
+        onKeyDown={handleCardKeyDown}
+      >
+        <div className="relative z-10 space-y-2.5">
+          <div className="flex items-start gap-2">
+            <div className="min-w-0 flex-1 space-y-1">
+              <h3
+                className={`text-foreground flex-1 text-sm font-medium ${task.title.length > 30 ? "line-clamp-2" : ""}`}
+                title={task.title}
               >
-                {task.description}
-              </p>
+                {task.title}
+              </h3>
+              {task.description && (
+                <p className="text-muted-foreground line-clamp-2 text-xs">
+                  {task.description}
+                </p>
+              )}
+            </div>
+            {columnId && (
+              <div
+                className="shrink-0 md:opacity-0 md:transition-opacity md:group-focus-within/task:opacity-100 md:group-hover/task:opacity-100"
+                onClick={(event) => event.stopPropagation()}
+                onPointerDown={(event) => event.stopPropagation()}
+                onKeyDown={(event) => event.stopPropagation()}
+              >
+              <TaskActions
+                task={task}
+                columnId={columnId}
+                onEdit={() => setIsTaskOpen(true)}
+              />
+              </div>
             )}
           </div>
-          {columnId && (
-            <div
-              className="shrink-0 md:opacity-0 md:transition-opacity md:group-focus-within/task:opacity-100 md:group-hover/task:opacity-100"
-              onClick={(event) => event.stopPropagation()}
-              onPointerDown={(event) => event.stopPropagation()}
-              onKeyDown={(event) => event.stopPropagation()}
-            >
-              <TaskActions task={task} columnId={columnId} />
-            </div>
-          )}
-        </div>
 
-        <div className="text-muted-foreground flex min-h-5 items-center justify-between gap-3 text-xs">
-          {showColumnAge && (
-            <TaskColumnAge columnEnteredAt={task.columnEnteredAt} />
-          )}
-          <PriorityIndicator
-            priority={task.priority}
-            showLabel={false}
-            className="ml-auto"
-          />
+          <div className="text-muted-foreground flex min-h-5 items-center justify-between gap-3 text-xs">
+            {showColumnAge && (
+              <TaskColumnAge columnEnteredAt={task.columnEnteredAt} />
+            )}
+            <PriorityIndicator
+              priority={task.priority}
+              showLabel={false}
+              className="ml-auto"
+            />
+          </div>
         </div>
       </div>
-    </div>
+      {columnId && (
+        <TaskModal
+          mode="edit"
+          task={task}
+          columnId={columnId}
+          open={isTaskOpen}
+          onOpenChange={setIsTaskOpen}
+        />
+      )}
+    </>
   );
 };
 

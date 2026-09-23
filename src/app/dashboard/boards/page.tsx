@@ -37,7 +37,6 @@ export default function BoardsPage({
           </div>
           <BoardModal
             mode="create"
-            modalId="all-boards-new-board"
             trigger={
               <button>
                 <Plus aria-hidden="true" />

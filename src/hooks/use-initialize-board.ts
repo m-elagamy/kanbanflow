@@ -3,7 +3,6 @@ import { useShallow } from "zustand/react/shallow";
 import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
 import { useTaskStore } from "@/stores/task";
-import { useTaskFilterStore } from "@/stores/task-filter";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import type { SimplifiedBoard } from "@/lib/types/stores/board";
 import type { ClientTask } from "@/lib/types";
@@ -31,10 +30,6 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
       initializeTaskPages: state.initializeTaskPages,
     })),
   );
-  const setPriorityFilter = useTaskFilterStore(
-    (state) => state.setPriorityFilter,
-  );
-
   useLayoutEffect(() => {
     if (!initialBoard?.id) return;
 
@@ -42,8 +37,6 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
 
     setBoards({ [initialBoard.id]: boardData });
     setActiveBoardId(initialBoard.id);
-    setPriorityFilter("all");
-
     const columnsWithoutTasks = columns.map(({ id, status, order }) => ({
       id,
       status,
@@ -66,7 +59,6 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
     setBoardColumns,
     initializeTaskPages,
     setActiveBoardId,
-    setPriorityFilter,
   ]);
 
   const activeBoard = boards[initialBoard.id] ?? null;

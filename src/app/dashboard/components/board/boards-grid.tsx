@@ -87,7 +87,6 @@ export default function BoardsGrid({
           {hasBoards && (
             <BoardModal
               mode="create"
-              modalId="dashboard-new-board"
               trigger={
                 <button>
                   <Plus className="h-4 w-4" />

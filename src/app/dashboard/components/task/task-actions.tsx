@@ -19,26 +19,24 @@ import {
 import AlertConfirmation from "@/components/ui/alert-confirmation";
 import { useColumnStore } from "@/stores/column";
 import useBoardStore from "@/stores/board";
-import TaskModal from "./task-modal";
 import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
 import { useTaskStore } from "@/stores/task";
 import useLoadingStore from "@/stores/loading";
 import handleOnError from "@/utils/handle-on-error";
 import columnStatusOptions from "../../data/column-status-options";
-import { useModalStore } from "@/stores/modal";
 
 type TaskActionsProps = {
   task: ClientTask;
   columnId: string;
+  onEdit: () => void;
 };
 
 export default function TaskActions({
   task,
   columnId,
+  onEdit,
 }: Readonly<TaskActionsProps>) {
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const openModal = useModalStore((state) => state.openModal);
-  const editModalId = `task-${task.id}`;
   const boardId = useBoardStore((state) => state.activeBoardId);
   const columns = useColumnStore((state) =>
     boardId ? state.columnsByBoard[boardId] : undefined,
@@ -139,7 +137,7 @@ export default function TaskActions({
           <DropdownMenuLabel>Task Actions:</DropdownMenuLabel>
           <DropdownMenuItem
             className="h-8 gap-2 px-2 py-1.5"
-            onSelect={() => openModal("task", editModalId)}
+            onSelect={onEdit}
           >
             <Settings2 size={16} /> Edit
           </DropdownMenuItem>
@@ -189,12 +187,6 @@ export default function TaskActions({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <TaskModal
-        mode="edit"
-        columnId={columnId}
-        task={task}
-        modalId={editModalId}
-      />
       <AlertConfirmation
         open={confirmDelete}
         setOpen={setConfirmDelete}

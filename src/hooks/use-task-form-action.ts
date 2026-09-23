@@ -3,7 +3,6 @@ import { toast } from "sonner";
 import { createTaskAction, updateTaskAction } from "@/actions/task";
 import type { FormMode, ClientTask } from "@/lib/types";
 import type { TaskSchema } from "@/schemas/task";
-import { useModalStore } from "@/stores/modal";
 import { useTaskStore } from "@/stores/task";
 import generateUUID from "@/utils/generate-UUID";
 import useLoadingStore from "@/stores/loading";
@@ -20,7 +19,7 @@ type UseTaskFormAction = {
   ) => { success: boolean; data?: TaskSchema; error?: string };
   task?: ClientTask;
   columnId?: string;
-  modalId: string;
+  onClose: () => void;
 };
 
 export function useTaskFormAction({
@@ -28,7 +27,7 @@ export function useTaskFormAction({
   validateBeforeSubmit,
   task,
   columnId,
-  modalId,
+  onClose,
 }: UseTaskFormAction) {
   const isEditMode = formMode === "edit";
 
@@ -40,7 +39,6 @@ export function useTaskFormAction({
       rollback: state.rollback,
     })),
   );
-  const closeModal = useModalStore((state) => state.closeModal);
   const { isLoading, setIsLoading } = useLoadingStore(
     useShallow((state) => ({
       isLoading:
@@ -80,7 +78,7 @@ export function useTaskFormAction({
         setIsLoading("task", "updating", true, task.id);
 
         updateTask(task.id, { title, description, priority });
-        closeModal("task", modalId);
+        onClose();
 
         const result = await updateTaskAction(formData);
         if (!result.success) {
@@ -93,7 +91,7 @@ export function useTaskFormAction({
         setIsLoading("task", "creating", true, optimisticTask.id);
 
         addTask(finalColumnId, optimisticTask);
-        closeModal("task", modalId);
+        onClose();
 
         const res = await createTaskAction(formData);
         if (!res.success || !res.fields?.id) {

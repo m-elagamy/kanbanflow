@@ -1,5 +1,7 @@
 import type { ClientTask } from "@/lib/types";
-import type { PriorityFilterValue } from "@/stores/task-filter";
+import type { Priority } from "@prisma/client";
+
+export type PriorityFilterValue = Priority | "all";
 
 export type ColumnTaskPageState = {
   nextCursor: string | null;
@@ -37,6 +39,7 @@ type TaskActions = {
     tasks: ClientTask[],
     nextCursor: string | null,
     filter: PriorityFilterValue,
+    totalCount: number,
   ) => void;
   appendColumnTaskPage: (
     columnId: string,

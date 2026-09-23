@@ -1,6 +1,6 @@
+import { useState } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import Modal from "@/components/ui/modal";
-import { useModalStore } from "@/stores/modal";
 import type { FormMode, ClientTask } from "@/lib/types";
 import TaskForm from "./task-form";
 import { getModalTitle } from "../../utils/get-modal-title";
@@ -12,7 +12,8 @@ type TaskModalProps = {
   trigger?: React.ReactNode;
   task?: ClientTask;
   mode: FormMode;
-  modalId?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 const TaskModal = ({
@@ -21,37 +22,30 @@ const TaskModal = ({
   trigger,
   task,
   mode,
-  modalId: providedModalId,
+  open: controlledOpen,
+  onOpenChange,
 }: TaskModalProps) => {
-  const openModal = useModalStore((state) => state.openModal);
-
-  const modalId =
-    providedModalId ??
-    (task
-      ? `task-${task.id}`
-      : columnId
-        ? `new-task-${columnId}`
-        : `new-task-board-${boardId}`);
-
-  const handleOnClick = () => openModal("task", modalId);
+  const [localOpen, setLocalOpen] = useState(false);
+  const open = controlledOpen ?? localOpen;
+  const setOpen = onOpenChange ?? setLocalOpen;
 
   return (
     <>
       {trigger && (
-        <Slot onClick={handleOnClick}>
+        <Slot onClick={() => setOpen(true)}>
           {trigger}
         </Slot>
       )}
       <Modal
         title={getModalTitle("task", mode)}
         description={getModalDescription("task", mode)}
-        modalType="task"
-        modalId={modalId}
+        open={open}
+        onOpenChange={setOpen}
       >
         <TaskForm
           columnId={columnId}
           boardId={boardId}
-          modalId={modalId}
+          onClose={() => setOpen(false)}
           task={task}
           formMode={mode}
         />

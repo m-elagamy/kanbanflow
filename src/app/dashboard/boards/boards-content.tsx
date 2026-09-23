@@ -89,7 +89,6 @@ export default async function BoardsContent({
               action={
                 <BoardModal
                   mode="create"
-                  modalId="all-boards-empty-new-board"
                   trigger={
                     <button>
                       <Plus aria-hidden="true" />

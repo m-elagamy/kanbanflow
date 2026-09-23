@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import {
   Dialog,
@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useModalStore } from "@/stores/modal";
 
 const DialogContent = dynamic(
   () => import("@/components/ui/dialog").then((mod) => mod.DialogContent),
@@ -21,8 +20,8 @@ type ModalProps = {
   title: ReactNode;
   description?: ReactNode;
   children: ReactNode;
-  modalType: "board" | "task" | "column";
-  modalId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   className?: string;
 };
 
@@ -30,31 +29,13 @@ const Modal = ({
   title,
   description,
   children,
-  modalType,
-  modalId,
+  open,
+  onOpenChange,
   className = "",
 }: ModalProps) => {
-  const { modals, openModal, closeModal } = useModalStore();
-  const modalKey = `${modalType}-${modalId}`;
-  const shouldDisplayModal = modals.has(modalKey);
-
-  const handleOpen = () => openModal(modalType, modalId);
-  const handleClose = () => closeModal(modalType, modalId);
-
-  useEffect(() => {
-    return () => {
-      if (shouldDisplayModal) {
-        closeModal(modalType, modalId);
-      }
-    };
-  }, [modalType, modalId, closeModal, shouldDisplayModal]);
-
   return (
-    <Dialog
-      open={shouldDisplayModal}
-      onOpenChange={(isOpen) => (isOpen ? handleOpen() : handleClose())}
-    >
-      {shouldDisplayModal && (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {open && (
         <DialogContent
           className={`max-h-[calc(100dvh-2rem)] overflow-y-auto ${className}`}
         >

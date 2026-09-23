@@ -5,15 +5,21 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 export default function NoTasksMessage({
   onQuickAdd,
+  isFiltered = false,
 }: {
   onQuickAdd: () => void;
+  isFiltered?: boolean;
 }) {
   return (
     <EmptyState
       size="compact"
       illustration={<EmptyTasksIllustration />}
-      title="No tasks yet"
-      description="Add a task to get started in this column."
+      title={isFiltered ? "No matching tasks" : "No tasks yet"}
+      description={
+        isFiltered
+          ? "Add a task with this priority to get started in this column."
+          : "Add a task to get started in this column."
+      }
       action={
         <Button
           variant="outline"

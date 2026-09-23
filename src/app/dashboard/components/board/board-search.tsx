@@ -28,7 +28,6 @@ import {
 } from "@/actions/task";
 import { getUserBoardsPageAction } from "@/actions/user";
 import useBoardStore from "@/stores/board";
-import { useModalStore } from "@/stores/modal";
 import type { ClientTask, TaskSearchPage, TaskSearchResult } from "@/lib/types";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
@@ -129,7 +128,6 @@ export function BoardSearch({
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const activeBoardId = useBoardStore((state) => state.activeBoardId);
-  const openModal = useModalStore((state) => state.openModal);
   const boardId =
     scope === "board" ? (providedBoardId ?? activeBoardId) : null;
   const canSearch = scope === "workspace" || Boolean(boardId);
@@ -273,7 +271,6 @@ export function BoardSearch({
         columnId: task.columnId,
         columnEnteredAt: task.columnEnteredAt,
       };
-      setSelectedTask(clientTask);
       setOpen(false);
       setQuery("");
       setTaskSearch(null);
@@ -282,10 +279,10 @@ export function BoardSearch({
       if (scope === "workspace") {
         router.push(`/dashboard/${task.board.slug}?task=${task.id}`);
       } else {
-        setTimeout(() => openModal("task", `search-task-${task.id}`), 0);
+        setTimeout(() => setSelectedTask(clientTask), 0);
       }
     },
-    [openModal, router, scope],
+    [router, scope],
   );
 
   const handleBoardSelect = useCallback(
@@ -552,7 +549,6 @@ export function BoardSearch({
                         <TaskModal
                           mode="create"
                           boardId={boardId}
-                          modalId={`search-new-task-board-${boardId}`}
                           trigger={
                             <Button
                               variant="outline"
@@ -657,7 +653,10 @@ export function BoardSearch({
           mode="edit"
           task={selectedTask}
           columnId={selectedTask.columnId}
-          modalId={`search-task-${selectedTask.id}`}
+          open
+          onOpenChange={(isOpen) => {
+            if (!isOpen) setSelectedTask(null);
+          }}
         />
       )}
     </>

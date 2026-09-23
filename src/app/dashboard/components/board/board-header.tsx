@@ -7,12 +7,21 @@ import { TaskPriorityFilter } from "../task/tasks-filter";
 import { BoardSearch } from "./board-search";
 import TaskModal from "../task/task-modal";
 import { Button } from "@/components/ui/button";
+import type { PriorityFilterValue } from "@/lib/types/stores/task";
 
 type BoardHeaderProps = {
   board: BoardSummary;
+  priorityFilter: PriorityFilterValue;
+  onPriorityFilterChange: (value: PriorityFilterValue) => void;
+  isPriorityFilterPending?: boolean;
 };
 
-const BoardHeader = ({ board }: BoardHeaderProps) => {
+const BoardHeader = ({
+  board,
+  priorityFilter,
+  onPriorityFilterChange,
+  isPriorityFilterPending = false,
+}: BoardHeaderProps) => {
   return (
     <section className="border-border/50 bg-background/95 supports-backdrop-filter:bg-background/60 mb-4 shrink-0 border-b backdrop-blur">
       <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
@@ -39,7 +48,11 @@ const BoardHeader = ({ board }: BoardHeaderProps) => {
         </div>
 
         <div className="grid grid-cols-[auto_1fr] items-center gap-2 sm:flex sm:justify-end">
-          <TaskPriorityFilter />
+          <TaskPriorityFilter
+            value={priorityFilter}
+            onValueChange={onPriorityFilterChange}
+            isPending={isPriorityFilterPending}
+          />
           <BoardSearch boardId={board.id} />
           {board.id && (
             <TaskModal

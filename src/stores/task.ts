@@ -56,15 +56,20 @@ export const useTaskStore = create<TaskStore>()(
         });
       },
 
-      replaceColumnTaskPage: (columnId, tasks, nextCursor, filter) => {
+      replaceColumnTaskPage: (
+        columnId,
+        tasks,
+        nextCursor,
+        filter,
+        totalCount,
+      ) => {
         set((state) => {
           state.columnTaskIds[columnId] = tasks.map((task) => task.id);
           for (const task of tasks) state.tasks[task.id] = task;
 
-          const current = state.columnPages[columnId];
           state.columnPages[columnId] = {
             nextCursor,
-            totalCount: current?.totalCount ?? tasks.length,
+            totalCount,
             isLoading: false,
             error: null,
             filter,

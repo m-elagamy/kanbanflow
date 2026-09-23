@@ -9,24 +9,25 @@ import { Input } from "@/components/ui/input";
 import handleOnError from "@/utils/handle-on-error";
 import generateUUID from "@/utils/generate-UUID";
 import useLoadingStore from "@/stores/loading";
-import { useTaskFilterStore } from "@/stores/task-filter";
 import { useTaskStore } from "@/stores/task";
+import type { PriorityFilterValue } from "@/lib/types/stores/task";
 import { taskSchema } from "@/schemas/task";
 import PriorityIndicator from "./priority-indicator";
 
 type QuickAddTaskProps = {
   columnId: string;
   onClose: () => void;
+  priorityFilter: PriorityFilterValue;
 };
 
 export default function QuickAddTask({
   columnId,
   onClose,
+  priorityFilter,
 }: QuickAddTaskProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const priorityFilter = useTaskFilterStore((state) => state.priorityFilter);
   const priority = priorityFilter === "all" ? "medium" : priorityFilter;
 
   const { addTask, updateTask, updateTaskId, rollback, clearSnapshot } =

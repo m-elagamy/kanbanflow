@@ -1,6 +1,7 @@
 "use client";
 
-import { ListFilter } from "lucide-react";
+import { useState } from "react";
+import { ListFilter, LoaderCircle, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -10,82 +11,120 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  useTaskFilterStore,
-  type PriorityFilterValue,
-} from "@/stores/task-filter";
+import type { PriorityFilterValue } from "@/lib/types/stores/task";
 import taskPriorities from "../../data/task-priorities";
 import getPriorityIconColor from "../../utils/get-priority-icon-color";
 
-export function TaskPriorityFilter() {
-  const { priorityFilter, setPriorityFilter } = useTaskFilterStore();
+type TaskPriorityFilterProps = {
+  value?: PriorityFilterValue;
+  onValueChange?: (value: PriorityFilterValue) => void;
+  isPending?: boolean;
+};
+
+export function TaskPriorityFilter({
+  value,
+  onValueChange,
+  isPending = false,
+}: TaskPriorityFilterProps = {}) {
+  const [localValue, setLocalValue] = useState<PriorityFilterValue>("all");
+  const priorityFilter = value ?? localValue;
+  const setPriorityFilter = onValueChange ?? setLocalValue;
   const selectedPriority = taskPriorities.find(
     ({ id }) => id === priorityFilter,
   );
 
+  const canClear = priorityFilter !== "all";
+
   return (
-    <Select
-      value={priorityFilter}
-      onValueChange={(value) => setPriorityFilter(value as PriorityFilterValue)}
-    >
-      <SelectTrigger
-        className="hover:bg-muted-foreground/5 min-w-34 shrink-0"
-        aria-label="Filter tasks by priority"
+    <div className="relative">
+      <Select
+        value={priorityFilter}
+        onValueChange={(value) =>
+          setPriorityFilter(value as PriorityFilterValue)
+        }
       >
-        <SelectValue>
-          {selectedPriority ? (
+        <SelectTrigger
+          className="hover:bg-muted-foreground/5 min-w-34 shrink-0"
+          aria-label="Filter tasks by priority"
+          aria-busy={isPending}
+        >
+          <SelectValue>
             <span className="flex items-center gap-2">
-              <selectedPriority.icon
-                size={14}
-                className={getPriorityIconColor(selectedPriority.id)}
-                aria-hidden="true"
-              />
-              {selectedPriority.label}
+              {isPending ? (
+                <LoaderCircle
+                  size={14}
+                  className="text-muted-foreground animate-spin"
+                  aria-hidden="true"
+                />
+              ) : selectedPriority ? (
+                <selectedPriority.icon
+                  size={14}
+                  className={getPriorityIconColor(selectedPriority.id)}
+                  aria-hidden="true"
+                />
+              ) : (
+                <ListFilter
+                  size={14}
+                  className="text-muted-foreground"
+                  aria-hidden="true"
+                />
+              )}
+              {selectedPriority?.label ?? "All priorities"}
             </span>
-          ) : (
-            <span className="flex items-center gap-2">
-              <ListFilter
-                size={14}
-                className="text-muted-foreground"
-                aria-hidden="true"
-              />
-              All priorities
-            </span>
-          )}
-        </SelectValue>
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel className="text-muted-foreground text-xs">
-            Priority
-          </SelectLabel>
-          <SelectItem value="all">
-            <div className="flex items-center gap-2">
-              <ListFilter
-                size={14}
-                className="text-muted-foreground"
-                aria-hidden="true"
-              />
-              All priorities
-            </div>
-          </SelectItem>
-          {taskPriorities
-            .slice()
-            .reverse()
-            .map(({ id, label, icon: Icon }) => (
-              <SelectItem key={id} value={id}>
-                <div className="flex items-center gap-2">
-                  <Icon
-                    size={14}
-                    className={getPriorityIconColor(id)}
-                    aria-hidden="true"
-                  />
-                  {label}
-                </div>
-              </SelectItem>
-            ))}
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel className="text-muted-foreground text-xs">
+              Priority
+            </SelectLabel>
+            <SelectItem value="all">
+              <div className="flex items-center gap-2">
+                <ListFilter
+                  size={14}
+                  className="text-muted-foreground"
+                  aria-hidden="true"
+                />
+                All priorities
+              </div>
+            </SelectItem>
+            {taskPriorities
+              .slice()
+              .reverse()
+              .map(({ id, label, icon: Icon }) => (
+                <SelectItem key={id} value={id}>
+                  <div className="flex items-center gap-2">
+                    <Icon
+                      size={14}
+                      className={getPriorityIconColor(id)}
+                      aria-hidden="true"
+                    />
+                    {label}
+                  </div>
+                </SelectItem>
+              ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      {canClear && (
+        <button
+          type="button"
+          className="bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground focus-visible:ring-ring absolute -top-2 -right-2 z-20 flex size-5 items-center justify-center rounded-full border shadow-sm transition-colors focus-visible:ring-2"
+          aria-label="Clear priority filter"
+          title="Clear priority filter"
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setPriorityFilter("all");
+          }}
+        >
+          <X size={14} aria-hidden="true" />
+        </button>
+      )}
+    </div>
   );
 }

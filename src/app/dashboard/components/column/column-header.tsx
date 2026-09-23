@@ -56,15 +56,13 @@ export default function ColumnHeader({
         >
           {columnStatus}
         </span>
-        {tasksCount > 0 && (
-          <Badge
-            variant="outline"
-            className="h-5 rounded-md px-[7px] text-[0.690rem]"
-            aria-label={`${tasksCount} ${tasksCount === 1 ? "task" : "tasks"}`}
-          >
-            {tasksCount}
-          </Badge>
-        )}
+        <Badge
+          variant="outline"
+          className="h-5 rounded-md px-[7px] text-[0.690rem]"
+          aria-label={`${tasksCount} ${tasksCount === 1 ? "task" : "tasks"}`}
+        >
+          {tasksCount}
+        </Badge>
       </CardTitle>
       <ColumnActions
         columnId={columnId}
