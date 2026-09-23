@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
+import type { ClientTask } from "@/lib/types";
 import { useTaskStore } from "@/stores/task";
 import { useTaskFilterStore } from "@/stores/task-filter";
 import ColumnHeader from "./column-header";
@@ -25,11 +26,16 @@ import QuickAddTask from "../task/quick-add-task";
 type ColumnCardProps = {
   column: SimplifiedColumn;
   focusedTaskId?: string;
+  initialTasks?: ClientTask[];
 };
 
 const EMPTY_TASK_IDS: string[] = [];
 
-const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
+const ColumnCard = ({
+  column,
+  focusedTaskId,
+  initialTasks = [],
+}: ColumnCardProps) => {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -82,7 +88,14 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
   const priorityFilter = useTaskFilterStore((state) => state.priorityFilter);
   const activePriority = priorityFilter === "all" ? null : priorityFilter;
   const isCurrentPage = page?.filter === priorityFilter;
-  const visibleTasks = isCurrentPage ? tasks : [];
+  const taskPage = page ?? {
+    nextCursor: null,
+    totalCount: 0,
+    isLoading: false,
+    error: null,
+    filter: priorityFilter,
+  };
+  const visibleTasks = page ? (isCurrentPage ? tasks : []) : initialTasks;
   const nextCursor = isCurrentPage ? page.nextCursor : null;
 
   const loadFirstPage = useCallback(async () => {
@@ -174,11 +187,12 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
   }, [loadMore, nextCursor, page?.error, page?.isLoading]);
 
   const taskIds = visibleTasks.map((task) => task.id);
-  const isInitialLoading = !isCurrentPage || (page.isLoading && !tasks.length);
+  const isInitialLoading =
+    Boolean(page) && (!isCurrentPage || (taskPage.isLoading && !tasks.length));
 
   return (
     <Card
-      className={`group/column border-border/80 bg-muted/45 dark:bg-muted/35 hover:border-border relative h-full min-h-0 max-h-[calc(100dvh-82px)] w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:shadow-md md:w-84 md:max-w-none ${
+      className={`group/column border-border/80 bg-muted/45 dark:bg-muted/35 hover:border-border relative h-full max-h-[calc(100dvh-82px)] min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:shadow-md md:w-84 md:max-w-none ${
         isOver
           ? "ring-primary/20 border-primary/40 bg-primary/[0.03] shadow-md ring-2"
           : ""
@@ -203,9 +217,9 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
               <Skeleton key={item} className="h-24 w-full rounded-lg" />
             ))}
           </div>
-        ) : page.error && visibleTasks.length === 0 ? (
+        ) : taskPage.error && visibleTasks.length === 0 ? (
           <div className="space-y-2 py-8 text-center text-sm">
-            <p className="text-muted-foreground">{page.error}</p>
+            <p className="text-muted-foreground">{taskPage.error}</p>
             <Button
               variant="ghost"
               size="sm"
@@ -214,7 +228,7 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
               Retry
             </Button>
           </div>
-        ) : page.totalCount === 0 ? (
+        ) : taskPage.totalCount === 0 ? (
           !isQuickAddOpen && (
             <NoTasksMessage onQuickAdd={() => setIsQuickAddOpen(true)} />
           )
@@ -232,19 +246,21 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
                   task={task}
                   columnId={column.id}
                   isFocused={task.id === focusedTaskId}
-                  showColumnAge={!TERMINAL_COLUMN_STATUSES.includes(column.status)}
+                  showColumnAge={
+                    !TERMINAL_COLUMN_STATUSES.includes(column.status)
+                  }
                 />
               ))}
-              {nextCursor && !page.error && (
+              {nextCursor && !taskPage.error && (
                 <div
                   ref={loadMoreRef}
                   className="text-muted-foreground flex min-h-8 items-center justify-center text-xs"
                   aria-live="polite"
                 >
-                  {page.isLoading ? "Loading more..." : null}
+                  {taskPage.isLoading ? "Loading more..." : null}
                 </div>
               )}
-              {nextCursor && page.error && (
+              {nextCursor && taskPage.error && (
                 <div className="space-y-1 text-center">
                   <p className="text-destructive text-xs">{page.error}</p>
                   <Button
@@ -265,7 +281,7 @@ const ColumnCard = ({ column, focusedTaskId }: ColumnCardProps) => {
             onClose={() => setIsQuickAddOpen(false)}
           />
         )}
-        {!isInitialLoading && !isQuickAddOpen && page.totalCount > 0 && (
+        {!isInitialLoading && !isQuickAddOpen && taskPage.totalCount > 0 && (
           <Button
             type="button"
             variant="ghost"

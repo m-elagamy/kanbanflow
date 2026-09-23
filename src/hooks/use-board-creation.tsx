@@ -34,8 +34,7 @@ export function useBoardCreation() {
   const setIsLoading = useLoadingStore((state) => state.setIsLoading);
 
   const submitBoardCreation = async (attempt: BoardFormValues) => {
-    if (useLoadingStore.getState().isLoading("board", "creating"))
-      return false;
+    if (useLoadingStore.getState().isLoading("board", "creating")) return false;
     setIsLoading("board", "creating", true, attempt.id);
 
     try {
@@ -51,7 +50,7 @@ export function useBoardCreation() {
       createBoard({ id, title, slug, description });
       setColumns(id, columns);
       resetError();
-      router.push(`/dashboard/${slug}`);
+      router.push(`/dashboard/${slug}?new=1`);
       return true;
     } catch {
       setError(true, attempt);

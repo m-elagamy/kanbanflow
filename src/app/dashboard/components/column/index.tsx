@@ -1,3 +1,6 @@
+"use client";
+
+import { motion, useReducedMotion } from "motion/react";
 import { useShallow } from "zustand/react/shallow";
 import {
   SortableContext,
@@ -7,19 +10,30 @@ import { DndProvider } from "@/providers/dnd-provider";
 import { useColumnStore } from "@/stores/column";
 import ColumnCard from "./column-card";
 import ColumnModal from "./column-modal";
+import type { ClientTask } from "@/lib/types";
+import type { SimplifiedColumn } from "@/lib/types/stores/column";
 type ColumnsWrapperProps = {
   boardId: string;
   focusedTaskId?: string;
+  animateEntry?: boolean;
+  initialColumns?: (SimplifiedColumn & { tasks: ClientTask[] })[];
 };
 
-const ColumnsWrapper = ({ boardId, focusedTaskId }: ColumnsWrapperProps) => {
+const ColumnsWrapper = ({
+  boardId,
+  focusedTaskId,
+  animateEntry = false,
+  initialColumns = [],
+}: ColumnsWrapperProps) => {
+  const shouldReduceMotion = useReducedMotion();
   const columns = useColumnStore(
     useShallow((state) => state.columnsByBoard[boardId] || {}),
   );
 
-  const sortedColumns = Object.values(columns).sort(
-    (a, b) => a.order - b.order,
-  );
+  const availableColumns = Object.values(columns);
+  const sortedColumns = (
+    availableColumns.length ? availableColumns : initialColumns
+  ).sort((a, b) => a.order - b.order);
   const columnIds = sortedColumns.map((column) => column.id);
 
   return (
@@ -34,12 +48,30 @@ const ColumnsWrapper = ({ boardId, focusedTaskId }: ColumnsWrapperProps) => {
           items={columnIds}
           strategy={horizontalListSortingStrategy}
         >
-          {sortedColumns?.map((column) => (
-            <ColumnCard
+          {sortedColumns.map((column, index) => (
+            <motion.div
               key={column.id}
-              column={column}
-              focusedTaskId={focusedTaskId}
-            />
+              className="flex-none will-change-transform"
+              initial={
+                animateEntry && !shouldReduceMotion
+                  ? { opacity: 0, y: 24 }
+                  : false
+              }
+              animate={{ opacity: 1, y: 0 }}
+              transition={
+                animateEntry && !shouldReduceMotion
+                  ? { duration: 0.48, delay: index * 0.08, ease: "easeOut" }
+                  : { duration: 0 }
+              }
+            >
+              <ColumnCard
+                column={column}
+                focusedTaskId={focusedTaskId}
+                initialTasks={
+                  "tasks" in column ? (column.tasks as ClientTask[]) : undefined
+                }
+              />
+            </motion.div>
           ))}
         </SortableContext>
       </DndProvider>

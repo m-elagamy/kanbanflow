@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { getBoardBySlugAction } from "@/actions/board";
 import deslugify from "@/utils/deslugify";
 import BoardLayout from "../components/board";
-import OptimisticBoardLayout from "../components/board/optimistic-board";
 import { getTaskDetailsAction } from "@/actions/task";
 
 type Params = Promise<{ board: string }>;
@@ -22,8 +21,6 @@ export default async function BoardPage({
     task: taskId,
     focus: focusedTaskId,
   } = await searchParams;
-
-  if (isFreshlyCreated) return <OptimisticBoardLayout />;
 
   const requestedTaskId = taskId ?? focusedTaskId;
 
@@ -68,6 +65,7 @@ export default async function BoardPage({
       initialBoard={initialBoard}
       linkedTask={linkedTask}
       focusedTaskId={focusedTask?.id}
+      animateEntry={isFreshlyCreated === "1"}
     />
   );
 }

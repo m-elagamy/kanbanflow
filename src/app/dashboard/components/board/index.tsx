@@ -7,7 +7,6 @@ import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import type { ClientTask } from "@/lib/types";
 import BoardHeader from "./board-header";
 import ColumnsWrapper from "../column";
-import ColumnSkeleton from "../column/column-skeleton";
 import BoardContainer from "./board-container";
 import TaskModal from "../task/task-modal";
 import { useModalStore } from "@/stores/modal";
@@ -22,17 +21,23 @@ type BoardLayoutProps = {
   };
   linkedTask?: ClientTask | null;
   focusedTaskId?: string;
+  animateEntry?: boolean;
 };
 
 export default function BoardLayout({
   initialBoard,
   linkedTask,
   focusedTaskId,
+  animateEntry = false,
 }: BoardLayoutProps) {
-  const { activeBoard, hasInitializedTaskPages } =
-    useInitializeBoardData(initialBoard);
+  const { activeBoard } = useInitializeBoardData(initialBoard);
   const openModal = useModalStore((state) => state.openModal);
   const closeModal = useModalStore((state) => state.closeModal);
+
+  useEffect(() => {
+    if (animateEntry)
+      window.history.replaceState(null, "", window.location.pathname);
+  }, [animateEntry]);
 
   useEffect(() => {
     if (!linkedTask || !activeBoard?.id) return;
@@ -43,28 +48,18 @@ export default function BoardLayout({
     return () => closeModal("task", modalId);
   }, [activeBoard?.id, closeModal, linkedTask, openModal]);
 
-  if (!activeBoard?.id || !hasInitializedTaskPages) {
-    const { columns, ...board } = initialBoard;
-
-    return (
-      <BoardContainer>
-        <BoardHeader board={board} />
-        <ColumnSkeleton
-          columnsNumber={columns.length}
-          tasksPerColumn={columns.map((column) => column.tasks.length)}
-        />
-      </BoardContainer>
-    );
-  }
+  const board = activeBoard ?? initialBoard;
 
   return (
     <BoardContainer>
-      <BoardHeader board={activeBoard} />
+      <BoardHeader board={board} />
       <ColumnsWrapper
-        boardId={activeBoard.id}
+        boardId={board.id}
         focusedTaskId={focusedTaskId}
+        animateEntry={animateEntry}
+        initialColumns={initialBoard.columns}
       />
-      {linkedTask && (
+      {linkedTask && board.id && (
         <TaskModal
           mode="edit"
           task={linkedTask}
