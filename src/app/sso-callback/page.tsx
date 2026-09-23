@@ -3,7 +3,7 @@
 import { useClerk, useSignIn, useSignUp } from "@clerk/nextjs";
 import { LoaderCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import BackgroundEffect from "@/app/(auth)/components/background-effect";
 import KanbanLogo from "@/components/layout/header/kanban-logo";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ type NavigateOptions = {
   decorateUrl: (url: string) => string;
 };
 
-export default function SsoCallbackPage() {
+function SsoCallbackContent() {
   const clerk = useClerk();
   const { signIn, errors: signInErrors } = useSignIn();
   const { signUp, errors: signUpErrors } = useSignUp();
@@ -141,5 +141,13 @@ export default function SsoCallbackPage() {
       </section>
       <div id="clerk-captcha" />
     </main>
+  );
+}
+
+export default function SsoCallbackPage() {
+  return (
+    <Suspense fallback={null}>
+      <SsoCallbackContent />
+    </Suspense>
   );
 }
