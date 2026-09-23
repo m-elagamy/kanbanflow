@@ -203,7 +203,7 @@ const ColumnCard = ({
 
   return (
     <Card
-      className={`group/column border-border/80 bg-muted/60 dark:bg-muted/45 hover:border-border relative h-full max-h-[calc(100dvh-82px)] min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-xl border py-0 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:shadow-md md:w-84 md:max-w-none ${
+      className={`board-lane group/column border-border/70 hover:border-border relative h-full max-h-[calc(100dvh-82px)] min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-lg border py-0 transition-[border-color,transform] duration-200 md:w-84 md:max-w-none ${
         isOver
           ? "ring-primary/20 border-primary/40 bg-primary/[0.03] shadow-md ring-2"
           : ""
@@ -224,7 +224,7 @@ const ColumnCard = ({
 
       <CardContent
         ref={scrollContainerRef}
-        className="scrollbar-thumb-border flex-1 scrollbar-thin scrollbar-track-transparent space-y-2.5 overflow-y-auto p-3"
+        className="board-lane-body scrollbar-thumb-border flex-1 scrollbar-thin scrollbar-track-transparent space-y-2.5 overflow-y-auto p-3"
       >
         {isInitialLoading ? (
           <div className="space-y-3" aria-label="Loading tasks">
@@ -310,7 +310,7 @@ const ColumnCard = ({
             type="button"
             variant="ghost"
             size="sm"
-            className="text-muted-foreground hover:text-foreground h-8 w-full justify-start opacity-100 transition-opacity md:opacity-0 md:group-focus-within/column:opacity-100 md:group-hover/column:opacity-100"
+            className="text-muted-foreground hover:text-foreground h-8 w-full justify-start opacity-100 transition-opacity md:opacity-60 md:group-focus-within/column:opacity-100 md:group-hover/column:opacity-100"
             onClick={() => setIsQuickAddOpen(true)}
           >
             <Plus aria-hidden="true" />

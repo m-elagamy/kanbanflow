@@ -34,7 +34,7 @@ export default function ColumnHeader({
     columnStatusOptions[columnStatus as keyof typeof columnStatusOptions];
 
   return (
-    <CardHeader className="sticky top-0 z-5 flex flex-row items-center justify-between border-b p-4 pb-3!">
+    <CardHeader className="bg-muted/30 dark:bg-muted/20 sticky top-0 z-5 flex flex-row items-center justify-between border-b p-4 pb-3!">
       <CardTitle className="flex min-w-0 items-center gap-2 text-sm text-ellipsis whitespace-nowrap">
         {dragHandleProps && (
           <button

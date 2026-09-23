@@ -30,11 +30,11 @@ export default function FormActions({
         <AnimatedButton
           type="button"
           variant="outline"
-          className="dark:hover:bg-accent/15"
-          title="Close"
+          className="border-border/80 bg-transparent text-foreground hover:bg-accent dark:bg-transparent dark:hover:bg-accent/50"
+          title="Cancel"
           disabled={isPending}
         >
-          Close
+          Cancel
         </AnimatedButton>
       </DialogClose>
 
