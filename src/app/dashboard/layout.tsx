@@ -17,10 +17,7 @@ export default async function DashboardLayout({
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
   return (
-    <SidebarProvider
-      defaultOpen={defaultOpen}
-      className="bg-muted dark:bg-[oklch(0.175_0_0)]"
-    >
+    <SidebarProvider defaultOpen={defaultOpen} className="bg-muted">
       <DashboardSidebar />
       <SidebarInset className="border-border/60 border">
         <header className="border-border/60 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-40 flex h-12 shrink-0 items-center gap-3 border-b px-4 backdrop-blur md:rounded-t-xl">

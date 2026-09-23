@@ -35,7 +35,7 @@ const UserAvatar = () => {
               aria-hidden="true"
               className="absolute right-0 bottom-0 flex size-3 translate-x-0.5 translate-y-0.5 items-center justify-center"
             >
-              <span className="border-background relative size-2.5 rounded-full border-2 bg-emerald-500" />
+              <span className="border-background relative size-2.5 rounded-full border-2 bg-emerald-500 animate-pulse" />
             </span>
           </span>
         </button>
