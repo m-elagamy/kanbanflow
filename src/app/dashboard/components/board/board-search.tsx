@@ -125,6 +125,7 @@ export function BoardSearch({
   const [retry, setRetry] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ClientTask | null>(null);
+  const pendingTaskRef = useRef<ClientTask | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const activeBoardId = useBoardStore((state) => state.activeBoardId);
@@ -253,6 +254,7 @@ export function BoardSearch({
   const handleOpenChange = useCallback((isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen) {
+      if (pendingTaskRef.current) return;
       setQuery("");
       setActiveTab("boards");
       setTaskSearch(null);
@@ -271,15 +273,15 @@ export function BoardSearch({
         columnId: task.columnId,
         columnEnteredAt: task.columnEnteredAt,
       };
-      setOpen(false);
-      setQuery("");
-      setTaskSearch(null);
-      setBoardSearch(null);
-
       if (scope === "workspace") {
+        setOpen(false);
+        setQuery("");
+        setTaskSearch(null);
+        setBoardSearch(null);
         router.push(`/dashboard/${task.board.slug}?task=${task.id}`);
       } else {
-        setTimeout(() => setSelectedTask(clientTask), 0);
+        pendingTaskRef.current = clientTask;
+        setOpen(false);
       }
     },
     [router, scope],
@@ -459,7 +461,20 @@ export function BoardSearch({
       </Button>
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-xl md:p-0">
+        <DialogContent
+          className="gap-0 overflow-hidden p-0 sm:max-w-xl md:p-0"
+          onCloseAutoFocus={() => {
+            const pendingTask = pendingTaskRef.current;
+            if (!pendingTask) return;
+
+            pendingTaskRef.current = null;
+            setSelectedTask(pendingTask);
+            setQuery("");
+            setActiveTab("boards");
+            setTaskSearch(null);
+            setBoardSearch(null);
+          }}
+        >
           <DialogHeader className="sr-only">
             <DialogTitle>
               {scope === "workspace" ? "Search workspace" : "Search tasks"}
