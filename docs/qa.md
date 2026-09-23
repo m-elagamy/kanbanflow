@@ -11,7 +11,7 @@ The first two sections contain 23 manual scenarios and should take roughly 60–
 2. First-time onboarding and first board
 - Scenario: Create the first Personal board.
 - Steps: On /welcome, select Personal, rename it Launch QA, and submit. Double-click the submit button once while it is processing. Inspect the board before refreshing, then refresh it.
-- Expected result: Exactly one board is created with To Do, In Progress, and Done in that order. The five sample tasks appear immediately and remain exactly once after refresh. No permanent loading state appears.
+- Expected result: Exactly one board is created with To Do, In Progress, and Done in that order. The four starter tasks appear immediately and remain exactly once after refresh. No permanent loading state appears.
 - Priority: Critical
 3. Bug Tracking template
 - Scenario: Verify the advertised Bug Tracking template renders.

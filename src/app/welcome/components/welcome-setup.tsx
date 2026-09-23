@@ -61,7 +61,7 @@ export default function WelcomeSetup({
     isCreating,
     hasError,
     failedBoard,
-  } = useBoardCreation();
+  } = useBoardCreation({ animateOnCreate: true });
   const needsRetry = hasError && !!failedBoard;
   const busy = isCreating;
   const locked = busy || needsRetry;
@@ -136,11 +136,13 @@ export default function WelcomeSetup({
                 <label
                   key={id}
                   className={cn(
-                    "focus-within:ring-ring group relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 outline-none transition-[border-color,background-color,box-shadow,transform] duration-200 motion-reduce:transition-none focus-within:ring-offset-0",
+                    "focus-within:ring-ring group relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition-[border-color,background-color,box-shadow,transform] duration-200 outline-none focus-within:ring-offset-0 motion-reduce:transition-none",
                     active
-                      ? "border-primary/35 bg-primary/[0.07] shadow-[0_12px_30px_-24px] shadow-primary/80"
-                      : "border-border/70 bg-background/70 hover:-translate-y-0.5 hover:border-primary/25 hover:bg-card/70 hover:shadow-md",
-                    id === "custom" && !active && "border-dashed bg-background/70",
+                      ? "border-primary/35 bg-primary/[0.07] shadow-primary/80 shadow-[0_12px_30px_-24px]"
+                      : "border-border/70 bg-background/70 hover:border-primary/25 hover:bg-card/70 hover:-translate-y-0.5 hover:shadow-md",
+                    id === "custom" &&
+                      !active &&
+                      "bg-background/70 border-dashed",
                     locked && "cursor-default opacity-70",
                   )}
                 >
@@ -196,19 +198,19 @@ export default function WelcomeSetup({
                   <ClipboardList className="size-4" aria-hidden="true" />
                 </span>
                 <div className="min-w-0 space-y-0.5">
-                <label
-                  htmlFor="welcome-board-name"
-                  className="block text-sm font-semibold"
-                >
-                  Name your board
-                </label>
-                <p
-                  id="welcome-name-hint"
-                  className="text-muted-foreground text-xs leading-relaxed"
-                >
-                  We’ve suggested a name. You can change it now or anytime
-                  later.
-                </p>
+                  <label
+                    htmlFor="welcome-board-name"
+                    className="block text-sm font-semibold"
+                  >
+                    Name your board
+                  </label>
+                  <p
+                    id="welcome-name-hint"
+                    className="text-muted-foreground text-xs leading-relaxed"
+                  >
+                    We’ve suggested a name. You can change it now or anytime
+                    later.
+                  </p>
                 </div>
               </div>
               <div className="px-4 pt-3.5 pb-4 sm:px-5 sm:pb-5">
@@ -229,7 +231,7 @@ export default function WelcomeSetup({
                     setCustomTitle(event.target.value);
                     setTitleError(undefined);
                   }}
-                  className="border-input bg-background/80 hover:border-primary/40 hover:bg-background h-11 cursor-text rounded-lg px-3 text-base font-medium shadow-xs transition-[color,background-color,border-color,box-shadow] focus-visible:border-primary/70 focus-visible:ring-2 focus-visible:ring-primary/25 dark:bg-input/50 dark:hover:bg-input/70"
+                  className="border-input bg-background/80 hover:border-primary/40 hover:bg-background focus-visible:border-primary/70 focus-visible:ring-primary/25 dark:bg-input/50 dark:hover:bg-input/70 h-11 cursor-text rounded-lg px-3 text-base font-medium shadow-xs transition-[color,background-color,border-color,box-shadow] focus-visible:ring-2"
                 />
               </div>
               {titleError && (
@@ -264,50 +266,58 @@ export default function WelcomeSetup({
                 <AnimatePresence initial={false} mode="wait">
                   <motion.div
                     key={templateId}
-                    initial={shouldReduceMotion ? false : { opacity: 0, y: 10, scale: 0.985 }}
+                    initial={
+                      shouldReduceMotion
+                        ? false
+                        : { opacity: 0, y: 10, scale: 0.985 }
+                    }
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={shouldReduceMotion ? undefined : { opacity: 0, y: -8, scale: 0.99 }}
+                    exit={
+                      shouldReduceMotion
+                        ? undefined
+                        : { opacity: 0, y: -8, scale: 0.99 }
+                    }
                     transition={{ duration: 0.24, ease: "easeOut" }}
                     className="h-full"
                   >
-                {template.status.length ? (
-                  <div className="grid min-h-34 grid-cols-2 gap-2 sm:flex sm:gap-2.5">
-                    {template.status.map((status, index) => (
-                      <div
-                        key={status}
-                        className="border-border/45 bg-card/60 flex min-h-28 min-w-0 flex-1 flex-col rounded-md border px-2.5 py-2.5 shadow-xs"
-                      >
-                        <div className="flex items-center gap-2 text-[11px] font-semibold tracking-wide">
-                          <span
-                            aria-hidden="true"
-                            className={cn(
-                              "size-1.5 shrink-0 rounded-full",
-                              index === template.status.length - 1
-                                ? "bg-emerald-500"
-                                : index === 0
-                                  ? "bg-muted-foreground/50"
-                                  : "bg-primary/70",
-                            )}
-                          />
-                            <span className="truncate">{status}</span>
-                        </div>
-                        <div
-                          aria-hidden="true"
-                          className="text-muted-foreground/40 mt-auto flex items-center justify-center pt-3"
-                        >
-                          <Plus className="size-3.5" />
-                        </div>
+                    {template.status.length ? (
+                      <div className="grid min-h-34 grid-cols-2 gap-2 sm:flex sm:gap-2.5">
+                        {template.status.map((status, index) => (
+                          <div
+                            key={status}
+                            className="border-border/45 bg-card/60 flex min-h-28 min-w-0 flex-1 flex-col rounded-md border px-2.5 py-2.5 shadow-xs"
+                          >
+                            <div className="flex items-center gap-2 text-[11px] font-semibold tracking-wide">
+                              <span
+                                aria-hidden="true"
+                                className={cn(
+                                  "size-1.5 shrink-0 rounded-full",
+                                  index === template.status.length - 1
+                                    ? "bg-emerald-500"
+                                    : index === 0
+                                      ? "bg-muted-foreground/50"
+                                      : "bg-primary/70",
+                                )}
+                              />
+                              <span className="truncate">{status}</span>
+                            </div>
+                            <div
+                              aria-hidden="true"
+                              className="text-muted-foreground/40 mt-auto flex items-center justify-center pt-3"
+                            >
+                              <Plus className="size-3.5" />
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="border-border/70 text-muted-foreground flex min-h-34 w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed px-5 text-center">
-                    <Plus className="size-5" aria-hidden="true" />
-                    <p className="text-sm">
-                      Add your first column once you’re inside.
-                    </p>
-                  </div>
-                )}
+                    ) : (
+                      <div className="border-border/70 text-muted-foreground flex min-h-34 w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed px-5 text-center">
+                        <Plus className="size-5" aria-hidden="true" />
+                        <p className="text-sm">
+                          Add your first column once you’re inside.
+                        </p>
+                      </div>
+                    )}
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -323,7 +333,7 @@ export default function WelcomeSetup({
               type="submit"
               disabled={busy}
               size="lg"
-              className="h-10 w-full duration-300 rounded-lg border border-primary/20 bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-none transition hover:bg-primary/90 active:translate-y-px active:shadow-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+              className="border-primary/20 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-primary/50 h-10 w-full rounded-lg border px-5 text-sm font-semibold shadow-none transition duration-300 focus-visible:ring-2 focus-visible:ring-offset-2 active:translate-y-px active:shadow-none"
               effect="ringHover"
             >
               {isCreating && (

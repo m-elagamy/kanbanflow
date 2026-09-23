@@ -1,7 +1,7 @@
 "use client";
 
-import { ReactNode } from "react";
-import { createPortal } from "react-dom";
+import { ReactNode, use } from "react";
+import { browser, createPortal } from "react-dom";
 import {
   DndContext,
   DragOverlay,
@@ -34,6 +34,8 @@ const isColumnDrag = (event: { active: { data: { current?: unknown } } }) =>
   "column";
 
 export const DndProvider = ({ children, boardId }: DndProviderProps) => {
+  use(browser());
+
   const {
     activeTask,
     handleDragStart: handleTaskDragStart,

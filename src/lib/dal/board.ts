@@ -13,32 +13,24 @@ const SAMPLE_TASKS: {
   priority: Priority;
 }[] = [
   {
-    title: "Explore your board",
-    description:
-      "Drag this card into another column — KanbanFlow saves the move instantly.",
+    title: "Move me to another column",
+    description: "Drag this card to try it out.",
     priority: "low",
   },
   {
-    title: "Keep work moving",
-    description:
-      "Tasks that stay in one column for too long are highlighted automatically.",
+    title: "Create your first task",
+    description: "Use + Add task to add something you're working on.",
     priority: "medium",
   },
   {
-    title: "Filter by priority",
-    description:
-      "Use the filter in the board toolbar to show only high-priority tasks.",
+    title: "Open me to see the details",
+    description: "Click this task to view and edit its details.",
     priority: "high",
   },
   {
-    title: "Reorder your columns",
-    description: "Drag a column by its header to rearrange your workflow.",
-    priority: "medium",
-  },
-  {
-    title: "Make this board yours",
+    title: "You're all set!",
     description:
-      "Delete these sample tasks whenever you're ready and add your own.",
+      "Make this board yours — add, move, and organize tasks however you like.",
     priority: "low",
   },
 ];

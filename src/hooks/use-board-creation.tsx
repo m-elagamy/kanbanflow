@@ -8,7 +8,13 @@ import useLoadingStore from "@/stores/loading";
 import { createBoardAction } from "@/actions/board";
 import type { BoardFormValues } from "@/lib/types";
 
-export function useBoardCreation() {
+type UseBoardCreationOptions = {
+  animateOnCreate?: boolean;
+};
+
+export function useBoardCreation({
+  animateOnCreate = false,
+}: UseBoardCreationOptions = {}) {
   const router = useRouter();
   const {
     hasError,
@@ -50,7 +56,11 @@ export function useBoardCreation() {
       createBoard({ id, title, slug, description });
       setColumns(id, columns);
       resetError();
-      router.push(`/dashboard/${slug}?new=1`);
+      router.push(
+        animateOnCreate
+          ? `/dashboard/${slug}?new=1`
+          : `/dashboard/${slug}?created=1`,
+      );
       return true;
     } catch {
       setError(true, attempt);

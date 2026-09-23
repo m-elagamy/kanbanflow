@@ -6,7 +6,12 @@ import BoardLayout from "../components/board";
 import { getTaskDetailsAction } from "@/actions/task";
 
 type Params = Promise<{ board: string }>;
-type SearchParams = Promise<{ new?: string; task?: string; focus?: string }>;
+type SearchParams = Promise<{
+  new?: string;
+  created?: string;
+  task?: string;
+  focus?: string;
+}>;
 
 export default async function BoardPage({
   params,
@@ -18,6 +23,7 @@ export default async function BoardPage({
   const boardSlug = decodeURIComponent((await params).board);
   const {
     new: isFreshlyCreated,
+    created: isCreated,
     task: taskId,
     focus: focusedTaskId,
   } = await searchParams;
@@ -65,7 +71,8 @@ export default async function BoardPage({
       initialBoard={initialBoard}
       linkedTask={linkedTask}
       focusedTaskId={focusedTask?.id}
-      animateEntry={isFreshlyCreated === "1"}
+      animateEntry={isFreshlyCreated === "1" || isCreated === "1"}
+      clearEntryQuery={isFreshlyCreated === "1" || isCreated === "1"}
     />
   );
 }

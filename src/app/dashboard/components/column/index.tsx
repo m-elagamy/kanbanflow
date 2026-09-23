@@ -68,8 +68,11 @@ const ColumnsWrapper = ({
                 column={column}
                 focusedTaskId={focusedTaskId}
                 initialTasks={
-                  "tasks" in column ? (column.tasks as ClientTask[]) : undefined
+                  initialColumns.find((item) => item.id === column.id)?.tasks
                 }
+                hasInitialData={initialColumns.some(
+                  (item) => item.id === column.id,
+                )}
               />
             </motion.div>
           ))}

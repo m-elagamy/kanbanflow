@@ -22,6 +22,7 @@ type BoardLayoutProps = {
   linkedTask?: ClientTask | null;
   focusedTaskId?: string;
   animateEntry?: boolean;
+  clearEntryQuery?: boolean;
 };
 
 export default function BoardLayout({
@@ -29,15 +30,16 @@ export default function BoardLayout({
   linkedTask,
   focusedTaskId,
   animateEntry = false,
+  clearEntryQuery = false,
 }: BoardLayoutProps) {
   const { activeBoard } = useInitializeBoardData(initialBoard);
   const openModal = useModalStore((state) => state.openModal);
   const closeModal = useModalStore((state) => state.closeModal);
 
   useEffect(() => {
-    if (animateEntry)
+    if (animateEntry || clearEntryQuery)
       window.history.replaceState(null, "", window.location.pathname);
-  }, [animateEntry]);
+  }, [animateEntry, clearEntryQuery]);
 
   useEffect(() => {
     if (!linkedTask || !activeBoard?.id) return;

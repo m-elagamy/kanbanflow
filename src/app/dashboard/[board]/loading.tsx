@@ -8,8 +8,8 @@ import { useSearchParams } from "next/navigation";
 export default function BoardPageLoading() {
   const searchParams = useSearchParams();
 
-  if (searchParams.get("new") !== "1") {
-    return <BoardSkeleton columnsNumber={3} tasksPerColumn={[3, 2, 3]} />;
+  if (searchParams.get("new") !== "1" && searchParams.get("created") !== "1") {
+    return <BoardSkeleton columnsNumber={4} tasksPerColumn={[3, 2, 2, 2]} />;
   }
 
   return (

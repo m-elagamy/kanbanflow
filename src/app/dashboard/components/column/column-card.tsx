@@ -27,6 +27,7 @@ type ColumnCardProps = {
   column: SimplifiedColumn;
   focusedTaskId?: string;
   initialTasks?: ClientTask[];
+  hasInitialData?: boolean;
 };
 
 const EMPTY_TASK_IDS: string[] = [];
@@ -35,6 +36,7 @@ const ColumnCard = ({
   column,
   focusedTaskId,
   initialTasks = [],
+  hasInitialData = false,
 }: ColumnCardProps) => {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -188,7 +190,9 @@ const ColumnCard = ({
 
   const taskIds = visibleTasks.map((task) => task.id);
   const isInitialLoading =
-    Boolean(page) && (!isCurrentPage || (taskPage.isLoading && !tasks.length));
+    !hasInitialData &&
+    Boolean(page) &&
+    (!isCurrentPage || (taskPage.isLoading && !tasks.length));
 
   return (
     <Card
