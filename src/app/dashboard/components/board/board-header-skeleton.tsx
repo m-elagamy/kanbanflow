@@ -1,8 +1,4 @@
-import {
-  FolderKanban,
-  Plus,
-  Search,
-} from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TaskPriorityFilter } from "../task/tasks-filter";
@@ -17,9 +13,6 @@ const BoardHeaderSkeleton = ({
     <section className="border-border/50 bg-background/95 supports-backdrop-filter:bg-background/60 mb-4 shrink-0 border-b backdrop-blur">
       <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex h-14 min-w-0 items-start gap-3 lg:flex-1">
-          <span className="bg-primary/10 text-primary ring-primary/15 flex size-11 shrink-0 items-center justify-center rounded-xl shadow-sm ring-1 md:size-12">
-            <FolderKanban className="size-5 md:size-6" aria-hidden="true" />
-          </span>
           <div className="min-w-0 pt-0.5">
             <Skeleton className="h-7 w-36 md:h-8 md:w-48" />
             {hasDescription && (

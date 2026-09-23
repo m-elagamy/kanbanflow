@@ -1,6 +1,6 @@
 "use client";
 
-import { FolderKanban, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import type { BoardSummary } from "@/lib/types";
 import BoardActions from "./board-actions";
 import { TaskPriorityFilter } from "../task/tasks-filter";
@@ -27,9 +27,6 @@ const BoardHeader = ({
       <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex h-14 min-w-0 items-start gap-3 lg:flex-1">
           <div className="flex min-w-0 flex-1 items-start gap-3">
-            <span className="bg-primary/10 text-primary ring-primary/15 flex size-11 shrink-0 items-center justify-center rounded-xl shadow-sm ring-1 md:size-12">
-              <FolderKanban className="size-5 md:size-6" aria-hidden="true" />
-            </span>
             <div className="min-w-0 pt-0.5">
               <h1 className="truncate text-xl font-semibold capitalize md:text-2xl">
                 {board.title?.replace(/-/g, " ")}
