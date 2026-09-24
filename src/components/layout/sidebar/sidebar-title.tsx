@@ -1,4 +1,3 @@
-import { FolderKanban } from "lucide-react";
 import {
   SidebarHeader,
   SidebarMenu,
@@ -11,9 +10,22 @@ const SidebarTitle = () => {
     <SidebarHeader className="pointer-events-none">
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton>
-            <FolderKanban />
-            KanbanFlow
+          <SidebarMenuButton aria-label="Kanbamy">
+            <span
+              aria-hidden="true"
+              className="bg-primary size-6 shrink-0"
+              style={{
+                WebkitMaskImage: "url('/brand/kanbamy.png')",
+                maskImage: "url('/brand/kanbamy.png')",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+              }}
+            />
+            <span className="text-base font-semibold">Kanbamy</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

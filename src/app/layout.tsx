@@ -18,13 +18,6 @@ export const metadata: Metadata = {
   },
   description:
     "Kanbamy  is a modern Kanban app that helps you manage tasks, organize projects, and boost productivity with ease.",
-  keywords: [
-    "kanban",
-    "task management",
-    "project management",
-    "productivity",
-    "agile",
-  ],
   creator: "Mahmoud Elagamy",
 };
 
