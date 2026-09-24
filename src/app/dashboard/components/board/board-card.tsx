@@ -16,8 +16,11 @@ export default function BoardCard({ board, index }: BoardCardProps) {
 
   return (
     <div
-      className="border-border/80 bg-background/80 hover:border-primary/30 hover:bg-background group relative overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md animate-[fade-up_0.3s_ease-out]"
-      style={{ animationDelay: `${Math.min(index * 0.06, 0.3)}s`, animationFillMode: "both" }}
+      className="border-border/80 bg-card hover:border-primary/30 group relative animate-[fade-up_0.3s_ease-out] overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+      style={{
+        animationDelay: `${Math.min(index * 0.06, 0.3)}s`,
+        animationFillMode: "both",
+      }}
     >
       <div className="via-primary/50 pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
       <Link

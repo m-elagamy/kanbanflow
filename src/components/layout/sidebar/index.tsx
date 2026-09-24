@@ -9,11 +9,11 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import SidebarTitle from "./sidebar-title";
-import SidebarActions from "./sidebar-actions";
 import { UserProfile } from "./user-profile";
 import BoardsSection from "./boards-section";
 import BoardsSkeleton from "./boards-skeleton";
 import WorkspaceNavigation from "./workspace-navigation";
+import SidebarActions from "./sidebar-actions";
 
 export default function DashboardSidebar() {
   return (

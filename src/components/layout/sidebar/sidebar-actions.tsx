@@ -1,6 +1,6 @@
 "use client";
 
-import { CirclePlus } from "lucide-react";
+import { Plus } from "lucide-react";
 import BoardModal from "@/app/dashboard/components/board/board-modal";
 import {
   SidebarGroup,
@@ -14,25 +14,24 @@ const SidebarActions = () => {
   const { open } = useSidebar();
 
   return (
-    <SidebarGroup>
+    <SidebarGroup className={open ? "hidden" : "block"}>
       <SidebarMenu>
         <SidebarMenuItem>
           <BoardModal
             mode="create"
+            variant="ghost"
+            size="icon"
             trigger={
               <SidebarMenuButton
-                className={`group/icon dark:hover:bg-accent/15 justify-center ${open ? "gap-2" : "gap-0"}`}
-                variant="outline"
-                tooltip="New Board"
+                className="justify-center text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                tooltip="Create board"
                 asChild
               >
-                <button>
-                  <CirclePlus className="text-muted-foreground group-hover/icon:text-primary transition-all group-hover/icon:rotate-90" />
-                  <span>New Board</span>
+                <button type="button" aria-label="Create board">
+                  <Plus />
                 </button>
               </SidebarMenuButton>
             }
-            variant="outline"
           />
         </SidebarMenuItem>
       </SidebarMenu>

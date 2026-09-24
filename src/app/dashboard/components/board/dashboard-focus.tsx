@@ -20,7 +20,7 @@ export default function DashboardFocus({
             Stale work and high-priority tasks across your boards.
           </p>
         </div>
-        <div className="border-border/80 bg-background/80 flex items-center gap-3 rounded-xl border p-4 shadow-sm">
+        <div className="border-border/80 bg-background flex items-center gap-3 rounded-xl border p-4 shadow-sm">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
             <CircleCheck className="size-5" aria-hidden="true" />
           </span>
@@ -49,12 +49,12 @@ export default function DashboardFocus({
       {tasks === null ? (
         <div
           role="status"
-          className="border-border/80 bg-background/80 text-muted-foreground rounded-xl border p-4 text-sm shadow-sm"
+          className="border-border/80 bg-background text-muted-foreground rounded-xl border p-4 text-sm shadow-sm"
         >
           Attention items are temporarily unavailable.
         </div>
       ) : (
-        <div className="border-border/80 bg-background/80 divide-border/80 overflow-hidden rounded-xl border shadow-sm">
+        <div className="border-border/80 bg-background divide-border/80 overflow-hidden rounded-xl border shadow-sm">
           {tasks.items.map((task) => {
             const isStale = task.attentionReason === "stale";
             const AttentionIcon = isStale ? Clock3 : Flag;

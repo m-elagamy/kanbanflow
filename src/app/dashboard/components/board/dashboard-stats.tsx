@@ -44,7 +44,7 @@ export default function DashboardStats(props: DashboardStatsProps) {
               ease: "easeOut",
               delay: 0.1 + index * 0.07,
             }}
-            className="border-border/80 bg-background/80 flex min-w-0 flex-col gap-3 rounded-xl border p-3 shadow-sm sm:flex-row sm:items-center sm:p-4"
+            className="border-border/80 bg-background flex min-w-0 flex-col gap-3 rounded-xl border p-3 shadow-sm sm:flex-row sm:items-center sm:p-4"
           >
             <span
               className={`${bg} ${color} flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10`}

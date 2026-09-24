@@ -30,7 +30,7 @@ export default function AuthButtons({
       <div className={cn("flex items-center gap-2", className)}>
         {isLoaded ? (
           <>
-            <Button size={variant === "compact" ? "sm" : "default"} asChild>
+            <Button effect="ringHover" size={variant === "compact" ? "sm" : "default"} asChild>
               <Link href="/dashboard">
                 <LayoutDashboard />
                 Dashboard
