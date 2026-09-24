@@ -61,6 +61,7 @@ export function UserProfile() {
               <SidebarMenuButton
                 className="data-[state=open]:bg-sidebar-accent border-border dark:border-border/60 data-[state=open]:text-sidebar-accent-foreground overflow-visible border"
                 size="lg"
+                tooltip="Account"
                 disabled={!isLoaded}
               >
                 {identity}

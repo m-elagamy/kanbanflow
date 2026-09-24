@@ -44,7 +44,7 @@ export function BoardsList({ boards, totalCount }: BoardsListProps) {
 
           return (
             <BoardItem
-              key={board.title}
+              key={board.id}
               board={board}
               isActive={isActive}
               href={href}
