@@ -310,7 +310,7 @@ const ColumnCard = ({
             type="button"
             variant="ghost"
             size="sm"
-            className="text-muted-foreground hover:text-foreground h-8 w-full justify-start opacity-100 transition-opacity md:opacity-60 md:group-focus-within/column:opacity-100 md:group-hover/column:opacity-100"
+            className="text-muted-foreground hover:text-foreground h-8 w-full justify-start opacity-100 transition-opacity md:opacity-0 md:group-focus-within/column:opacity-100 md:group-hover/column:opacity-100"
             onClick={() => setIsQuickAddOpen(true)}
           >
             <Plus aria-hidden="true" />
