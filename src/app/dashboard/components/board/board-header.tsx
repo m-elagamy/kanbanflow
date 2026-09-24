@@ -35,7 +35,6 @@ const BoardHeader = ({
                 <p
                   className="text-muted-foreground mt-1 max-w-md truncate text-sm"
                   title={board.description}
-                  dir="auto"
                 >
                   {board.description}
                 </p>

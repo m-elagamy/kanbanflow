@@ -21,7 +21,7 @@ const BoardHeaderSkeleton = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-[auto_1fr] items-center gap-2 sm:flex sm:justify-end">
+        <div className="grid grid-cols-[auto_1fr] items-center gap-2 sm:flex sm:justify-end sm:gap-2.5 lg:gap-3">
           <TaskPriorityFilter />
           <Button
             variant="outline"

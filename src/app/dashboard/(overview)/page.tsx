@@ -6,7 +6,7 @@ import {
   getUserBoardsWithStatsAction,
   getDashboardStatsAction,
 } from "@/actions/user";
-import BoardsGrid from "./components/board/boards-grid";
+import BoardsGrid from "../components/board/boards-grid";
 import { getDashboardFocusTasksAction } from "@/actions/task";
 
 const Dashboard = async () => {
