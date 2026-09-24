@@ -18,6 +18,16 @@ type TaskCardProps = {
   showColumnAge?: boolean;
 };
 
+const getPriorityBorderClass = (priority: string) => {
+  const classes = {
+    high: "border-s-2 border-s-destructive/70",
+    medium: "border-s-2 border-s-amber-500/60",
+    low: "border-s-2 border-s-sky-400/55",
+  };
+
+  return classes[priority as keyof typeof classes] ?? "border-s-border/70";
+};
+
 const TaskCard = ({
   task,
   columnId,
@@ -31,7 +41,6 @@ const TaskCard = ({
   const isUpdating = useLoadingStore((state) =>
     state.isLoading("task", "updating"),
   );
-  const isHighPriority = task.priority === "high";
   const openTask = () => {
     if (!columnId || isDragging) return;
     setIsTaskOpen(true);
@@ -92,7 +101,7 @@ const TaskCard = ({
   return (
     <>
       <div
-        className={`group/task border-border/70 bg-card hover:border-border hover:-translate-y-0.5 focus-visible:ring-ring relative touch-manipulation rounded-lg border p-3 shadow-xs transition-[border-color,box-shadow,transform] duration-200 outline-none hover:shadow-sm focus-visible:ring-2 ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : "cursor-pointer active:cursor-grabbing"} ${isOver && !isSortableDragging ? "after:bg-primary after:absolute after:-top-2 after:right-1 after:left-1 after:h-0.5 after:rounded-full" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
+        className={`group/task border-border/70 ${getPriorityBorderClass(task.priority)} bg-card hover:border-y-border hover:border-e-border hover:-translate-y-0.5 focus-visible:ring-ring relative touch-manipulation rounded-lg border px-3 py-2 shadow-xs transition-[border-color,box-shadow,transform] duration-200 outline-none hover:shadow-sm focus-visible:ring-2 ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : "cursor-pointer active:cursor-grabbing"} ${isOver && !isSortableDragging ? "after:bg-primary after:absolute after:-top-2 after:right-1 after:left-1 after:h-0.5 after:rounded-full" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
         ref={setCardRef}
         style={style}
         {...attributes}
@@ -104,7 +113,7 @@ const TaskCard = ({
         onClick={openTask}
         onKeyDown={handleCardKeyDown}
       >
-        <div className="relative z-10 space-y-2.5">
+        <div className="relative z-10 space-y-1.5">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1 space-y-1">
               <h3
@@ -139,13 +148,11 @@ const TaskCard = ({
             {showColumnAge && (
               <TaskColumnAge columnEnteredAt={task.columnEnteredAt} />
             )}
-            {isHighPriority && (
-              <PriorityIndicator
-                priority={task.priority}
-                showLabel={false}
-                className="ml-auto"
-              />
-            )}
+            <PriorityIndicator
+              priority={task.priority}
+              showLabel={false}
+              className="ml-auto"
+            />
           </div>
         </div>
       </div>

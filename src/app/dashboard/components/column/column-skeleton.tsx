@@ -42,11 +42,11 @@ export default function ColumnSkeleton({
               (_, taskIndex) => (
                 <Card
                   key={taskIndex}
-                  className="border-border/80 bg-card min-h-24 gap-0 rounded-lg p-3 shadow-xs"
+                  className="border-border/80 border-s-border/50 bg-card min-h-20 gap-0 rounded-lg border-s-2 px-3 py-2 shadow-xs"
                 >
-                  <div className="space-y-3">
+                  <div className="space-y-1.5">
                     <div className="flex items-start gap-2">
-                      <div className="flex-1 space-y-2">
+                      <div className="flex-1 space-y-1">
                         <Skeleton className="h-4 w-3/5" />
                         {taskIndex % 2 === 0 && (
                           <>
@@ -55,7 +55,7 @@ export default function ColumnSkeleton({
                           </>
                         )}
                       </div>
-                      <Skeleton className="size-7 rounded-md" />
+                      <Skeleton className="size-6 rounded-md" />
                     </div>
                     <div className="flex min-h-5 items-center justify-between gap-3">
                       <Skeleton className="h-3 w-14" />

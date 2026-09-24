@@ -229,7 +229,10 @@ const ColumnCard = ({
         {isInitialLoading ? (
           <div className="space-y-3" aria-label="Loading tasks">
             {[0, 1, 2].map((item) => (
-              <Skeleton key={item} className="h-24 w-full rounded-lg" />
+              <Skeleton
+                key={item}
+                className="border-border/80 border-s-border/50 bg-card h-20 w-full rounded-lg border-s-2"
+              />
             ))}
           </div>
         ) : taskPage.error && visibleTasks.length === 0 ? (

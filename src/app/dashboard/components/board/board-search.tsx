@@ -34,6 +34,7 @@ import { TASKS_PAGE_SIZE } from "@/lib/constants";
 import TaskModal from "../task/task-modal";
 import PriorityIndicator from "../task/priority-indicator";
 import { getBoardIdentity } from "@/lib/utils/board-identity";
+import columnStatusOptions from "../../data/column-status-options";
 
 type TaskSearchState = TaskSearchPage & {
   key: string;
@@ -95,6 +96,32 @@ function BoardSearchResultItem({
   );
 }
 
+function ColumnStatusMarker({ status }: { status: string }) {
+  const option =
+    columnStatusOptions[status as keyof typeof columnStatusOptions];
+
+  if (!option) {
+    return (
+      <span className="text-muted-foreground max-w-24 truncate text-xs">
+        {status}
+      </span>
+    );
+  }
+
+  const StatusIcon = option.icon;
+
+  return (
+    <span className="text-muted-foreground inline-flex max-w-32 min-w-0 items-center gap-1.5 text-xs">
+      <StatusIcon
+        className="size-3.5 shrink-0"
+        color={option.color}
+        aria-hidden="true"
+      />
+      <span className="truncate">{status}</span>
+    </span>
+  );
+}
+
 function SearchResultItem({
   task,
   onSelect,
@@ -129,9 +156,7 @@ function SearchResultItem({
             <span className="truncate">{task.board.title}</span>
           </span>
         ) : (
-          <span className="text-muted-foreground max-w-24 truncate text-xs">
-            {task.column.status}
-          </span>
+          <ColumnStatusMarker status={task.column.status} />
         )}
         <PriorityIndicator priority={task.priority} />
       </div>
@@ -492,7 +517,7 @@ export function BoardSearch({
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
-          className="gap-0 overflow-hidden p-0 sm:max-w-xl md:p-0"
+          className="[&>button]:top-1 [&>button]:right-2 gap-0 overflow-hidden p-0 sm:max-w-xl md:p-0"
           onCloseAutoFocus={() => {
             const pendingTask = pendingTaskRef.current;
             if (!pendingTask) return;
@@ -515,7 +540,10 @@ export function BoardSearch({
                 : "Search for tasks by title or description"}
             </DialogDescription>
           </DialogHeader>
-          <Command shouldFilter={false} className="rounded-none">
+          <Command
+            shouldFilter={false}
+            className="rounded-none [&_[data-slot=command-input-wrapper]]:bg-input/30"
+          >
             <Tabs
               value={scope === "workspace" ? activeTab : "tasks"}
               onValueChange={(value) =>
@@ -534,9 +562,19 @@ export function BoardSearch({
                 onValueChange={setQuery}
               />
               {scope === "workspace" && (
-                <TabsList className="mx-3 mt-3 grid w-auto grid-cols-2">
-                  <TabsTrigger value="boards">Boards</TabsTrigger>
-                  <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                <TabsList className="border-border/70 mx-3 mt-3 grid w-auto grid-cols-2 border bg-muted/60">
+                  <TabsTrigger
+                    value="boards"
+                    className="data-[state=active]:border-border/80 data-[state=active]:bg-card data-[state=active]:shadow-sm"
+                  >
+                    Boards
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="tasks"
+                    className="data-[state=active]:border-border/80 data-[state=active]:bg-card data-[state=active]:shadow-sm"
+                  >
+                    Tasks
+                  </TabsTrigger>
                 </TabsList>
               )}
               <CommandList>
