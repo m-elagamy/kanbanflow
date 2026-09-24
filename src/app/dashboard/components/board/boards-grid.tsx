@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Plus, ChevronRight, Sparkles } from "lucide-react";
+import { Plus, ChevronRight } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import BoardCard from "./board-card";
 import BoardModal from "./board-modal";
@@ -41,7 +41,6 @@ export default function BoardsGrid({
   const greeting = userName ? `${greetingPrefix}, ${userName}` : greetingPrefix;
   const hasBoards = boards.length > 0;
   const hasMoreBoards = stats.totalBoards > boards.length;
-  const focusCount = focusTasks?.items.length ?? 0;
 
   return (
     <div className="flex flex-col gap-8">
@@ -49,37 +48,20 @@ export default function BoardsGrid({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
-        className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
+        className="flex w-full flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
-        <div className="relative">
-          <div
-            aria-hidden="true"
-            className="dashboard-welcome-glow pointer-events-none absolute -inset-x-12 -inset-y-8"
-          />
-          <div className="relative">
-            <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-[0.25em]">
-              Your workspace
-            </p>
-            <h1 className="text-gradient text-2xl font-semibold md:text-3xl">
-              {greeting}
-            </h1>
-            {hasBoards && focusCount > 0 ? (
-              <div className="mt-2.5">
-                <div className="border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium shadow-xs backdrop-blur-xs">
-                  <Sparkles className="text-amber-500 size-3.5 animate-pulse shrink-0" aria-hidden="true" />
-                  <span>
-                    You have <strong className="text-foreground font-semibold">{focusCount}</strong> {focusCount === 1 ? "task" : "tasks"} needing attention
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <p className="text-muted-foreground mt-1.5 text-sm">
-                {hasBoards
-                  ? "Search your workspace or choose a board to keep things moving."
-                  : "Your workspace is ready when you are."}
-              </p>
-            )}
-          </div>
+        <div>
+          <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-[0.25em]">
+            Your workspace
+          </p>
+          <h1 className="text-gradient text-3xl font-semibold md:text-4xl">
+            {greeting}
+          </h1>
+          <p className="text-muted-foreground mt-1.5 text-sm">
+            {hasBoards
+              ? "Search your workspace or choose a board to keep things moving."
+              : "Your workspace is ready when you are."}
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -100,12 +82,14 @@ export default function BoardsGrid({
 
       {hasBoards ? (
         <>
-          <div className="flex flex-col gap-4 sm:gap-5">
-            <BoardSearch scope="workspace" />
-            <DashboardStats {...stats} />
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="min-w-0 flex-1">
+              <BoardSearch scope="workspace" />
+            </div>
+            <DashboardStats openTasks={stats.openTasks} />
           </div>
 
-          <div className="flex flex-col gap-10 sm:gap-12">
+          <div className="mt-4 flex flex-col gap-10 sm:gap-12">
             <DashboardFocus tasks={focusTasks} />
 
             <section aria-labelledby="boards-heading" className="space-y-4">
@@ -132,7 +116,7 @@ export default function BoardsGrid({
                 )}
               </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {boards.map((board, index) => (
                   <BoardCard key={board.id} board={board} index={index} />
                 ))}

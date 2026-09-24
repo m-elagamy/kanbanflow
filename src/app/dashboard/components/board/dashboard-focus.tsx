@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { Clock3, CircleCheck, ChevronRight, Flag } from "lucide-react";
+import {
+  Clock3,
+  CircleCheck,
+  ChevronRight,
+  Flag,
+  SignalHigh,
+} from "lucide-react";
 import type { DashboardFocusPreview } from "@/lib/types";
 import PriorityIndicator from "../task/priority-indicator";
 import TaskColumnAge from "../task/task-column-age";
@@ -62,16 +68,14 @@ export default function DashboardFocus({
               <Link
                 key={task.id}
                 href={`/dashboard/${task.board.slug}?focus=${task.id}`}
-                className="hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-ring group flex min-w-0 items-center gap-3 border-b p-3 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-4"
+                className="hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-ring group flex min-w-0 flex-wrap items-center gap-3 border-b p-4 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-5"
                 aria-label={`Focus ${task.title} in ${task.board.title}`}
               >
-                <span
-                  className={`${isStale ? "bg-amber-500/10 text-amber-600 dark:text-amber-400" : "bg-orange-500/10 text-orange-600 dark:text-orange-400"} flex size-9 shrink-0 items-center justify-center rounded-lg`}
-                >
+                <span className="bg-amber-500/10 text-amber-500 flex size-8 shrink-0 items-center justify-center rounded-md">
                   <AttentionIcon className="size-4" aria-hidden="true" />
                 </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{task.title}</p>
+                <div className="min-w-0 flex-1 basis-40">
+                  <p className="truncate text-sm font-semibold">{task.title}</p>
                   <p className="text-muted-foreground mt-0.5 truncate text-xs">
                     {task.board.title} · {task.column.status}
                   </p>
@@ -81,7 +85,15 @@ export default function DashboardFocus({
                     columnEnteredAt={task.columnEnteredAt}
                     compact={false}
                   />
-                  <PriorityIndicator priority={task.priority} />
+                  <PriorityIndicator
+                    priority={task.priority}
+                    className="text-foreground/70 gap-1.5 font-medium"
+                    icon={task.priority === "high" ? SignalHigh : undefined}
+                    iconSize={16}
+                    iconClassName={
+                      task.priority === "high" ? "text-amber-500" : undefined
+                    }
+                  />
                 </div>
                 <ChevronRight
                   className="text-muted-foreground size-4 shrink-0 transition-transform group-hover:translate-x-0.5"

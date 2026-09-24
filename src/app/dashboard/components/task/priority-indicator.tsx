@@ -1,20 +1,27 @@
 import { cn } from "@/lib/utils";
 import taskPriorities from "../../data/task-priorities";
 import getPriorityIconColor from "../../utils/get-priority-icon-color";
+import type { LucideIcon } from "lucide-react";
 
 type PriorityIndicatorProps = {
   priority: string;
   showLabel?: boolean;
   className?: string;
+  icon?: LucideIcon;
+  iconClassName?: string;
+  iconSize?: number;
 };
 
 export default function PriorityIndicator({
   priority,
   showLabel = true,
   className,
+  icon: IconOverride,
+  iconClassName,
+  iconSize = 14,
 }: PriorityIndicatorProps) {
   const option = taskPriorities.find((item) => item.id === priority);
-  const PriorityIcon = option?.icon ?? taskPriorities[1].icon;
+  const PriorityIcon = IconOverride ?? option?.icon ?? taskPriorities[1].icon;
   const label = option?.label ?? priority;
 
   return (
@@ -27,8 +34,8 @@ export default function PriorityIndicator({
       aria-label={`${label} priority`}
     >
       <PriorityIcon
-        size={14}
-        className={getPriorityIconColor(priority)}
+        size={iconSize}
+        className={cn(getPriorityIconColor(priority), iconClassName)}
         aria-hidden="true"
       />
       <span className={showLabel ? undefined : "sr-only"}>{label}</span>
