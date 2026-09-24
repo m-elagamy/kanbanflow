@@ -178,5 +178,5 @@ export default async function TasksPage({
 
 export const metadata: Metadata = {
   title: "Tasks",
-  description: "Browse and review tasks across your KanbanFlow workspace.",
+  description: "Browse and review tasks across your Kanbamy workspace.",
 };

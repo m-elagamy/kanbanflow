@@ -15,7 +15,7 @@ export default function BoardError({
   reset: () => void;
 }) {
   usePageMetadata(
-    "Error | KanbanFlow",
+    "Error | Kanbamy",
     "An error occurred while loading this board. Please try again.",
   );
 

@@ -31,7 +31,7 @@ export default function DashboardStats(props: DashboardStatsProps) {
   return (
     <section
       aria-label="Workspace overview"
-      className="grid grid-cols-2 gap-2 sm:gap-4"
+      className="grid grid-cols-2 gap-4 sm:gap-8"
     >
       {stats(props).map(
         ({ label, value, description, icon: Icon, color, bg }, index) => (
@@ -44,21 +44,21 @@ export default function DashboardStats(props: DashboardStatsProps) {
               ease: "easeOut",
               delay: 0.1 + index * 0.07,
             }}
-            className="border-border/80 bg-background flex min-w-0 flex-col gap-3 rounded-xl border p-3 shadow-sm sm:flex-row sm:items-center sm:p-4"
+            className="flex min-w-0 items-center gap-2.5 py-1"
           >
             <span
-              className={`${bg} ${color} flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10`}
+              className={`${bg} ${color} flex size-8 shrink-0 items-center justify-center rounded-lg`}
             >
-              <Icon className="h-5 w-5" aria-hidden="true" />
+              <Icon className="size-4" aria-hidden="true" />
             </span>
             <div className="min-w-0">
-              <p className="text-foreground text-xl leading-none font-semibold sm:text-2xl">
+              <p className="text-foreground text-lg leading-none font-semibold sm:text-xl">
                 {value}
               </p>
-              <p className="text-muted-foreground mt-1 text-xs leading-tight sm:text-sm">
+              <p className="text-muted-foreground mt-1 text-xs leading-tight">
                 {label}
               </p>
-              <p className="text-muted-foreground mt-1 hidden text-xs md:block">
+              <p className="text-muted-foreground mt-1 hidden text-[11px] leading-tight md:block">
                 {description}
               </p>
             </div>

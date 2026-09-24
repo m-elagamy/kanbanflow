@@ -15,7 +15,7 @@ export default function Error({
   reset: () => void;
 }) {
   usePageMetadata(
-    "Error | KanbanFlow",
+    "Error | Kanbamy",
     "An error occurred while processing your request. Please try again.",
   );
 

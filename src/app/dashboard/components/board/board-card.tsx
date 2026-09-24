@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 // Removed motion import to use Tailwind CSS animation
-import { ArrowUpRight, Layers, ListTodo, Sparkles } from "lucide-react";
+import { ArrowUpRight, Layers, ListTodo } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import BoardActions from "./board-actions";
 
@@ -12,8 +12,6 @@ interface BoardCardProps {
 }
 
 export default function BoardCard({ board, index }: BoardCardProps) {
-  const isPrimaryActive = index === 0 && board._count.openTasks > 0;
-
   return (
     <div
       className="border-border/80 bg-card hover:border-primary/30 group relative animate-[fade-up_0.3s_ease-out] overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
@@ -33,12 +31,6 @@ export default function BoardCard({ board, index }: BoardCardProps) {
               <h2 className="group-hover:text-primary truncate text-base leading-snug font-semibold transition-colors duration-200">
                 {board.title}
               </h2>
-              {isPrimaryActive && (
-                <span className="border-primary/20 bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium">
-                  <Sparkles className="size-2.5" />
-                  Active
-                </span>
-              )}
             </div>
           </div>
 

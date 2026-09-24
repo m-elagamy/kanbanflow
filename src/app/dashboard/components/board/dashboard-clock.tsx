@@ -29,7 +29,7 @@ export default function DashboardClock() {
     <div className="flex items-center gap-2 px-1 text-xs font-medium text-muted-foreground select-none">
       <ClockIcon className="h-3.5 w-3.5 text-foreground/70" />
       <div className="font-mono text-xs font-semibold tracking-tight text-foreground sm:text-sm">
-        <Clock />
+        <Clock showSeconds={false} />
       </div>
       {dateString && (
         <>

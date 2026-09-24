@@ -2,29 +2,36 @@
 import { useSyncExternalStore } from "react";
 import { SlidingNumber } from "./sliding-number";
 
-function subscribe(callback: () => void) {
-  const interval = setInterval(callback, 1000);
+function subscribe(callback: () => void, showSeconds: boolean) {
+  const interval = setInterval(callback, showSeconds ? 1000 : 60_000);
   return () => clearInterval(interval);
 }
 
-function getSnapshot() {
+function getSnapshot(showSeconds: boolean) {
   const now = new Date();
-  return `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const time = `${hours}:${minutes}`;
+  return showSeconds ? `${time}:${now.getSeconds()}` : time;
 }
 
 function getServerSnapshot() {
   return null;
 }
 
-export function Clock() {
+export function Clock({ showSeconds = true }: { showSeconds?: boolean }) {
   const snapshot = useSyncExternalStore(
-    subscribe,
-    getSnapshot,
+    (callback) => subscribe(callback, showSeconds),
+    () => getSnapshot(showSeconds),
     getServerSnapshot,
   );
 
   if (!snapshot) {
-    return <span className="font-mono text-muted-foreground/40">00:00:00</span>;
+    return (
+      <span className="font-mono text-muted-foreground/40">
+        {showSeconds ? "00:00:00" : "00:00"}
+      </span>
+    );
   }
 
   const [hours, minutes, seconds] = snapshot.split(":").map(Number);
@@ -34,8 +41,12 @@ export function Clock() {
       <SlidingNumber value={hours} padStart={true} />
       <span className="text-muted-foreground/60">:</span>
       <SlidingNumber value={minutes} padStart={true} />
-      <span className="text-muted-foreground/60">:</span>
-      <SlidingNumber value={seconds} padStart={true} />
+      {showSeconds && (
+        <>
+          <span className="text-muted-foreground/60">:</span>
+          <SlidingNumber value={seconds} padStart={true} />
+        </>
+      )}
     </div>
   );
 }

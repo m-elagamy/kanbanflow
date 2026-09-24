@@ -59,7 +59,7 @@ export default function UserMenuContent(
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <a
-            href="https://github.com/m-elagamy/kanbanflow/issues"
+            href="https://github.com/m-elagamy/kanbamy/issues"
             target="_blank"
             rel="noopener noreferrer"
           >

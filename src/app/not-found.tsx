@@ -11,7 +11,7 @@ export default function NotFound() {
   const router = useRouter();
 
   usePageMetadata(
-    "404 - Page Not Found | KanbanFlow",
+    "404 - Page Not Found | Kanbamy",
     "We apologize, but the page you're looking for doesn't exist. Please return to the dashboard or go back to the previous page.",
   );
 

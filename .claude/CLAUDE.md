@@ -1,4 +1,4 @@
-# KanbanFlow — Claude Rules
+# Kanbamy — Claude Rules
 
 ## Commands
 - `pnpm dev` — start dev server

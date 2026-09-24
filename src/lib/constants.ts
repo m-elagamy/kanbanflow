@@ -35,6 +35,6 @@ export const CTA_CONFIG = {
   CTA_SECTION: {
     href: AUTH_ROUTES.SIGN_UP,
     label: "Start for free",
-    description: "Experience the power of KanbanFlow",
+    description: "Experience the power of Kanbamy",
   },
 } as const;

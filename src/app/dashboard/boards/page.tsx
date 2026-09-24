@@ -62,5 +62,5 @@ export default function BoardsPage({
 
 export const metadata: Metadata = {
   title: "All Boards",
-  description: "Browse all of your KanbanFlow boards.",
+  description: "Browse all of your Kanbamy boards.",
 };

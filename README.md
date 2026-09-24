@@ -1,4 +1,4 @@
-# KanbanFlow
+# Kanbamy
 
 A full-stack Kanban board for organizing personal work — boards, columns, and tasks with drag-and-drop reordering, priorities, and due dates.
 

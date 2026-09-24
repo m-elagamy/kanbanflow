@@ -1,6 +1,6 @@
 # Database environments
 
-KanbanFlow currently uses one Neon database connection for local development and deployment. Before the public launch, separate development work from production data by using Neon branches.
+Kanbamy currently uses one Neon database connection for local development and deployment. Before the public launch, separate development work from production data by using Neon branches.
 
 ## Current status
 
@@ -13,7 +13,7 @@ KanbanFlow currently uses one Neon database connection for local development and
 Use two long-lived branches in the same Neon project:
 
 ```text
-KanbanFlow
+Kanbamy
 |-- production
 `-- development
 ```
@@ -22,7 +22,7 @@ The `development` branch can be created from `production`. It starts with a copy
 
 ## Setup checklist
 
-1. Open the KanbanFlow project in the Neon Console.
+1. Open the Kanbamy project in the Neon Console.
 2. Open **Branches**.
 3. Keep the current branch as `production` (or rename `main` to `production`).
 4. Create a child branch named `development` from `production`.

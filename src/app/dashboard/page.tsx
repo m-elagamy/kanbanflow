@@ -65,7 +65,7 @@ const Dashboard = async () => {
 export const metadata: Metadata = {
   title: "Dashboard",
   description:
-    "Track tasks, manage projects, and stay organized with KanbanFlow's dashboard.",
+    "Track tasks, manage projects, and stay organized with Kanbamy's dashboard.",
 };
 
 export default Dashboard;

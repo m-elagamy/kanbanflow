@@ -19,7 +19,7 @@ export default function GlobalError({
         <div className="w-full max-w-md space-y-4 text-center">
           <h1 className="text-xl font-semibold">Something went wrong</h1>
           <p className="text-sm text-slate-500">
-            KanbanFlow hit an unexpected error. Please try again — if it keeps
+            Kanbamy hit an unexpected error. Please try again — if it keeps
             happening, come back later.
           </p>
           <button

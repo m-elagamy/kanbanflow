@@ -68,7 +68,7 @@ export default function BoardsGrid({
                 <div className="border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium shadow-xs backdrop-blur-xs">
                   <Sparkles className="text-amber-500 size-3.5 animate-pulse shrink-0" aria-hidden="true" />
                   <span>
-                    You have <strong className="text-foreground font-semibold">{focusCount}</strong> {focusCount === 1 ? "task" : "tasks"} needing attention today
+                    You have <strong className="text-foreground font-semibold">{focusCount}</strong> {focusCount === 1 ? "task" : "tasks"} needing attention
                   </span>
                 </div>
               </div>
@@ -100,42 +100,45 @@ export default function BoardsGrid({
 
       {hasBoards ? (
         <>
-          <BoardSearch scope="workspace" />
+          <div className="flex flex-col gap-4 sm:gap-5">
+            <BoardSearch scope="workspace" />
+            <DashboardStats {...stats} />
+          </div>
 
-          <DashboardStats {...stats} />
+          <div className="flex flex-col gap-10 sm:gap-12">
+            <DashboardFocus tasks={focusTasks} />
 
-          <DashboardFocus tasks={focusTasks} />
-
-          <section aria-labelledby="boards-heading" className="space-y-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 id="boards-heading" className="text-lg font-semibold">
-                  Your boards
-                </h2>
-                <p className="text-muted-foreground text-sm">
-                  Choose a board to view and manage its tasks.
-                </p>
+            <section aria-labelledby="boards-heading" className="space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 id="boards-heading" className="text-lg font-semibold">
+                    Your boards
+                  </h2>
+                  <p className="text-muted-foreground text-sm">
+                    Choose a board to view and manage its tasks.
+                  </p>
+                </div>
+                {hasMoreBoards && (
+                  <Link
+                    href="/dashboard/boards"
+                    className="text-foreground/70 hover:text-foreground group flex items-center gap-1 text-sm transition-colors"
+                  >
+                    View all {stats.totalBoards}
+                    <ChevronRight
+                      className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                      aria-hidden="true"
+                    />
+                  </Link>
+                )}
               </div>
-              {hasMoreBoards && (
-                <Link
-                  href="/dashboard/boards"
-                  className="text-foreground/70 hover:text-foreground group flex items-center gap-1 text-sm transition-colors"
-                >
-                  View all {stats.totalBoards}
-                  <ChevronRight
-                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                    aria-hidden="true"
-                  />
-                </Link>
-              )}
-            </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {boards.map((board, index) => (
-                <BoardCard key={board.id} board={board} index={index} />
-              ))}
-            </div>
-          </section>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {boards.map((board, index) => (
+                  <BoardCard key={board.id} board={board} index={index} />
+                ))}
+              </div>
+            </section>
+          </div>
         </>
       ) : (
         <DashboardEmptyState />
