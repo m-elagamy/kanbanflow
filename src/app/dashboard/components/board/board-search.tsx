@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CornerDownLeft, LayoutDashboard, Plus, Search } from "lucide-react";
+import { CornerDownLeft, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -33,6 +33,7 @@ import type { BoardWithStats } from "@/lib/types/stores/board";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
 import TaskModal from "../task/task-modal";
 import PriorityIndicator from "../task/priority-indicator";
+import { getBoardIdentity } from "@/lib/utils/board-identity";
 
 type TaskSearchState = TaskSearchPage & {
   key: string;
@@ -47,6 +48,27 @@ type BoardSearchState = {
   error: string | null;
 };
 
+function BoardIdentityMarker({
+  title,
+  id,
+  size = "size-5",
+}: {
+  title: string;
+  id: string;
+  size?: "size-4" | "size-5";
+}) {
+  const identity = getBoardIdentity(title, id);
+
+  return (
+    <span
+      className={`${identity.className} ${size} flex shrink-0 items-center justify-center rounded-[3px] text-[10px] leading-none font-semibold`}
+      aria-hidden="true"
+    >
+      {identity.initial}
+    </span>
+  );
+}
+
 function BoardSearchResultItem({
   board,
   onSelect,
@@ -60,10 +82,7 @@ function BoardSearchResultItem({
       onSelect={() => onSelect(board)}
       className="flex items-center gap-3 px-3 py-3"
     >
-      <LayoutDashboard
-        className="text-muted-foreground size-4 shrink-0"
-        aria-hidden="true"
-      />
+      <BoardIdentityMarker title={board.title} id={board.id} />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{board.title}</p>
         {board.description && (
@@ -100,9 +119,20 @@ function SearchResultItem({
         )}
       </div>
       <div className="flex shrink-0 items-center gap-2 max-sm:flex-col max-sm:items-end max-sm:gap-1">
-        <span className="text-muted-foreground max-w-24 truncate text-xs">
-          {showBoard ? task.board.title : task.column.status}
-        </span>
+        {showBoard ? (
+          <span className="text-muted-foreground inline-flex max-w-32 min-w-0 items-center gap-1.5 text-xs">
+            <BoardIdentityMarker
+              title={task.board.title}
+              id={task.board.slug}
+              size="size-4"
+            />
+            <span className="truncate">{task.board.title}</span>
+          </span>
+        ) : (
+          <span className="text-muted-foreground max-w-24 truncate text-xs">
+            {task.column.status}
+          </span>
+        )}
         <PriorityIndicator priority={task.priority} />
       </div>
     </CommandItem>

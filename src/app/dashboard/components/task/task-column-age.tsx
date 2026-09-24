@@ -11,12 +11,14 @@ type TaskColumnAgeProps = {
   columnEnteredAt: string;
   compact?: boolean;
   className?: string;
+  showIcon?: boolean;
 };
 
 export default function TaskColumnAge({
   columnEnteredAt,
   compact = true,
   className,
+  showIcon = true,
 }: TaskColumnAgeProps) {
   const getDays = useCallback(() => {
     const enteredAt = new Date(columnEnteredAt).getTime();
@@ -42,7 +44,7 @@ export default function TaskColumnAge({
       title={label}
       aria-label={label}
     >
-      <Clock3 className="size-3.5" aria-hidden="true" />
+      {showIcon && <Clock3 className="size-3.5" aria-hidden="true" />}
       <span>{compact ? `${days}d` : label}</span>
     </span>
   );

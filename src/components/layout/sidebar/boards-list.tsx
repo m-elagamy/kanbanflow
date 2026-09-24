@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { SidebarMenu, SidebarMenuSubButton } from "@/components/ui/sidebar";
 import type { SimplifiedBoard } from "@/lib/types/stores/board";
+import { getBoardIdentityPaletteIndices } from "@/lib/utils/board-identity";
 import BoardItem from "./board-item";
 
 type BoardsListProps = {
@@ -34,6 +35,7 @@ export function BoardsList({ boards, totalCount }: BoardsListProps) {
   }
 
   const visibleBoards = boards.filter((board) => visibleBoardIds.has(board.id));
+  const identityIndices = getBoardIdentityPaletteIndices(boards);
 
   return (
     <>
@@ -48,6 +50,7 @@ export function BoardsList({ boards, totalCount }: BoardsListProps) {
               board={board}
               isActive={isActive}
               href={href}
+              identityIndex={identityIndices.get(board.id)}
             />
           );
         })}

@@ -102,8 +102,8 @@ export default async function BoardsContent({
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {boards.map((board, index) => (
-            <BoardCard key={board.id} board={board} index={index} />
+          {boards.map((board) => (
+            <BoardCard key={board.id} board={board} />
           ))}
         </div>
       )}

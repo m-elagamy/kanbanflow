@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "motion/react";
 import { Plus, ChevronRight } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import BoardCard from "./board-card";
@@ -12,6 +11,7 @@ import DashboardFocus from "./dashboard-focus";
 import DashboardClock from "./dashboard-clock";
 import { BoardSearch } from "./board-search";
 import type { DashboardFocusPreview } from "@/lib/types";
+import { getBoardIdentityPaletteIndices } from "@/lib/utils/board-identity";
 
 interface BoardsGridProps {
   boards: BoardWithStats[];
@@ -41,13 +41,11 @@ export default function BoardsGrid({
   const greeting = userName ? `${greetingPrefix}, ${userName}` : greetingPrefix;
   const hasBoards = boards.length > 0;
   const hasMoreBoards = stats.totalBoards > boards.length;
+  const identityIndices = getBoardIdentityPaletteIndices(boards);
 
   return (
     <div className="flex flex-col gap-8">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
+      <div
         className="flex w-full flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
         <div>
@@ -78,14 +76,12 @@ export default function BoardsGrid({
             />
           )}
         </div>
-      </motion.div>
+      </div>
 
       {hasBoards ? (
         <>
-          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="min-w-0 flex-1">
-              <BoardSearch scope="workspace" />
-            </div>
+          <div className="flex w-full flex-col gap-2">
+            <BoardSearch scope="workspace" />
             <DashboardStats openTasks={stats.openTasks} />
           </div>
 
@@ -117,8 +113,12 @@ export default function BoardsGrid({
               </div>
 
               <div className="grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {boards.map((board, index) => (
-                  <BoardCard key={board.id} board={board} index={index} />
+                {boards.map((board) => (
+                  <BoardCard
+                    key={board.id}
+                    board={board}
+                    identityIndex={identityIndices.get(board.id)}
+                  />
                 ))}
               </div>
             </section>

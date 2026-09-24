@@ -71,7 +71,7 @@ export default function DashboardFocus({
                 className="hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-ring group flex min-w-0 flex-wrap items-center gap-3 border-b p-4 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-5"
                 aria-label={`Focus ${task.title} in ${task.board.title}`}
               >
-                <span className="bg-amber-500/10 text-amber-500 flex size-8 shrink-0 items-center justify-center rounded-md">
+                <span className="text-muted-foreground flex size-8 shrink-0 items-center justify-center">
                   <AttentionIcon className="size-4" aria-hidden="true" />
                 </span>
                 <div className="min-w-0 flex-1 basis-40">
@@ -81,19 +81,30 @@ export default function DashboardFocus({
                   </p>
                 </div>
                 <div className="flex shrink-0 items-end gap-2 max-sm:flex-col">
-                  <TaskColumnAge
-                    columnEnteredAt={task.columnEnteredAt}
-                    compact={false}
-                  />
-                  <PriorityIndicator
-                    priority={task.priority}
-                    className="text-foreground/70 gap-1.5 font-medium"
-                    icon={task.priority === "high" ? SignalHigh : undefined}
-                    iconSize={16}
-                    iconClassName={
-                      task.priority === "high" ? "text-amber-500" : undefined
-                    }
-                  />
+                  {isStale ? (
+                    <span className="text-amber-500 inline-flex items-center gap-1 text-xs font-medium">
+                      <span>Stale</span>
+                      <span aria-hidden="true">·</span>
+                      <TaskColumnAge
+                        columnEnteredAt={task.columnEnteredAt}
+                        compact
+                        className="text-inherit"
+                        showIcon={false}
+                      />
+                    </span>
+                  ) : (
+                    <span className="text-amber-500 inline-flex items-center gap-1.5 text-xs font-medium">
+                      <PriorityIndicator
+                        priority={task.priority}
+                        showLabel={false}
+                        className="text-amber-500"
+                        icon={SignalHigh}
+                        iconSize={16}
+                        iconClassName="text-amber-500"
+                      />
+                      <span>High priority</span>
+                    </span>
+                  )}
                 </div>
                 <ChevronRight
                   className="text-muted-foreground size-4 shrink-0 transition-transform group-hover:translate-x-0.5"

@@ -1,24 +1,25 @@
 "use client";
 
 import Link from "next/link";
-// Removed motion import to use Tailwind CSS animation
 import { ArrowUpRight, Layers, ListTodo } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";
+import { getBoardIdentity } from "@/lib/utils/board-identity";
 import BoardActions from "./board-actions";
 
 interface BoardCardProps {
   board: BoardWithStats;
-  index: number;
+  identityIndex?: number;
 }
 
-export default function BoardCard({ board, index }: BoardCardProps) {
+export default function BoardCard({
+  board,
+  identityIndex,
+}: BoardCardProps) {
+  const identity = getBoardIdentity(board.title, board.id, identityIndex);
+
   return (
     <div
-      className="border-border/80 bg-card hover:border-primary/30 group relative animate-[fade-up_0.3s_ease-out] overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-      style={{
-        animationDelay: `${Math.min(index * 0.06, 0.3)}s`,
-        animationFillMode: "both",
-      }}
+      className="border-border/80 bg-card hover:border-primary/30 group relative overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="via-primary/50 pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
       <Link
@@ -27,7 +28,13 @@ export default function BoardCard({ board, index }: BoardCardProps) {
       >
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <span
+                className={`${identity.className} flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold`}
+                aria-hidden="true"
+              >
+                {identity.initial}
+              </span>
               <h2 className="group-hover:text-primary truncate text-base leading-snug font-semibold transition-colors duration-200">
                 {board.title}
               </h2>
@@ -40,7 +47,7 @@ export default function BoardCard({ board, index }: BoardCardProps) {
           />
         </div>
 
-        <p className="text-muted-foreground line-clamp-2 min-h-10 text-sm leading-5">
+        <p className="text-muted-foreground line-clamp-2 text-sm leading-5">
           {board.description?.trim() || "No description"}
         </p>
 
