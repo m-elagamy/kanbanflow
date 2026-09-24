@@ -18,7 +18,7 @@ export default function ColumnSkeleton({
     : Array(visibleColumns).fill(1);
 
   return (
-    <div className="scrollbar-thumb-border flex h-full snap-x snap-proximity gap-3 overflow-x-auto px-3 pb-4 sm:gap-4 sm:px-4 md:snap-none md:justify-start">
+    <div className="scrollbar-thumb-border flex h-full snap-x snap-proximity scroll-px-3 gap-3 overflow-x-auto px-3 pb-4 sm:scroll-px-4 sm:gap-4 sm:px-4 md:snap-none md:justify-start">
       {Array.from({ length: visibleColumns }).map((_, columnIndex) => (
         <Card
           key={columnIndex}
