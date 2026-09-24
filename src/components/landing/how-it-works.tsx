@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Check, Ellipsis, Flag, FolderKanban, Plus } from "lucide-react";
+import { Check, Ellipsis, Flag, Plus, SquareKanban } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import columnStatusOptions from "@/app/dashboard/data/column-status-options";
 import HowItWorksBackground from "./how-it-works-background";
@@ -100,7 +100,7 @@ function Stage({ activeStep }: { activeStep: number }) {
       <div className="border-border/60 bg-background/70 mb-3 flex items-center justify-between rounded-lg border px-3 py-2.5 sm:mb-4 sm:px-4">
         <div className="flex min-w-0 items-center gap-2">
           <span className="bg-primary/10 text-primary ring-primary/15 flex size-7 shrink-0 items-center justify-center rounded-md ring-1">
-            <FolderKanban className="size-3.5" aria-hidden="true" />
+            <SquareKanban className="size-3.5" aria-hidden="true" />
           </span>
           <div className="min-w-0 text-left">
             <p className="truncate text-xs font-semibold sm:text-sm">

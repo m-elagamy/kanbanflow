@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Clipboard } from "lucide-react";
+import { SquareKanban } from "lucide-react";
 import BoardActions from "@/app/dashboard/components/board/board-actions";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import type { SimplifiedBoard } from "@/lib/types/stores/board";
@@ -24,7 +24,7 @@ export default function BoardItem({
     >
       <SidebarMenuButton tooltip={board.title} isActive={isActive} asChild>
         <Link href={href} aria-label={`Go to board ${board.title}`}>
-          <Clipboard size={24} />
+          <SquareKanban />
           <span dir="auto">{board.title}</span>
         </Link>
       </SidebarMenuButton>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Ellipsis, Flag, FolderKanban, Plus, Search } from "lucide-react";
+import { Ellipsis, Flag, Plus, Search, SquareKanban } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import columnStatusOptions from "@/app/dashboard/data/column-status-options";
 import PriorityIndicator from "@/app/dashboard/components/task/priority-indicator";
@@ -391,7 +391,7 @@ export default function DashboardPreview() {
         <div className="border-border/50 flex items-center justify-between gap-3 border-b px-3 py-3 sm:px-5 sm:py-4">
           <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
             <span className="bg-primary/10 text-primary ring-primary/15 flex size-8 shrink-0 items-center justify-center rounded-lg ring-1 sm:size-10 sm:rounded-xl">
-              <FolderKanban className="size-4 sm:size-5" aria-hidden="true" />
+              <SquareKanban className="size-4 sm:size-5" aria-hidden="true" />
             </span>
             <div className="min-w-0 text-left">
               <p className="truncate text-sm font-semibold sm:text-base">
