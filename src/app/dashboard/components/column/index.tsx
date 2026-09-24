@@ -41,7 +41,7 @@ const ColumnsWrapper = ({
 
   return (
     <div
-      className="scrollbar-thumb-border focus-visible:ring-ring flex h-full snap-x snap-proximity gap-3 overflow-x-auto scroll-smooth px-3 pb-4 outline-none focus-visible:ring-2 focus-visible:ring-inset sm:gap-4 sm:px-4 md:justify-start"
+      className="scrollbar-thumb-border focus-visible:ring-ring flex min-h-0 min-w-0 flex-1 snap-x snap-proximity gap-3 overflow-x-auto scroll-smooth px-3 pb-4 outline-none focus-visible:ring-2 focus-visible:ring-inset sm:gap-4 sm:px-4 md:snap-none md:justify-start"
       role="region"
       aria-label="Board columns"
       tabIndex={0}
@@ -54,7 +54,7 @@ const ColumnsWrapper = ({
           {sortedColumns.map((column, index) => (
             <motion.div
               key={column.id}
-              className="flex-none will-change-transform"
+              className="h-full flex-none will-change-transform"
               initial={
                 animateEntry && !shouldReduceMotion
                   ? { opacity: 0, y: 24 }

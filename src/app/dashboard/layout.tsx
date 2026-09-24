@@ -19,7 +19,7 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider defaultOpen={defaultOpen} className="bg-muted">
       <DashboardSidebar />
-      <SidebarInset className="border-border/60 border">
+      <SidebarInset className="border-border/60 min-h-0 min-w-0 border">
         <header className="border-border/60 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-40 flex h-12 shrink-0 items-center gap-3 border-b px-4 backdrop-blur md:rounded-t-xl">
           <SidebarTrigger />
           <DashboardBreadcrumb />
@@ -27,7 +27,7 @@ export default async function DashboardLayout({
             <KeyboardShortcuts />
           </div>
         </header>
-        <div className="min-h-0 flex-1 overflow-auto">{children}</div>
+        <div className="min-h-0 min-w-0 flex-1 overflow-auto">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );
