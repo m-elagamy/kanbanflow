@@ -93,14 +93,14 @@ export default function DashboardFocus({
                       />
                     </span>
                   ) : (
-                    <span className="text-amber-500 inline-flex items-center gap-1.5 text-xs font-medium">
+                    <span className="text-destructive/80 inline-flex items-center gap-1.5 text-xs font-medium">
                       <PriorityIndicator
                         priority={task.priority}
                         showLabel={false}
-                        className="text-amber-500"
+                        className="text-destructive/80"
                         icon={SignalHigh}
                         iconSize={16}
-                        iconClassName="text-amber-500"
+                        iconClassName="text-destructive/80"
                       />
                       <span>High priority</span>
                     </span>
