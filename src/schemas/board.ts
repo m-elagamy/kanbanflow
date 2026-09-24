@@ -8,7 +8,7 @@ export const boardSchema = z.object({
     .trim()
     .min(3, { message: "Board name must be at least 3 characters." })
     .max(50, { message: "Board name must be less than 50 characters." })
-    .refine((val) => /[a-zA-Z0-9]/.test(val), {
+    .refine((val) => /[\p{L}\p{N}]/u.test(val), {
       message: "Board name must contain at least one letter or number.",
     })
     .refine((val) => !RESERVED_BOARD_SLUGS.includes(slugify(val)), {
