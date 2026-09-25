@@ -103,7 +103,7 @@ export default function BoardsGrid({
                     href="/dashboard/boards"
                     className="text-foreground/70 hover:text-foreground group flex items-center gap-1 text-sm transition-colors"
                   >
-                    View all {stats.totalBoards}
+                    View all
                     <ChevronRight
                       className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
                       aria-hidden="true"
