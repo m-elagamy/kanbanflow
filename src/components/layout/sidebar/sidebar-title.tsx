@@ -13,7 +13,7 @@ const SidebarTitle = () => {
           <SidebarMenuButton aria-label="Kanbamy">
             <span
               aria-hidden="true"
-              className="bg-primary size-6 shrink-0"
+              className="bg-[#d87943] size-6 shrink-0"
               style={{
                 WebkitMaskImage: "url('/brand/kanbamy.png')",
                 maskImage: "url('/brand/kanbamy.png')",

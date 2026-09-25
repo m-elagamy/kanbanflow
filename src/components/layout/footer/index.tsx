@@ -13,7 +13,7 @@ const Footer = () => {
       <div className="container py-8">
         {/* Brand Section */}
         <div className="flex flex-col gap-4">
-          <KanbanLogo />
+          <KanbanLogo size="compact" glow="none" />
           <p className="text-muted-foreground max-w-md text-sm">
             Turn plans into progress with a simple workspace for organizing
             tasks and keeping work moving.

@@ -24,7 +24,7 @@ const Header = () => {
       className={`sticky top-0 z-50 h-16 backdrop-blur-xs transition-colors ${isScrolled ? "bg-background/50 border-b" : ""}`}
     >
       <div className="container flex h-full items-center justify-between">
-        <KanbanLogo />
+        <KanbanLogo size="compact" />
 
         <div className="flex items-center gap-4">
           {isHomePage ? <AuthButtons /> : <UserAvatar />}

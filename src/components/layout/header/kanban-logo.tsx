@@ -3,6 +3,7 @@ import { usePathname } from "next/navigation";
 
 type KanbanLogoProps = {
   glow?: "subtle" | "prominent" | "auth" | "none";
+  size?: "default" | "compact";
 };
 
 const glowStyles = {
@@ -12,7 +13,7 @@ const glowStyles = {
   none: "hidden",
 } as const;
 
-const KanbanLogo = ({ glow = "subtle" }: KanbanLogoProps) => {
+const KanbanLogo = ({ glow = "subtle", size = "default" }: KanbanLogoProps) => {
   const pathName = usePathname();
 
   return (
@@ -26,7 +27,7 @@ const KanbanLogo = ({ glow = "subtle" }: KanbanLogoProps) => {
       >
         <span
           aria-hidden="true"
-          className="size-9.5 shrink-0 bg-primary"
+          className={`${size === "compact" ? "size-8" : "size-9.5"} shrink-0 bg-[#d87943]`}
           style={{
             WebkitMaskImage: "url('/brand/kanbamy.png')",
             maskImage: "url('/brand/kanbamy.png')",
@@ -39,7 +40,9 @@ const KanbanLogo = ({ glow = "subtle" }: KanbanLogoProps) => {
           }}
         />
 
-        <span className="text-gradient text-xl font-bold tracking-tight md:text-2xl">
+        <span
+          className={`${size === "compact" ? "text-lg md:text-xl" : "text-xl md:text-2xl"} text-gradient font-bold tracking-tight`}
+        >
           Kanbamy
         </span>
       </Link>
