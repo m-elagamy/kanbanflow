@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Providers } from "@/providers";
+import { SITE_URL } from "@/lib/constants";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
 
 // Google Font
 const geist = Geist({
@@ -12,6 +13,7 @@ const geist = Geist({
 
 // Metadata
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Kanbamy  | Modern Task Management",
     template: "%s | Kanbamy ",
