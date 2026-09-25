@@ -1,8 +1,6 @@
-import { Plus, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronDown, Ellipsis, ListFilter, Plus, Search } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TaskPriorityFilter } from "../task/tasks-filter";
-import { BoardActionsTrigger } from "./board-actions";
 
 const BoardHeaderSkeleton = ({
   hasDescription = true,
@@ -22,28 +20,56 @@ const BoardHeaderSkeleton = ({
         </div>
 
         <div className="grid grid-cols-[auto_1fr] items-center gap-2 sm:flex sm:justify-end sm:gap-2.5 lg:gap-3">
-          <TaskPriorityFilter />
-          <Button
-            variant="outline"
-            className="text-muted-foreground h-9 min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal sm:w-50 md:w-62.5"
-            aria-disabled="true"
-            tabIndex={-1}
+          <div
+            aria-hidden="true"
+            className="border-input dark:bg-input/30 flex h-9 min-w-34 shrink-0 items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs"
           >
-            <Search size={14} aria-hidden="true" />
+            <span className="flex items-center gap-2">
+              <ListFilter
+                size={14}
+                className="text-muted-foreground"
+                aria-hidden="true"
+              />
+              All priorities
+            </span>
+            <ChevronDown
+              className="text-muted-foreground size-4 opacity-50"
+              aria-hidden="true"
+            />
+          </div>
+          <div
+            aria-hidden="true"
+            className={buttonVariants({
+              variant: "outline",
+              className:
+                "text-muted-foreground h-9 min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal sm:w-50 md:w-62.5",
+            })}
+          >
+            <Search size={14} />
             <span className="min-w-0 flex-1 truncate text-left">
               Search tasks...
             </span>
             <kbd className="bg-muted pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none md:inline-flex">
               Ctrl/Cmd K
             </kbd>
-          </Button>
-          <Button className="shrink-0" aria-disabled="true" tabIndex={-1}>
-            <Plus size={16} aria-hidden="true" />
+          </div>
+          <div
+            aria-hidden="true"
+            className={buttonVariants({ className: "shrink-0" })}
+          >
+            <Plus size={16} />
             <span>Add task</span>
-          </Button>
-          <span className="pointer-events-none">
-            <BoardActionsTrigger interactive={false} />
-          </span>
+          </div>
+          <div
+            aria-hidden="true"
+            className={buttonVariants({
+              variant: "ghost",
+              size: "icon",
+              className: "size-8",
+            })}
+          >
+            <Ellipsis />
+          </div>
         </div>
       </div>
     </section>

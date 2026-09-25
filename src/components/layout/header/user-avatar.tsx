@@ -1,16 +1,13 @@
-"use client";
+import UserAvatarMenu from "./user-avatar-menu";
 
-import { useUser } from "@clerk/nextjs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import UserMenuContent from "@/components/layout/user-menu-content";
+type UserAvatarProps = {
+  fullName: string | null;
+  firstName: string | null;
+  imageUrl: string;
+};
 
-const UserAvatar = () => {
-  const { user } = useUser();
-  const name = user?.fullName || user?.firstName || "Your account";
+const UserAvatar = ({ fullName, firstName, imageUrl }: UserAvatarProps) => {
+  const name = fullName || firstName || "Your account";
   const initials = name
     .split(" ")
     .map((part) => part[0])
@@ -19,29 +16,26 @@ const UserAvatar = () => {
     .toUpperCase();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className="rounded-full"
-          aria-label="Open user menu"
-        >
-          <span className="relative block">
-            <Avatar>
-              <AvatarImage src={user?.imageUrl} alt={name} />
-              <AvatarFallback>{initials || "U"}</AvatarFallback>
-            </Avatar>
-            <span
-              aria-hidden="true"
-              className="absolute right-0 bottom-0 flex size-3 translate-x-0.5 translate-y-0.5 items-center justify-center"
-            >
-              <span className="border-background relative size-2.5 rounded-full border-2 bg-emerald-500 animate-pulse" />
-            </span>
+    <UserAvatarMenu>
+      <button type="button" className="rounded-full" aria-label="Open user menu">
+        <span className="relative block">
+          <span className="bg-muted relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-medium">
+            {initials || "U"}
+            <img
+              src={imageUrl}
+              alt={name}
+              className="absolute inset-0 aspect-square size-full"
+            />
           </span>
-        </button>
-      </DropdownMenuTrigger>
-      <UserMenuContent align="end" className="min-w-56 rounded-lg" />
-    </DropdownMenu>
+          <span
+            aria-hidden="true"
+            className="absolute right-0 bottom-0 flex size-3 translate-x-0.5 translate-y-0.5 items-center justify-center"
+          >
+            <span className="border-background relative size-2.5 rounded-full border-2 bg-emerald-500 animate-pulse" />
+          </span>
+        </span>
+      </button>
+    </UserAvatarMenu>
   );
 };
 export default UserAvatar;

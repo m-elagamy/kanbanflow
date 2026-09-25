@@ -1,39 +1,17 @@
-"use client";
-
-import { useState } from "react";
-
-import UserAvatar from "./user-avatar";
-import KanbanLogo from "./kanban-logo";
 import AuthButtons from "./auth-buttons";
-import { useMotionValueEvent, useScroll } from "motion/react";
-import { usePathname } from "next/navigation";
+import HeaderScrollShell from "./header-scroll-shell";
+import KanbanLogo from "./kanban-logo";
 
-const Header = () => {
-  const pathName = usePathname();
-  const { scrollY } = useScroll();
-  const [isScrolled, setIsScrolled] = useState(false);
+type HeaderUser = { fullName: string | null; firstName: string | null; imageUrl: string };
 
-  const isHomePage = pathName === "/";
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setIsScrolled(latest > 10);
-  });
-
+const Header = ({ user }: { user: HeaderUser | null }) => {
   return (
-    <header
-      className={`sticky top-0 z-50 h-16 backdrop-blur-xs transition-colors ${isScrolled ? "bg-background/50 border-b" : ""}`}
-    >
+    <HeaderScrollShell>
       <div className="container flex h-full items-center justify-between">
-        <KanbanLogo size="compact" />
-
-        <div className="flex items-center gap-4">
-          {isHomePage ? <AuthButtons /> : <UserAvatar />}
-        </div>
+        <KanbanLogo size="compact" className="mx-0" />
+        <AuthButtons user={user} />
       </div>
-      {!isHomePage && (
-        <div className="h-[1px] w-full bg-linear-to-r from-transparent via-[#3F8DA0]/50 to-transparent opacity-50 dark:via-[#4f637399]" />
-      )}
-    </header>
+    </HeaderScrollShell>
   );
 };
 

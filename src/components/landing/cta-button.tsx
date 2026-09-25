@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@clerk/nextjs";
 import { ArrowRight, Zap } from "lucide-react";
 import { Button, buttonVariants } from "../ui/button";
 import { AUTH_ROUTES } from "@/lib/constants";
@@ -16,6 +15,7 @@ interface CtaButtonProps {
   icon?: "arrow" | "zap" | "none";
   buttonVariant?: VariantProps<typeof buttonVariants>["variant"];
   effect?: VariantProps<typeof buttonVariants>["effect"];
+  isSignedIn: boolean;
 }
 
 const variantConfig: Record<
@@ -53,8 +53,8 @@ export default function CtaButton({
     icon,
     buttonVariant,
     effect,
+  isSignedIn,
 }: CtaButtonProps) {
-  const { isLoaded, isSignedIn } = useAuth();
   const config = variantConfig[variant];
   const href = isSignedIn ? "/dashboard" : config.href;
   const label = isSignedIn ? "Go to dashboard" : config.label;
@@ -69,21 +69,6 @@ export default function CtaButton({
   const shadowClasses = isPrimary
     ? "shadow-primary/10 hover:shadow-primary/20 shadow-lg transition-all duration-300 hover:shadow-xl"
     : "transition-all duration-300";
-
-  if (!isLoaded) {
-    return (
-      <Button
-        variant={finalButtonVariant}
-        effect={finalEffect}
-        className={cn("group", shadowClasses, className)}
-        size={size}
-        disabled
-        aria-busy="true"
-      >
-        Loading…
-      </Button>
-    );
-  }
 
   return (
     <Button

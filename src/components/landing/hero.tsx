@@ -4,7 +4,7 @@ import DashboardPreview from "./dashboard-preview";
 import { Tilt } from "../ui/tilt";
 import CtaButton from "./cta-button";
 
-export default function Hero() {
+export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
   return (
     <div className="my-20 grid min-h-96 text-center md:mt-40 md:-translate-y-10 lg:-translate-y-12">
       <div className="mb-4 flex items-center justify-center">
@@ -32,7 +32,7 @@ export default function Hero() {
         </p>
       </div>
       <div>
-        <CtaButton variant="cta-section" className="mx-auto w-fit" />
+        <CtaButton variant="cta-section" isSignedIn={isSignedIn} className="mx-auto w-fit" />
       </div>
       <div className="mt-8 md:mt-12">
         <Tilt rotationFactor={2} isRevese>

@@ -5,7 +5,7 @@ import { fadeIn, gridVariants } from "@/utils/motion-variants";
 import { Spotlight } from "../ui/spotlight";
 import CtaButton from "./cta-button";
 
-export default function Cta() {
+export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -62,7 +62,7 @@ export default function Cta() {
           whileTap={{ scale: 0.98 }}
           transition={{ type: "spring", stiffness: 400, damping: 17 }}
         >
-          <CtaButton variant="cta-section" />
+          <CtaButton variant="cta-section" isSignedIn={isSignedIn} />
         </motion.div>
       </motion.div>
     </section>

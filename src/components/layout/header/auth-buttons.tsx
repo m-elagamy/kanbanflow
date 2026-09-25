@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useAuth } from "@clerk/nextjs";
 import { LayoutDashboard, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AUTH_ROUTES } from "@/lib/constants";
@@ -13,6 +10,11 @@ interface AuthButtonsProps {
   showSignIn?: boolean;
   showSignUp?: boolean;
   className?: string;
+  user: {
+    fullName: string | null;
+    firstName: string | null;
+    imageUrl: string;
+  } | null;
 }
 
 export default function AuthButtons({
@@ -20,33 +22,24 @@ export default function AuthButtons({
   showSignIn = true,
   showSignUp = true,
   className,
+  user,
 }: AuthButtonsProps) {
-  const { isLoaded, isSignedIn } = useAuth();
-
   if (!showSignIn && !showSignUp) return null;
 
-  if (!isLoaded || isSignedIn) {
+  if (user) {
     return (
       <div className={cn("flex items-center gap-2", className)}>
-        {isLoaded ? (
-          <>
-            <Button effect="ringHover" size={variant === "compact" ? "sm" : "default"} asChild>
-              <Link href="/dashboard">
-                <LayoutDashboard />
-                Dashboard
-              </Link>
-            </Button>
-            <UserAvatar />
-          </>
-        ) : (
-          <Button
-            size={variant === "compact" ? "sm" : "default"}
-            disabled
-            aria-busy="true"
-          >
-            Loading…
-          </Button>
-        )}
+        <Button
+          effect="ringHover"
+          size={variant === "compact" ? "sm" : "default"}
+          asChild
+        >
+          <Link href="/dashboard">
+            <LayoutDashboard />
+            Dashboard
+          </Link>
+        </Button>
+        <UserAvatar {...user} />
       </div>
     );
   }

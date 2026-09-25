@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { links } from "./data";
 import KanbanLogo from "../header/kanban-logo";

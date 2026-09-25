@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 type KanbanLogoProps = {
   glow?: "subtle" | "prominent" | "auth" | "none";
   size?: "default" | "compact";
+  className?: string;
 };
 
 const glowStyles = {
@@ -13,13 +13,13 @@ const glowStyles = {
   none: "hidden",
 } as const;
 
-const KanbanLogo = ({ glow = "subtle", size = "default" }: KanbanLogoProps) => {
-  const pathName = usePathname();
-
+const KanbanLogo = ({
+  glow = "subtle",
+  size = "default",
+  className = "mx-0",
+}: KanbanLogoProps) => {
   return (
-    <div
-      className={`${pathName === "/" ? "mx-0" : "mx-auto"} relative w-fit md:mx-0`}
-    >
+    <div className={`${className} relative w-fit`}>
       <Link
         href="/"
         className="relative z-10 flex items-center gap-1"

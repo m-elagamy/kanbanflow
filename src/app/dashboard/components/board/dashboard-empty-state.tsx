@@ -1,7 +1,4 @@
-"use client";
-
 import { Plus } from "lucide-react";
-import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import EmptyBoardsIllustration from "@/components/ui/empty-boards-illustration";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -9,12 +6,7 @@ import BoardModal from "./board-modal";
 
 export default function DashboardEmptyState() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeOut", delay: 0.1 }}
-      className="min-h-80"
-    >
+    <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both min-h-80 delay-100 duration-[350ms] ease-out motion-reduce:animate-none">
       <EmptyState
         illustration={<EmptyBoardsIllustration />}
         title="No boards yet"
@@ -31,6 +23,6 @@ export default function DashboardEmptyState() {
           />
         }
       />
-    </motion.div>
+    </div>
   );
 }

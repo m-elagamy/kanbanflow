@@ -3,13 +3,13 @@ import Features from "./features";
 import HowItWorks from "./how-it-works";
 import Cta from "./cta";
 
-const Landing = () => {
+const Landing = ({ isSignedIn }: { isSignedIn: boolean }) => {
   return (
     <div className="container">
-      <Hero />
+      <Hero isSignedIn={isSignedIn} />
       <HowItWorks />
       <Features />
-      <Cta />
+      <Cta isSignedIn={isSignedIn} />
     </div>
   );
 };
