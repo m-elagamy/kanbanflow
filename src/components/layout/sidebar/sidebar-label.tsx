@@ -4,6 +4,7 @@ import { Inbox, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SidebarGroupLabel } from "@/components/ui/sidebar";
 import BoardModal from "@/app/dashboard/components/board/board-modal";
+import { BoardSearch } from "@/app/dashboard/components/board/board-search";
 
 const SidebarLabel = ({ boardsCount }: { boardsCount?: number }) => {
   return (
@@ -18,6 +19,10 @@ const SidebarLabel = ({ boardsCount }: { boardsCount?: number }) => {
           </Badge>
         ) : null}
       </span>
+      <span className="flex items-center gap-1">
+        {boardsCount ? (
+          <BoardSearch scope="workspace" workspaceTabs="boards" compact />
+        ) : null}
       <BoardModal
         mode="create"
         variant="ghost"
@@ -33,6 +38,7 @@ const SidebarLabel = ({ boardsCount }: { boardsCount?: number }) => {
           </button>
         }
       />
+      </span>
     </SidebarGroupLabel>
   );
 };

@@ -109,8 +109,6 @@ const ColumnActions = ({
         if (!result.success) {
           handleOnError(result.message, "Failed to delete column");
           rollback();
-        } else {
-          toast.success(result.message);
         }
       } catch (error) {
         console.error("Error deleting column:", error);

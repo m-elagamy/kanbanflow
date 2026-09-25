@@ -51,7 +51,7 @@ const BoardHeader = ({
           />
           <BoardSearch boardId={board.id} />
           {board.id && (
-            <TaskModal
+            <TaskModal  
               mode="create"
               boardId={board.id}
               trigger={

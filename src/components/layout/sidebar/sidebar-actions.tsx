@@ -2,6 +2,7 @@
 
 import { Plus } from "lucide-react";
 import BoardModal from "@/app/dashboard/components/board/board-modal";
+import { BoardSearch } from "@/app/dashboard/components/board/board-search";
 import {
   SidebarGroup,
   SidebarMenu,
@@ -16,6 +17,9 @@ const SidebarActions = () => {
   return (
     <SidebarGroup className={open ? "hidden" : "block"}>
       <SidebarMenu>
+        <SidebarMenuItem>
+          <BoardSearch scope="workspace" workspaceTabs="boards" compact />
+        </SidebarMenuItem>
         <SidebarMenuItem>
           <BoardModal
             mode="create"

@@ -167,9 +167,13 @@ function SearchResultItem({
 export function BoardSearch({
   scope = "board",
   boardId: providedBoardId,
+  compact = false,
+  workspaceTabs = "all",
 }: {
   scope?: "board" | "workspace";
   boardId?: string | null;
+  compact?: boolean;
+  workspaceTabs?: "all" | "boards";
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -194,7 +198,8 @@ export function BoardSearch({
     taskSearch?.key === taskSearchKey ? taskSearch : null;
   const currentBoardSearch =
     boardSearch?.key === boardSearchKey ? boardSearch : null;
-  const isBoardTab = scope === "workspace" && activeTab === "boards";
+  const boardsOnly = scope === "workspace" && workspaceTabs === "boards";
+  const isBoardTab = boardsOnly || (scope === "workspace" && activeTab === "boards");
   const nextCursor = currentTaskSearch?.nextCursor ?? null;
   const hasMoreBoards = Boolean(
     currentBoardSearch &&
@@ -220,14 +225,7 @@ export function BoardSearch({
       async () => {
         try {
           if (scope === "workspace") {
-            const [boardsResult, tasksResult] = await Promise.all([
-              getUserBoardsPageAction(1, normalizedQuery),
-              getWorkspaceTasksPageAction(
-                normalizedQuery,
-                null,
-                TASKS_PAGE_SIZE,
-              ),
-            ]);
+            const boardsResult = await getUserBoardsPageAction(1, normalizedQuery);
             if (cancelled) return;
 
             setBoardSearch({
@@ -241,16 +239,20 @@ export function BoardSearch({
                 : 0,
               error: boardsResult.success ? null : boardsResult.message,
             });
-            setTaskSearch({
-              key: taskSearchKey,
-              items: tasksResult.success
-                ? (tasksResult.fields?.items ?? [])
-                : [],
-              nextCursor: tasksResult.success
-                ? (tasksResult.fields?.nextCursor ?? null)
-                : null,
-              error: tasksResult.success ? null : tasksResult.message,
-            });
+            if (!boardsOnly) {
+              const tasksResult = await getWorkspaceTasksPageAction(
+                normalizedQuery,
+                null,
+                TASKS_PAGE_SIZE,
+              );
+              if (cancelled) return;
+              setTaskSearch({
+                key: taskSearchKey,
+                items: tasksResult.success ? (tasksResult.fields?.items ?? []) : [],
+                nextCursor: tasksResult.success ? (tasksResult.fields?.nextCursor ?? null) : null,
+                error: tasksResult.success ? null : tasksResult.message,
+              });
+            }
           } else {
             const result = await getBoardTasksPageAction(
               boardId!,
@@ -304,6 +306,7 @@ export function BoardSearch({
     retry,
     scope,
     taskSearchKey,
+    boardsOnly,
   ]);
 
   const handleOpenChange = useCallback((isOpen: boolean) => {
@@ -502,17 +505,26 @@ export function BoardSearch({
   return (
     <>
       <Button
-        variant="outline"
-        className={`text-muted-foreground min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "h-11 w-full" : "h-9 sm:w-50 md:w-62.5"}`}
+        variant={compact ? "ghost" : "outline"}
+        size={compact ? "icon" : "default"}
+        className={compact
+          ? "size-6 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+          : `text-muted-foreground min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "h-11 w-full" : "h-9 sm:w-50 md:w-62.5"}`}
+        aria-label={compact ? "Search workspace" : undefined}
+        title={compact ? "Search workspace" : undefined}
         onClick={() => setOpen(true)}
       >
         <Search size={14} aria-hidden="true" />
-        <span className="min-w-0 flex-1 truncate text-left">
-          {scope === "workspace" ? "Search workspace..." : "Search tasks..."}
-        </span>
-        <kbd className="bg-muted pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none md:inline-flex">
-          Ctrl/Cmd K
-        </kbd>
+        {!compact && (
+          <>
+            <span className="min-w-0 flex-1 truncate text-left">
+              {scope === "workspace" ? "Search workspace..." : "Search tasks..."}
+            </span>
+            <kbd className="bg-muted pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none md:inline-flex">
+              Ctrl/Cmd K
+            </kbd>
+          </>
+        )}
       </Button>
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -561,7 +573,7 @@ export function BoardSearch({
                 value={query}
                 onValueChange={setQuery}
               />
-              {scope === "workspace" && (
+              {scope === "workspace" && !boardsOnly && (
                 <TabsList className="border-border/70 mx-3 mt-3 grid w-auto grid-cols-2 border bg-muted/60">
                   <TabsTrigger
                     value="boards"

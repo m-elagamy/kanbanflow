@@ -15,7 +15,7 @@ const FormMessage = dynamic(() => import("./form-message"), {
 interface GenericFormProps {
   children: React.ReactNode;
   formRef: RefObject<HTMLFormElement>;
-  onAction: (formData: FormData) => Promise<void>;
+  onAction: (formData: FormData) => void | Promise<void>;
   errors?: FormErrors<unknown> | null;
   formMode?: FormMode;
   isLoading?: boolean;

@@ -71,8 +71,6 @@ export default function TaskActions({
       if (!result.success) {
         handleOnError(result.message, "Failed to delete task");
         rollback();
-      } else {
-        toast.success(result.message);
       }
     } catch (error) {
       handleOnError(error, "Failed to delete task");
@@ -135,10 +133,7 @@ export default function TaskActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuLabel>Task Actions:</DropdownMenuLabel>
-          <DropdownMenuItem
-            className="h-8 gap-2 px-2 py-1.5"
-            onSelect={onEdit}
-          >
+          <DropdownMenuItem className="h-8 gap-2 px-2 py-1.5" onSelect={onEdit}>
             <Settings2 size={16} /> Edit
           </DropdownMenuItem>
 
