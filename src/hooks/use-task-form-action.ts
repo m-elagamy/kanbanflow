@@ -1,12 +1,7 @@
-import { useShallow } from "zustand/react/shallow";
-import { toast } from "sonner";
-import { createTaskAction, updateTaskAction } from "@/actions/task";
 import type { FormMode, ClientTask } from "@/lib/types";
 import type { TaskSchema } from "@/schemas/task";
-import { useTaskStore } from "@/stores/task";
-import generateUUID from "@/utils/generate-UUID";
-import useLoadingStore from "@/stores/loading";
-import handleOnError from "@/utils/handle-on-error";
+import { useTaskCreateAction } from "./use-task-create-action";
+import { useTaskUpdateAction } from "./use-task-update-action";
 
 type UseTaskFormAction = {
   formMode: FormMode;
@@ -30,96 +25,18 @@ export function useTaskFormAction({
   onClose,
 }: UseTaskFormAction) {
   const isEditMode = formMode === "edit";
+  const createAction = useTaskCreateAction({
+    validateBeforeSubmit,
+    columnId,
+    onClose,
+  });
+  const updateAction = useTaskUpdateAction({ task, onClose });
 
-  const { addTask, updateTask, updateTaskId, rollback } = useTaskStore(
-    useShallow((state) => ({
-      addTask: state.addTask,
-      updateTask: state.updateTask,
-      updateTaskId: state.updateTaskId,
-      rollback: state.rollback,
-    })),
-  );
-  const { isLoading, setIsLoading } = useLoadingStore(
-    useShallow((state) => ({
-      isLoading:
-        state.isLoading("task", "creating") ||
-        state.isLoading("task", "updating"),
-      setIsLoading: state.setIsLoading,
-    })),
-  );
-
-  const handleFormAction = async (formData: FormData) => {
-    const { success, data: validatedData } = validateBeforeSubmit(
-      formData,
-      isEditMode,
-      [],
-      ["title", "description", "priority"],
-      "task",
-    );
-
-    if (!success || !validatedData) return;
-
-    const finalColumnId = columnId || validatedData.columnId;
-
-    const { title, description = "", priority = "medium" } = validatedData;
-
-    const optimisticTask = {
-      id: generateUUID(),
-      columnId: finalColumnId,
-      title,
-      description,
-      priority,
-      order: "",
-      columnEnteredAt: new Date().toISOString(),
-    };
-
-    try {
-      if (isEditMode && task) {
-        setIsLoading("task", "updating", true, task.id);
-
-        updateTask(task.id, { title, description, priority });
-        onClose();
-
-        const result = await updateTaskAction(formData);
-        if (!result.success) {
-          handleOnError(result.message, "Failed to update task");
-          rollback();
-        } else {
-          toast.success(result.message);
-        }
-      } else {
-        setIsLoading("task", "creating", true, optimisticTask.id);
-
-        addTask(finalColumnId, optimisticTask);
-        onClose();
-
-        const res = await createTaskAction(formData);
-        if (!res.success || !res.fields?.id) {
-          handleOnError(res.message, "Failed to create task");
-          rollback();
-        } else {
-          if (res.fields.order) {
-            updateTask(optimisticTask.id, { order: res.fields.order });
-          }
-          updateTaskId(optimisticTask.id, res.fields.id);
-          toast.success(res.message);
-        }
-      }
-    } catch (error) {
-      console.error("Error processing task:", error);
-      handleOnError(
-        error,
-        isEditMode ? "Failed to update task" : "Failed to create task",
-      );
-      rollback();
-    } finally {
-      if (isEditMode && task) {
-        setIsLoading("task", "updating", false, task.id);
-      } else {
-        setIsLoading("task", "creating", false, optimisticTask.id);
-      }
-    }
+  return {
+    handleFormAction: isEditMode
+      ? updateAction.handleAction
+      : createAction.formAction,
+    isEditMode,
+    isLoading: isEditMode ? updateAction.isLoading : createAction.isPending,
   };
-
-  return { handleFormAction, isEditMode, isLoading };
 }

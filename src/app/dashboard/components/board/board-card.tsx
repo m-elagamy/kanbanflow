@@ -6,14 +6,12 @@ import BoardActions from "./board-actions";
 
 interface BoardCardProps {
   board: BoardWithStats;
-  identityIndex?: number;
 }
 
 export default function BoardCard({
   board,
-  identityIndex,
 }: BoardCardProps) {
-  const identity = getBoardIdentity(board.title, board.id, identityIndex);
+  const identity = getBoardIdentity(board.title, board.id);
 
   return (
     <div

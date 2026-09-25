@@ -11,11 +11,14 @@ const BoardHeaderSkeleton = ({
     <section className="border-border/50 bg-background/95 supports-backdrop-filter:bg-background/60 mb-4 shrink-0 border-b backdrop-blur">
       <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex h-14 min-w-0 items-start gap-3 lg:flex-1">
-          <div className="min-w-0 pt-0.5">
-            <Skeleton className="h-7 w-36 md:h-8 md:w-48" />
-            {hasDescription && (
-              <Skeleton className="mt-1 h-5 w-44 animate-none sm:w-72" />
-            )}
+          <div className="flex min-w-0 flex-1 items-start gap-3">
+            <Skeleton className="mt-0.5 size-10 shrink-0 rounded-lg" />
+            <div className="min-w-0 pt-0.5">
+              <Skeleton className="h-7 w-36 md:h-8 md:w-48" />
+              {hasDescription && (
+                <Skeleton className="mt-1 h-5 w-44 animate-none sm:w-72" />
+              )}
+            </div>
           </div>
         </div>
 

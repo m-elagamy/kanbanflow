@@ -9,7 +9,6 @@ import DashboardFocus from "./dashboard-focus";
 import DashboardClock from "./dashboard-clock";
 import { BoardSearch } from "./board-search";
 import type { DashboardFocusPreview } from "@/lib/types";
-import { getBoardIdentityPaletteIndices } from "@/lib/utils/board-identity";
 import DashboardGreeting from "./dashboard-greeting";
 
 interface BoardsGridProps {
@@ -30,8 +29,6 @@ export default function BoardsGrid({
 }: BoardsGridProps) {
   const hasBoards = boards.length > 0;
   const hasMoreBoards = stats.totalBoards > boards.length;
-  const identityIndices = getBoardIdentityPaletteIndices(boards);
-
   return (
     <div className="flex flex-col gap-8">
       <div
@@ -106,7 +103,6 @@ export default function BoardsGrid({
                   <BoardCard
                     key={board.id}
                     board={board}
-                    identityIndex={identityIndices.get(board.id)}
                   />
                 ))}
               </div>

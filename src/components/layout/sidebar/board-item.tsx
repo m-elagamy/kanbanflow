@@ -8,7 +8,6 @@ type BoardItemProps = {
   board: SimplifiedBoard;
   isActive: boolean;
   href: string;
-  identityIndex?: number;
   hideWhenCollapsed?: boolean;
 };
 
@@ -16,10 +15,9 @@ export default function BoardItem({
   board,
   isActive,
   href,
-  identityIndex,
   hideWhenCollapsed,
 }: BoardItemProps) {
-  const identity = getBoardIdentity(board.title, board.id, identityIndex);
+  const identity = getBoardIdentity(board.title, board.id);
 
   return (
     <SidebarMenuItem
