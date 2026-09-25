@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import {
   SortableContext,
@@ -29,6 +30,8 @@ const ColumnsWrapper = ({
   priorityFilter,
 }: ColumnsWrapperProps) => {
   const shouldReduceMotion = useReducedMotion();
+  const columnsContainerRef = useRef<HTMLDivElement>(null);
+  const [hasMoreColumns, setHasMoreColumns] = useState(false);
   const columns = useColumnStore(
     useShallow((state) => state.columnsByBoard[boardId] || {}),
   );
@@ -39,9 +42,31 @@ const ColumnsWrapper = ({
   ).sort((a, b) => a.order - b.order);
   const columnIds = sortedColumns.map((column) => column.id);
 
+  useEffect(() => {
+    const container = columnsContainerRef.current;
+    if (!container) return;
+
+    const updateOverflowHint = () => {
+      const remainingScroll =
+        container.scrollWidth - container.clientWidth - container.scrollLeft;
+      setHasMoreColumns(remainingScroll > 8);
+    };
+
+    updateOverflowHint();
+    container.addEventListener("scroll", updateOverflowHint, { passive: true });
+    const resizeObserver = new ResizeObserver(updateOverflowHint);
+    resizeObserver.observe(container);
+
+    return () => {
+      container.removeEventListener("scroll", updateOverflowHint);
+      resizeObserver.disconnect();
+    };
+  }, [sortedColumns.length]);
+
   return (
     <div
-      className="scrollbar-thumb-border focus-visible:ring-ring flex min-h-0 min-w-0 flex-1 snap-x snap-proximity scroll-px-3 gap-3 overflow-x-auto scroll-smooth px-3 pb-4 outline-none focus-visible:ring-2 focus-visible:ring-inset sm:scroll-px-4 sm:gap-4 sm:px-4 md:snap-none md:justify-start"
+      ref={columnsContainerRef}
+      className="scrollbar-thumb-border focus-visible:ring-ring flex min-h-0 min-w-0 flex-1 snap-x snap-proximity scroll-px-3 gap-3 overflow-x-auto px-3 pb-4 outline-none focus-visible:ring-2 focus-visible:ring-inset sm:scroll-px-4 sm:gap-4 sm:px-4 md:snap-none md:justify-start"
       role="region"
       aria-label="Board columns"
       tabIndex={0}
@@ -84,6 +109,21 @@ const ColumnsWrapper = ({
       </DndProvider>
 
       <ColumnModal boardId={boardId} />
+      {hasMoreColumns && (
+        <button
+          type="button"
+          aria-label="Scroll to more columns"
+          className="from-background text-muted-foreground hover:text-foreground sticky right-0 z-10 -mr-3 flex w-10 shrink-0 cursor-pointer items-center justify-center bg-gradient-to-r to-transparent transition-colors sm:-mr-4"
+          onClick={() =>
+            columnsContainerRef.current?.scrollBy({
+              left: columnsContainerRef.current.clientWidth * 0.8,
+              behavior: "smooth",
+            })
+          }
+        >
+          <span className="text-muted-foreground text-lg leading-none">›</span>
+        </button>
+      )}
     </div>
   );
 };

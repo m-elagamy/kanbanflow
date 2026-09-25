@@ -23,7 +23,6 @@ export default function NoTasksMessage({
       action={
         <Button
           variant="outline"
-          size="sm"
           className="bg-background min-w-32 shadow-xs"
           onClick={onQuickAdd}
         >

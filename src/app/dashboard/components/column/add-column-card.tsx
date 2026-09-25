@@ -10,7 +10,7 @@ const AddColumnCard = ({ onClick }: { onClick?: () => void }) => {
       tabIndex={onClick ? 0 : -1}
     >
       <PlusCircle className="group-hover:text-primary size-4 transition-colors" />
-      Add another column
+      Add column
     </button>
   );
 };
