@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { ArrowUpRight, Layers, ListTodo } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";

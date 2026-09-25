@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Plus, ChevronRight } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";
@@ -12,6 +10,7 @@ import DashboardClock from "./dashboard-clock";
 import { BoardSearch } from "./board-search";
 import type { DashboardFocusPreview } from "@/lib/types";
 import { getBoardIdentityPaletteIndices } from "@/lib/utils/board-identity";
+import DashboardGreeting from "./dashboard-greeting";
 
 interface BoardsGridProps {
   boards: BoardWithStats[];
@@ -23,22 +22,12 @@ interface BoardsGridProps {
   focusTasks: DashboardFocusPreview | null;
 }
 
-function getGreetingPrefix(): string {
-  const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return "Good morning";
-  if (hour >= 12 && hour < 17) return "Good afternoon";
-  if (hour >= 17 && hour < 22) return "Good evening";
-  return "Welcome back";
-}
-
 export default function BoardsGrid({
   boards,
   userName,
   stats,
   focusTasks,
 }: BoardsGridProps) {
-  const greetingPrefix = getGreetingPrefix();
-  const greeting = userName ? `${greetingPrefix}, ${userName}` : greetingPrefix;
   const hasBoards = boards.length > 0;
   const hasMoreBoards = stats.totalBoards > boards.length;
   const identityIndices = getBoardIdentityPaletteIndices(boards);
@@ -53,7 +42,7 @@ export default function BoardsGrid({
             Your workspace
           </p>
           <h1 className="text-gradient text-3xl font-semibold md:text-4xl">
-            {greeting}
+            <DashboardGreeting userName={userName} />
           </h1>
           <p className="text-muted-foreground mt-1.5 text-sm">
             {hasBoards
