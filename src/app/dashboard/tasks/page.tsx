@@ -19,6 +19,7 @@ type SearchParams = Promise<{ attention?: string; page?: string }>;
 
 const filters: { value: TasksFilter; label: string }[] = [
   { value: "all", label: "All tasks" },
+  { value: "open", label: "Open tasks" },
   { value: "needs-attention", label: "Needs attention" },
   { value: "stale", label: "Stale" },
   { value: "high-priority", label: "High priority" },

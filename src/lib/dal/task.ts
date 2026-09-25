@@ -381,7 +381,9 @@ export const getWorkspaceTasksOverviewPage = withUserId(
     const staleBoundary = getStaleTaskBoundary();
     const activeColumn = { status: { notIn: TERMINAL_COLUMN_STATUSES } };
     const filterWhere: Prisma.TaskWhereInput =
-      filter === "needs-attention"
+      filter === "open"
+        ? { column: activeColumn }
+        : filter === "needs-attention"
         ? {
             OR: [
               { columnEnteredAt: { lte: staleBoundary } },

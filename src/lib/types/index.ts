@@ -104,7 +104,7 @@ export type DashboardFocusPreview = {
 };
 
 export type TasksFilter =
-  "all" | "needs-attention" | "stale" | "high-priority";
+  "all" | "open" | "needs-attention" | "stale" | "high-priority";
 
 export type WorkspaceTask = TaskSearchResult & {
   attentionReason: DashboardFocusTask["attentionReason"] | null;

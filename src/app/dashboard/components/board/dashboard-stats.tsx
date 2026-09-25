@@ -1,6 +1,7 @@
 "use client";
 
-import { ListTodo } from "lucide-react";
+import { ChevronRight, ListTodo } from "lucide-react";
+import Link from "next/link";
 
 interface DashboardStatsProps {
   openTasks: number;
@@ -23,23 +24,29 @@ export default function DashboardStats(props: DashboardStatsProps) {
     >
       {stats(props).map(
         ({ label, value, icon: Icon, color }) => (
-        <div
+        <Link
           key={label}
-          className="flex items-center gap-2.5"
+          href="/dashboard/tasks?attention=open&page=1"
+          aria-label={`View ${value} open tasks`}
+          className="group flex cursor-pointer items-center gap-2.5 rounded-md outline-none transition-colors duration-150 hover:text-foreground focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
             <Icon
-              className={`${color} size-4 shrink-0`}
+              className={`${color} size-4 shrink-0 opacity-80 transition-opacity group-hover:opacity-100`}
               aria-hidden="true"
             />
             <div className="flex items-baseline gap-1.5 whitespace-nowrap">
               <p className="text-foreground text-sm leading-none font-semibold">
                 {value}
               </p>
-              <p className="text-xs leading-tight">
+              <p className="text-xs leading-tight transition-colors group-hover:text-foreground">
                 {label}
               </p>
             </div>
-        </div>
+            <ChevronRight
+              className="text-muted-foreground/60 size-3.5 shrink-0 transition-[color,transform] duration-150 group-hover:translate-x-0.5 group-hover:text-muted-foreground rtl:rotate-180 rtl:group-hover:-translate-x-0.5"
+              aria-hidden="true"
+            />
+        </Link>
         ),
       )}
     </section>
