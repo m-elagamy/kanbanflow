@@ -31,7 +31,7 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
           <div className="bg-foreground shadow-primary/20 flex size-16 items-center justify-center rounded-full shadow-lg transition-transform duration-300 hover:scale-110">
             <span
               aria-hidden="true"
-              className="bg-background size-8"
+              className="bg-[#d87943] size-8"
               style={{
                 WebkitMaskImage: "url('/brand/kanbamy.png')",
                 maskImage: "url('/brand/kanbamy.png')",
