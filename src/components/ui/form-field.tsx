@@ -15,7 +15,6 @@ import getPriorityIconColor from "@/app/dashboard/utils/get-priority-icon-color"
 import RequiredFieldSymbol from "./required-field-symbol";
 import { MotionInput } from "./motion-input";
 import FormMessage from "./form-message";
-import { cn } from "@/lib/utils";
 
 interface FormFieldProps {
   type: "text" | "textarea" | "select" | "hidden" | "date";
@@ -53,8 +52,6 @@ const FormField = ({
   maxLength,
 }: FormFieldProps) => {
   const [characterCount, setCharacterCount] = useState(defaultValue.length);
-  const isNearLimit = maxLength !== undefined && characterCount >= maxLength * 0.8;
-  const hasReachedLimit = maxLength !== undefined && characterCount === maxLength;
 
   return (
     <div className="space-y-2">
@@ -66,11 +63,7 @@ const FormField = ({
           {(type === "text" || type === "textarea") && maxLength !== undefined && (
             <span
               aria-live="polite"
-              className={cn(
-                "text-xs text-muted-foreground",
-                isNearLimit && !hasReachedLimit &&
-                  "text-amber-600 dark:text-amber-400",
-              )}
+              className="text-xs text-muted-foreground"
             >
               {characterCount}/{maxLength}
             </span>
