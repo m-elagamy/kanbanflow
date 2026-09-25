@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AnimatePresence } from "motion/react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -14,6 +15,7 @@ import getPriorityIconColor from "@/app/dashboard/utils/get-priority-icon-color"
 import RequiredFieldSymbol from "./required-field-symbol";
 import { MotionInput } from "./motion-input";
 import FormMessage from "./form-message";
+import { cn } from "@/lib/utils";
 
 interface FormFieldProps {
   type: "text" | "textarea" | "select" | "hidden" | "date";
@@ -33,6 +35,7 @@ interface FormFieldProps {
     iconColor?: string;
     status?: string[];
   }[];
+  maxLength?: number;
 }
 
 const FormField = ({
@@ -47,22 +50,45 @@ const FormField = ({
   error,
   onChange,
   onBlur,
+  maxLength,
 }: FormFieldProps) => {
+  const [characterCount, setCharacterCount] = useState(defaultValue.length);
+  const isNearLimit = maxLength !== undefined && characterCount >= maxLength * 0.8;
+  const hasReachedLimit = maxLength !== undefined && characterCount === maxLength;
+
   return (
     <div className="space-y-2">
       {label && (
-        <Label htmlFor={name}>
-          {label} {required && <RequiredFieldSymbol />}
-        </Label>
+        <div className="flex items-center justify-between gap-3">
+          <Label htmlFor={name}>
+            {label} {required && <RequiredFieldSymbol />}
+          </Label>
+          {(type === "text" || type === "textarea") && maxLength !== undefined && (
+            <span
+              aria-live="polite"
+              className={cn(
+                "text-xs text-muted-foreground",
+                isNearLimit && !hasReachedLimit &&
+                  "text-amber-600 dark:text-amber-400",
+              )}
+            >
+              {characterCount}/{maxLength}
+            </span>
+          )}
+        </div>
       )}
 
       {type === "text" && (
         <MotionInput
           id={name}
           name={name}
+          maxLength={maxLength}
           defaultValue={defaultValue}
           placeholder={placeholder}
-          onChange={(e) => onChange?.(e.target.value)}
+          onChange={(e) => {
+            setCharacterCount(e.target.value.length);
+            onChange?.(e.target.value);
+          }}
           onBlur={(e) => onBlur?.(e.target.value)}
           aria-invalid={!!error}
           aria-describedby={error ? `${name}-error` : undefined}
@@ -72,16 +98,22 @@ const FormField = ({
       )}
 
       {type === "textarea" && (
-        <Textarea
-          id={name}
-          name={name}
-          className="resize-none"
-          defaultValue={defaultValue}
-          placeholder={placeholder}
-          onChange={(e) => onChange?.(e.target.value)}
-          aria-invalid={!!error}
-          aria-describedby={error ? `${name}-error` : undefined}
-        />
+        <>
+          <Textarea
+            id={name}
+            name={name}
+            className="resize-none [overflow-wrap:anywhere]"
+            defaultValue={defaultValue}
+            maxLength={maxLength}
+            placeholder={placeholder}
+            onChange={(e) => {
+              setCharacterCount(e.target.value.length);
+              onChange?.(e.target.value);
+            }}
+            aria-invalid={!!error}
+            aria-describedby={error ? `${name}-error` : undefined}
+          />
+        </>
       )}
 
       {type === "date" && (

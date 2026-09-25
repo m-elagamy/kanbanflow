@@ -284,7 +284,7 @@ export const getTasksPage = withUserId(
         column: {
           select: {
             status: true,
-            board: { select: { title: true, slug: true } },
+            board: { select: { id: true, title: true, slug: true } },
           },
         },
       },
@@ -317,7 +317,7 @@ const workspaceTaskSelect = {
   column: {
     select: {
       status: true,
-      board: { select: { title: true, slug: true } },
+            board: { select: { id: true, title: true, slug: true } },
     },
   },
 } satisfies Prisma.TaskSelect;
@@ -326,7 +326,10 @@ const toWorkspaceTask = <
   T extends {
     columnEnteredAt: Date;
     priority: Priority;
-    column: { status: string; board: { title: string; slug: string } };
+      column: {
+        status: string;
+        board: { id: string; title: string; slug: string };
+      };
   },
 >(
   task: T,
@@ -376,56 +379,93 @@ export const getWorkspaceTasksOverviewPage = withUserId(
     userId: string,
     filter: TasksFilter,
     page: number,
+    query: string,
     limit: number,
   ): Promise<WorkspaceTasksPage> => {
     const staleBoundary = getStaleTaskBoundary();
     const activeColumn = { status: { notIn: TERMINAL_COLUMN_STATUSES } };
-    const filterWhere: Prisma.TaskWhereInput =
-      filter === "open"
+    const normalizedQuery = query.trim();
+    const searchWhere: Prisma.TaskWhereInput = normalizedQuery
+      ? {
+          OR: [
+            { title: { contains: normalizedQuery, mode: "insensitive" } },
+            {
+              description: {
+                contains: normalizedQuery,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }
+      : {};
+    const filterWhere = (currentFilter: TasksFilter): Prisma.TaskWhereInput =>
+      currentFilter === "open"
         ? { column: activeColumn }
-        : filter === "needs-attention"
-        ? {
-            OR: [
-              { columnEnteredAt: { lte: staleBoundary } },
-              { priority: "high" },
-            ],
-            column: activeColumn,
-          }
-        : filter === "stale"
+        : currentFilter === "needs-attention"
           ? {
-              columnEnteredAt: { lte: staleBoundary },
+              OR: [
+                { columnEnteredAt: { lte: staleBoundary } },
+                { priority: "high" },
+              ],
               column: activeColumn,
             }
-          : filter === "high-priority"
-            ? { priority: "high", column: activeColumn }
-            : {};
-    const where: Prisma.TaskWhereInput = {
-      AND: [{ column: { board: { userId } } }, filterWhere],
-    };
-    const orderBy: Prisma.TaskOrderByWithRelationInput[] =
-      filter === "all"
-        ? [
-            { column: { board: { order: "asc" } } },
-            { column: { order: "asc" } },
-            { order: "asc" },
-            { id: "asc" },
-          ]
-        : [{ columnEnteredAt: "asc" }, { id: "asc" }];
+          : currentFilter === "stale"
+            ? {
+                columnEnteredAt: { lte: staleBoundary },
+                column: activeColumn,
+              }
+            : currentFilter === "high-priority"
+              ? { priority: "high", column: activeColumn }
+              : {};
+    const whereFor = (currentFilter: TasksFilter): Prisma.TaskWhereInput => ({
+      AND: [
+        { column: { board: { userId } } },
+        searchWhere,
+        filterWhere(currentFilter),
+      ],
+    });
+    const where = whereFor(filter);
+    const countFilters: TasksFilter[] = [
+      "all",
+      "open",
+      "needs-attention",
+      "stale",
+      "high-priority",
+    ];
 
-    const [tasks, totalCount] = await Promise.all([
+    const [tasks, totalCount, ...countResults] = await Promise.all([
       db.task.findMany({
         where,
-        orderBy,
+        orderBy:
+          filter === "all"
+            ? [
+                { column: { board: { order: "asc" } } },
+                { column: { order: "asc" } },
+                { order: "asc" },
+                { id: "asc" },
+              ]
+            : [{ columnEnteredAt: "asc" }, { id: "asc" }],
         skip: (page - 1) * limit,
         take: limit,
         select: workspaceTaskSelect,
       }),
       db.task.count({ where }),
+      ...countFilters.map((currentFilter) =>
+        db.task.count({ where: whereFor(currentFilter) }),
+      ),
     ]);
+
+    const counts = Object.fromEntries(
+      countFilters.map((currentFilter, index) => [
+        currentFilter,
+        countResults[index],
+      ]),
+    ) as Record<TasksFilter, number>;
 
     return {
       items: tasks.map((task) => toWorkspaceTask(task, staleBoundary)),
       totalCount,
+      counts,
     };
   },
 );

@@ -229,9 +229,15 @@ export async function getDashboardFocusTasksAction(): Promise<
 export async function getWorkspaceTasksOverviewPageAction(
   filter: TasksFilter,
   page: number,
+  query = "",
   limit = TASKS_PAGE_SIZE,
 ): Promise<ServerActionResult<WorkspaceTasksPage>> {
-  const validated = workspaceTasksPageSchema.safeParse({ filter, page, limit });
+  const validated = workspaceTasksPageSchema.safeParse({
+    filter,
+    page,
+    query,
+    limit,
+  });
   if (!validated.success) {
     return { success: false, message: "Invalid pagination parameters." };
   }
@@ -239,6 +245,7 @@ export async function getWorkspaceTasksOverviewPageAction(
   const result = await getWorkspaceTasksOverviewPage(
     validated.data.filter,
     validated.data.page,
+    validated.data.query,
     validated.data.limit,
   );
   if (!result.success || !result.data) {

@@ -78,7 +78,7 @@ export type ClientTask = {
 
 export type TaskSearchResult = ClientTask & {
   column: { status: string };
-  board: { title: string; slug: string };
+  board: { id: string; title: string; slug: string };
 };
 
 export type TaskSearchPage = {
@@ -113,4 +113,5 @@ export type WorkspaceTask = TaskSearchResult & {
 export type WorkspaceTasksPage = {
   items: WorkspaceTask[];
   totalCount: number;
+  counts: Record<TasksFilter, number>;
 };

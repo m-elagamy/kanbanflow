@@ -20,7 +20,7 @@ export default function DashboardStats(props: DashboardStatsProps) {
   return (
     <section
       aria-label="Workspace overview"
-      className="text-muted-foreground flex items-center gap-2 px-1"
+      className="text-muted-foreground pt-1 flex items-center gap-2 px-1"
     >
       {stats(props).map(
         ({ label, value, icon: Icon, color }) => (

@@ -98,6 +98,7 @@ const TaskForm = ({
         onChange={(value) => handleOnChange("title", value)}
         error={errors?.title}
         required
+        maxLength={50}
         placeholder="e.g., Create a stunning new landing page"
       />
 
@@ -130,6 +131,7 @@ const TaskForm = ({
         onChange={(value) => handleOnChange("description", value)}
         error={errors?.description}
         placeholder="e.g., Design a modern, mobile-friendly layout for the homepage"
+        maxLength={2000}
       />
 
       <FormField

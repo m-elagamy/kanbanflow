@@ -64,6 +64,9 @@ export default function DashboardFocus({
           {tasks.items.map((task) => {
             const isStale = task.attentionReason === "stale";
             const AttentionIcon = isStale ? Clock3 : Flag;
+            const attentionIconStyle = isStale
+              ? "bg-amber-500/10 text-amber-500/80"
+              : "bg-destructive/10 text-destructive/80";
             return (
               <Link
                 key={task.id}
@@ -71,7 +74,9 @@ export default function DashboardFocus({
                 className="hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-ring group flex min-w-0 flex-wrap items-center gap-3 border-b p-4 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-5"
                 aria-label={`Focus ${task.title} in ${task.board.title}`}
               >
-                <span className="text-muted-foreground flex size-8 shrink-0 items-center justify-center">
+                <span
+                  className={`${attentionIconStyle} flex size-8 shrink-0 items-center justify-center rounded-md`}
+                >
                   <AttentionIcon className="size-4" aria-hidden="true" />
                 </span>
                 <div className="min-w-0 flex-1 basis-40">

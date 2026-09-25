@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CornerDownLeft, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
@@ -150,7 +151,7 @@ function SearchResultItem({
           <span className="text-muted-foreground inline-flex max-w-32 min-w-0 items-center gap-1.5 text-xs">
             <BoardIdentityMarker
               title={task.board.title}
-              id={task.board.slug}
+              id={task.board.id}
               size="size-4"
             />
             <span className="truncate">{task.board.title}</span>
@@ -502,30 +503,34 @@ export function BoardSearch({
   const boardResults = currentBoardSearch?.items ?? [];
   const results = isBoardTab ? boardResults : taskResults;
 
+  const trigger = compact ? (
+    <SidebarMenuButton
+      className="!size-6 !gap-0 !p-0 justify-center text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2"
+      tooltip="Search boards"
+      aria-label="Search boards"
+      onClick={() => setOpen(true)}
+    >
+      <Search size={14} aria-hidden="true" />
+    </SidebarMenuButton>
+  ) : (
+    <Button
+      variant="outline"
+      className={`text-muted-foreground min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "h-11 w-full" : "h-9 sm:w-50 md:w-62.5"}`}
+      onClick={() => setOpen(true)}
+    >
+      <Search size={14} aria-hidden="true" />
+      <span className="min-w-0 flex-1 truncate text-left">
+        {scope === "workspace" ? "Search workspace..." : "Search tasks..."}
+      </span>
+      <kbd className="bg-muted pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none md:inline-flex">
+        Ctrl/Cmd K
+      </kbd>
+    </Button>
+  );
+
   return (
     <>
-      <Button
-        variant={compact ? "ghost" : "outline"}
-        size={compact ? "icon" : "default"}
-        className={compact
-          ? "size-6 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-          : `text-muted-foreground min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "h-11 w-full" : "h-9 sm:w-50 md:w-62.5"}`}
-        aria-label={compact ? "Search workspace" : undefined}
-        title={compact ? "Search workspace" : undefined}
-        onClick={() => setOpen(true)}
-      >
-        <Search size={14} aria-hidden="true" />
-        {!compact && (
-          <>
-            <span className="min-w-0 flex-1 truncate text-left">
-              {scope === "workspace" ? "Search workspace..." : "Search tasks..."}
-            </span>
-            <kbd className="bg-muted pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none md:inline-flex">
-              Ctrl/Cmd K
-            </kbd>
-          </>
-        )}
-      </Button>
+      {trigger}
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent

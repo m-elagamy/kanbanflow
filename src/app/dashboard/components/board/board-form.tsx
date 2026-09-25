@@ -89,6 +89,7 @@ export default function BoardForm({
         label="Name"
         defaultValue={boardFormData?.title ?? ""}
         placeholder="e.g., Personal Tasks"
+        maxLength={50}
         required
         onChange={(value) => handleOnChange("title", value)}
         error={errors?.title}
@@ -115,6 +116,7 @@ export default function BoardForm({
         defaultValue={boardFormData?.description ?? ""}
         error={errors?.description}
         helperText="Add a context to help you remember the board's purpose."
+        maxLength={500}
         onChange={(value) => handleOnChange("description", value)}
       />
 
