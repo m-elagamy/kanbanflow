@@ -73,11 +73,10 @@ export function useBoardFormAction({
         validatedData.title,
         validatedData.description ?? "",
       );
-      const created = await submitBoardCreation({
+      await submitBoardCreation({
         ...validatedData,
         id: optimisticBoard.id,
       });
-      if (created) onClose();
 
       return null;
     },
@@ -137,7 +136,7 @@ export function useBoardFormAction({
     isLoading,
     hasCreationError: !isEditMode && hasError && !!failedBoard,
     retryCreation: async () => {
-      if (await retryBoardCreation()) onClose();
+      await retryBoardCreation();
     },
     returnToDashboard: () => {
       if (isLoading) return;

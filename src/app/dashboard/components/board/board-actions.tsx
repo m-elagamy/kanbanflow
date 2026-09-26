@@ -59,39 +59,31 @@ export default function BoardActions({
   const { isMobile } = useSidebar();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isRefreshing, startTransition] = useTransition();
-
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const deleteBoard = useBoardStore((state) => state.deleteBoard);
 
-  const handleOnClick = async () => {
+  const handleOnClick = () => {
     if (!board.id) return;
 
-    setIsDeleting(true);
+    startTransition(async () => {
+      try {
+        const { success, message } = await deleteBoardAction(board.id);
+        if (!success) {
+          handleOnError(message, "Failed to delete board");
+          setIsAlertOpen(false);
+          return;
+        }
 
-    try {
-      const { success, message } = await deleteBoardAction(board.id);
-      if (!success) {
-        handleOnError(message, "Failed to delete board");
-        setIsAlertOpen(false);
-        return;
-      }
-
-      deleteBoard(board.id);
-      startTransition(() => {
+        deleteBoard(board.id);
         if (params.board === board.slug) {
           router.replace("/dashboard");
-        } else {
-          router.refresh();
         }
-      });
-    } catch (error) {
-      handleOnError(error, "Failed to delete board");
-      setIsAlertOpen(false);
-    } finally {
-      setIsDeleting(false);
-    }
+      } catch (error) {
+        handleOnError(error, "Failed to delete board");
+        setIsAlertOpen(false);
+      }
+    });
   };
 
   return (
@@ -144,7 +136,7 @@ export default function BoardActions({
           title={`Delete Board`}
           description="This action will permanently remove the board and all its data."
           onClick={handleOnClick}
-          isPending={isDeleting || isRefreshing}
+          isPending={isPending}
         />
       )}
     </DropdownMenu>
