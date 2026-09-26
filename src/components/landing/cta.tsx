@@ -28,7 +28,7 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
       >
         {/* Logo/Icon */}
         <div className="mb-8 flex items-center justify-center">
-          <div className="bg-foreground shadow-primary/20 flex size-16 items-center justify-center rounded-full shadow-lg transition-transform duration-300 hover:scale-110">
+          <div className="bg-[#f0f0f0] shadow-primary/20 flex size-16 items-center justify-center rounded-full shadow-lg transition-transform duration-300 hover:scale-110">
             <span
               aria-hidden="true"
               className="bg-[#d87943] size-8"

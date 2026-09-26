@@ -4,8 +4,7 @@ import { useCallback, useSyncExternalStore } from "react";
 import { Clock3 } from "lucide-react";
 import { STALE_TASK_DAYS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
+import { getTaskAgeDays } from "@/utils/task-helpers";
 
 type TaskColumnAgeProps = {
   columnEnteredAt: string;
@@ -21,9 +20,7 @@ export default function TaskColumnAge({
   showIcon = true,
 }: TaskColumnAgeProps) {
   const getDays = useCallback(() => {
-    const enteredAt = new Date(columnEnteredAt).getTime();
-    if (Number.isNaN(enteredAt)) return null;
-    return Math.max(0, Math.floor((Date.now() - enteredAt) / DAY_IN_MS));
+    return getTaskAgeDays(columnEnteredAt);
   }, [columnEnteredAt]);
   const days = useSyncExternalStore(
     () => () => undefined,

@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import type { DashboardFocusPreview } from "@/lib/types";
 import PriorityIndicator from "../task/priority-indicator";
-import TaskColumnAge from "../task/task-column-age";
+import { getTaskAgeDays } from "@/utils/task-helpers";
 
 export default function DashboardFocus({
   tasks,
@@ -63,6 +63,7 @@ export default function DashboardFocus({
         <div className="border-border/80 bg-background divide-border/80 overflow-hidden rounded-xl border shadow-sm">
           {tasks.items.map((task) => {
             const isStale = task.attentionReason === "stale";
+            const taskAgeDays = getTaskAgeDays(task.columnEnteredAt);
             const AttentionIcon = isStale ? Clock3 : Flag;
             const attentionIconStyle = isStale
               ? "bg-amber-500/10 text-amber-500/80"
@@ -90,12 +91,7 @@ export default function DashboardFocus({
                     <span className="text-amber-500 inline-flex items-center gap-1 text-xs font-medium">
                       <span>Stale</span>
                       <span aria-hidden="true">·</span>
-                      <TaskColumnAge
-                        columnEnteredAt={task.columnEnteredAt}
-                        compact
-                        className="text-inherit"
-                        showIcon={false}
-                      />
+                      {taskAgeDays !== null ? `${taskAgeDays}d` : ""}
                     </span>
                   ) : (
                     <span className="text-destructive/80 inline-flex items-center gap-1.5 text-xs font-medium">
