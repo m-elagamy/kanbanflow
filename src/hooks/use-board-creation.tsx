@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
@@ -18,12 +18,14 @@ export function useBoardCreation({
   const [hasError, setHasError] = useState(false);
   const [failedBoard, setFailedBoard] = useState<BoardFormValues | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isNavigating, startNavigation] = useTransition();
   const createBoard = useBoardStore((state) => state.createBoard);
   const deleteBoard = useBoardStore((state) => state.deleteBoard);
   const setColumns = useColumnStore((state) => state.setColumns);
+  const isBusy = isCreating || isNavigating;
 
   const submitBoardCreation = async (attempt: BoardFormValues) => {
-    if (isCreating) return false;
+    if (isBusy) return false;
     setIsCreating(true);
 
     try {
@@ -40,11 +42,13 @@ export function useBoardCreation({
       setColumns(id, columns);
       setHasError(false);
       setFailedBoard(null);
-      router.push(
-        animateOnCreate
-          ? `/dashboard/${slug}?new=1`
-          : `/dashboard/${slug}?created=1`,
-      );
+      startNavigation(() => {
+        router.push(
+          animateOnCreate
+            ? `/dashboard/${slug}?new=1`
+            : `/dashboard/${slug}?created=1`,
+        );
+      });
       return true;
     } catch {
       setHasError(true);
@@ -61,18 +65,20 @@ export function useBoardCreation({
   };
 
   const navigateToDashboard = () => {
-    if (isCreating) return;
+    if (isBusy) return;
     if (failedBoard) deleteBoard(failedBoard.id);
     setHasError(false);
     setFailedBoard(null);
-    router.push("/dashboard");
-    router.refresh();
+    startNavigation(() => {
+      router.push("/dashboard");
+      router.refresh();
+    });
   };
 
   return {
     hasError,
     failedBoard,
-    isCreating,
+    isCreating: isBusy,
     submitBoardCreation,
     retryBoardCreation,
     navigateToDashboard,
