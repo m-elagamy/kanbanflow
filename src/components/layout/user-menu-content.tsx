@@ -4,7 +4,13 @@ import type { ComponentProps } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useClerk, useUser } from "@clerk/nextjs";
-import { BadgeCheck, CircleHelp, Home, LogOut } from "lucide-react";
+import {
+  BadgeCheck,
+  CircleHelp,
+  Home,
+  LayoutDashboard,
+  LogOut,
+} from "lucide-react";
 import { ThemeSwitcher } from "@/components/layout/footer/theme-switcher";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -15,9 +21,14 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-export default function UserMenuContent(
-  props: ComponentProps<typeof DropdownMenuContent>,
-) {
+type UserMenuContentProps = ComponentProps<typeof DropdownMenuContent> & {
+  showDashboard?: boolean;
+};
+
+export default function UserMenuContent({
+  showDashboard = false,
+  ...props
+}: UserMenuContentProps) {
   const { user } = useUser();
   const { openUserProfile, signOut } = useClerk();
   const pathname = usePathname();
@@ -47,6 +58,13 @@ export default function UserMenuContent(
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
+        {showDashboard && (
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard">
+              <LayoutDashboard /> Dashboard
+            </Link>
+          </DropdownMenuItem>
+        )}
         {pathname !== "/" && (
           <DropdownMenuItem asChild>
             <Link href="/">

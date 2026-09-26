@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, LogIn, UserPlus } from "lucide-react";
+import { LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AUTH_ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -29,16 +29,6 @@ export default function AuthButtons({
   if (user) {
     return (
       <div className={cn("flex items-center gap-2", className)}>
-        <Button
-          effect="ringHover"
-          size={variant === "compact" ? "sm" : "default"}
-          asChild
-        >
-          <Link href="/dashboard">
-            <LayoutDashboard />
-            Dashboard
-          </Link>
-        </Button>
         <UserAvatar {...user} />
       </div>
     );

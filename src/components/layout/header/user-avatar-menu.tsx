@@ -9,7 +9,11 @@ export default function UserAvatarMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
-      <UserMenuContent align="end" className="min-w-56 rounded-lg" />
+      <UserMenuContent
+        showDashboard
+        align="end"
+        className="min-w-56 rounded-lg"
+      />
     </DropdownMenu>
   );
 }
