@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { currentUser } from "@clerk/nextjs/server";
 import DashboardSidebar from "@/components/layout/sidebar";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
 import {
@@ -15,11 +16,20 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
+  const user = await currentUser();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
+  const sidebarUser = user
+    ? {
+        fullName: user.fullName,
+        firstName: user.firstName,
+        imageUrl: user.imageUrl,
+        email: user.primaryEmailAddress?.emailAddress ?? "",
+      }
+    : null;
 
   return (
     <SidebarProvider defaultOpen={defaultOpen} className="bg-muted">
-      <DashboardSidebar />
+      <DashboardSidebar user={sidebarUser} />
       <SidebarInset className="border-border/60 min-h-0 min-w-0 border">
         <header className="border-border/60 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-40 flex h-12 shrink-0 items-center gap-3 border-b px-4 backdrop-blur md:rounded-t-xl">
           <SidebarTrigger />

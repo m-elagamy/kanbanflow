@@ -15,7 +15,18 @@ import BoardsSkeleton from "./boards-skeleton";
 import WorkspaceNavigation from "./workspace-navigation";
 import SidebarActions from "./sidebar-actions";
 
-export default function DashboardSidebar() {
+type DashboardSidebarUser = {
+  fullName: string | null;
+  firstName: string | null;
+  imageUrl: string;
+  email: string;
+};
+
+export default function DashboardSidebar({
+  user,
+}: {
+  user: DashboardSidebarUser | null;
+}) {
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarTitle />
@@ -40,7 +51,7 @@ export default function DashboardSidebar() {
         <SidebarActions />
       </SidebarContent>
       <SidebarFooter>
-        <UserProfile />
+        <UserProfile user={user} />
       </SidebarFooter>
     </Sidebar>
   );
