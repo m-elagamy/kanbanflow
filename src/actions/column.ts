@@ -14,7 +14,7 @@ import columnStatusSchema, {
 import type { ServerActionResult } from "@/lib/types";
 import handlePrismaError from "@/utils/prisma-error-handler";
 import { revalidateUserBoards } from "@/utils/revalidate-user-boards";
-import { protect } from "@/utils/auth";
+import { requireAuth } from "@/utils/auth";
 
 import { z } from "zod";
 
@@ -22,7 +22,7 @@ export async function createColumnAction(
   boardId: string,
   columnStatus: ColumnStatus,
 ): Promise<ServerActionResult<Column>> {
-  await protect();
+  await requireAuth();
   const validatedBoardId = z.string().min(1).safeParse(boardId);
   const validatedData = columnStatusSchema.safeParse({ status: columnStatus });
 
@@ -59,7 +59,7 @@ export async function updateColumnAction(
   columnId: string,
   data: Partial<Pick<Column, "status">>,
 ): Promise<ServerActionResult<Column>> {
-  await protect();
+  await requireAuth();
   const validatedColumnId = z.string().min(1).safeParse(columnId);
   const validatedData = columnStatusSchema.partial().safeParse(data);
 
@@ -93,7 +93,7 @@ export async function updateColumnAction(
 export async function deleteColumnAction(
   columnId: string,
 ): Promise<ServerActionResult<Column>> {
-  await protect();
+  await requireAuth();
   const validatedColumnId = z.string().min(1).safeParse(columnId);
   if (!validatedColumnId.success) {
     return { success: false, message: "Invalid column ID." };
@@ -124,7 +124,7 @@ export async function updateColumnPositionAction(
   boardId: string,
   newColumnOrder: string[],
 ): Promise<ServerActionResult<null>> {
-  await protect();
+  await requireAuth();
   const validatedData = columnPositionSchema.safeParse({
     boardId,
     newColumnOrder,

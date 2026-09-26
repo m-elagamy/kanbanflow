@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import {
   getAuthenticatedUser,
   getAuthenticatedUserId,
-  protect,
+  requireAuth,
 } from "@/utils/auth";
 import {
   getUserOnboardingStateAction,
@@ -14,7 +14,7 @@ import BoardsGrid from "../components/board/boards-grid";
 import { getDashboardFocusTasksAction } from "@/actions/task";
 
 const Dashboard = async () => {
-  await protect();
+  await requireAuth();
   await getAuthenticatedUserId();
 
   const [

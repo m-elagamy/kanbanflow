@@ -34,12 +34,12 @@ import {
 import handlePrismaError from "@/utils/prisma-error-handler";
 import { revalidateUserBoards } from "@/utils/revalidate-user-boards";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
-import { protect } from "@/utils/auth";
+import { requireAuth } from "@/utils/auth";
 
 export const createTaskAction = async (
   formData: FormData,
 ): Promise<ServerActionResult<Partial<TaskSummary>>> => {
-  await protect();
+  await requireAuth();
   const data = Object.fromEntries(formData.entries());
   const validatedData = taskSchema.safeParse(data);
 
@@ -85,7 +85,7 @@ export const createTaskAction = async (
 export async function updateTaskAction(
   formData: FormData,
 ): Promise<ServerActionResult<TaskSchema>> {
-  await protect();
+  await requireAuth();
   const data = Object.fromEntries(formData.entries());
   const validatedData = taskSchema.safeParse(data);
   const rawTaskId = formData.get("taskId");
@@ -149,7 +149,7 @@ export async function updateTaskAction(
 export async function deleteTaskAction(
   taskId: string,
 ): Promise<ServerActionResult<TaskSchema>> {
-  await protect();
+  await requireAuth();
   const validatedTaskId = z.string().min(1).safeParse(taskId);
   if (!validatedTaskId.success) {
     return { success: false, message: "Invalid Task ID." };
@@ -208,7 +208,7 @@ export async function getBoardTasksPageAction(
   cursor: string | null = null,
   limit = TASKS_PAGE_SIZE,
 ): Promise<ServerActionResult<TaskSearchPage>> {
-  await protect();
+  await requireAuth();
   return loadTasksPage(boardId, query, cursor, limit);
 }
 
@@ -217,14 +217,14 @@ export async function getWorkspaceTasksPageAction(
   cursor: string | null = null,
   limit = TASKS_PAGE_SIZE,
 ): Promise<ServerActionResult<TaskSearchPage>> {
-  await protect();
+  await requireAuth();
   return loadTasksPage(null, query, cursor, limit);
 }
 
 export async function getDashboardFocusTasksAction(): Promise<
   ServerActionResult<DashboardFocusPreview>
 > {
-  await protect();
+  await requireAuth();
   const result = await getDashboardFocusTasks();
   if (!result.success || !result.data) {
     return { success: false, message: "Failed to load tasks." };
@@ -239,7 +239,7 @@ export async function getWorkspaceTasksOverviewPageAction(
   query = "",
   limit = TASKS_PAGE_SIZE,
 ): Promise<ServerActionResult<WorkspaceTasksPage>> {
-  await protect();
+  await requireAuth();
   const validated = workspaceTasksPageSchema.safeParse({
     filter,
     page,
@@ -266,7 +266,7 @@ export async function getWorkspaceTasksOverviewPageAction(
 export async function getTaskDetailsAction(
   taskId: string,
 ): Promise<ServerActionResult<ClientTask & { boardSlug: string }>> {
-  await protect();
+  await requireAuth();
   if (!taskId) return { success: false, message: "Task not found." };
 
   const result = await getTaskDetails(taskId);
@@ -283,7 +283,7 @@ export async function getColumnTasksPageAction(
   limit = TASKS_PAGE_SIZE,
   priority: "low" | "medium" | "high" | null = null,
 ): Promise<ServerActionResult<TaskPage>> {
-  await protect();
+  await requireAuth();
   const validated = taskPageSchema.safeParse({
     columnId,
     cursor,
@@ -319,7 +319,7 @@ export async function updateTaskPositionAction(
     columnEnteredAt: string;
   }>
 > {
-  await protect();
+  await requireAuth();
   const validatedData = taskPositionSchema.safeParse({
     taskId,
     newColumnId,

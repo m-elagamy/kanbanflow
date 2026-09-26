@@ -2,7 +2,7 @@
 
 import {
   getAuthenticatedUserId,
-  protect,
+  requireAuth,
 } from "@/utils/auth";
 import { User } from "@prisma/client";
 import type { ServerActionResult } from "@/lib/types";
@@ -19,7 +19,7 @@ import type { SimplifiedBoard, BoardWithStats } from "@/lib/types/stores/board";
 export async function insertUserAction(
   data: Omit<User, "hasCreatedBoardOnce">,
 ): Promise<ServerActionResult<User>> {
-  await protect();
+  await requireAuth();
   const userId = await getAuthenticatedUserId();
 
   if (!userId || userId !== data.id) {
@@ -48,7 +48,7 @@ export async function insertUserAction(
 export async function getAllUserBoardsAction(): Promise<
   ServerActionResult<{ boards: SimplifiedBoard[]; totalCount: number }>
 > {
-  await protect();
+  await requireAuth();
   const result = await getAllUserBoards();
 
   if (!result.success) {
@@ -68,7 +68,7 @@ export async function getAllUserBoardsAction(): Promise<
 export async function getUserBoardsWithStatsAction(): Promise<
   ServerActionResult<BoardWithStats[]>
 > {
-  await protect();
+  await requireAuth();
   const result = await getUserBoardsWithStats();
 
   if (!result.success) {
@@ -91,7 +91,7 @@ export async function getUserBoardsPageAction(
 ): Promise<
   ServerActionResult<{ boards: BoardWithStats[]; totalCount: number }>
 > {
-  await protect();
+  await requireAuth();
   const result = await getUserBoardsPage(page, query);
 
   if (!result.success || !result.data) {
@@ -114,7 +114,7 @@ export async function getDashboardStatsAction(): Promise<
     openTasks: number;
   }>
 > {
-  await protect();
+  await requireAuth();
   const result = await getDashboardStats();
 
   if (!result.success) {
@@ -134,7 +134,7 @@ export async function getDashboardStatsAction(): Promise<
 export async function getUserOnboardingStateAction(): Promise<
   ServerActionResult<{ boardsCount: number; hasCreatedBoardOnce: boolean }>
 > {
-  await protect();
+  await requireAuth();
   const result = await getUserOnboardingState();
 
   if (!result.success || !result.data) {

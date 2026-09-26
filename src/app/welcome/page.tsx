@@ -6,11 +6,11 @@ import { getUserOnboardingStateAction } from "@/actions/user";
 import { prepareUserRecord } from "@/lib/dal/user";
 import {
   getAuthenticatedUser,
-  protect,
+  requireAuth,
 } from "@/utils/auth";
 
 const WelcomePage = async () => {
-  await protect();
+  await requireAuth();
   const user = await getAuthenticatedUser();
 
   const onboardingState = await getUserOnboardingStateAction();

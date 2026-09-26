@@ -11,7 +11,7 @@ export const DEV_AUTH_USER_ID = "dev_user_001";
 
 export const isDevAuthBypass = () => isDevAuthBypassEnabled;
 
-export async function protect() {
+export async function requireAuth() {
   if (isDevAuthBypassEnabled) return;
   await auth.protect();
 }
