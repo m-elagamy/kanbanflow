@@ -15,8 +15,7 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const user = await currentUser();
+  const [cookieStore, user] = await Promise.all([cookies(), currentUser()]);
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
   const sidebarUser = user
     ? {

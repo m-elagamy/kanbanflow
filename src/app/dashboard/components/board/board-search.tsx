@@ -224,10 +224,16 @@ export function BoardSearch({
       async () => {
         try {
           if (scope === "workspace") {
-            const boardsResult = await getUserBoardsPageAction(
-              1,
-              normalizedQuery,
-            );
+            const [boardsResult, tasksResult] = await Promise.all([
+              getUserBoardsPageAction(1, normalizedQuery),
+              boardsOnly
+                ? Promise.resolve(null)
+                : getWorkspaceTasksPageAction(
+                    normalizedQuery,
+                    null,
+                    TASKS_PAGE_SIZE,
+                  ),
+            ]);
             if (cancelled) return;
 
             setBoardSearch({
@@ -241,13 +247,7 @@ export function BoardSearch({
                 : 0,
               error: boardsResult.success ? null : boardsResult.message,
             });
-            if (!boardsOnly) {
-              const tasksResult = await getWorkspaceTasksPageAction(
-                normalizedQuery,
-                null,
-                TASKS_PAGE_SIZE,
-              );
-              if (cancelled) return;
+            if (tasksResult) {
               setTaskSearch({
                 key: taskSearchKey,
                 items: tasksResult.success
