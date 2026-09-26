@@ -5,7 +5,7 @@ const columnsTemplates = [
     id: "personal",
     label: "Personal Productivity",
     icon: UserRoundCheck,
-    status: ["To Do", "In Progress", "Done"],
+    status: ["To Do", "Today", "In Progress", "Done"],
   },
   {
     id: "agile",

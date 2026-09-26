@@ -28,7 +28,6 @@ import {
   getWorkspaceTasksPageAction,
 } from "@/actions/task";
 import { getUserBoardsPageAction } from "@/actions/user";
-import useBoardStore from "@/stores/board";
 import type { ClientTask, TaskSearchPage, TaskSearchResult } from "@/lib/types";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
@@ -188,9 +187,7 @@ export function BoardSearch({
   const pendingTaskRef = useRef<ClientTask | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const activeBoardId = useBoardStore((state) => state.activeBoardId);
-  const boardId =
-    scope === "board" ? (providedBoardId ?? activeBoardId) : null;
+  const boardId = scope === "board" ? (providedBoardId ?? null) : null;
   const canSearch = scope === "workspace" || Boolean(boardId);
   const normalizedQuery = query.trim();
   const taskSearchKey = `${scope}:${boardId ?? "all"}:${normalizedQuery}`;
@@ -200,7 +197,8 @@ export function BoardSearch({
   const currentBoardSearch =
     boardSearch?.key === boardSearchKey ? boardSearch : null;
   const boardsOnly = scope === "workspace" && workspaceTabs === "boards";
-  const isBoardTab = boardsOnly || (scope === "workspace" && activeTab === "boards");
+  const isBoardTab =
+    boardsOnly || (scope === "workspace" && activeTab === "boards");
   const nextCursor = currentTaskSearch?.nextCursor ?? null;
   const hasMoreBoards = Boolean(
     currentBoardSearch &&
@@ -226,7 +224,10 @@ export function BoardSearch({
       async () => {
         try {
           if (scope === "workspace") {
-            const boardsResult = await getUserBoardsPageAction(1, normalizedQuery);
+            const boardsResult = await getUserBoardsPageAction(
+              1,
+              normalizedQuery,
+            );
             if (cancelled) return;
 
             setBoardSearch({
@@ -249,8 +250,12 @@ export function BoardSearch({
               if (cancelled) return;
               setTaskSearch({
                 key: taskSearchKey,
-                items: tasksResult.success ? (tasksResult.fields?.items ?? []) : [],
-                nextCursor: tasksResult.success ? (tasksResult.fields?.nextCursor ?? null) : null,
+                items: tasksResult.success
+                  ? (tasksResult.fields?.items ?? [])
+                  : [],
+                nextCursor: tasksResult.success
+                  ? (tasksResult.fields?.nextCursor ?? null)
+                  : null,
                 error: tasksResult.success ? null : tasksResult.message,
               });
             }
@@ -505,7 +510,7 @@ export function BoardSearch({
 
   const trigger = compact ? (
     <SidebarMenuButton
-      className="!size-6 !gap-0 !p-0 justify-center text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2"
+      className="text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground !size-6 justify-center !gap-0 !p-0 group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2"
       tooltip="Search boards"
       aria-label="Search boards"
       onClick={() => setOpen(true)}
@@ -534,7 +539,7 @@ export function BoardSearch({
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
-          className="[&>button]:top-1 [&>button]:right-2 gap-0 overflow-hidden p-0 sm:max-w-xl md:p-0"
+          className="gap-0 overflow-hidden p-0 sm:max-w-xl md:p-0 [&>button]:top-1 [&>button]:right-2"
           onCloseAutoFocus={() => {
             const pendingTask = pendingTaskRef.current;
             if (!pendingTask) return;
@@ -559,7 +564,7 @@ export function BoardSearch({
           </DialogHeader>
           <Command
             shouldFilter={false}
-            className="rounded-none [&_[data-slot=command-input-wrapper]]:bg-input/30"
+            className="[&_[data-slot=command-input-wrapper]]:bg-input/30 rounded-none"
           >
             <Tabs
               value={scope === "workspace" ? activeTab : "tasks"}
@@ -579,7 +584,7 @@ export function BoardSearch({
                 onValueChange={setQuery}
               />
               {scope === "workspace" && !boardsOnly && (
-                <TabsList className="border-border/70 mx-3 mt-3 grid w-auto grid-cols-2 border bg-muted/60">
+                <TabsList className="border-border/70 bg-muted/60 mx-3 mt-3 grid w-auto grid-cols-2 border">
                   <TabsTrigger
                     value="boards"
                     className="data-[state=active]:border-border/80 data-[state=active]:bg-card data-[state=active]:shadow-sm"

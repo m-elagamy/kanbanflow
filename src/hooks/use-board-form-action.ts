@@ -1,3 +1,4 @@
+import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createOptimisticBoard } from "@/utils/board-helpers";
@@ -32,8 +33,8 @@ export function useBoardFormAction({
   const isEditMode = formMode === "edit";
   const router = useRouter();
 
-  const { updateBoard, activeBoardId, isLoading, setIsLoading } =
-    useBoardFormStore();
+  const { updateBoard, activeBoardId } = useBoardFormStore();
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const {
     hasError,
@@ -41,10 +42,39 @@ export function useBoardFormAction({
     submitBoardCreation,
     retryBoardCreation,
     navigateToDashboard,
+    isCreating,
   } = useBoardCreation();
+  const [, createFormAction, isCreatePending] = useActionState(
+    async (_previousState: null, formData: FormData) => {
+      if (isEditMode || failedBoard) return null;
+
+      const { success, data: validatedData } = validateBeforeSubmit(
+        formData,
+        false,
+        existingBoards,
+        ["title", "description"],
+      );
+
+      if (!success || !validatedData) return null;
+
+      const optimisticBoard = createOptimisticBoard(
+        validatedData.title,
+        validatedData.description ?? "",
+      );
+      const created = await submitBoardCreation({
+        ...validatedData,
+        id: optimisticBoard.id,
+      });
+      if (created) onClose();
+
+      return null;
+    },
+    null,
+  );
+  const isLoading = isEditMode ? isUpdating : isCreatePending || isCreating;
 
   const handleFormAction = async (formData: FormData) => {
-    if (isLoading || (!isEditMode && failedBoard)) return;
+    if (!isEditMode || !board || isLoading) return;
     const { success, data: validatedData } = validateBeforeSubmit(
       formData,
       isEditMode,
@@ -57,44 +87,33 @@ export function useBoardFormAction({
     const { title, description = "" } = validatedData;
 
     const optimisticBoard = createOptimisticBoard(title, description ?? "");
+    setIsUpdating(true);
 
-    if (isEditMode && board) {
-      setIsLoading("board", "updating", true, board.id);
+    updateBoard(board.id, omit(optimisticBoard, ["id"]));
+    onClose();
 
-      updateBoard(board.id, omit(optimisticBoard, ["id"]));
-      onClose();
+    try {
+      const result = await updateBoardAction(formData);
 
-      try {
-        const result = await updateBoardAction(formData);
-
-        if (!result.success) {
-          handleOnError(result.message, "Failed to update board");
-          updateBoard(board.id, board);
-        } else {
-          redirectIfSlugChanged(
-            board.slug,
-            optimisticBoard.slug,
-            board.id,
-            activeBoardId,
-          );
-          toast.success(result.message);
-        }
-      } catch (error) {
-        console.error(error);
-        handleOnError(error, "Failed to update board");
+      if (!result.success) {
+        handleOnError(result.message, "Failed to update board");
         updateBoard(board.id, board);
-      } finally {
-        setIsLoading("board", "updating", false, board.id);
+      } else {
+        redirectIfSlugChanged(
+          board.slug,
+          optimisticBoard.slug,
+          board.id,
+          activeBoardId,
+        );
+        toast.success(result.message);
       }
-
-      return;
+    } catch (error) {
+      console.error(error);
+      handleOnError(error, "Failed to update board");
+      updateBoard(board.id, board);
+    } finally {
+      setIsUpdating(false);
     }
-
-    const created = await submitBoardCreation({
-      ...validatedData,
-      id: optimisticBoard.id,
-    });
-    if (created) onClose();
   };
 
   const redirectIfSlugChanged = (
@@ -111,7 +130,7 @@ export function useBoardFormAction({
   };
 
   return {
-    handleFormAction,
+    handleFormAction: isEditMode ? handleFormAction : createFormAction,
     isEditMode,
     router,
     isLoading,

@@ -7,8 +7,6 @@ import { useColumnStore } from "./column";
 const initialState: BoardState = {
   boards: {},
   activeBoardId: null,
-  hasError: false,
-  failedBoard: null,
 };
 
 const useBoardStore = create<BoardStore>((set) => ({
@@ -28,12 +26,6 @@ const useBoardStore = create<BoardStore>((set) => ({
   },
 
   setActiveBoardId: (boardId) => set({ activeBoardId: boardId }),
-
-  setError: (hasError, board) =>
-    set(() => ({
-      hasError,
-      failedBoard: hasError ? board : null,
-    })),
 
   createBoard: (board) => {
     set(
@@ -81,8 +73,6 @@ const useBoardStore = create<BoardStore>((set) => ({
 
     useColumnStore.getState().transferColumnsToBoard(tempId, realId);
   },
-
-  resetError: () => set({ hasError: false, failedBoard: null }),
 }));
 
 export default useBoardStore;

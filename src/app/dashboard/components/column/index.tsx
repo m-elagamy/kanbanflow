@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import {
@@ -8,6 +9,8 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { DndProvider } from "@/providers/dnd-provider";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useColumnStore } from "@/stores/column";
 import ColumnCard from "./column-card";
 import ColumnModal from "./column-modal";
@@ -31,6 +34,7 @@ const ColumnsWrapper = ({
 }: ColumnsWrapperProps) => {
   const shouldReduceMotion = useReducedMotion();
   const columnsContainerRef = useRef<HTMLDivElement>(null);
+  const [hasPreviousColumns, setHasPreviousColumns] = useState(false);
   const [hasMoreColumns, setHasMoreColumns] = useState(false);
   const columns = useColumnStore(
     useShallow((state) => state.columnsByBoard[boardId] || {}),
@@ -42,6 +46,22 @@ const ColumnsWrapper = ({
   ).sort((a, b) => a.order - b.order);
   const columnIds = sortedColumns.map((column) => column.id);
 
+  const scrollByColumn = (direction: -1 | 1) => {
+    const container = columnsContainerRef.current;
+    const column = container?.querySelector<HTMLElement>(
+      '[data-column-item="true"]',
+    );
+    if (!container || !column) return;
+
+    const gap = Number.parseFloat(
+      getComputedStyle(container).columnGap || "0",
+    );
+    container.scrollBy({
+      left: direction * (column.offsetWidth + gap),
+      behavior: "smooth",
+    });
+  };
+
   useEffect(() => {
     const container = columnsContainerRef.current;
     if (!container) return;
@@ -49,6 +69,7 @@ const ColumnsWrapper = ({
     const updateOverflowHint = () => {
       const remainingScroll =
         container.scrollWidth - container.clientWidth - container.scrollLeft;
+      setHasPreviousColumns(container.scrollLeft > 8);
       setHasMoreColumns(remainingScroll > 8);
     };
 
@@ -64,13 +85,14 @@ const ColumnsWrapper = ({
   }, [sortedColumns.length]);
 
   return (
-    <div
-      ref={columnsContainerRef}
-      className="scrollbar-thumb-border focus-visible:ring-ring flex min-h-0 min-w-0 flex-1 snap-x snap-proximity scroll-px-3 gap-3 overflow-x-auto px-3 pb-4 outline-none focus-visible:ring-2 focus-visible:ring-inset sm:scroll-px-4 sm:gap-4 sm:px-4 md:snap-none md:justify-start"
+    <div className="relative flex min-h-0 min-w-0 flex-1">
+      <div
+        ref={columnsContainerRef}
+        className="scrollbar-thumb-border focus-visible:ring-ring flex min-h-0 min-w-0 flex-1 snap-x snap-proximity scroll-px-3 gap-3 overflow-x-auto px-3 pb-4 outline-none focus-visible:ring-2 focus-visible:ring-inset sm:scroll-px-4 sm:gap-4 sm:px-4 md:snap-none md:justify-start"
       role="region"
       aria-label="Board columns"
       tabIndex={0}
-    >
+      >
       <DndProvider boardId={boardId}>
         <SortableContext
           items={columnIds}
@@ -79,6 +101,7 @@ const ColumnsWrapper = ({
           {sortedColumns.map((column, index) => (
             <motion.div
               key={column.id}
+              data-column-item="true"
               className="h-full flex-none will-change-transform"
               initial={
                 animateEntry && !shouldReduceMotion
@@ -108,21 +131,41 @@ const ColumnsWrapper = ({
         </SortableContext>
       </DndProvider>
 
-      <ColumnModal boardId={boardId} />
+        <ColumnModal boardId={boardId} />
+      </div>
+      {hasPreviousColumns && (
+        <Button
+          type="button"
+          aria-label="Scroll to previous column"
+          size="icon"
+          variant="ghost"
+          className={cn(
+            "from-background via-background/85 absolute top-0 bottom-4 left-0 z-20 h-auto min-h-0 w-10 rounded-none bg-gradient-to-r to-transparent p-0",
+            "sm:w-11 md:w-12",
+          )}
+          onClick={() => scrollByColumn(-1)}
+        >
+          <span className="bg-background/90 text-foreground flex size-6 items-center justify-center rounded-full border shadow-sm backdrop-blur-sm transition-transform hover:scale-105 sm:size-7">
+            <ChevronLeft size={17} strokeWidth={2.25} aria-hidden="true" />
+          </span>
+        </Button>
+      )}
       {hasMoreColumns && (
-        <button
+        <Button
           type="button"
           aria-label="Scroll to more columns"
-          className="from-background text-muted-foreground hover:text-foreground sticky right-0 z-10 -mr-3 flex w-10 shrink-0 cursor-pointer items-center justify-center bg-gradient-to-r to-transparent transition-colors sm:-mr-4"
-          onClick={() =>
-            columnsContainerRef.current?.scrollBy({
-              left: columnsContainerRef.current.clientWidth * 0.8,
-              behavior: "smooth",
-            })
-          }
+          size="icon"
+          variant="ghost"
+          className={cn(
+            "from-transparent via-background/85 to-background absolute top-0 right-0 bottom-4 z-20 h-auto min-h-0 w-10 rounded-none bg-gradient-to-l p-0",
+            "sm:w-11 md:w-12",
+          )}
+          onClick={() => scrollByColumn(1)}
         >
-          <span className="text-muted-foreground text-lg leading-none">›</span>
-        </button>
+          <span className="bg-background/90 text-foreground flex size-6 items-center justify-center rounded-full border shadow-sm backdrop-blur-sm transition-transform hover:scale-105 sm:size-7">
+            <ChevronRight size={17} strokeWidth={2.25} aria-hidden="true" />
+          </span>
+        </Button>
       )}
     </div>
   );

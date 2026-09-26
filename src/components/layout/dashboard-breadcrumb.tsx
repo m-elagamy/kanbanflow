@@ -15,11 +15,11 @@ const DashboardBreadcrumb = () => {
       activeBoardId: state.activeBoardId,
     })),
   );
-
   const boardSlug = pathname.match(/^\/dashboard\/(.+)/)?.[1];
 
   const boardName = boardSlug
-    ? (activeBoardId && boards[activeBoardId]?.title) || deslugify(decodeURIComponent(boardSlug))
+    ? (activeBoardId && boards[activeBoardId]?.title) ||
+      deslugify(decodeURIComponent(boardSlug))
     : null;
 
   return (

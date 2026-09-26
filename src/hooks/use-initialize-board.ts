@@ -16,9 +16,8 @@ type BoardWithColumnsAndTasks = SimplifiedBoard & {
 };
 
 export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
-  const { boards, setBoards, setActiveBoardId } = useBoardStore(
+  const { setBoards, setActiveBoardId } = useBoardStore(
     useShallow((state) => ({
-      boards: state.boards,
       setBoards: state.setBoards,
       setActiveBoardId: state.setActiveBoardId,
     })),
@@ -34,7 +33,6 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
     if (!initialBoard?.id) return;
 
     const { columns, ...boardData } = initialBoard;
-
     setBoards({ [initialBoard.id]: boardData });
     setActiveBoardId(initialBoard.id);
     const columnsWithoutTasks = columns.map(({ id, status, order }) => ({
@@ -56,15 +54,14 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
   }, [
     initialBoard,
     setBoards,
+    setActiveBoardId,
     setBoardColumns,
     initializeTaskPages,
-    setActiveBoardId,
   ]);
 
-  const activeBoard = boards[initialBoard.id] ?? null;
-  const hasInitializedTaskPages =
-    Boolean(activeBoard) &&
-    initialBoard.columns.every((column) => Boolean(columnPages[column.id]));
+  const hasInitializedTaskPages = initialBoard.columns.every((column) =>
+    Boolean(columnPages[column.id]),
+  );
 
-  return { activeBoard, hasInitializedTaskPages };
+  return { hasInitializedTaskPages };
 }

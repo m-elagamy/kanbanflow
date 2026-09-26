@@ -33,8 +33,7 @@ export default function BoardLayout({
   animateEntry = false,
   clearEntryQuery = false,
 }: BoardLayoutProps) {
-  const { activeBoard, hasInitializedTaskPages } =
-    useInitializeBoardData(initialBoard);
+  const { hasInitializedTaskPages } = useInitializeBoardData(initialBoard);
   const [isLinkedTaskOpen, setIsLinkedTaskOpen] = useState(Boolean(linkedTask));
   const [priorityFilter, setPriorityFilter] =
     useState<PriorityFilterValue>("all");
@@ -52,24 +51,22 @@ export default function BoardLayout({
       window.history.replaceState(null, "", window.location.pathname);
   }, [animateEntry, clearEntryQuery]);
 
-  const board = activeBoard ?? initialBoard;
-
   return (
     <BoardContainer>
       <BoardHeader
-        board={board}
+        board={initialBoard}
         priorityFilter={priorityFilter}
         onPriorityFilterChange={setPriorityFilter}
         isPriorityFilterPending={isPriorityFilterPending}
       />
       <ColumnsWrapper
-        boardId={board.id}
+        boardId={initialBoard.id}
         focusedTaskId={focusedTaskId}
         animateEntry={animateEntry}
         initialColumns={initialBoard.columns}
         priorityFilter={priorityFilter}
       />
-      {linkedTask && board.id && (
+      {linkedTask && initialBoard.id && (
         <TaskModal
           mode="edit"
           task={linkedTask}

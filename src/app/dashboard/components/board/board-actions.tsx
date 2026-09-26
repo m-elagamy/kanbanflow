@@ -4,8 +4,6 @@ import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Ellipsis, SquarePen, TrashIcon } from "lucide-react";
-import { useShallow } from "zustand/react/shallow";
-import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +16,6 @@ import { deleteBoardAction } from "@/actions/board";
 import { SidebarMenuAction, useSidebar } from "@/components/ui/sidebar";
 import useBoardStore from "@/stores/board";
 import BoardModal from "./board-modal";
-import useLoadingStore from "@/stores/loading";
 import type { BoardSummary } from "@/lib/types";
 import handleOnError from "@/utils/handle-on-error";
 
@@ -63,19 +60,14 @@ export default function BoardActions({
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
-  const { isDeleting, setIsDeleting } = useLoadingStore(
-    useShallow((state) => ({
-      isDeleting: state.isLoading("board", "deleting"),
-      setIsDeleting: state.setIsLoading,
-    })),
-  );
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const deleteBoard = useBoardStore((state) => state.deleteBoard);
 
   const handleOnClick = async () => {
     if (!board.id) return;
 
-    setIsDeleting("board", "deleting", true, board.id);
+    setIsDeleting(true);
 
     try {
       const { success, message } = await deleteBoardAction(board.id);
@@ -90,12 +82,11 @@ export default function BoardActions({
       }, 0);
 
       deleteBoard(board.id);
-      toast.success(message);
     } catch (error) {
       handleOnError(error, "Failed to delete board");
       setIsAlertOpen(false);
     } finally {
-      setIsDeleting("board", "deleting", false, board.id);
+      setIsDeleting(false);
     }
   };
 

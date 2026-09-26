@@ -1,10 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useShallow } from "zustand/react/shallow";
 import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
-import useLoadingStore from "@/stores/loading";
 import { createBoardAction } from "@/actions/board";
 import type { BoardFormValues } from "@/lib/types";
 
@@ -16,32 +15,16 @@ export function useBoardCreation({
   animateOnCreate = false,
 }: UseBoardCreationOptions = {}) {
   const router = useRouter();
-  const {
-    hasError,
-    failedBoard,
-    resetError,
-    setError,
-    createBoard,
-    deleteBoard,
-  } = useBoardStore(
-    useShallow((state) => ({
-      hasError: state.hasError,
-      failedBoard: state.failedBoard,
-      resetError: state.resetError,
-      setError: state.setError,
-      createBoard: state.createBoard,
-      deleteBoard: state.deleteBoard,
-    })),
-  );
+  const [hasError, setHasError] = useState(false);
+  const [failedBoard, setFailedBoard] = useState<BoardFormValues | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const createBoard = useBoardStore((state) => state.createBoard);
+  const deleteBoard = useBoardStore((state) => state.deleteBoard);
   const setColumns = useColumnStore((state) => state.setColumns);
-  const isCreating = useLoadingStore((state) =>
-    state.isLoading("board", "creating"),
-  );
-  const setIsLoading = useLoadingStore((state) => state.setIsLoading);
 
   const submitBoardCreation = async (attempt: BoardFormValues) => {
-    if (useLoadingStore.getState().isLoading("board", "creating")) return false;
-    setIsLoading("board", "creating", true, attempt.id);
+    if (isCreating) return false;
+    setIsCreating(true);
 
     try {
       const result = await createBoardAction(attempt, attempt.id);
@@ -55,7 +38,8 @@ export function useBoardCreation({
       deleteBoard(attempt.id);
       createBoard({ id, title, slug, description });
       setColumns(id, columns);
-      resetError();
+      setHasError(false);
+      setFailedBoard(null);
       router.push(
         animateOnCreate
           ? `/dashboard/${slug}?new=1`
@@ -63,10 +47,11 @@ export function useBoardCreation({
       );
       return true;
     } catch {
-      setError(true, attempt);
+      setHasError(true);
+      setFailedBoard(attempt);
       return false;
     } finally {
-      setIsLoading("board", "creating", false, attempt.id);
+      setIsCreating(false);
     }
   };
 
@@ -78,7 +63,8 @@ export function useBoardCreation({
   const navigateToDashboard = () => {
     if (isCreating) return;
     if (failedBoard) deleteBoard(failedBoard.id);
-    resetError();
+    setHasError(false);
+    setFailedBoard(null);
     router.push("/dashboard");
     router.refresh();
   };
