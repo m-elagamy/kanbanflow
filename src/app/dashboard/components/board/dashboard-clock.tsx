@@ -28,13 +28,20 @@ export default function DashboardClock() {
   return (
     <div className="flex items-center gap-2 px-1 text-xs font-medium text-muted-foreground select-none">
       <ClockIcon className="h-3.5 w-3.5 text-foreground/70" />
-      <div className="font-mono text-xs font-semibold tracking-tight text-foreground sm:text-sm">
+      <div className="min-w-10 font-mono text-xs font-semibold tracking-tight text-foreground sm:text-sm">
         <Clock showSeconds={false} />
       </div>
-      {dateString && (
+      {dateString ? (
         <>
           <span className="text-muted-foreground/40">•</span>
-          <span className="text-muted-foreground">{dateString}</span>
+          <span className="inline-block min-w-20 text-muted-foreground">
+            {dateString}
+          </span>
+        </>
+      ) : (
+        <>
+          <span className="text-muted-foreground/40">â€¢</span>
+          <span className="invisible inline-block min-w-20">Wed, Sep 24</span>
         </>
       )}
     </div>

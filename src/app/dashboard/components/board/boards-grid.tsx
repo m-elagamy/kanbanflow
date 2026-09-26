@@ -6,7 +6,7 @@ import BoardModal from "./board-modal";
 import DashboardStats from "./dashboard-stats";
 import DashboardEmptyState from "./dashboard-empty-state";
 import DashboardFocus from "./dashboard-focus";
-import DashboardClock from "./dashboard-clock";
+import DashboardClock from "./dashboard-clock-loader";
 import { BoardSearch } from "./board-search";
 import type { DashboardFocusPreview } from "@/lib/types";
 import DashboardGreeting from "./dashboard-greeting";

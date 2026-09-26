@@ -9,7 +9,7 @@ function subscribe(callback: () => void, showSeconds: boolean) {
 
 function getSnapshot(showSeconds: boolean) {
   const now = new Date();
-  const hours = now.getHours();
+  const hours = now.getHours() % 12 || 12;
   const minutes = now.getMinutes();
   const time = `${hours}:${minutes}`;
   return showSeconds ? `${time}:${now.getSeconds()}` : time;
@@ -28,7 +28,7 @@ export function Clock({ showSeconds = true }: { showSeconds?: boolean }) {
 
   if (!snapshot) {
     return (
-      <span className="font-mono text-muted-foreground/40">
+      <span className="invisible font-mono text-muted-foreground/40" aria-hidden="true">
         {showSeconds ? "00:00:00" : "00:00"}
       </span>
     );
