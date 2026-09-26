@@ -283,13 +283,23 @@
 @utility board-lane {
   background: linear-gradient(
     to bottom,
-    var(--background) 0,
-    color-mix(in oklab, var(--muted) 14%, var(--background)) 26%,
-    color-mix(in oklab, var(--muted) 28%, var(--background)) 52%,
-    color-mix(in oklab, var(--muted) 40%, var(--background)) 78%
+    color-mix(in oklab, var(--muted) 40%, var(--background)) 0,
+    color-mix(in oklab, var(--muted) 28%, var(--background)) 26%,
+    color-mix(in oklab, var(--muted) 14%, var(--background)) 52%,
+    var(--background) 78%
   );
   box-shadow: inset 0 1px 0
     color-mix(in oklab, var(--foreground) 2%, transparent);
+}
+
+:root:not(.dark) .board-lane {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--muted) 24%, var(--background)) 0,
+    color-mix(in oklab, var(--muted) 17%, var(--background)) 26%,
+    color-mix(in oklab, var(--muted) 9%, var(--background)) 52%,
+    var(--background) 78%
+  );
 }
 
 @utility board-lane-body {
