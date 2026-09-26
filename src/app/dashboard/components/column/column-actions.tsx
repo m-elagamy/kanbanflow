@@ -100,20 +100,21 @@ const ColumnActions = ({
   };
 
   const handleOnClick = async () => {
-    if (activeBoardId && columnId) {
+    if (activeBoardId && columnId && !isLoading) {
       setIsLoading("column", "deleting", true, columnId);
-      deleteColumn(activeBoardId, columnId);
 
       try {
         const result = await deleteColumnAction(columnId);
         if (!result.success) {
           handleOnError(result.message, "Failed to delete column");
-          rollback();
+          setShowAlertConfirmation(false);
+        } else {
+          deleteColumn(activeBoardId, columnId);
         }
       } catch (error) {
         console.error("Error deleting column:", error);
         handleOnError(error, "Failed to delete column");
-        rollback();
+        setShowAlertConfirmation(false);
       } finally {
         setIsLoading("column", "deleting", false, columnId);
       }

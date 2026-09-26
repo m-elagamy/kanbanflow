@@ -44,10 +44,9 @@ export default function TaskActions({
   const destinations = Object.values(columns ?? {})
     .filter((column) => column.id !== columnId)
     .sort((a, b) => a.order - b.order);
-  const { deleteTask, rollback, clearSnapshot } = useTaskStore(
+  const { deleteTask, clearSnapshot } = useTaskStore(
     useShallow((state) => ({
       deleteTask: state.deleteTask,
-      rollback: state.rollback,
       clearSnapshot: state.clearSnapshot,
     })),
   );
@@ -61,20 +60,20 @@ export default function TaskActions({
 
   const handleDelete = async () => {
     if (isLoading || isMoving) return;
-    setConfirmDelete(false);
     setIsLoading("task", "deleting", true, task.id);
-    deleteTask(columnId, task.id);
 
     try {
       const result = await deleteTaskAction(task.id);
 
       if (!result.success) {
         handleOnError(result.message, "Failed to delete task");
-        rollback();
+        setConfirmDelete(false);
+      } else {
+        deleteTask(columnId, task.id);
       }
     } catch (error) {
       handleOnError(error, "Failed to delete task");
-      rollback();
+      setConfirmDelete(false);
     } finally {
       setIsLoading("task", "deleting", false, task.id);
     }
@@ -109,7 +108,6 @@ export default function TaskActions({
         if (result.fields) store.updateTask(task.id, result.fields);
         clearSnapshot();
       }
-      toast.success(result.message);
     } catch (error) {
       handleOnError(error, "Failed to move task");
     } finally {
@@ -137,40 +135,42 @@ export default function TaskActions({
             <Settings2 size={16} /> Edit
           </DropdownMenuItem>
 
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger
-              className="h-8 gap-2 px-2 py-1.5"
-              disabled={isMoving || isLoading || destinations.length === 0}
-            >
-              <ArrowRight size={16} /> Move to column
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              {destinations.map((column) => {
-                const statusOption =
-                  columnStatusOptions[
-                    column.status as keyof typeof columnStatusOptions
-                  ];
-                const StatusIcon = statusOption?.icon;
+          {destinations.length > 0 && (
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger
+                className="h-8 gap-2 px-2 py-1.5"
+                disabled={isMoving || isLoading}
+              >
+                <ArrowRight size={16} /> Move to column
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {destinations.map((column) => {
+                  const statusOption =
+                    columnStatusOptions[
+                      column.status as keyof typeof columnStatusOptions
+                    ];
+                  const StatusIcon = statusOption?.icon;
 
-                return (
-                  <DropdownMenuItem
-                    key={column.id}
-                    className="h-8 gap-2 px-2 py-1.5"
-                    onSelect={() => void handleMove(column.id)}
-                  >
-                    {StatusIcon && (
-                      <StatusIcon
-                        size={16}
-                        color={statusOption.color}
-                        aria-hidden="true"
-                      />
-                    )}
-                    {column.status}
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
+                  return (
+                    <DropdownMenuItem
+                      key={column.id}
+                      className="h-8 gap-2 px-2 py-1.5"
+                      onSelect={() => void handleMove(column.id)}
+                    >
+                      {StatusIcon && (
+                        <StatusIcon
+                          size={16}
+                          color={statusOption.color}
+                          aria-hidden="true"
+                        />
+                      )}
+                      {column.status}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          )}
           <DropdownMenuItem
             variant="destructive"
             className="h-8 gap-2 px-2 py-1.5"

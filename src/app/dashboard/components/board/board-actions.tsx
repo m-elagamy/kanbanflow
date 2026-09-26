@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter, useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Ellipsis, SquarePen, TrashIcon } from "lucide-react";
@@ -59,6 +59,7 @@ export default function BoardActions({
   const { isMobile } = useSidebar();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isRefreshing, startTransition] = useTransition();
 
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -77,22 +78,19 @@ export default function BoardActions({
         return;
       }
 
-      setTimeout(() => {
-        redirectIfActiveBoard(board.slug);
-      }, 0);
-
       deleteBoard(board.id);
+      startTransition(() => {
+        if (params.board === board.slug) {
+          router.replace("/dashboard");
+        } else {
+          router.refresh();
+        }
+      });
     } catch (error) {
       handleOnError(error, "Failed to delete board");
       setIsAlertOpen(false);
     } finally {
       setIsDeleting(false);
-    }
-  };
-
-  const redirectIfActiveBoard = (boardSlug: string) => {
-    if (params.board === boardSlug) {
-      router.replace("/dashboard");
     }
   };
 
@@ -146,7 +144,7 @@ export default function BoardActions({
           title={`Delete Board`}
           description="This action will permanently remove the board and all its data."
           onClick={handleOnClick}
-          isPending={isDeleting}
+          isPending={isDeleting || isRefreshing}
         />
       )}
     </DropdownMenu>

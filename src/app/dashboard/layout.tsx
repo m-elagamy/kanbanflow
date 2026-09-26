@@ -7,6 +7,7 @@ import {
   SidebarInset,
 } from "@/components/ui/sidebar";
 import KeyboardShortcuts from "@/components/layout/keyboard-shortcuts";
+import OfflineStatus from "./components/offline-status";
 
 export default async function DashboardLayout({
   children,
@@ -27,6 +28,7 @@ export default async function DashboardLayout({
             <KeyboardShortcuts />
           </div>
         </header>
+        <OfflineStatus />
         <div className="min-h-0 min-w-0 flex-1 overflow-auto">{children}</div>
       </SidebarInset>
     </SidebarProvider>

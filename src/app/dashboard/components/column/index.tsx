@@ -53,9 +53,7 @@ const ColumnsWrapper = ({
     );
     if (!container || !column) return;
 
-    const gap = Number.parseFloat(
-      getComputedStyle(container).columnGap || "0",
-    );
+    const gap = Number.parseFloat(getComputedStyle(container).columnGap || "0");
     container.scrollBy({
       left: direction * (column.offsetWidth + gap),
       behavior: "smooth",
@@ -89,47 +87,47 @@ const ColumnsWrapper = ({
       <div
         ref={columnsContainerRef}
         className="scrollbar-thumb-border focus-visible:ring-ring flex min-h-0 min-w-0 flex-1 snap-x snap-proximity scroll-px-3 gap-3 overflow-x-auto px-3 pb-4 outline-none focus-visible:ring-2 focus-visible:ring-inset sm:scroll-px-4 sm:gap-4 sm:px-4 md:snap-none md:justify-start"
-      role="region"
-      aria-label="Board columns"
-      tabIndex={0}
+        role="region"
+        aria-label="Board columns"
+        tabIndex={0}
       >
-      <DndProvider boardId={boardId}>
-        <SortableContext
-          items={columnIds}
-          strategy={horizontalListSortingStrategy}
-        >
-          {sortedColumns.map((column, index) => (
-            <motion.div
-              key={column.id}
-              data-column-item="true"
-              className="h-full flex-none will-change-transform"
-              initial={
-                animateEntry && !shouldReduceMotion
-                  ? { opacity: 0, y: 24 }
-                  : false
-              }
-              animate={{ opacity: 1, y: 0 }}
-              transition={
-                animateEntry && !shouldReduceMotion
-                  ? { duration: 0.48, delay: index * 0.08, ease: "easeOut" }
-                  : { duration: 0 }
-              }
-            >
-              <ColumnCard
-                column={column}
-                focusedTaskId={focusedTaskId}
-                initialTasks={
-                  initialColumns.find((item) => item.id === column.id)?.tasks
+        <DndProvider boardId={boardId}>
+          <SortableContext
+            items={columnIds}
+            strategy={horizontalListSortingStrategy}
+          >
+            {sortedColumns.map((column, index) => (
+              <motion.div
+                key={column.id}
+                data-column-item="true"
+                className="h-full flex-none will-change-transform"
+                initial={
+                  animateEntry && !shouldReduceMotion
+                    ? { opacity: 0, y: 24 }
+                    : false
                 }
-                hasInitialData={initialColumns.some(
-                  (item) => item.id === column.id,
-                )}
-                priorityFilter={priorityFilter}
-              />
-            </motion.div>
-          ))}
-        </SortableContext>
-      </DndProvider>
+                animate={{ opacity: 1, y: 0 }}
+                transition={
+                  animateEntry && !shouldReduceMotion
+                    ? { duration: 0.48, delay: index * 0.08, ease: "easeOut" }
+                    : { duration: 0 }
+                }
+              >
+                <ColumnCard
+                  column={column}
+                  focusedTaskId={focusedTaskId}
+                  initialTasks={
+                    initialColumns.find((item) => item.id === column.id)?.tasks
+                  }
+                  hasInitialData={initialColumns.some(
+                    (item) => item.id === column.id,
+                  )}
+                  priorityFilter={priorityFilter}
+                />
+              </motion.div>
+            ))}
+          </SortableContext>
+        </DndProvider>
 
         <ColumnModal boardId={boardId} />
       </div>
@@ -157,7 +155,7 @@ const ColumnsWrapper = ({
           size="icon"
           variant="ghost"
           className={cn(
-            "from-transparent via-background/85 to-background absolute top-0 right-0 bottom-4 z-20 h-auto min-h-0 w-10 rounded-none bg-gradient-to-l p-0",
+            "via-background/85 to-background absolute top-0 right-0 bottom-4 z-20 h-auto min-h-0 w-10 rounded-none bg-gradient-to-l from-transparent p-0",
             "sm:w-11 md:w-12",
           )}
           onClick={() => scrollByColumn(1)}
