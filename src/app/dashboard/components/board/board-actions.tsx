@@ -40,7 +40,7 @@ export function BoardActionsTrigger({
     <Button
       variant="ghost"
       size="icon"
-      className="size-8"
+      className="size-8 hover:bg-muted/70 hover:text-foreground"
       aria-disabled={!interactive || undefined}
       tabIndex={interactive ? undefined : -1}
     >
@@ -128,7 +128,7 @@ export default function BoardActions({
           className="h-8 gap-2 px-2 py-1.5"
           onSelect={() => setIsAlertOpen(true)}
         >
-          <TrashIcon /> Delete
+          <TrashIcon size={16} /> Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
       <BoardModal

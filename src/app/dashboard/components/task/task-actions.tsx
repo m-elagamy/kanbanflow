@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Ellipsis, Settings2, TrashIcon } from "lucide-react";
+import { ArrowRight, Ellipsis, SquarePen, TrashIcon } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import type { ClientTask } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -131,7 +131,7 @@ export default function TaskActions({
         <DropdownMenuContent>
           <DropdownMenuLabel>Task Actions:</DropdownMenuLabel>
           <DropdownMenuItem className="h-8 gap-2 px-2 py-1.5" onSelect={onEdit}>
-            <Settings2 size={16} /> Edit
+            <SquarePen size={16} /> Edit
           </DropdownMenuItem>
 
           {destinations.length > 0 && (

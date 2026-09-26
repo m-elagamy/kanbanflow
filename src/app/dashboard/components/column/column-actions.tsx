@@ -152,7 +152,7 @@ const ColumnActions = ({
             onOpenChange={setIsSubDropdownOpen}
           >
             <DropdownMenuSubTrigger
-              className="flex items-center gap-2"
+              className="h-8 gap-2 px-2 py-1.5"
               onMouseEnter={() => setIsSubDropdownOpen(true)}
             >
               <Settings2 size={16} />
@@ -170,9 +170,9 @@ const ColumnActions = ({
           <DropdownMenuItem
             onClick={() => setShowAlertConfirmation(true)}
             variant="destructive"
-            className="h-7"
+            className="h-8 gap-2 px-2 py-1.5"
           >
-            <TrashIcon /> Delete
+            <TrashIcon size={16} /> Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
