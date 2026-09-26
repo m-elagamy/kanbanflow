@@ -227,7 +227,7 @@
     max-width: none;
   }
   @media (width >= 1280px) {
-    max-width: 1280px;
+    max-width: 1440px;
   }
 }
 
