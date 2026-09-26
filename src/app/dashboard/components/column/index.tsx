@@ -17,6 +17,9 @@ import ColumnModal from "./column-modal";
 import type { ClientTask } from "@/lib/types";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import type { PriorityFilterValue } from "@/lib/types/stores/task";
+
+const EMPTY_COLUMNS: Record<string, SimplifiedColumn> = {};
+
 type ColumnsWrapperProps = {
   boardId: string;
   focusedTaskId?: string;
@@ -39,7 +42,7 @@ const ColumnsWrapper = ({
   const { activeBoardId, columns } = useColumnStore(
     useShallow((state) => ({
       activeBoardId: state.activeBoardId,
-      columns: state.columnsByBoard[boardId] || {},
+      columns: state.columnsByBoard[boardId] || EMPTY_COLUMNS,
     })),
   );
 
