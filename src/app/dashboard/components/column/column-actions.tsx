@@ -169,7 +169,8 @@ const ColumnActions = ({
           </DropdownMenuSub>
           <DropdownMenuItem
             onClick={() => setShowAlertConfirmation(true)}
-            className="text-destructive focus:text-destructive h-7"
+            variant="destructive"
+            className="h-7"
           >
             <TrashIcon /> Delete
           </DropdownMenuItem>
