@@ -207,7 +207,7 @@ export default function DashboardPreview() {
               return (
                 <div
                   key={column.title}
-                  className="border-border/80 bg-muted/35 flex h-full w-52 shrink-0 flex-col overflow-hidden rounded-xl border shadow-sm sm:w-64"
+                  className="board-lane border-border/80 flex h-full w-52 shrink-0 flex-col overflow-hidden rounded-xl border shadow-sm sm:w-64"
                 >
                   <div className="flex items-center justify-between border-b p-3 sm:p-4 sm:pb-3">
                     <div className="flex min-w-0 items-center gap-2">
@@ -228,7 +228,7 @@ export default function DashboardPreview() {
                       aria-hidden="true"
                     />
                   </div>
-                  <div className="space-y-2.5 p-2.5 sm:p-3">
+                  <div className="board-lane-body space-y-2.5 p-2.5 sm:p-3">
                     {column.tasks.map((task) => (
                       <PreviewTask key={task.title} {...task} />
                     ))}

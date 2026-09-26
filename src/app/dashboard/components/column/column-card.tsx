@@ -216,7 +216,7 @@ const ColumnCard = ({
 
   return (
     <Card
-      className={`board-lane group/column border-border/70 hover:border-border relative h-full min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-lg border py-0 transition-[border-color,transform] duration-200 md:w-84 md:max-w-none ${
+      className={`board-lane group/column border-border/80 hover:border-border relative h-full min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-lg border py-0 transition-[border-color,transform] duration-200 md:w-84 md:max-w-none ${
         isOver
           ? "ring-primary/20 border-primary/40 bg-primary/[0.03] shadow-md ring-2"
           : ""
