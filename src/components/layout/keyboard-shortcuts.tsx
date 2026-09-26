@@ -7,7 +7,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -59,15 +58,6 @@ export default function KeyboardShortcuts() {
         )}
         <Shortcut label="Toggle sidebar" keys="Ctrl/Cmd B" />
 
-        {isBoardPage && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel>Board controls</DropdownMenuLabel>
-            <Shortcut label="Pick up or drop" keys="Space" />
-            <Shortcut label="Move item" keys="Arrow keys" />
-            <Shortcut label="Cancel drag" keys="Esc" />
-          </>
-        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

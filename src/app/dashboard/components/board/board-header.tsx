@@ -58,7 +58,7 @@ const BoardHeader = ({
             onValueChange={onPriorityFilterChange}
             isPending={isPriorityFilterPending}
           />
-          <BoardSearch boardId={board.id} />
+          <BoardSearch boardId={board.id} enableShortcut />
           {board.id && (
             <TaskModal  
               mode="create"

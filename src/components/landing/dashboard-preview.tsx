@@ -1,4 +1,4 @@
-import { Ellipsis, Flag, Plus, Search } from "lucide-react";
+import { Ellipsis, Flag, ListFilter, Plus, Search } from "lucide-react";
 import columnStatusOptions from "@/app/dashboard/data/column-status-options";
 import { BorderTrail } from "@/components/ui/border-trail";
 import {
@@ -174,12 +174,19 @@ export default function DashboardPreview() {
               <p className="truncate text-sm font-semibold sm:text-base">
                 Kanbamy
               </p>
+              <p className="text-muted-foreground hidden truncate text-xs sm:block">
+                Organize work, track progress, and keep projects moving
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="border-border text-muted-foreground hidden h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs lg:flex">
+              <ListFilter className="size-3.5" aria-hidden="true" />
+              All priorities
+            </span>
             <span className="border-border text-muted-foreground hidden h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs md:flex">
               <Search className="size-3.5" aria-hidden="true" />
-              Search board
+              Search tasks...
             </span>
             <span className="bg-primary text-primary-foreground inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium shadow-xs">
               <Plus className="size-3.5" aria-hidden="true" />

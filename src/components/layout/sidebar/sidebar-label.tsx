@@ -19,7 +19,12 @@ const SidebarLabel = ({ boardsCount }: { boardsCount?: number }) => {
       </span>
       <span className="flex items-center gap-1">
         {boardsCount ? (
-          <BoardSearch scope="workspace" workspaceTabs="boards" compact />
+          <BoardSearch
+            scope="workspace"
+            workspaceTabs="boards"
+            compact
+            enableShortcut={false}
+          />
         ) : null}
       <BoardModal
         mode="create"

@@ -2,27 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CornerDownLeft, Plus, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarMenuButton } from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Command,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { EmptyState } from "@/components/ui/empty-state";
-import EmptyResultsIllustration from "@/components/ui/empty-results-illustration";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   getBoardTasksPageAction,
   getWorkspaceTasksPageAction,
@@ -32,16 +14,14 @@ import type { ClientTask, TaskSearchPage, TaskSearchResult } from "@/lib/types";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
 import TaskModal from "../task/task-modal";
-import PriorityIndicator from "../task/priority-indicator";
-import { getBoardIdentity } from "@/lib/utils/board-identity";
-import columnStatusOptions from "../../data/column-status-options";
+import { BoardSearchDialog } from "./board-search-dialog";
 
-type TaskSearchState = TaskSearchPage & {
+export type TaskSearchState = TaskSearchPage & {
   key: string;
   error: string | null;
 };
 
-type BoardSearchState = {
+export type BoardSearchState = {
   key: string;
   items: BoardWithStats[];
   page: number;
@@ -49,131 +29,18 @@ type BoardSearchState = {
   error: string | null;
 };
 
-function BoardIdentityMarker({
-  title,
-  id,
-  size = "size-5",
-}: {
-  title: string;
-  id: string;
-  size?: "size-4" | "size-5";
-}) {
-  const identity = getBoardIdentity(title, id);
-
-  return (
-    <span
-      className={`${identity.className} ${size} flex shrink-0 items-center justify-center rounded-[3px] text-[10px] leading-none font-semibold`}
-      aria-hidden="true"
-    >
-      {identity.initial}
-    </span>
-  );
-}
-
-function BoardSearchResultItem({
-  board,
-  onSelect,
-}: {
-  board: BoardWithStats;
-  onSelect: (board: BoardWithStats) => void;
-}) {
-  return (
-    <CommandItem
-      value={`board-${board.id}`}
-      onSelect={() => onSelect(board)}
-      className="flex items-center gap-3 px-3 py-3"
-    >
-      <BoardIdentityMarker title={board.title} id={board.id} />
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{board.title}</p>
-        {board.description && (
-          <p className="text-muted-foreground mt-0.5 truncate text-xs">
-            {board.description}
-          </p>
-        )}
-      </div>
-    </CommandItem>
-  );
-}
-
-function ColumnStatusMarker({ status }: { status: string }) {
-  const option =
-    columnStatusOptions[status as keyof typeof columnStatusOptions];
-
-  if (!option) {
-    return (
-      <span className="text-muted-foreground max-w-24 truncate text-xs">
-        {status}
-      </span>
-    );
-  }
-
-  const StatusIcon = option.icon;
-
-  return (
-    <span className="text-muted-foreground inline-flex max-w-32 min-w-0 items-center gap-1.5 text-xs">
-      <StatusIcon
-        className="size-3.5 shrink-0"
-        color={option.color}
-        aria-hidden="true"
-      />
-      <span className="truncate">{status}</span>
-    </span>
-  );
-}
-
-function SearchResultItem({
-  task,
-  onSelect,
-  showBoard,
-}: {
-  task: TaskSearchResult;
-  onSelect: (task: TaskSearchResult) => void;
-  showBoard: boolean;
-}) {
-  return (
-    <CommandItem
-      value={task.id}
-      onSelect={() => onSelect(task)}
-      className="flex items-center gap-3 px-3 py-3"
-    >
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{task.title}</p>
-        {task.description && (
-          <p className="text-muted-foreground mt-0.5 truncate text-xs">
-            {task.description}
-          </p>
-        )}
-      </div>
-      <div className="flex shrink-0 items-center gap-2 max-sm:flex-col max-sm:items-end max-sm:gap-1">
-        {showBoard ? (
-          <span className="text-muted-foreground inline-flex max-w-32 min-w-0 items-center gap-1.5 text-xs">
-            <BoardIdentityMarker
-              title={task.board.title}
-              id={task.board.id}
-              size="size-4"
-            />
-            <span className="truncate">{task.board.title}</span>
-          </span>
-        ) : (
-          <ColumnStatusMarker status={task.column.status} />
-        )}
-        <PriorityIndicator priority={task.priority} />
-      </div>
-    </CommandItem>
-  );
-}
-
 export function BoardSearch({
   scope = "board",
   boardId: providedBoardId,
   compact = false,
   workspaceTabs = "all",
+  enableShortcut = false,
 }: {
   scope?: "board" | "workspace";
   boardId?: string | null;
   compact?: boolean;
   workspaceTabs?: "all" | "boards";
+  enableShortcut?: boolean;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -206,15 +73,20 @@ export function BoardSearch({
   );
 
   useEffect(() => {
+    if (!enableShortcut) return;
+
     const handleShortcut = (event: KeyboardEvent) => {
-      if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
-        event.preventDefault();
-        setOpen((current) => !current);
+      if (event.key.toLowerCase() !== "k" || !(event.metaKey || event.ctrlKey)) {
+        return;
       }
+
+      event.preventDefault();
+      setOpen((current) => !current);
     };
+
     document.addEventListener("keydown", handleShortcut);
     return () => document.removeEventListener("keydown", handleShortcut);
-  }, []);
+  }, [enableShortcut]);
 
   useEffect(() => {
     if (!open || !canSearch) return;
@@ -315,15 +187,15 @@ export function BoardSearch({
     boardsOnly,
   ]);
 
+  const resetSearchState = useCallback(() => {
+    setQuery("");
+    setActiveTab("boards");
+    setTaskSearch(null);
+    setBoardSearch(null);
+  }, []);
+
   const handleOpenChange = useCallback((isOpen: boolean) => {
     setOpen(isOpen);
-    if (!isOpen) {
-      if (pendingTaskRef.current) return;
-      setQuery("");
-      setActiveTab("boards");
-      setTaskSearch(null);
-      setBoardSearch(null);
-    }
   }, []);
 
   const handleSelect = useCallback(
@@ -340,9 +212,6 @@ export function BoardSearch({
       };
       if (scope === "workspace") {
         setOpen(false);
-        setQuery("");
-        setTaskSearch(null);
-        setBoardSearch(null);
         router.push(`/dashboard/${task.board.slug}?task=${task.id}`);
       } else {
         pendingTaskRef.current = clientTask;
@@ -355,9 +224,6 @@ export function BoardSearch({
   const handleBoardSelect = useCallback(
     (board: BoardWithStats) => {
       setOpen(false);
-      setQuery("");
-      setBoardSearch(null);
-      setTaskSearch(null);
       router.push(`/dashboard/${board.slug}`);
     },
     [router],
@@ -507,8 +373,6 @@ export function BoardSearch({
   const isPending = Boolean(open && canSearch && !currentSearch);
   const taskResults = currentTaskSearch?.items ?? [];
   const boardResults = currentBoardSearch?.items ?? [];
-  const results = isBoardTab ? boardResults : taskResults;
-
   const trigger = compact ? (
     <SidebarMenuButton
       className="text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground !size-6 justify-center !gap-0 !p-0 group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2"
@@ -538,221 +402,41 @@ export function BoardSearch({
     <>
       {trigger}
 
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent
-          className="gap-0 overflow-hidden p-0 sm:max-w-xl md:p-0 [&>button]:top-1 [&>button]:right-2"
-          onCloseAutoFocus={() => {
-            const pendingTask = pendingTaskRef.current;
-            if (!pendingTask) return;
-
+      <BoardSearchDialog
+        open={open}
+        scope={scope}
+        boardId={boardId}
+        boardsOnly={boardsOnly}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        query={query}
+        setQuery={setQuery}
+        normalizedQuery={normalizedQuery}
+        isBoardTab={isBoardTab}
+        isPending={isPending}
+        currentSearch={currentSearch}
+        taskResults={taskResults}
+        boardResults={boardResults}
+        hasMoreBoards={hasMoreBoards}
+        nextCursor={nextCursor}
+        isLoadingMore={isLoadingMore}
+        loadMoreRef={loadMoreRef}
+        setTaskSearch={setTaskSearch}
+        setBoardSearch={setBoardSearch}
+        setRetry={setRetry}
+        onTaskSelect={handleSelect}
+        onBoardSelect={handleBoardSelect}
+        onLoadMore={() => void handleLoadMore()}
+        onOpenChange={handleOpenChange}
+        onCloseAutoFocus={() => {
+          const pendingTask = pendingTaskRef.current;
+          if (pendingTask) {
             pendingTaskRef.current = null;
             setSelectedTask(pendingTask);
-            setQuery("");
-            setActiveTab("boards");
-            setTaskSearch(null);
-            setBoardSearch(null);
-          }}
-        >
-          <DialogHeader className="sr-only">
-            <DialogTitle>
-              {scope === "workspace" ? "Search workspace" : "Search tasks"}
-            </DialogTitle>
-            <DialogDescription>
-              {scope === "workspace"
-                ? "Search for boards and tasks by title or description"
-                : "Search for tasks by title or description"}
-            </DialogDescription>
-          </DialogHeader>
-          <Command
-            shouldFilter={false}
-            className="[&_[data-slot=command-input-wrapper]]:bg-input/30 rounded-none"
-          >
-            <Tabs
-              value={scope === "workspace" ? activeTab : "tasks"}
-              onValueChange={(value) =>
-                setActiveTab(value as "tasks" | "boards")
-              }
-              className="gap-0"
-            >
-              <CommandInput
-                placeholder={
-                  isBoardTab
-                    ? "Search boards..."
-                    : "Search tasks by title or description..."
-                }
-                className="pr-8"
-                value={query}
-                onValueChange={setQuery}
-              />
-              {scope === "workspace" && !boardsOnly && (
-                <TabsList className="border-border/70 bg-muted/60 mx-3 mt-3 grid w-auto grid-cols-2 border">
-                  <TabsTrigger
-                    value="boards"
-                    className="data-[state=active]:border-border/80 data-[state=active]:bg-card data-[state=active]:shadow-sm"
-                  >
-                    Boards
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="tasks"
-                    className="data-[state=active]:border-border/80 data-[state=active]:bg-card data-[state=active]:shadow-sm"
-                  >
-                    Tasks
-                  </TabsTrigger>
-                </TabsList>
-              )}
-              <CommandList>
-                {isPending ? (
-                  <div
-                    className="space-y-2 p-3"
-                    aria-label={`Searching ${isBoardTab ? "boards" : "tasks"}`}
-                  >
-                    {[0, 1, 2].map((item) => (
-                      <div
-                        key={item}
-                        className="flex items-center gap-3 rounded-md p-2"
-                      >
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-2/3" />
-                          <Skeleton className="h-3 w-1/3" />
-                        </div>
-                        <Skeleton className="h-5 w-14 rounded-md" />
-                      </div>
-                    ))}
-                  </div>
-                ) : currentSearch?.error && results.length === 0 ? (
-                  <div
-                    role="alert"
-                    className="space-y-2 py-6 text-center text-sm"
-                  >
-                    <p>{currentSearch.error}</p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        if (isBoardTab) setBoardSearch(null);
-                        else setTaskSearch(null);
-                        setRetry((value) => value + 1);
-                      }}
-                    >
-                      Retry
-                    </Button>
-                  </div>
-                ) : results.length === 0 && !normalizedQuery ? (
-                  <EmptyState
-                    size="compact"
-                    className="min-h-56 py-6"
-                    illustration={<EmptyResultsIllustration />}
-                    title={
-                      isBoardTab ? "No boards to search" : "No tasks to search"
-                    }
-                    description={
-                      isBoardTab
-                        ? "Create a board, then use search to find it quickly."
-                        : "Create a task, then use search to find it quickly."
-                    }
-                    action={
-                      boardId ? (
-                        <TaskModal
-                          mode="create"
-                          boardId={boardId}
-                          trigger={
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setOpen(false)}
-                            >
-                              <Plus aria-hidden="true" /> Add task
-                            </Button>
-                          }
-                        />
-                      ) : undefined
-                    }
-                  />
-                ) : results.length === 0 ? (
-                  <EmptyState
-                    size="compact"
-                    className="min-h-44 py-6"
-                    illustration={<EmptyResultsIllustration />}
-                    title={
-                      isBoardTab ? "No matching boards" : "No matching tasks"
-                    }
-                    description="Try a different title, keyword, or description."
-                    action={
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setQuery("")}
-                      >
-                        Clear search
-                      </Button>
-                    }
-                  />
-                ) : (
-                  <CommandGroup heading={isBoardTab ? "Boards" : "Tasks"}>
-                    {isBoardTab
-                      ? boardResults.map((board) => (
-                          <BoardSearchResultItem
-                            key={board.id}
-                            board={board}
-                            onSelect={handleBoardSelect}
-                          />
-                        ))
-                      : taskResults.map((task) => (
-                          <SearchResultItem
-                            key={task.id}
-                            task={task}
-                            onSelect={handleSelect}
-                            showBoard={scope === "workspace"}
-                          />
-                        ))}
-                    {(isBoardTab ? hasMoreBoards : Boolean(nextCursor)) && (
-                      <div
-                        ref={loadMoreRef}
-                        className="text-muted-foreground flex min-h-8 items-center justify-center py-1 text-xs"
-                        aria-live="polite"
-                      >
-                        {isLoadingMore ? "Loading more..." : null}
-                      </div>
-                    )}
-                    {currentSearch?.error && (
-                      <div className="space-y-1 py-2 text-center">
-                        <p className="text-destructive text-xs">
-                          {currentSearch.error}
-                        </p>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            if (isBoardTab) {
-                              setBoardSearch((current) =>
-                                current ? { ...current, error: null } : current,
-                              );
-                            } else {
-                              setTaskSearch((current) =>
-                                current ? { ...current, error: null } : current,
-                              );
-                            }
-                            void handleLoadMore();
-                          }}
-                        >
-                          Retry
-                        </Button>
-                      </div>
-                    )}
-                  </CommandGroup>
-                )}
-              </CommandList>
-            </Tabs>
-            <div className="text-muted-foreground flex items-center justify-end gap-4 border-t px-3 py-2 text-[0.625rem]">
-              <span>Up/Down Navigate</span>
-              <span className="flex items-center gap-1">
-                <CornerDownLeft className="size-3" aria-hidden="true" /> Open
-              </span>
-              <span>Esc Close</span>
-            </div>
-          </Command>
-        </DialogContent>
-      </Dialog>
+          }
+          resetSearchState();
+        }}
+      />
 
       {scope === "board" && selectedTask && (
         <TaskModal

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import UserAvatarMenu from "./user-avatar-menu";
 
 type UserAvatarProps = {
@@ -17,10 +18,11 @@ const UserAvatar = ({ fullName, firstName, imageUrl }: UserAvatarProps) => {
 
   return (
     <UserAvatarMenu>
-      <button type="button" className="rounded-full" aria-label="Open user menu">
+      <Button type="button" variant="ghost" size="icon" effect="ringHover" className="rounded-full" aria-label="Open user menu">
         <span className="relative block">
           <span className="bg-muted relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-medium">
             {initials || "U"}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={imageUrl}
               alt={name}
@@ -34,7 +36,7 @@ const UserAvatar = ({ fullName, firstName, imageUrl }: UserAvatarProps) => {
             <span className="border-background relative size-2.5 rounded-full border-2 bg-emerald-500 animate-pulse" />
           </span>
         </span>
-      </button>
+      </Button>
     </UserAvatarMenu>
   );
 };

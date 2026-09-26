@@ -18,7 +18,12 @@ const SidebarActions = () => {
     <SidebarGroup className={open ? "hidden" : "block"}>
       <SidebarMenu>
         <SidebarMenuItem>
-          <BoardSearch scope="workspace" workspaceTabs="boards" compact />
+          <BoardSearch
+            scope="workspace"
+            workspaceTabs="boards"
+            compact
+            enableShortcut={false}
+          />
         </SidebarMenuItem>
         <SidebarMenuItem>
           <BoardModal
