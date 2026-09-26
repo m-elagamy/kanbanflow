@@ -7,7 +7,7 @@ import {
 
 const SidebarTitle = () => {
   return (
-    <SidebarHeader className="pointer-events-none">
+    <SidebarHeader className="pointer-events-none ps-0.5">
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton aria-label="Kanbamy">
