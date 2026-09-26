@@ -5,9 +5,27 @@ import type { ColumnStore, SimplifiedColumn } from "@/lib/types/stores/column";
 
 export const useColumnStore = create<ColumnStore>()(
   immer((set) => ({
+    activeBoardId: null,
     columnsByBoard: {},
     previousState: null,
     previousReorderState: null,
+
+    initializeColumns: (boardId, columns) => {
+      set((state) => {
+        const newColumns = columns.reduce<Record<string, SimplifiedColumn>>(
+          (acc, col) => {
+            acc[col.id] = col;
+            return acc;
+          },
+          {},
+        );
+
+        state.activeBoardId = boardId;
+        state.columnsByBoard = { [boardId]: newColumns };
+        state.previousState = null;
+        state.previousReorderState = null;
+      });
+    },
 
     setColumns: (boardId, columns) => {
       set((state) => {
@@ -29,6 +47,7 @@ export const useColumnStore = create<ColumnStore>()(
 
     addColumn: (boardId, column) => {
       set((state) => {
+        if (state.activeBoardId !== boardId) return state;
         if (!state.columnsByBoard[boardId]) state.columnsByBoard[boardId] = {};
 
         state.previousState = {
@@ -52,6 +71,7 @@ export const useColumnStore = create<ColumnStore>()(
 
     updateColumn: (boardId, columnId, updates) => {
       set((state) => {
+        if (state.activeBoardId !== boardId) return state;
         if (!state.columnsByBoard[boardId]?.[columnId]) return state;
 
         const columnToUpdate = state.columnsByBoard[boardId][columnId];
@@ -137,6 +157,7 @@ export const useColumnStore = create<ColumnStore>()(
 
     reorderColumns: (boardId, activeColumnId, overColumnId) => {
       set((state) => {
+        if (state.activeBoardId !== boardId) return state;
         const columns = state.columnsByBoard[boardId];
         if (!columns) return state;
 
@@ -155,7 +176,10 @@ export const useColumnStore = create<ColumnStore>()(
         sorted.splice(overIndex, 0, moved);
 
         sorted.forEach((column, index) => {
-          state.columnsByBoard[boardId][column.id] = { ...column, order: index };
+          state.columnsByBoard[boardId][column.id] = {
+            ...column,
+            order: index,
+          };
         });
       });
     },
@@ -172,6 +196,7 @@ export const useColumnStore = create<ColumnStore>()(
 
     deleteColumn: (boardId, columnId) => {
       set((state) => {
+        if (state.activeBoardId !== boardId) return;
         if (!state.columnsByBoard[boardId]) return;
 
         const columnToDelete = state.columnsByBoard[boardId][columnId];

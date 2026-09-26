@@ -36,11 +36,15 @@ const ColumnsWrapper = ({
   const columnsContainerRef = useRef<HTMLDivElement>(null);
   const [hasPreviousColumns, setHasPreviousColumns] = useState(false);
   const [hasMoreColumns, setHasMoreColumns] = useState(false);
-  const columns = useColumnStore(
-    useShallow((state) => state.columnsByBoard[boardId] || {}),
+  const { activeBoardId, columns } = useColumnStore(
+    useShallow((state) => ({
+      activeBoardId: state.activeBoardId,
+      columns: state.columnsByBoard[boardId] || {},
+    })),
   );
 
-  const availableColumns = Object.values(columns);
+  const availableColumns =
+    activeBoardId === boardId ? Object.values(columns) : [];
   const sortedColumns = (
     availableColumns.length ? availableColumns : initialColumns
   ).sort((a, b) => a.order - b.order);
@@ -114,6 +118,7 @@ const ColumnsWrapper = ({
                 }
               >
                 <ColumnCard
+                  boardId={boardId}
                   column={column}
                   focusedTaskId={focusedTaskId}
                   initialTasks={

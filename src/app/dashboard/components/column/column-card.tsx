@@ -23,6 +23,7 @@ import useLoadingStore from "@/stores/loading";
 import QuickAddTask from "../task/quick-add-task";
 
 type ColumnCardProps = {
+  boardId: string;
   column: SimplifiedColumn;
   focusedTaskId?: string;
   initialTasks?: ClientTask[];
@@ -33,6 +34,7 @@ type ColumnCardProps = {
 const EMPTY_TASK_IDS: string[] = [];
 
 const ColumnCard = ({
+  boardId,
   column,
   focusedTaskId,
   initialTasks = [],
@@ -66,6 +68,7 @@ const ColumnCard = ({
   };
 
   const {
+    activeBoardId: taskBoardId,
     taskIds: loadedTaskIds,
     tasksById,
     page,
@@ -75,6 +78,7 @@ const ColumnCard = ({
     setColumnPageError,
   } = useTaskStore(
     useShallow((state) => ({
+      activeBoardId: state.activeBoardId,
       taskIds: state.columnTaskIds[column.id] ?? EMPTY_TASK_IDS,
       tasksById: state.tasks,
       page: state.columnPages[column.id],
@@ -85,12 +89,16 @@ const ColumnCard = ({
     })),
   );
   const tasks = useMemo(
-    () => loadedTaskIds.map((id) => tasksById[id]).filter(Boolean),
-    [loadedTaskIds, tasksById],
+    () =>
+      taskBoardId === boardId
+        ? loadedTaskIds.map((id) => tasksById[id]).filter(Boolean)
+        : initialTasks,
+    [boardId, initialTasks, loadedTaskIds, taskBoardId, tasksById],
   );
   const activePriority = priorityFilter === "all" ? null : priorityFilter;
-  const isCurrentPage = page?.filter === priorityFilter;
-  const taskPage = page ?? {
+  const activePage = taskBoardId === boardId ? page : undefined;
+  const isCurrentPage = activePage?.filter === priorityFilter;
+  const taskPage = activePage ?? {
     nextCursor: null,
     totalCount: 0,
     isLoading: false,
@@ -99,12 +107,12 @@ const ColumnCard = ({
   };
   const matchesPriority = (task: ClientTask) =>
     priorityFilter === "all" || task.priority === priorityFilter;
-  const visibleTasks = page
+  const visibleTasks = activePage
     ? isCurrentPage
       ? tasks
       : tasks.filter(matchesPriority)
     : initialTasks.filter(matchesPriority);
-  const nextCursor = isCurrentPage ? page.nextCursor : null;
+  const nextCursor = isCurrentPage ? activePage.nextCursor : null;
 
   const loadFirstPage = useCallback(async () => {
     setColumnPageLoading(column.id, true);
@@ -115,6 +123,7 @@ const ColumnCard = ({
         TASKS_PAGE_SIZE,
         activePriority,
       );
+      if (useTaskStore.getState().activeBoardId !== boardId) return;
       if (!result.success || !result.fields) {
         replaceColumnTaskPage(column.id, [], null, priorityFilter, 0);
         setColumnPageError(column.id, result.message);
@@ -133,6 +142,7 @@ const ColumnCard = ({
     }
   }, [
     activePriority,
+    boardId,
     column.id,
     priorityFilter,
     replaceColumnTaskPage,
@@ -146,7 +156,7 @@ const ColumnCard = ({
   }, [isCurrentPage, loadFirstPage]);
 
   const loadMore = useCallback(async () => {
-    if (!nextCursor || page?.isLoading) return;
+    if (!nextCursor || activePage?.isLoading) return;
     setColumnPageLoading(column.id, true);
 
     try {
@@ -156,6 +166,7 @@ const ColumnCard = ({
         TASKS_PAGE_SIZE,
         activePriority,
       );
+      if (useTaskStore.getState().activeBoardId !== boardId) return;
       if (!result.success || !result.fields) {
         setColumnPageError(column.id, result.message);
         return;
@@ -171,16 +182,18 @@ const ColumnCard = ({
   }, [
     activePriority,
     appendColumnTaskPage,
+    boardId,
     column.id,
     nextCursor,
-    page?.isLoading,
+    activePage?.isLoading,
     setColumnPageError,
     setColumnPageLoading,
   ]);
 
   useEffect(() => {
     const target = loadMoreRef.current;
-    if (!target || !nextCursor || page?.isLoading || page?.error) return;
+    if (!target || !nextCursor || activePage?.isLoading || activePage?.error)
+      return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -193,12 +206,12 @@ const ColumnCard = ({
 
     observer.observe(target);
     return () => observer.disconnect();
-  }, [loadMore, nextCursor, page?.error, page?.isLoading]);
+  }, [loadMore, nextCursor, activePage?.error, activePage?.isLoading]);
 
   const taskIds = visibleTasks.map((task) => task.id);
   const isInitialLoading =
     !hasInitialData &&
-    Boolean(page) &&
+    Boolean(activePage) &&
     (!isCurrentPage || (taskPage.isLoading && !tasks.length));
 
   return (
@@ -215,7 +228,7 @@ const ColumnCard = ({
         column={column}
         tasksCount={
           isCurrentPage
-            ? (page?.totalCount ?? tasks.length)
+            ? (activePage?.totalCount ?? tasks.length)
             : visibleTasks.length
         }
         dragHandleProps={{ attributes, listeners }}
@@ -288,7 +301,9 @@ const ColumnCard = ({
               )}
               {nextCursor && taskPage.error && (
                 <div className="space-y-1 text-center">
-                  <p className="text-destructive text-xs">{page.error}</p>
+                  <p className="text-destructive text-xs">
+                    {activePage?.error}
+                  </p>
                   <Button
                     variant="ghost"
                     size="sm"

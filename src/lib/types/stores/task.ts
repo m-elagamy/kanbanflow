@@ -25,6 +25,7 @@ export type TaskSnapshot = {
 } | null;
 
 export type TaskState = {
+  activeBoardId: string | null;
   tasks: Record<string, ClientTask>;
   columnTaskIds: Record<string, string[]>;
   columnPages: Record<string, ColumnTaskPageState>;
@@ -33,7 +34,10 @@ export type TaskState = {
 };
 
 type TaskActions = {
-  initializeTaskPages: (pages: InitialColumnTaskPage[]) => void;
+  initializeTaskPages: (
+    boardId: string,
+    pages: InitialColumnTaskPage[],
+  ) => void;
   replaceColumnTaskPage: (
     columnId: string,
     tasks: ClientTask[],

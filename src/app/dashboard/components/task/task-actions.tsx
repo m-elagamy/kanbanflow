@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { ArrowRight, Ellipsis, Settings2, TrashIcon } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
-import { toast } from "sonner";
 import type { ClientTask } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {

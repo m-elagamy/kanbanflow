@@ -4,6 +4,7 @@ import { subscribeWithSelector } from "zustand/middleware";
 import type { TaskState, TaskStore } from "@/lib/types/stores/task";
 
 const initialState: TaskState = {
+  activeBoardId: null,
   tasks: {},
   columnTaskIds: {},
   columnPages: {},
@@ -32,11 +33,14 @@ export const useTaskStore = create<TaskStore>()(
     immer((set, get) => ({
       ...initialState,
 
-      initializeTaskPages: (pages) => {
+      initializeTaskPages: (boardId, pages) => {
         set((state) => {
+          state.activeBoardId = boardId;
           state.tasks = {};
           state.columnTaskIds = {};
           state.columnPages = {};
+          state.activeTaskId = null;
+          state.previousState = null;
 
           for (const page of pages) {
             state.columnTaskIds[page.columnId] = page.tasks.map(

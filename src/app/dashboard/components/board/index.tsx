@@ -38,7 +38,8 @@ export default function BoardLayout({
   const [priorityFilter, setPriorityFilter] =
     useState<PriorityFilterValue>("all");
   const isPriorityFilterPending = useTaskStore((state) => {
-    if (!hasInitializedTaskPages) return false;
+    if (!hasInitializedTaskPages || state.activeBoardId !== initialBoard.id)
+      return false;
 
     return initialBoard.columns.some((column) => {
       const page = state.columnPages[column.id];

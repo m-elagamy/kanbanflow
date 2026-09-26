@@ -14,12 +14,17 @@ export type ColumnReorderSnapshot = {
 } | null;
 
 export type ColumnState = {
+  activeBoardId: string | null;
   columnsByBoard: Record<string, Record<string, SimplifiedColumn>>;
   previousState: ColumnSnapshot;
   previousReorderState: ColumnReorderSnapshot;
 };
 
 export type ColumnActions = {
+  initializeColumns: (
+    boardId: string,
+    columns: ReadonlyArray<SimplifiedColumn>,
+  ) => void;
   setColumns: (
     boardId: string,
     columns: ReadonlyArray<SimplifiedColumn>,
