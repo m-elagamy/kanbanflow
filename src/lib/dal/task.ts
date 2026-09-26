@@ -440,7 +440,7 @@ export const getWorkspaceTasksOverviewPage = withUserId(
       "high-priority",
     ];
 
-    const [tasks, totalCount, ...countResults] = await Promise.all([
+    const [tasks, ...countResults] = await Promise.all([
       db.task.findMany({
         where,
         orderBy:
@@ -456,7 +456,6 @@ export const getWorkspaceTasksOverviewPage = withUserId(
         take: limit,
         select: workspaceTaskSelect,
       }),
-      db.task.count({ where }),
       ...countFilters.map((currentFilter) =>
         db.task.count({ where: whereFor(currentFilter) }),
       ),
@@ -471,7 +470,7 @@ export const getWorkspaceTasksOverviewPage = withUserId(
 
     return {
       items: tasks.map((task) => toWorkspaceTask(task, staleBoundary)),
-      totalCount,
+      totalCount: counts[filter],
       counts,
     };
   },

@@ -1,4 +1,4 @@
-import { Loader } from "lucide-react";
+import { Loader, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -7,8 +7,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogOverlay,
-  AlertDialogPortal,
 } from "@/components/ui/alert-dialog";
 import { Button } from "./button";
 
@@ -35,36 +33,40 @@ const AlertConfirmation = ({
 }: AlertConfirmationProps) => {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogPortal>
-        <AlertDialogOverlay>
-          <AlertDialogContent className="max-w-sm p-4">
-            <AlertDialogHeader className="gap-1">
+      <AlertDialogContent className="max-w-sm gap-5 p-5">
+        <AlertDialogHeader className="gap-3 text-left sm:text-left">
+          <div className="flex items-start gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+              <Trash2 className="size-5" aria-hidden="true" />
+            </div>
+            <div className="space-y-1.5">
               <AlertDialogTitle>{title}?</AlertDialogTitle>
               <AlertDialogDescription>{description}</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="justify-center">
-              <AlertDialogCancel className="h-8 px-2">
-                {cancelLabel}
-              </AlertDialogCancel>
-              <Button
-                className="px-2"
-                size="sm"
-                variant="destructive"
-                disabled={isPending}
-                onClick={onClick}
-              >
-                {isPending ? (
-                  <>
-                    <Loader className="animate-spin" aria-hidden /> Deleting...
-                  </>
-                ) : (
-                  confirmLabel
-                )}
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialogPortal>
+            </div>
+          </div>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="gap-2 sm:justify-end">
+          <AlertDialogCancel className="mt-0 h-9 px-4">
+            {cancelLabel}
+          </AlertDialogCancel>
+          <Button
+            className="h-9 px-4"
+            size="sm"
+            variant="destructive"
+            disabled={isPending}
+            onClick={onClick}
+          >
+            {isPending ? (
+              <>
+                <Loader className="size-4 animate-spin" aria-hidden />
+                Deleting...
+              </>
+            ) : (
+              confirmLabel
+            )}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
     </AlertDialog>
   );
 };
