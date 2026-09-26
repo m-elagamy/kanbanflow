@@ -1,4 +1,4 @@
-import { getAuthenticatedUserId } from "@/utils/dev-auth";
+import { getAuthenticatedUserId } from "@/utils/auth";
 
 type DALFunction<T extends unknown[], R> = (...args: T) => Promise<R>;
 type DALResult<R> = { success: boolean; message: string; data?: R };

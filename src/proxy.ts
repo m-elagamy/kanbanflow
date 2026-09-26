@@ -1,25 +1,6 @@
-import {
-  clerkMiddleware as proxy,
-  createRouteMatcher,
-} from "@clerk/nextjs/server";
-import { isDevAuthBypass } from "@/utils/dev-auth";
+import { clerkMiddleware as proxy } from "@clerk/nextjs/server";
 
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-  "/forgot-password",
-  "/sso-callback",
-  "/robots.txt",
-  "/sitemap.xml",
-  "/opengraph-image",
-]);
-
-export default proxy(async (auth, request) => {
-  if (!isDevAuthBypass() && !isPublicRoute(request)) {
-    await auth.protect();
-  }
-});
+export default proxy();
 
 export const config = {
   matcher: [

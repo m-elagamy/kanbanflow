@@ -4,9 +4,13 @@ import { after } from "next/server";
 import WelcomeSetup from "./components/welcome-setup";
 import { getUserOnboardingStateAction } from "@/actions/user";
 import { prepareUserRecord } from "@/lib/dal/user";
-import { getAuthenticatedUser } from "@/utils/dev-auth";
+import {
+  getAuthenticatedUser,
+  protect,
+} from "@/utils/auth";
 
 const WelcomePage = async () => {
+  await protect();
   const user = await getAuthenticatedUser();
 
   const onboardingState = await getUserOnboardingStateAction();

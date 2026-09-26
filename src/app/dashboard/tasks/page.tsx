@@ -18,6 +18,7 @@ import TaskColumnAge from "../components/task/task-column-age";
 import { getBoardIdentity } from "@/lib/utils/board-identity";
 import { Skeleton } from "@/components/ui/skeleton";
 import TasksSearch from "./tasks-search";
+import { protect } from "@/utils/auth";
 
 type SearchParams = Promise<{
   attention?: string;
@@ -46,6 +47,7 @@ export default async function TasksPage({
 }: {
   searchParams: SearchParams;
 }) {
+  await protect();
   const params = await searchParams;
   const filter = (params.attention ?? "all") as TasksFilter;
   const page = Number(params.page ?? "1");

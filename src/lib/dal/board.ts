@@ -1,7 +1,7 @@
 import db from "../db";
 import { Board, type Column, type Priority, type Prisma } from "@prisma/client";
 import { createHash } from "node:crypto";
-import { getAuthenticatedUser } from "@/utils/dev-auth";
+import { getAuthenticatedUser } from "@/utils/auth";
 import { withUserId } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";

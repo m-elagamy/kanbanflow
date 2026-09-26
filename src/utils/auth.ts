@@ -11,6 +11,11 @@ export const DEV_AUTH_USER_ID = "dev_user_001";
 
 export const isDevAuthBypass = () => isDevAuthBypassEnabled;
 
+export async function protect() {
+  if (isDevAuthBypassEnabled) return;
+  await auth.protect();
+}
+
 export async function getAuthenticatedUserId() {
   if (isDevAuthBypassEnabled) return DEV_AUTH_USER_ID;
 

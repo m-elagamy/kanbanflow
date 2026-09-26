@@ -7,14 +7,16 @@ import BoardModal from "../components/board/board-modal";
 import BoardsSearch from "./boards-search";
 import BoardsContent from "./boards-content";
 import BoardsCardsSkeleton from "./boards-cards-skeleton";
+import { protect } from "@/utils/auth";
 
 type SearchParams = Promise<{ page?: string; q?: string }>;
 
-export default function BoardsPage({
+export default async function BoardsPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
+  await protect();
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 md:px-10">
       <div className="mb-6">

@@ -17,11 +17,13 @@ import {
 import type { ColumnStatus } from "@/schemas/column";
 import handlePrismaError from "@/utils/prisma-error-handler";
 import { revalidateUserBoards } from "@/utils/revalidate-user-boards";
+import { protect } from "@/utils/auth";
 
 export const createBoardAction = async (
   boardData: BoardFormSchema,
   requestId: string,
 ): Promise<ServerActionResult<Board & { columns: Column[] }>> => {
+  await protect();
   const validatedData = boardSchema.safeParse(boardData);
   const validatedRequestId = z.uuid().safeParse(requestId);
   if (!validatedData.success || !validatedRequestId.success) {
@@ -67,6 +69,7 @@ export const updateBoardAction = async (
 ): Promise<
   ServerActionResult<Pick<Board, "title" | "description" | "slug">>
 > => {
+  await protect();
   const data = Object.fromEntries(formData.entries());
   const validatedData = boardSchema.omit({ template: true }).safeParse(data);
   const rawBoardId = formData.get("boardId");
@@ -141,6 +144,7 @@ export const updateBoardAction = async (
 export async function deleteBoardAction(
   boardId: string,
 ): Promise<ServerActionResult<{ boardId: string }>> {
+  await protect();
   const validatedId = z.string().min(1).safeParse(boardId);
   if (!validatedId.success) {
     return { success: false, message: "Invalid Board ID" };
@@ -161,6 +165,7 @@ export async function deleteBoardAction(
 }
 
 export async function getBoardBySlugAction(slug: string) {
+  await protect();
   const validatedSlug = z.string().min(1).safeParse(slug);
   if (!validatedSlug.success) {
     return { success: false, message: "Board not found" };

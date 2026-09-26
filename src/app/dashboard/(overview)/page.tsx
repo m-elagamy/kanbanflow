@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { getAuthenticatedUser, getAuthenticatedUserId } from "@/utils/dev-auth";
+import {
+  getAuthenticatedUser,
+  getAuthenticatedUserId,
+  protect,
+} from "@/utils/auth";
 import {
   getUserOnboardingStateAction,
   getUserBoardsWithStatsAction,
@@ -10,6 +14,7 @@ import BoardsGrid from "../components/board/boards-grid";
 import { getDashboardFocusTasksAction } from "@/actions/task";
 
 const Dashboard = async () => {
+  await protect();
   await getAuthenticatedUserId();
 
   const [

@@ -4,6 +4,7 @@ import { getBoardBySlugAction } from "@/actions/board";
 import deslugify from "@/utils/deslugify";
 import BoardLayout from "../components/board";
 import { getTaskDetailsAction } from "@/actions/task";
+import { protect } from "@/utils/auth";
 
 type Params = Promise<{ board: string }>;
 type SearchParams = Promise<{
@@ -20,6 +21,7 @@ export default async function BoardPage({
   params: Params;
   searchParams: SearchParams;
 }) {
+  await protect();
   const boardSlug = decodeURIComponent((await params).board);
   const {
     new: isFreshlyCreated,

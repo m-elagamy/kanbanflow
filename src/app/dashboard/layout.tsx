@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { currentUser } from "@clerk/nextjs/server";
+import { protect } from "@/utils/auth";
 import DashboardSidebar from "@/components/layout/sidebar";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
 import {
@@ -15,6 +16,7 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await protect();
   const [cookieStore, user] = await Promise.all([cookies(), currentUser()]);
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
   const sidebarUser = user
