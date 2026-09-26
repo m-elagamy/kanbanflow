@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
   const message = formError ?? clerkMessage ?? errors.global?.[0]?.message;
 
   const navigate = ({ decorateUrl }: { decorateUrl: (url: string) => string }) =>
-    router.replace(decorateUrl("/welcome"));
+    router.replace(decorateUrl("/dashboard"));
   function validateField(field: string, value: string, schema: typeof emailPasswordSchema.shape.email) {
     const message = getValidationMessage(schema, value);
     setFieldErrors((current) => message ? { ...current, [field]: message } : Object.fromEntries(Object.entries(current).filter(([key]) => key !== field)));

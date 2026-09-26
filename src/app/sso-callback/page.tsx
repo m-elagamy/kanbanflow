@@ -27,25 +27,29 @@ function SsoCallbackContent() {
     if (!clerk.loaded || hasRun.current) return;
 
     hasRun.current = true;
-    const navigate = ({ session, decorateUrl }: NavigateOptions) => {
-      if (session?.currentTask) {
-        setMessage("Your account needs one more step to finish signing in.");
-        return;
-      }
+    const createNavigate = (destination: "/dashboard" | "/welcome") =>
+      ({ session, decorateUrl }: NavigateOptions) => {
+        if (session?.currentTask) {
+          setMessage("Your account needs one more step to finish signing in.");
+          return;
+        }
 
-      const url = decorateUrl("/welcome");
-      if (url.startsWith("http")) {
-        window.location.assign(url);
-        return;
-      }
+        const url = decorateUrl(destination);
+        if (url.startsWith("http")) {
+          window.location.assign(url);
+          return;
+        }
 
-      router.replace(url);
-    };
+        router.replace(url);
+      };
+
+    const navigateToDashboard = createNavigate("/dashboard");
+    const navigateToWelcome = createNavigate("/welcome");
 
     void (async () => {
       try {
         if (signIn.status === "complete") {
-          await signIn.finalize({ navigate });
+          await signIn.finalize({ navigate: navigateToDashboard });
           return;
         }
 
@@ -53,7 +57,7 @@ function SsoCallbackContent() {
           setMessage("Matching your account…");
           await signIn.create({ transfer: true });
           if ((signIn.status as string) === "complete") {
-            await signIn.finalize({ navigate });
+            await signIn.finalize({ navigate: navigateToDashboard });
             return;
           }
           router.replace("/sign-in");
@@ -74,7 +78,7 @@ function SsoCallbackContent() {
           setMessage("Creating your account…");
           await signUp.create({ transfer: true });
           if ((signUp.status as string) === "complete") {
-            await signUp.finalize({ navigate });
+            await signUp.finalize({ navigate: navigateToWelcome });
             return;
           }
           router.replace("/sign-in/continue");
@@ -82,14 +86,19 @@ function SsoCallbackContent() {
         }
 
         if (signUp.status === "complete") {
-          await signUp.finalize({ navigate });
+          await signUp.finalize({ navigate: navigateToWelcome });
           return;
         }
 
         const sessionId =
           signIn.existingSession?.sessionId ?? signUp.existingSession?.sessionId;
         if (sessionId) {
-          await clerk.setActive({ session: sessionId, navigate });
+          await clerk.setActive({
+            session: sessionId,
+            navigate: signIn.existingSession
+              ? navigateToDashboard
+              : navigateToWelcome,
+          });
           return;
         }
 

@@ -8,7 +8,7 @@ export default function AuthLayout({
   return (
     <>
       <GoogleOneTap
-        signInForceRedirectUrl="/welcome"
+        signInForceRedirectUrl="/dashboard"
         signUpForceRedirectUrl="/welcome"
       />
       {children}

@@ -63,7 +63,7 @@ export default function SignInPage() {
     decorateUrl,
   }: {
     decorateUrl: (url: string) => string;
-  }) => router.push(decorateUrl("/welcome"));
+  }) => router.push(decorateUrl("/dashboard"));
 
   useEffect(() => {
     const provider = window.sessionStorage.getItem("oauth-notice");
@@ -134,7 +134,7 @@ export default function SignInPage() {
       const result = await signIn.create({
         strategy,
         redirectUrl: callbackUrl.href,
-        actionCompleteRedirectUrl: new URL("/welcome", window.location.origin).href,
+        actionCompleteRedirectUrl: new URL("/dashboard", window.location.origin).href,
       });
       if (result.error) {
         setFormError(getClerkErrorMessage(result.error));
