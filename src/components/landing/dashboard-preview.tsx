@@ -1,4 +1,4 @@
-import { Ellipsis, Flag, Plus, Search, SquareKanban } from "lucide-react";
+import { Ellipsis, Flag, Plus, Search } from "lucide-react";
 import columnStatusOptions from "@/app/dashboard/data/column-status-options";
 import { BorderTrail } from "@/components/ui/border-trail";
 import {
@@ -161,21 +161,18 @@ export default function DashboardPreview() {
           <span className="bg-primary/55 size-2 rounded-full" />
           <span className="bg-secondary size-2 rounded-full" />
           <div className="bg-background border-border/50 text-muted-foreground mx-1 flex h-6 flex-1 items-center justify-center rounded-md border px-4 text-[9px] sm:mx-2 sm:h-7 sm:text-[11px]">
-            kanbamy.com/dashboard
+            kanbamy.com/dashboard/kanbamy
           </div>
         </div>
 
         <div className="border-border/50 flex items-center justify-between gap-3 border-b px-3 py-3 sm:px-5 sm:py-4">
           <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-            <span className="bg-primary/10 text-primary ring-primary/15 flex size-8 shrink-0 items-center justify-center rounded-lg ring-1 sm:size-10 sm:rounded-xl">
-              <SquareKanban className="size-4 sm:size-5" aria-hidden="true" />
+            <span className="bg-primary/10 text-primary ring-primary/15 flex size-8 shrink-0 items-center justify-center rounded-lg text-sm font-semibold ring-1 sm:size-10 sm:rounded-xl sm:text-base">
+              K
             </span>
             <div className="min-w-0 text-left">
               <p className="truncate text-sm font-semibold sm:text-base">
-                Product launch
-              </p>
-              <p className="text-muted-foreground hidden truncate text-xs sm:block">
-                Plan, build, and ship the next release
+                Kanbamy
               </p>
             </div>
           </div>
