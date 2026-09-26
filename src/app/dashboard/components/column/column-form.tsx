@@ -36,10 +36,11 @@ type ColumnFormProps = {
 export default function ColumnForm({ boardId, onClose }: ColumnFormProps) {
   const [isContentLoaded, setIsContentLoaded] = useState(false);
 
-  const { columns, addColumn } = useColumnStore(
+  const { columns, addColumn, clearOperation } = useColumnStore(
     useShallow((state) => ({
       columns: state.columnsByBoard[boardId],
       addColumn: state.addColumn,
+      clearOperation: state.clearOperation,
     })),
   );
 
@@ -92,11 +93,12 @@ export default function ColumnForm({ boardId, onClose }: ColumnFormProps) {
           return null;
         }
 
-        addColumn(boardId, {
+        const operationId = addColumn(boardId, {
           id: createdColumn.fields.id,
           status: createdColumn.fields.status,
           order: createdColumn.fields.order,
         });
+        clearOperation(operationId ?? undefined);
         onClose();
       } catch (error) {
         console.error("Error creating column:", error);

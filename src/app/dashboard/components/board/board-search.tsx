@@ -330,6 +330,7 @@ export function BoardSearch({
     (task: TaskSearchResult) => {
       const clientTask: ClientTask = {
         id: task.id,
+        createdAt: task.createdAt,
         title: task.title,
         description: task.description,
         priority: task.priority,

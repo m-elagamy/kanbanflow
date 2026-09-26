@@ -52,8 +52,9 @@ export function useTaskCreateAction({
           return null;
         }
 
-        addTask(finalColumnId, {
+        const operationId = addTask(finalColumnId, {
           id: result.fields.id,
+          createdAt: new Date().toISOString(),
           columnId: finalColumnId,
           title,
           description,
@@ -61,7 +62,7 @@ export function useTaskCreateAction({
           order: result.fields.order ?? "",
           columnEnteredAt: new Date().toISOString(),
         });
-        clearSnapshot();
+        clearSnapshot(operationId ?? undefined);
         onClose();
         toast.success(result.message);
       } catch (error) {

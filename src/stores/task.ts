@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { subscribeWithSelector } from "zustand/middleware";
+import type { ClientTask } from "@/lib/types";
 import type { TaskState, TaskStore } from "@/lib/types/stores/task";
 
 const initialState: TaskState = {
@@ -9,24 +10,10 @@ const initialState: TaskState = {
   columnTaskIds: {},
   columnPages: {},
   activeTaskId: null,
-  previousState: null,
+  optimisticOperations: {},
 };
 
-const snapshotState = (state: TaskState) => ({
-  tasks: { ...state.tasks },
-  columnTaskIds: Object.fromEntries(
-    Object.entries(state.columnTaskIds).map(([columnId, taskIds]) => [
-      columnId,
-      [...taskIds],
-    ]),
-  ),
-  columnPages: Object.fromEntries(
-    Object.entries(state.columnPages).map(([columnId, page]) => [
-      columnId,
-      { ...page },
-    ]),
-  ),
-});
+const createOperationId = () => crypto.randomUUID();
 
 export const useTaskStore = create<TaskStore>()(
   subscribeWithSelector(
@@ -40,7 +27,7 @@ export const useTaskStore = create<TaskStore>()(
           state.columnTaskIds = {};
           state.columnPages = {};
           state.activeTaskId = null;
-          state.previousState = null;
+          state.optimisticOperations = {};
 
           for (const page of pages) {
             state.columnTaskIds[page.columnId] = page.tasks.map(
@@ -129,23 +116,46 @@ export const useTaskStore = create<TaskStore>()(
         });
       },
 
-      captureSnapshot: () => {
+      captureSnapshot: (taskId) => {
+        const operationId = createOperationId();
+        let created = false;
         set((state) => {
-          state.previousState = snapshotState(state);
+          const activeId = taskId ?? state.activeTaskId;
+          if (!activeId) return;
+          const columnId = Object.entries(state.columnTaskIds).find(([, ids]) =>
+            ids.includes(activeId),
+          )?.[0];
+          if (!columnId) return;
+          const previousIndex = state.columnTaskIds[columnId].indexOf(activeId);
+          state.optimisticOperations[operationId] = {
+            kind: "drag",
+            boardId: state.activeBoardId,
+            taskId: activeId,
+            previousColumnId: columnId,
+            previousIndex,
+          };
+          created = true;
         });
+        return created ? operationId : null;
       },
 
-      clearSnapshot: () => {
+      clearSnapshot: (operationId) => {
         set((state) => {
-          state.previousState = null;
+          if (operationId) delete state.optimisticOperations[operationId];
+          else state.optimisticOperations = {};
         });
       },
 
       addTask: (columnId, task) => {
+        const operationId = createOperationId();
         set((state) => {
-          if (!state.activeTaskId) {
-            state.previousState = snapshotState(state);
-          }
+          state.optimisticOperations[operationId] = {
+            kind: "add",
+            boardId: state.activeBoardId,
+            taskId: task.id,
+            columnId,
+            optimisticTask: task,
+          };
 
           state.tasks[task.id] = task;
 
@@ -166,20 +176,32 @@ export const useTaskStore = create<TaskStore>()(
             state.columnTaskIds[columnId].push(task.id);
           }
         });
+        return operationId;
       },
 
-      updateTask: (taskId, updates) => {
+      updateTask: (taskId, updates, operationId) => {
+        const id = operationId ?? createOperationId();
         set((state) => {
           if (!state.tasks[taskId]) return;
 
-          if (!state.activeTaskId) {
-            state.previousState = snapshotState(state);
+          const previousTask = state.tasks[taskId];
+          const optimisticTask = { ...previousTask, ...updates };
+          const columnId = previousTask.columnId;
+          const ids = state.columnTaskIds[columnId] ?? [];
+          if (!operationId) {
+            state.optimisticOperations[id] = {
+              kind: "update",
+              boardId: state.activeBoardId,
+              taskId,
+              previousTask,
+              optimisticTask,
+              updatedKeys: Object.keys(updates) as (keyof ClientTask)[],
+              previousMembership: ids.includes(taskId),
+              previousIndex: ids.indexOf(taskId),
+            };
           }
 
-          state.tasks[taskId] = {
-            ...state.tasks[taskId],
-            ...updates,
-          };
+          state.tasks[taskId] = optimisticTask;
 
           const task = state.tasks[taskId];
           const page = state.columnPages[task.columnId];
@@ -189,11 +211,25 @@ export const useTaskStore = create<TaskStore>()(
             ).filter((id) => id !== taskId);
           }
         });
+        return id;
       },
 
       deleteTask: (columnId, taskId) => {
+        const operationId = createOperationId();
         set((state) => {
-          state.previousState = snapshotState(state);
+          const previousTask = state.tasks[taskId];
+          if (!previousTask) return;
+          const previousIndex = (state.columnTaskIds[columnId] ?? []).indexOf(
+            taskId,
+          );
+          state.optimisticOperations[operationId] = {
+            kind: "delete",
+            boardId: state.activeBoardId,
+            taskId,
+            columnId,
+            previousTask,
+            previousIndex,
+          };
 
           delete state.tasks[taskId];
 
@@ -214,6 +250,7 @@ export const useTaskStore = create<TaskStore>()(
             state.activeTaskId = null;
           }
         });
+        return operationId;
       },
 
       updateTaskId: (oldTaskId, newTaskId) => {
@@ -242,6 +279,26 @@ export const useTaskStore = create<TaskStore>()(
           if (state.activeTaskId === oldTaskId) {
             state.activeTaskId = newTaskId;
           }
+
+          for (const operation of Object.values(state.optimisticOperations)) {
+            if (operation.taskId === oldTaskId) operation.taskId = newTaskId;
+            if (operation.kind === "update") {
+              operation.previousTask = {
+                ...operation.previousTask,
+                id:
+                  operation.previousTask.id === oldTaskId
+                    ? newTaskId
+                    : operation.previousTask.id,
+              };
+              operation.optimisticTask = {
+                ...operation.optimisticTask,
+                id:
+                  operation.optimisticTask.id === oldTaskId
+                    ? newTaskId
+                    : operation.optimisticTask.id,
+              };
+            }
+          }
         });
       },
 
@@ -255,10 +312,6 @@ export const useTaskStore = create<TaskStore>()(
 
           if (oldIndex === -1 || newIndex === -1) return;
           if (oldIndex === newIndex) return;
-
-          if (!state.activeTaskId) {
-            state.previousState = snapshotState(state);
-          }
 
           column.splice(oldIndex, 1);
           column.splice(newIndex, 0, activeTaskId);
@@ -275,10 +328,6 @@ export const useTaskStore = create<TaskStore>()(
         set((state) => {
           const fromColumn = state.columnTaskIds[fromColumnId];
           if (!fromColumn) return;
-
-          if (!state.activeTaskId) {
-            state.previousState = snapshotState(state);
-          }
 
           if (!state.columnTaskIds[toColumnId]) {
             state.columnTaskIds[toColumnId] = [];
@@ -329,14 +378,72 @@ export const useTaskStore = create<TaskStore>()(
         return taskIds.map((id) => state.tasks[id]).filter(Boolean);
       },
 
-      rollback: () => {
+      rollback: (operationId) => {
         set((state) => {
-          if (!state.previousState) return;
+          const id = operationId ?? Object.keys(state.optimisticOperations).at(-1);
+          if (!id) return;
+          const operation = state.optimisticOperations[id];
+          if (!operation) return;
+          if (operation.boardId !== state.activeBoardId) {
+            delete state.optimisticOperations[id];
+            return;
+          }
 
-          state.tasks = state.previousState.tasks;
-          state.columnTaskIds = state.previousState.columnTaskIds;
-          state.columnPages = state.previousState.columnPages;
-          state.previousState = null;
+          if (operation.kind === "add") {
+            delete state.tasks[operation.taskId];
+            for (const ids of Object.values(state.columnTaskIds)) {
+              const index = ids.indexOf(operation.taskId);
+              if (index !== -1) ids.splice(index, 1);
+            }
+            const page = state.columnPages[operation.columnId];
+            if (page) page.totalCount = Math.max(0, page.totalCount - 1);
+          } else if (operation.kind === "update") {
+            const current = state.tasks[operation.taskId];
+            if (current) {
+              const restored = { ...current };
+              for (const key of operation.updatedKeys) {
+                if (current[key] === operation.optimisticTask[key]) {
+                  restored[key] = operation.previousTask[key] as never;
+                }
+              }
+              state.tasks[operation.taskId] = restored;
+              const ids = state.columnTaskIds[operation.previousTask.columnId] ?? [];
+              const currentlyIncluded = ids.includes(operation.taskId);
+              const shouldBeIncluded = operation.previousMembership;
+              if (currentlyIncluded !== shouldBeIncluded) {
+                if (shouldBeIncluded) ids.splice(operation.previousIndex, 0, operation.taskId);
+                else ids.splice(ids.indexOf(operation.taskId), 1);
+              }
+            }
+          } else if (operation.kind === "delete") {
+            if (!state.tasks[operation.taskId]) {
+              state.tasks[operation.taskId] = operation.previousTask;
+              const ids = state.columnTaskIds[operation.columnId] ?? [];
+              ids.splice(Math.max(0, operation.previousIndex), 0, operation.taskId);
+              state.columnTaskIds[operation.columnId] = ids;
+              const page = state.columnPages[operation.columnId];
+              if (page) page.totalCount += 1;
+            }
+          } else {
+            const currentColumns = state.columnTaskIds;
+            const currentColumnId = Object.entries(currentColumns).find(([, ids]) =>
+              ids.includes(operation.taskId),
+            )?.[0];
+            for (const ids of Object.values(currentColumns)) {
+              const index = ids.indexOf(operation.taskId);
+              if (index !== -1) ids.splice(index, 1);
+            }
+            const original = currentColumns[operation.previousColumnId] ?? [];
+            original.splice(operation.previousIndex, 0, operation.taskId);
+            currentColumns[operation.previousColumnId] = original;
+            if (currentColumnId && currentColumnId !== operation.previousColumnId) {
+              const sourcePage = state.columnPages[operation.previousColumnId];
+              const targetPage = state.columnPages[currentColumnId];
+              if (sourcePage) sourcePage.totalCount += 1;
+              if (targetPage) targetPage.totalCount = Math.max(0, targetPage.totalCount - 1);
+            }
+          }
+          delete state.optimisticOperations[id];
         });
       },
     })),

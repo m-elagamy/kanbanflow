@@ -3,12 +3,13 @@ import { immer } from "zustand/middleware/immer";
 import isEqual from "fast-deep-equal";
 import type { ColumnStore, SimplifiedColumn } from "@/lib/types/stores/column";
 
+const createOperationId = () => crypto.randomUUID();
+
 export const useColumnStore = create<ColumnStore>()(
   immer((set) => ({
     activeBoardId: null,
     columnsByBoard: {},
-    previousState: null,
-    previousReorderState: null,
+    optimisticOperations: {},
 
     initializeColumns: (boardId, columns) => {
       set((state) => {
@@ -22,8 +23,7 @@ export const useColumnStore = create<ColumnStore>()(
 
         state.activeBoardId = boardId;
         state.columnsByBoard = { [boardId]: newColumns };
-        state.previousState = null;
-        state.previousReorderState = null;
+        state.optimisticOperations = {};
       });
     },
 
@@ -46,14 +46,16 @@ export const useColumnStore = create<ColumnStore>()(
     },
 
     addColumn: (boardId, column) => {
+      const operationId = createOperationId();
       set((state) => {
         if (state.activeBoardId !== boardId) return state;
         if (!state.columnsByBoard[boardId]) state.columnsByBoard[boardId] = {};
-
-        state.previousState = {
+        state.optimisticOperations[operationId] = {
+          kind: "add",
           boardId,
           columnId: column.id,
           previousData: null,
+          optimisticData: column,
         };
 
         const columns = Object.values(state.columnsByBoard[boardId]);
@@ -67,15 +69,18 @@ export const useColumnStore = create<ColumnStore>()(
           order: maxOrder + 1,
         };
       });
+      return operationId;
     },
 
     updateColumn: (boardId, columnId, updates) => {
+      const operationId = createOperationId();
       set((state) => {
         if (state.activeBoardId !== boardId) return state;
         if (!state.columnsByBoard[boardId]?.[columnId]) return state;
 
         const columnToUpdate = state.columnsByBoard[boardId][columnId];
-        state.previousState = {
+        state.optimisticOperations[operationId] = {
+          kind: "update",
           boardId,
           columnId,
           previousData: {
@@ -83,6 +88,7 @@ export const useColumnStore = create<ColumnStore>()(
             status: columnToUpdate.status,
             order: columnToUpdate.order,
           },
+          optimisticData: { ...columnToUpdate, ...updates },
         };
 
         state.columnsByBoard[boardId][columnId] = {
@@ -90,6 +96,7 @@ export const useColumnStore = create<ColumnStore>()(
           ...updates,
         };
       });
+      return operationId;
     },
 
     updateColumnId: (boardId, oldColumnId, newColumnId) => {
@@ -156,21 +163,21 @@ export const useColumnStore = create<ColumnStore>()(
     },
 
     reorderColumns: (boardId, activeColumnId, overColumnId) => {
+      const operationId = createOperationId();
       set((state) => {
         if (state.activeBoardId !== boardId) return state;
         const columns = state.columnsByBoard[boardId];
         if (!columns) return state;
-
-        state.previousReorderState = {
-          boardId,
-          previousColumns: { ...columns },
-        };
 
         const sorted = Object.values(columns).sort((a, b) => a.order - b.order);
         const activeIndex = sorted.findIndex((c) => c.id === activeColumnId);
         const overIndex = sorted.findIndex((c) => c.id === overColumnId);
 
         if (activeIndex === -1 || overIndex === -1) return state;
+
+        const previousOrders = Object.fromEntries(
+          sorted.map((column) => [column.id, column.order]),
+        );
 
         const [moved] = sorted.splice(activeIndex, 1);
         sorted.splice(overIndex, 0, moved);
@@ -181,56 +188,85 @@ export const useColumnStore = create<ColumnStore>()(
             order: index,
           };
         });
+        state.optimisticOperations[operationId] = {
+          kind: "reorder",
+          boardId,
+          previousOrders,
+          optimisticOrders: Object.fromEntries(
+            sorted.map((column, index) => [column.id, index]),
+          ),
+        };
+      });
+      return operationId;
+    },
+
+    rollbackReorder: (operationId) => {
+      set((state) => {
+        const id = operationId ?? Object.keys(state.optimisticOperations).at(-1);
+        if (!id) return state;
+        const operation = state.optimisticOperations[id];
+        if (!operation || operation.kind !== "reorder") return state;
+        if (state.activeBoardId === operation.boardId) {
+          const columns = state.columnsByBoard[operation.boardId] ?? {};
+          for (const [columnId, previousOrder] of Object.entries(operation.previousOrders)) {
+            const column = columns[columnId];
+            if (column && column.order === operation.optimisticOrders[columnId]) {
+              column.order = previousOrder;
+            }
+          }
+        }
+        delete state.optimisticOperations[id];
       });
     },
 
-    rollbackReorder: () => {
+    clearOperation: (operationId) => {
       set((state) => {
-        if (!state.previousReorderState) return state;
-
-        const { boardId, previousColumns } = state.previousReorderState;
-        state.columnsByBoard[boardId] = previousColumns;
-        state.previousReorderState = null;
+        if (operationId) delete state.optimisticOperations[operationId];
+        else state.optimisticOperations = {};
       });
     },
 
     deleteColumn: (boardId, columnId) => {
+      const operationId = createOperationId();
       set((state) => {
         if (state.activeBoardId !== boardId) return;
         if (!state.columnsByBoard[boardId]) return;
 
         const columnToDelete = state.columnsByBoard[boardId][columnId];
-        state.previousState = {
+        if (!columnToDelete) return;
+        state.optimisticOperations[operationId] = {
+          kind: "delete",
           boardId,
           columnId,
           previousData: columnToDelete,
+          optimisticData: null,
         };
 
         delete state.columnsByBoard[boardId][columnId];
       });
+      return operationId;
     },
 
-    rollback: () => {
+    rollback: (operationId) => {
       set((state) => {
-        if (!state.previousState) return state;
-
-        const { boardId, columnId, previousData } = state.previousState;
-
-        const updatedColumnsByBoard = { ...state.columnsByBoard };
-        const updatedBoard = { ...updatedColumnsByBoard[boardId] };
-        updatedColumnsByBoard[boardId] = updatedBoard;
-
-        if (!previousData) {
-          delete updatedBoard[columnId];
-        } else {
-          updatedBoard[columnId] = previousData;
+        const id = operationId ?? Object.keys(state.optimisticOperations).at(-1);
+        if (!id) return state;
+        const operation = state.optimisticOperations[id];
+        if (!operation || operation.kind === "reorder") return state;
+        if (state.activeBoardId === operation.boardId) {
+          const board = state.columnsByBoard[operation.boardId] ?? {};
+          const current = board[operation.columnId];
+          if (operation.previousData === null) {
+            if (current && operation.optimisticData?.id === current.id) {
+              delete board[operation.columnId];
+            }
+          } else if (!current ||
+            !operation.optimisticData ||
+            current.status === operation.optimisticData.status) {
+            board[operation.columnId] = operation.previousData;
+          }
         }
-
-        return {
-          ...state,
-          columnsByBoard: updatedColumnsByBoard,
-          previousState: null,
-        };
+        delete state.optimisticOperations[id];
       });
     },
   })),

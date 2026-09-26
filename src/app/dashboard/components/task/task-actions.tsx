@@ -68,7 +68,8 @@ export default function TaskActions({
         handleOnError(result.message, "Failed to delete task");
         setConfirmDelete(false);
       } else {
-        deleteTask(columnId, task.id);
+        const operationId = deleteTask(columnId, task.id);
+        clearSnapshot(operationId ?? undefined);
       }
     } catch (error) {
       handleOnError(error, "Failed to delete task");
@@ -105,7 +106,6 @@ export default function TaskActions({
           !destinationHasMore,
         );
         if (result.fields) store.updateTask(task.id, result.fields);
-        clearSnapshot();
       }
     } catch (error) {
       handleOnError(error, "Failed to move task");

@@ -59,10 +59,11 @@ const ColumnActions = ({
 
   const activeBoardId = useBoardStore((state) => state.activeBoardId);
 
-  const { deleteColumn, updateColumn, rollback } = useColumnStore(
+  const { deleteColumn, updateColumn, rollback, clearOperation } = useColumnStore(
     useShallow((state) => ({
       updateColumn: state.updateColumn,
       rollback: state.rollback,
+      clearOperation: state.clearOperation,
       deleteColumn: state.deleteColumn,
     })),
   );
@@ -79,21 +80,22 @@ const ColumnActions = ({
 
     setIsLoading("column", "updating", true, columnId);
 
-    updateColumn(activeBoardId, columnId, updates);
+    const operationId = updateColumn(activeBoardId, columnId, updates);
     setIsMainDropdownOpen(false);
 
     try {
       const result = await updateColumnAction(columnId, updates);
       if (!result.success) {
         handleOnError(result.message, "Failed to update column");
-        rollback();
+        rollback(operationId ?? undefined);
       } else {
+        clearOperation(operationId ?? undefined);
         toast.success(result.message);
       }
     } catch (error) {
       console.error("Error updating column:", error);
       handleOnError(error, "Failed to update column");
-      rollback();
+      rollback(operationId ?? undefined);
     } finally {
       setIsLoading("column", "updating", false, columnId);
     }
@@ -109,7 +111,8 @@ const ColumnActions = ({
           handleOnError(result.message, "Failed to delete column");
           setShowAlertConfirmation(false);
         } else {
-          deleteColumn(activeBoardId, columnId);
+          const operationId = deleteColumn(activeBoardId, columnId);
+          clearOperation(operationId ?? undefined);
         }
       } catch (error) {
         console.error("Error deleting column:", error);

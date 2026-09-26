@@ -2,22 +2,25 @@ import type { Column } from "@prisma/client";
 
 export type SimplifiedColumn = Omit<Column, "boardId">;
 
-export type ColumnSnapshot = {
-  boardId: string;
-  columnId: string;
-  previousData: SimplifiedColumn | null;
-} | null;
-
-export type ColumnReorderSnapshot = {
-  boardId: string;
-  previousColumns: Record<string, SimplifiedColumn>;
-} | null;
+export type ColumnOperation =
+  | {
+      kind: "add" | "delete" | "update";
+      boardId: string;
+      columnId: string;
+      previousData: SimplifiedColumn | null;
+      optimisticData: SimplifiedColumn | null;
+    }
+  | {
+      kind: "reorder";
+      boardId: string;
+      previousOrders: Record<string, number>;
+      optimisticOrders: Record<string, number>;
+    };
 
 export type ColumnState = {
   activeBoardId: string | null;
   columnsByBoard: Record<string, Record<string, SimplifiedColumn>>;
-  previousState: ColumnSnapshot;
-  previousReorderState: ColumnReorderSnapshot;
+  optimisticOperations: Record<string, ColumnOperation>;
 };
 
 export type ColumnActions = {
@@ -30,13 +33,13 @@ export type ColumnActions = {
     columns: ReadonlyArray<SimplifiedColumn>,
   ) => void;
 
-  addColumn: (boardId: string, column: SimplifiedColumn) => void;
+  addColumn: (boardId: string, column: SimplifiedColumn) => string | null;
   updateColumn: (
     boardId: string,
     columnId: string,
     updates: Pick<Column, "status">,
-  ) => void;
-  deleteColumn: (boardId: string, columnId: string) => void;
+  ) => string | null;
+  deleteColumn: (boardId: string, columnId: string) => string | null;
 
   updateColumnId: (
     boardId: string,
@@ -53,10 +56,11 @@ export type ColumnActions = {
     boardId: string,
     activeColumnId: string,
     overColumnId: string,
-  ) => void;
-  rollbackReorder: () => void;
+  ) => string | null;
+  rollbackReorder: (operationId?: string) => void;
+  clearOperation: (operationId?: string) => void;
 
-  rollback: () => void;
+  rollback: (operationId?: string) => void;
 };
 
 export type ColumnStore = ColumnState & ColumnActions;

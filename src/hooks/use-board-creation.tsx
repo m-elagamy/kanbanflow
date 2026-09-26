@@ -34,9 +34,9 @@ export function useBoardCreation({
         );
       }
 
-      const { id, title, slug, description, columns } = result.fields;
+      const { id, title, slug, description, createdAt, columns } = result.fields;
       deleteBoard(attempt.id);
-      createBoard({ id, title, slug, description });
+      createBoard({ id, title, slug, description, createdAt });
       setColumns(id, columns);
       setHasError(false);
       setFailedBoard(null);

@@ -16,6 +16,7 @@ import useLoadingStore from "@/stores/loading";
 const useDndHandlers = () => {
   const pendingDragOverRef = useRef<DragOverEvent | null>(null);
   const dragFrameRef = useRef<number | null>(null);
+  const dragOperationRef = useRef<string | null>(null);
   const {
     getTask,
     moveTaskBetweenColumns,
@@ -60,8 +61,8 @@ const useDndHandlers = () => {
 
     if (!task) return;
 
-    captureSnapshot();
     setActiveTask(task);
+    dragOperationRef.current = captureSnapshot(String(active.id));
     captureInitialPosition(getTasksByColumnId());
   };
 
@@ -110,17 +111,19 @@ const useDndHandlers = () => {
           .then((result) => {
             if (!result.success) {
               handleOnError(result.message, "Failed to move task");
-              rollback();
+              rollback(dragOperationRef.current ?? undefined);
             } else {
               if (result.fields) {
-                useTaskStore.getState().updateTask(activeId, result.fields);
+                useTaskStore
+                  .getState()
+                  .updateTask(activeId, result.fields, dragOperationRef.current ?? undefined);
               }
-              useTaskStore.getState().clearSnapshot();
+              useTaskStore.getState().clearSnapshot(dragOperationRef.current ?? undefined);
             }
           })
           .catch((error) => {
             handleOnError(error, "Failed to move task");
-            rollback();
+            rollback(dragOperationRef.current ?? undefined);
           })
           .finally(() => {
             setIsLoading("task", "updating", false, activeId);
@@ -129,7 +132,8 @@ const useDndHandlers = () => {
       if (
         !hasTaskPositionChanged(getTasksByColumnId(), fromColumnId, toColumnId)
       ) {
-        clearSnapshot();
+        clearSnapshot(dragOperationRef.current ?? undefined);
+        dragOperationRef.current = null;
       }
       setActiveTask(null);
     }
@@ -165,8 +169,9 @@ const useDndHandlers = () => {
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     cancelPendingDragOver();
     if (!active?.id || !over?.id) {
-      rollback();
+      rollback(dragOperationRef.current ?? undefined);
       setActiveTask(null);
+      dragOperationRef.current = null;
       return;
     }
 
@@ -180,8 +185,9 @@ const useDndHandlers = () => {
     handleDragEnd,
     handleDragCancel: () => {
       cancelPendingDragOver();
-      rollback();
+      rollback(dragOperationRef.current ?? undefined);
       setActiveTask(null);
+      dragOperationRef.current = null;
     },
   };
 };

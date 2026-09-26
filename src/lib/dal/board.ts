@@ -199,6 +199,7 @@ const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
     where: { userId_slug: { userId, slug } },
     select: {
       id: true,
+      createdAt: true,
       title: true,
       slug: true,
       description: true,
@@ -214,6 +215,7 @@ const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
             take: TASKS_PAGE_SIZE + 1,
             select: {
               id: true,
+              createdAt: true,
               title: true,
               order: true,
               priority: true,
@@ -245,6 +247,7 @@ const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
         nextCursor: hasMore ? (page.at(-1)?.order ?? null) : null,
         tasks: page.map((task) => ({
           ...task,
+          createdAt: task.createdAt.toISOString(),
           columnEnteredAt: task.columnEnteredAt.toISOString(),
         })),
       };

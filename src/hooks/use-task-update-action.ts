@@ -15,10 +15,11 @@ export function useTaskUpdateAction({
   task,
   onClose,
 }: UseTaskUpdateActionProps) {
-  const { updateTask, rollback } = useTaskStore(
+  const { updateTask, rollback, clearSnapshot } = useTaskStore(
     useShallow((state) => ({
       updateTask: state.updateTask,
       rollback: state.rollback,
+      clearSnapshot: state.clearSnapshot,
     })),
   );
   const { isLoading, setIsLoading } = useLoadingStore(
@@ -38,21 +39,22 @@ export function useTaskUpdateAction({
     ) as ClientTask["priority"];
 
     setIsLoading("task", "updating", true, task.id);
-    updateTask(task.id, { title, description, priority });
+    const operationId = updateTask(task.id, { title, description, priority });
     onClose();
 
     try {
       const result = await updateTaskAction(formData);
       if (!result.success) {
         handleOnError(result.message, "Failed to update task");
-        rollback();
+        rollback(operationId ?? undefined);
       } else {
+        clearSnapshot(operationId ?? undefined);
         toast.success(result.message);
       }
     } catch (error) {
       console.error("Error updating task:", error);
       handleOnError(error, "Failed to update task");
-      rollback();
+      rollback(operationId ?? undefined);
     } finally {
       setIsLoading("task", "updating", false, task.id);
     }

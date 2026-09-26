@@ -9,6 +9,7 @@ import FormField from "@/components/ui/form-field";
 import { useTaskFormAction } from "@/hooks/use-task-form-action";
 import taskPriorities from "../../data/task-priorities";
 import columnStatusOptions from "../../data/column-status-options";
+import { formatCreatedDate } from "@/lib/utils/format-date";
 
 type TaskFormProps = {
   formMode: FormMode;
@@ -144,6 +145,12 @@ const TaskForm = ({
         options={taskPriorities}
         placeholder="Select priority"
       />
+
+      {isEditMode && task?.createdAt && (
+        <p className="text-muted-foreground text-xs">
+          {formatCreatedDate(task.createdAt)}
+        </p>
+      )}
 
     </GenericForm>
   );

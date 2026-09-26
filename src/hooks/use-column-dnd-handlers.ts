@@ -13,11 +13,12 @@ const useColumnDndHandlers = (boardId: string) => {
   );
   const setIsLoading = useLoadingStore((state) => state.setIsLoading);
 
-  const { columnsByBoard, reorderColumns, rollbackReorder } = useColumnStore(
+  const { columnsByBoard, reorderColumns, rollbackReorder, clearOperation } = useColumnStore(
     useShallow((state) => ({
       columnsByBoard: state.columnsByBoard,
       reorderColumns: state.reorderColumns,
       rollbackReorder: state.rollbackReorder,
+      clearOperation: state.clearOperation,
     })),
   );
 
@@ -48,19 +49,21 @@ const useColumnDndHandlers = (boardId: string) => {
     reordered.splice(overIndex, 0, moved);
     const newColumnOrder = reordered.map((column) => column.id);
 
-    reorderColumns(boardId, activeId, overId);
+    const operationId = reorderColumns(boardId, activeId, overId);
     setIsLoading("column", "updating", true, activeId);
 
     updateColumnPositionAction(boardId, newColumnOrder)
       .then((result) => {
         if (!result.success) {
           handleOnError(result.message, "Failed to reorder columns");
-          rollbackReorder();
+          rollbackReorder(operationId ?? undefined);
+        } else {
+          clearOperation(operationId ?? undefined);
         }
       })
       .catch((error) => {
         handleOnError(error, "Failed to reorder columns");
-        rollbackReorder();
+        rollbackReorder(operationId ?? undefined);
       })
       .finally(() => {
         setIsLoading("column", "updating", false, activeId);

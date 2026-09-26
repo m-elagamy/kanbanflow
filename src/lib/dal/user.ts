@@ -14,6 +14,7 @@ import type { BoardWithStats } from "../types/stores/board";
 
 const boardWithStatsSelect = {
   id: true,
+  createdAt: true,
   title: true,
   slug: true,
   description: true,
@@ -32,6 +33,7 @@ type BoardRowWithStats = Prisma.BoardGetPayload<{
 
 const toBoardWithStats = (board: BoardRowWithStats): BoardWithStats => ({
   id: board.id,
+  createdAt: board.createdAt,
   title: board.title,
   slug: board.slug,
   description: board.description,
@@ -99,6 +101,7 @@ const fetchUserBoards = (userId: string) =>
           orderBy: { order: "asc" },
           select: {
             id: true,
+            createdAt: true,
             title: true,
             slug: true,
             description: true,

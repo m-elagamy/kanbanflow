@@ -17,6 +17,7 @@ model User {
 
 model Board {
   id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
   title       String
   slug        String
   description String?  @default("")
@@ -42,6 +43,7 @@ model Column {
 
 model Task {
   id              String   @id @default(cuid())
+  createdAt       DateTime @default(now())
   title           String
   description     String?  @default("")
   priority        Priority @default(medium)

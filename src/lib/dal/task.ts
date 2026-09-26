@@ -99,6 +99,7 @@ export const getTaskDetails = withUserId(
       where: { id: taskId, column: { board: { userId } } },
       select: {
         id: true,
+        createdAt: true,
         title: true,
         description: true,
         priority: true,
@@ -113,6 +114,7 @@ export const getTaskDetails = withUserId(
 
     return {
       id: task.id,
+      createdAt: task.createdAt.toISOString(),
       title: task.title,
       description: task.description,
       priority: task.priority,
@@ -275,6 +277,7 @@ export const getTasksPage = withUserId(
       take: limit + 1,
       select: {
         id: true,
+        createdAt: true,
         title: true,
         description: true,
         priority: true,
@@ -300,6 +303,7 @@ export const getTasksPage = withUserId(
         board: task.column.board,
         column: { status: task.column.status },
         columnEnteredAt: task.columnEnteredAt.toISOString(),
+        createdAt: task.createdAt.toISOString(),
       })),
       nextCursor: hasMore ? (page.at(-1)?.id ?? null) : null,
     };
@@ -308,6 +312,7 @@ export const getTasksPage = withUserId(
 
 const workspaceTaskSelect = {
   id: true,
+  createdAt: true,
   title: true,
   description: true,
   priority: true,
@@ -324,6 +329,7 @@ const workspaceTaskSelect = {
 
 const toWorkspaceTask = <
   T extends {
+    createdAt: Date;
     columnEnteredAt: Date;
     priority: Priority;
       column: {
@@ -338,6 +344,7 @@ const toWorkspaceTask = <
   ...task,
   board: task.column.board,
   column: { status: task.column.status },
+  createdAt: task.createdAt.toISOString(),
   columnEnteredAt: task.columnEnteredAt.toISOString(),
   attentionReason:
     task.columnEnteredAt <= staleBoundary
@@ -493,6 +500,7 @@ export const getColumnTasksPage = withUserId(
         orderBy: [{ order: "asc" }, { id: "asc" }],
         select: {
           id: true,
+          createdAt: true,
           title: true,
           description: true,
           priority: true,
@@ -510,6 +518,7 @@ export const getColumnTasksPage = withUserId(
     return {
       items: page.map((task) => ({
         ...task,
+        createdAt: task.createdAt.toISOString(),
         columnEnteredAt: task.columnEnteredAt.toISOString(),
       })),
       nextCursor: hasMore ? (page.at(-1)?.order ?? null) : null,

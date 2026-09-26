@@ -59,7 +59,10 @@ export type Operation = "fetching" | "creating" | "updating" | "deleting";
 
 export type BoardFormValues = { id: string } & BoardFormSchema;
 
-export type BoardSummary = Pick<Board, "id" | "title" | "description" | "slug">;
+export type BoardSummary = Pick<
+  Board,
+  "id" | "title" | "description" | "slug" | "createdAt"
+>;
 
 export type TaskSummary = Pick<
   Task,
@@ -68,6 +71,7 @@ export type TaskSummary = Pick<
 
 export type ClientTask = {
   id: string;
+  createdAt: string;
   title: string;
   description: string | null;
   priority: "low" | "medium" | "high";
