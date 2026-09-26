@@ -1,6 +1,6 @@
 import { withUserId } from "@/utils/auth-wrappers";
 import db from "../db";
-import { Task, type Prisma, type Priority } from "@prisma/client";
+import { Prisma, Task, type Priority } from "@prisma/client";
 import type {
   DashboardFocusPreview,
   DashboardFocusTask,
@@ -19,6 +19,28 @@ import {
 const getStaleTaskBoundary = (now = new Date()) =>
   new Date(now.getTime() - STALE_TASK_DAYS * 24 * 60 * 60 * 1000);
 
+const TASK_CREATE_MAX_ATTEMPTS = 3;
+
+const isTaskOrderConflict = (error: unknown) => {
+  if (
+    !(error instanceof Prisma.PrismaClientKnownRequestError) ||
+    error.code !== "P2002"
+  ) {
+    return false;
+  }
+
+  const target = error.meta?.target;
+  if (Array.isArray(target)) {
+    return target.includes("columnId") && target.includes("order");
+  }
+
+  return (
+    typeof target === "string" &&
+    (target.includes("Task_columnId_order_key") ||
+      (target.includes("columnId") && target.includes("order")))
+  );
+};
+
 export const createTask = withUserId(
   async (
     userId: string,
@@ -33,23 +55,40 @@ export const createTask = withUserId(
     });
     if (!column) throw new Error("Column not found.");
 
-    const highestOrderTask = await db.task.findFirst({
-      where: { columnId },
-      orderBy: { order: "desc" },
-      select: { order: true },
-    });
+    for (
+      let attempt = 1;
+      attempt <= TASK_CREATE_MAX_ATTEMPTS;
+      attempt += 1
+    ) {
+      const highestOrderTask = await db.task.findFirst({
+        where: { columnId },
+        orderBy: { order: "desc" },
+        select: { order: true },
+      });
 
-    const newOrder = generateKeyBetween(highestOrderTask?.order ?? null, null);
+      const newOrder = generateKeyBetween(
+        highestOrderTask?.order ?? null,
+        null,
+      );
 
-    return db.task.create({
-      data: {
-        title,
-        description,
-        priority,
-        columnId,
-        order: newOrder,
-      },
-    });
+      try {
+        return await db.task.create({
+          data: {
+            title,
+            description,
+            priority,
+            columnId,
+            order: newOrder,
+          },
+        });
+      } catch (error) {
+        if (!isTaskOrderConflict(error) || attempt === TASK_CREATE_MAX_ATTEMPTS) {
+          throw error;
+        }
+      }
+    }
+
+    throw new Error("Task creation failed.");
   },
 );
 
@@ -142,27 +181,31 @@ export const updateTaskPosition = withUserId(
       throw new Error("Invalid task position.");
     }
 
-    const [sourceTask, targetColumn] = await Promise.all([
-      db.task.findUnique({
-        where: { id: taskId },
-        select: { columnId: true, column: { select: { boardId: true } } },
-      }),
-      db.column.findUnique({
-        where: { id: newColumnId },
-        select: { boardId: true, board: { select: { userId: true } } },
-      }),
-    ]);
-
-    if (
-      !sourceTask ||
-      !targetColumn ||
-      targetColumn.board.userId !== userId ||
-      sourceTask.column.boardId !== targetColumn.boardId
-    ) {
-      throw new Error("Target column not found.");
-    }
-
     return db.$transaction(async (tx) => {
+      const [sourceTask, targetColumn] = await Promise.all([
+        tx.task.findUnique({
+          where: { id: taskId },
+          select: {
+            columnId: true,
+            order: true,
+            column: { select: { boardId: true } },
+          },
+        }),
+        tx.column.findUnique({
+          where: { id: newColumnId },
+          select: { boardId: true, board: { select: { userId: true } } },
+        }),
+      ]);
+
+      if (
+        !sourceTask ||
+        !targetColumn ||
+        targetColumn.board.userId !== userId ||
+        sourceTask.column.boardId !== targetColumn.boardId
+      ) {
+        throw new Error("Target column not found.");
+      }
+
       const anchorIds = [previousTaskId, nextTaskId].filter(
         (id): id is string => Boolean(id),
       );
@@ -219,8 +262,12 @@ export const updateTaskPosition = withUserId(
 
       const order = generateKeyBetween(previousOrder, resolvedNextOrder);
 
-      const updatedTask = await tx.task.update({
-        where: { id: taskId },
+      const updateResult = await tx.task.updateMany({
+        where: {
+          id: taskId,
+          columnId: sourceTask.columnId,
+          order: sourceTask.order,
+        },
         data: {
           columnId: newColumnId,
           order,
@@ -228,12 +275,24 @@ export const updateTaskPosition = withUserId(
             columnEnteredAt: new Date(),
           }),
         },
+      });
+
+      if (updateResult.count !== 1) {
+        throw new Error("Task position is out of date. Please try again.");
+      }
+
+      const updatedTask = await tx.task.findUnique({
+        where: { id: taskId },
         select: {
           columnId: true,
           order: true,
           columnEnteredAt: true,
         },
       });
+
+      if (!updatedTask) {
+        throw new Error("Task position is out of date. Please try again.");
+      }
 
       return {
         ...updatedTask,
