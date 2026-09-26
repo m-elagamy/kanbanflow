@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { ClerkProvider, GoogleOneTap } from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import { MotionConfig } from "motion/react";
 import { ThemeProvider } from "./theme-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -14,10 +14,6 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <ClerkProvider>
-      <GoogleOneTap
-        signInForceRedirectUrl="/welcome"
-        signUpForceRedirectUrl="/welcome"
-      />
       <ThemeProvider
         attribute="class"
         defaultTheme="system"
