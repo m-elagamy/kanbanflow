@@ -60,6 +60,12 @@ export async function prepareUserRecord(
   });
 }
 
+export async function deleteUserRecord(userId: string) {
+  return db.user.deleteMany({
+    where: { id: userId },
+  });
+}
+
 export const insertUser = ensureAuthenticated(
   async (data: Omit<User, "hasCreatedBoardOnce">) => {
     return db.user.upsert({
