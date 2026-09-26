@@ -1,5 +1,7 @@
 "use server";
 
+/* eslint-disable @clerk/next/require-auth-protection -- Each action calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
+
 import { Column } from "@prisma/client";
 import {
   createColumn,

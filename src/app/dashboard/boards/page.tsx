@@ -9,6 +9,8 @@ import BoardsContent from "./boards-content";
 import BoardsCardsSkeleton from "./boards-cards-skeleton";
 import { requireAuth } from "@/utils/auth";
 
+/* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
+
 type SearchParams = Promise<{ page?: string; q?: string }>;
 
 export default async function BoardsPage({

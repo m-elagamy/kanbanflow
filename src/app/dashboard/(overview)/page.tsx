@@ -1,41 +1,26 @@
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import {
   getAuthenticatedUser,
-  getAuthenticatedUserId,
   requireAuth,
 } from "@/utils/auth";
 import {
-  getUserOnboardingStateAction,
   getUserBoardsWithStatsAction,
   getDashboardStatsAction,
 } from "@/actions/user";
 import BoardsGrid from "../components/board/boards-grid";
 import { getDashboardFocusTasksAction } from "@/actions/task";
 
+/* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
+
 const Dashboard = async () => {
   await requireAuth();
-  await getAuthenticatedUserId();
 
-  const [
-    user,
-    onboardingState,
-    boardsResult,
-    statsResult,
-    focusTasksResult,
-  ] = await Promise.all([
+  const [user, boardsResult, statsResult, focusTasksResult] = await Promise.all([
     getAuthenticatedUser(),
-    getUserOnboardingStateAction(),
     getUserBoardsWithStatsAction(),
     getDashboardStatsAction(),
     getDashboardFocusTasksAction(),
   ]);
-
-  const hasCreatedBoardOnce =
-    onboardingState.fields?.hasCreatedBoardOnce ?? false;
-  const boardsCount = onboardingState.fields?.boardsCount ?? 0;
-
-  if (boardsCount === 0 && !hasCreatedBoardOnce) redirect("/welcome");
 
   if (
     !boardsResult.success ||

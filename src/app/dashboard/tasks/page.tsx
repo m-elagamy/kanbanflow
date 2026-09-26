@@ -20,6 +20,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import TasksSearch from "./tasks-search";
 import { requireAuth } from "@/utils/auth";
 
+/* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
+
 type SearchParams = Promise<{
   attention?: string;
   page?: string;

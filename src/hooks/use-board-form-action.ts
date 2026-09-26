@@ -1,6 +1,5 @@
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { createOptimisticBoard } from "@/utils/board-helpers";
 import { omit } from "@/utils/object";
 import type { BoardSummary, FormMode } from "@/lib/types";
@@ -34,7 +33,6 @@ export function useBoardFormAction({
   const router = useRouter();
 
   const { updateBoard, activeBoardId } = useBoardFormStore();
-  const [isUpdating, setIsUpdating] = useState(false);
 
   const {
     hasError,
@@ -44,6 +42,20 @@ export function useBoardFormAction({
     navigateToDashboard,
     isCreating,
   } = useBoardCreation();
+
+  const redirectIfSlugChanged = (
+    boardSlug: string,
+    newSlug: string,
+    boardId: string,
+    currentBoardId: string | null,
+  ) => {
+    if (boardSlug !== newSlug && currentBoardId === boardId) {
+      setTimeout(() => {
+        router.replace(`/dashboard/${newSlug}`);
+      }, 0);
+    }
+  };
+
   const [, createFormAction, isCreatePending] = useActionState(
     async (_previousState: null, formData: FormData) => {
       if (isEditMode || failedBoard) return null;
@@ -71,66 +83,55 @@ export function useBoardFormAction({
     },
     null,
   );
-  const isLoading = isEditMode ? isUpdating : isCreatePending || isCreating;
+  const [, updateFormAction, isUpdatePending] = useActionState(
+    async (_previousState: null, formData: FormData) => {
+      if (!isEditMode || !board) return null;
 
-  const handleFormAction = async (formData: FormData) => {
-    if (!isEditMode || !board || isLoading) return;
-    const { success, data: validatedData } = validateBeforeSubmit(
-      formData,
-      isEditMode,
-      existingBoards,
-      ["title", "description"],
-    );
+      const { success, data: validatedData } = validateBeforeSubmit(
+        formData,
+        true,
+        existingBoards,
+        ["title", "description"],
+      );
 
-    if (!success || !validatedData) return;
+      if (!success || !validatedData) return null;
 
-    const { title, description = "" } = validatedData;
+      const { title, description = "" } = validatedData;
+      const optimisticBoard = createOptimisticBoard(title, description);
 
-    const optimisticBoard = createOptimisticBoard(title, description ?? "");
-    setIsUpdating(true);
+      updateBoard(board.id, omit(optimisticBoard, ["id"]));
 
-    updateBoard(board.id, omit(optimisticBoard, ["id"]));
-    onClose();
+      try {
+        const result = await updateBoardAction(formData);
 
-    try {
-      const result = await updateBoardAction(formData);
-
-      if (!result.success) {
-        handleOnError(result.message, "Failed to update board");
+        if (!result.success) {
+          handleOnError(result.message, "Failed to update board");
+          updateBoard(board.id, board);
+        } else {
+          onClose();
+          redirectIfSlugChanged(
+            board.slug,
+            optimisticBoard.slug,
+            board.id,
+            activeBoardId,
+          );
+        }
+      } catch (error) {
+        console.error(error);
+        handleOnError(error, "Failed to update board");
         updateBoard(board.id, board);
-      } else {
-        redirectIfSlugChanged(
-          board.slug,
-          optimisticBoard.slug,
-          board.id,
-          activeBoardId,
-        );
-        toast.success(result.message);
       }
-    } catch (error) {
-      console.error(error);
-      handleOnError(error, "Failed to update board");
-      updateBoard(board.id, board);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
 
-  const redirectIfSlugChanged = (
-    boardSlug: string,
-    newSlug: string,
-    boardId: string,
-    currentBoardId: string | null,
-  ) => {
-    if (boardSlug !== newSlug && currentBoardId === boardId) {
-      setTimeout(() => {
-        router.replace(`/dashboard/${newSlug}`);
-      }, 0);
-    }
-  };
+      return null;
+    },
+    null,
+  );
+  const isLoading = isEditMode
+    ? isUpdatePending
+    : isCreatePending || isCreating;
 
   return {
-    handleFormAction: isEditMode ? handleFormAction : createFormAction,
+    handleFormAction: isEditMode ? updateFormAction : createFormAction,
     isEditMode,
     router,
     isLoading,

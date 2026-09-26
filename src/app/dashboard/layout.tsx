@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
 import { requireAuth } from "@/utils/auth";
+import { getUserOnboardingStateAction } from "@/actions/user";
 import DashboardSidebar from "@/components/layout/sidebar";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
 import {
@@ -11,12 +13,21 @@ import {
 import KeyboardShortcuts from "@/components/layout/keyboard-shortcuts";
 import OfflineStatus from "./components/offline-status";
 
+/* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
+
 export default async function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   await requireAuth();
+  const onboardingState = await getUserOnboardingStateAction();
+  const boardsCount = onboardingState.fields?.boardsCount ?? 0;
+  const hasCreatedBoardOnce =
+    onboardingState.fields?.hasCreatedBoardOnce ?? false;
+
+  if (boardsCount === 0 && !hasCreatedBoardOnce) redirect("/welcome");
+
   const [cookieStore, user] = await Promise.all([cookies(), currentUser()]);
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
   const sidebarUser = user

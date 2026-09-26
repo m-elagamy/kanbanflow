@@ -6,6 +6,8 @@ import BoardLayout from "../components/board";
 import { getTaskDetailsAction } from "@/actions/task";
 import { requireAuth } from "@/utils/auth";
 
+/* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
+
 type Params = Promise<{ board: string }>;
 type SearchParams = Promise<{
   new?: string;

@@ -61,6 +61,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@clerk/eslint-plugin": "0.2.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.6.2",
     "@types/pg": "^8.23.1",
